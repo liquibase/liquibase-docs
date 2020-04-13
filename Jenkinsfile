@@ -1,5 +1,4 @@
-
-#! /usr/bin/env groovy
+#!/usr/bin/env groovy
 
 // This uses resolveScm to determine if this branch exists in the build-logic repo
 def buildLogicSCM = resolveScm source: [$class: 'GitSCMSource', credentialsId: 'ba0e0f7c-180a-48c2-a313-9cab17d0188f', 
