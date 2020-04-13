@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:sourceDocument="C:\Users\Datical\Downloads\_site\documentation\tutorials\oracle_autonomous_transaction_processing_database.html">
+  <head>
+    <title>Liquibase | Oracle ATP Tutorial | Liquibase Docs</title>
+    <meta name="description" content="Oracle ATP Tutorial | Liquibase Docs" />
+
+  </head>
+
+  <body>
+
+    <h1 id="oracle-atp--adw-tutorial">Oracle ATP &amp; ADW Tutorial</h1>
+<p>The purpose of this document is to guide you through the process of creating a new Liquibase project with an Oracle Autonomous Transaction Processing (ATP) or Autonomous Data Warehouse (ADW) database.</p>
+
+<p>In this tutorial, you will generate an example project and follow the instructions to apply and learn concepts associated with creating new Liquibase Projects with Oracle ATP or ADW.</p>
+
+<blockquote>
+  <p><strong>Note:</strong> This example assumes that you have created an Oracle Free tier ATP or ADW Database via the Oracle Cloud web console and that you have created an Access Control List during provision with your IP address.</p>
+</blockquote>
+
+<p>For more information about provisioning the Oracle Autonomous Database Processing or Autonomous Datawarehouse via the Oracle Cloud web console, please see Oracle ATP and ADW related links at the bottom of this page.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+  <li>If you have not installed the latest version of Liquibase, navigate to <a href="https://download.liquibase.org/download">https://download.liquibase.org/download</a> to install the software application.</li>
+  <li>Ensure the <code class="highlighter-rouge">liquibase.bat</code> file’s path is set to a location in the <code class="highlighter-rouge">PATH</code> System variable.</li>
+  <li>Navigate to <a href="https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html">https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html</a> and download the <code class="highlighter-rouge">ojdbc</code> driver jar file for Oracle database.</li>
+  <li>Download Wallet.</li>
+</ul>
+
+<h3 id="downloading-wallet">Downloading Wallet</h3>
+<p>To Download and install Wallet:</p>
+<ol>
+  <li>Login to your Oracle Cloud account &gt; Select <strong>Autonomous Transaction Processing</strong>/<strong>Data Warehouse</strong> &gt; click on <strong>autonomous database link</strong> &gt; <strong>DB Connection</strong> &gt; <strong>Download Wallet</strong>.</li>
+  <li>Enter a password for the Wallet and download the <code class="highlighter-rouge">.zip</code> file.</li>
+  <li>Record the Wallet password somewhere safe. For this example, let’s call this password <code class="highlighter-rouge">my_wallet_password</code>.</li>
+  <li>Unzip the Wallet and place it somewhere safe in your file system.</li>
+  <li>Navigate to the wallet folder and edit the <code class="highlighter-rouge">ojdbc.properties</code> file with the following:
+    <ul>
+      <li>Comment out the <code class="highlighter-rouge">oracle.net.wallet_location</code> line.</li>
+      <li>Set <code class="highlighter-rouge">javax.net.ssl.trustStorePassword</code> to the wallet password in step 3.</li>
+      <li>Set <code class="highlighter-rouge">javax.net.ssl.keyStorePassword</code> to the wallet password in step 3.</li>
+    </ul>
+  </li>
+</ol>
+
+<figure class="highlight"><pre xml:space="preserve"><code class="language-text" data-lang="text">#oracle.net.wallet_location=(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=${TNS_ADMIN})))
+javax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks
+javax.net.ssl.trustStorePassword=my_wallet_password
+javax.net.ssl.keyStore=${TNS_ADMIN}/keystore.jks
+javax.net.ssl.keyStorePassword=my_wallet_password</code></pre></figure>
+
+<p>In the wallet folder open the <code class="highlighter-rouge">sqlnet.ora</code> and make sure that <code class="highlighter-rouge">SSL_SERVER_DN_MATCH=yes</code></p>
+
+<p>You are now ready to start the tutorial!</p>
+
+<h2 id="tutorial">Tutorial</h2>
+<p>To create a Liquibase project with an Oracle ATP or ADW database, begin with the following steps:</p>
+<ol>
+  <li>Create a new project folder and name it <code class="highlighter-rouge">LiquibaseATP-ADW</code>.</li>
+  <li>Place the <code class="highlighter-rouge">ojdbc</code> jar driver file in the <code class="highlighter-rouge">LiquibaseATP-ADW</code> project directory.</li>
+  <li>In your LiquibaseATP-ADW folder, create an empty text file.</li>
+  <li>Rename the text file to <code class="highlighter-rouge">myChangeLog.xml</code>.
+    <blockquote>
+      <p><strong>Note:</strong><![CDATA[ ]]> <![CDATA[ ]]><em>Changelog</em> files contain a sequence of <em>changeSets</em>, each of which make small changes to the structure of your database. Instead of creating an empty <em>changelog</em> file in step 3, you can also use an existing database to generate a <em>changelog</em>. For more information see the <a href="/documentation/databasechangelog.html">Database Changelog File</a> topic.</p>
+    </blockquote>
+  </li>
+</ol>
+
+<h3 id="step-one-update-your-changelog">Step One: Update your <em>Changelog</em></h3>
+<p>In this tutorial, you will need to modify your <em>changelog</em> by adding a template.</p>
+
+<p>To add this <em>changelog</em> template:</p>
+<ol>
+  <li>Open the <code class="highlighter-rouge">myChangeLog.xml</code> file</li>
+  <li>Update the <em>changelog</em> file with the following code snippet, then save your file:</li>
+</ol>
+
+<figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">  <span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><![CDATA[ ]]> 
+  <span class="nt">&lt;databaseChangeLog</span><![CDATA[ ]]> 
+    <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span><![CDATA[ ]]> 
+    <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><![CDATA[ ]]> 
+    <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span><![CDATA[ ]]> 
+  <span class="nt">&lt;/databaseChangeLog&gt;</span></code></pre></figure>
+
+<p><br /></p>
+
+<h3 id="step-two-create-a-liquibaseproperties-file">Step Two: Create a <code class="highlighter-rouge">liquibase.properties</code> file</h3>
+<ul>
+  <li>In your LiquibaseATP-ADW folder create a new text file.</li>
+  <li>Rename the text file to <code class="highlighter-rouge">liquibase.properties</code>.</li>
+  <li>Edit the <code class="highlighter-rouge">liquibase.properties</code> file to add the following properties:</li>
+</ul>
+
+<figure class="highlight"><pre xml:space="preserve"><code class="language-properties" data-lang="properties">    <span class="py">changeLogFile</span><span class="p">:</span><![CDATA[ ]]> <![CDATA[ ]]><span class="s">myChangeLog.xml</span><![CDATA[ ]]> 
+    <span class="py">url</span><span class="p">:</span><![CDATA[ ]]> <![CDATA[ ]]><span class="s">jdbc:oracle:thin:@&lt;database_name&gt;_high?TNS_ADMIN=/path/to/Wallet_&lt;database_name&gt;</span><![CDATA[ ]]> 
+    <span class="py">username</span><span class="p">:</span><![CDATA[ ]]> <![CDATA[ ]]><span class="s">ADMIN</span><![CDATA[ ]]> 
+    <span class="py">password</span><span class="p">:</span><![CDATA[ ]]> <![CDATA[ ]]><span class="s">&lt;DATABASE PASSWORD&gt;</span><![CDATA[ ]]> 
+    <span class="py">classpath</span><span class="p">:</span><![CDATA[ ]]> <![CDATA[ ]]><span class="s">ojdbc8.jar</span></code></pre></figure>
+
+<blockquote>
+  <p><strong>Note:</strong> In this properties file example, the driver jar file is <code class="highlighter-rouge">ojdbc8.jar</code> under the classpath: property. Please rename it to match the one that you have previously downloaded accordingly.</p>
+</blockquote>
+
+<h4 id="for-windows-os-users">For Windows OS Users</h4>
+<p>If you are on a Windows machine, please also make the <code class="highlighter-rouge">TNS_ADMIN</code> path to your wallet folder with double dashes in the url property. <strong>Example:</strong><![CDATA[ ]]> <![CDATA[ ]]><code class="highlighter-rouge">url: jdbc:oracle:thin:@databaseName_high?TNS_ADMIN=path//to//Wallet_databaseName</code></p>
+
+<h3 id="step-three-add-your-changesets">Step Three: Add your <em>ChangeSets</em></h3>
+<p>Now we will manually add a <em>changeSet</em> to the <em>changelog</em> file. Remember, when adding <em>ChangeSets</em>, they are uniquely identified by <strong>author</strong> and <strong>id</strong> attributes. Liquibase attempts to execute each <em>changeSet</em> in a transaction that is committed at the end.</p>
+
+<p>To add your <em>changeSets</em>:</p>
+<ol>
+  <li>In the <code class="highlighter-rouge">myChangeLog.xml</code> file line 9 to 20 add a new <strong>department</strong> by creating a table <em>changeSet</em> as follows:</li>
+</ol>
+
+<figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><![CDATA[ ]]> 
+
+<span class="nt">&lt;databaseChangeLog</span><![CDATA[ ]]> 
+  <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span><![CDATA[ ]]> 
+  <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><![CDATA[ ]]> 
+  <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span><![CDATA[ ]]> 
+
+    <span class="nt">&lt;changeSet</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">id=</span><span class="s">"1"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">author=</span><span class="s">"bob"</span><span class="nt">&gt;</span><![CDATA[ ]]> 
+        <span class="nt">&lt;createTable</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">tableName=</span><span class="s">"department"</span><span class="nt">&gt;</span><![CDATA[ ]]> 
+            <span class="nt">&lt;column</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">name=</span><span class="s">"id"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">type=</span><span class="s">"int"</span><span class="nt">&gt;</span><![CDATA[ ]]> 
+                <span class="nt">&lt;constraints</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">primaryKey=</span><span class="s">"true"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">nullable=</span><span class="s">"false"</span><span class="nt">/&gt;</span><![CDATA[ ]]> 
+            <span class="nt">&lt;/column&gt;</span><![CDATA[ ]]> 
+            <span class="nt">&lt;column</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">name=</span><span class="s">"name"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">type=</span><span class="s">"varchar(50)"</span><span class="nt">&gt;</span><![CDATA[ ]]> 
+                <span class="nt">&lt;constraints</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">nullable=</span><span class="s">"false"</span><span class="nt">/&gt;</span><![CDATA[ ]]> 
+            <span class="nt">&lt;/column&gt;</span><![CDATA[ ]]> 
+            <span class="nt">&lt;column</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">name=</span><span class="s">"active"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="na">type=</span><span class="s">"boolean"</span><![CDATA[ ]]> 
+              <span class="na">defaultValueBoolean=</span><span class="s">"true"</span><span class="nt">/&gt;</span><![CDATA[ ]]> 
+        <span class="nt">&lt;/createTable&gt;</span><![CDATA[ ]]> 
+   <span class="nt">&lt;/changeSet&gt;</span><![CDATA[ ]]> 
+<span class="nt">&lt;/databaseChangeLog&gt;</span></code></pre></figure>
+
+<blockquote>
+  <p><strong>Note:</strong> This create table <em>changeSet</em> is XML format. The corresponding SQL statement should look like the following:</p>
+</blockquote>
+
+<figure class="highlight"><pre xml:space="preserve"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span><![CDATA[ ]]> <![CDATA[ ]]><span class="k">TABLE</span><![CDATA[ ]]> <![CDATA[ ]]><span class="nv">"department"</span><![CDATA[ ]]> 
+  <span class="p">(</span><span class="nv">"id"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="n">number</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><![CDATA[ ]]> 
+   <span class="nv">"name"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">50</span><![CDATA[ ]]> <![CDATA[ ]]><span class="n">BYTE</span><span class="p">),</span><![CDATA[ ]]> 
+   <span class="nv">"active"</span><![CDATA[ ]]> <![CDATA[ ]]><span class="n">NUMBER</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><![CDATA[ ]]> <![CDATA[ ]]><span class="k">DEFAULT</span><![CDATA[ ]]> <![CDATA[ ]]><span class="mi">1</span><![CDATA[ ]]> 
+  <span class="p">);</span></code></pre></figure>
+
+<ol>
+  <li>Open the command prompt. Navigate to the <code class="highlighter-rouge">LiquibaseATP-ADW</code> directory.</li>
+  <li>Run the following command: <code class="highlighter-rouge">liquibase update</code>.</li>
+  <li>Sign in to your Oracle Cloud account and navigate to <strong>Autonomous Database</strong> or <strong>Data Warehouse</strong>.</li>
+  <li>Click on <strong>tools tab</strong> &gt; <strong>Open SQL Developer Web</strong> and enter your Database username and password.</li>
+</ol>
+
+<p>You should see a new <strong>department</strong> table added to the database.</p>
+
+<h2 id="example-output">Example Output</h2>
+
+<figure class="highlight"><pre xml:space="preserve"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><![CDATA[ ]]> <![CDATA[ ]]><span class="o">*</span><![CDATA[ ]]> <![CDATA[ ]]><span class="k">FROM</span><![CDATA[ ]]> <![CDATA[ ]]><span class="k">public</span><span class="p">.</span><span class="n">department</span><span class="p">;</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>NAME</th>
+      <th>ACTIVE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NULL</td>
+      <td>NULL</td>
+      <td>NULL</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You should also see two more tables:</p>
+<ul>
+  <li><strong>DATABASECHANGELOG</strong> tracking table – This table keeps a record of all the <em>changeSets</em> that were deployed. This way, the next time you deploy your <em>changelog</em>, your <em>changeSets</em> are compared to the DATABASECHANGELOG tracking table and only new <em>changeSets</em> not found in the DATABASECHANGELOG will be deployed. A new row will also be created in your DATABASECHANGELOG tracking table with the <em>changeSet</em> information you just deployed.</li>
+</ul>
+
+<p>For this example:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>AUTHOR</th>
+      <th>FILENAME</th>
+      <th>DATEEXECUTED</th>
+      <th>ORDEREXECUTED</th>
+      <th>EXECTYPE</th>
+      <th>MDSUM</th>
+      <th>…</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>bob</td>
+      <td>dbchangelog.xml</td>
+      <td><code class="highlighter-rouge">date&amp;time</code></td>
+      <td>1</td>
+      <td>EXECUTED</td>
+      <td><code class="highlighter-rouge">checksumvalue</code></td>
+      <td>…</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>DATABASECHANGELOGLOCK</strong> – This table is used internally by Liquibase to manage access to the <em>changelog</em> table during deployment.
+<br /><br /></li>
+</ul>
+
+<h2 id="oracle-atp--adw-related-links"><strong>Oracle ATP &amp; ADW related links:</strong></h2>
+<ul>
+  <li><a href="https://www.oracle.com/technetwork/database/application-development/jdbc/documentation/atp-5073445.html">Java Connectivity with Autonomous Database</a></li>
+  <li><a href="https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html">Oracle Database JDBC drivers</a></li>
+  <li><a href="https://oracle-base.com/articles/vm/oracle-cloud-autonomous-transaction-processing-atp-create-service#create-atp-service">Oracle Cloud: Autonomous Transaction Processing (ATP) - Create Service</a></li>
+  <li><a href="https://docs.oracle.com/en/cloud/paas/atp-cloud/atpug/manage-users-admin.html#GUID-B227C664-EBA0-4B5E-B11C-A56B16567C1B">Using Oracle Autonomous Transaction Processing on Shared Exadata Infrastructure</a></li>
+</ul>
+
+
+
+  </body>
+</html>
