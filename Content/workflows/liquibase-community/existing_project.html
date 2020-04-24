@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" >
+    <head>
+    </head>
+    <body>
+        <h1 id="adding-liquibase-on-an-existing-project">Adding Liquibase on an Existing project</h1>
+        <p>The <a href="/quickstart.html">Quick Start Guide</a> works well for starting Liquibase on a new project because your empty changelog file matches your empty database. 
+However, when you have an existing project with an existing database things are more complicated.</p>
+        <p>Unfortunately, there is no simple “this is how you do it” answer because there is so much variations in projects, processes and requirements. 
+Liquibase provides many tools to help the process, but it is up to you to decide the best way to combine them for your particular situation.</p>
+        <p>When adding Liquibase to an existing project there are basically two approaches: “Make it look like you’ve always been using Liquibase” and “Just start using Liquibase”</p>
+        <h2 id="make-it-look-like-youve-always-been-using-liquibase">Make it look like you’ve always been using Liquibase</h2>
+        <p>The goal of this approach is to have a changelog file that matches the current state of your database. You can run this changeLog against a blank database and the final result will be indistinguishable from your existing databases–as if you used Liquibase from the beginning.
+This approach is usually the best long term, but it can be more work up front.</p>
+        <h4 id="create-changelog">Create ChangeLog</h4>
+        <p>Creating the changelog to match your database can be done automatically using the <a href="generating_changelogs.html">generateChangeLog command</a> or be done manually. 
+For any database larger than a few tables, the generateChangeLog command is usually a good idea but make sure you go through the generated changeSets to ensure they are correct. Liquibase does not always detect more complex structures like stored procedures or details like if an index is not clustered. Also, ensure data types are as you expected them.</p>
+        <h4 id="populate-the-databasechangelog-table">Populate the DatabaseChangeLog table</h4>
+        <p>Once you have your changeLog, you need a way to ensure that the pre-Liquibase changeSets are only ran on new, empty databases. The easiest way to do this is generally to use the <code class="highlighter-rouge">changeLogSync</code> or <code class="highlighter-rouge">changeLogSyncSQL</code> command to execute (or generate) the SQL that marks the starting changeSets as already ran without actually executing them.</p>
+        <p>As an alternative to the changeLogSync command, you can add <a href="contexts.html">contexts</a> on the pre-Liquibase changeSets such as <code class="highlighter-rouge">&lt;changeSet ... context="legacy"&gt;</code> and when you run Liquibase on a new database you run with <code class="highlighter-rouge">liquibase --contexts=legacy update</code> and on an existing database you run with <code class="highlighter-rouge">liquibase --contexts=non-legacy</code>.</p>
+        <p>Finally, you can add <code class="highlighter-rouge">&lt;precondition onFail="MARK_RAN"&gt;</code> tags to the generated changeSets. For example, if you have a <code class="highlighter-rouge">&lt;createTable tableName="person"&gt;</code> changeSet, you would add <code class="highlighter-rouge">&lt;preconditions onFail="MARK_RAN"&gt;&lt;not&gt;&lt;tableExists tableName="person"/&gt;&lt;/not&gt;&lt;/preconditions&gt;</code> tag.
+Adding preconditions requires more changes to the changeLog file and introduces a performance penalty because Liquibase must check the database metadata for each changeSet the first run through, this approach is usually best used in isolated cases only.</p>
+        <h4 id="what-is-the-current-state">What is the current state?</h4>
+        <p>Often times a part of the reason to move to Liquibase is because your schemas have diverged over time, so an important question to answer is “If I’m making the changelog file match the current state, what <strong>is</strong> the current state?”
+Usually the best answer to that question is “the production database” but it can vary.</p>
+        <p>How divergent your schemas are will also affect which of the above techniques you use to populate the DatabaseChangeLog table, and it will often times make sense to use multiple approaches. 
+For example, you may want to generate your base changeLogs from the production database and use changeLogSyncSQL to be able to mark them ran on everything from production down. 
+Then you can add your non-released changeSets to the changeLog file with a precondition checking if it has already ran. That will allow Liquibase to automatically figure out the correct state for all your databases from development through production.</p>
+        <h2 id="we-are-going-to-use-liquibase-startingnow">We are going to use Liquibase starting…..NOW!</h2>
+        <p>Instead of building up a changeLog to match your existing database, you can instead just declare “from now on we are using Liquibase”.
+The advantage to this is that it much easier to set up because it is just a mandate. 
+Usually this works best going from one version to the next because your databases are all in a reasonably consistent state and you simply start tracking database changes in your next version using Liquibase. 
+Because Liquibase only looks at the DatabaseChangeLog table to determine what needs to run, it doesn’t care what else might be in your database and so it will leave all your existing tables alone and just run the new changeSets.</p>
+        <p>The biggest disadvantage to this approach is that you cannot bootstrap an empty database with Liquibase alone. A work-around is to take a pre-Liquibase snapshot using your database backup tool and use that as your database seed. 
+Any time you need to create a new database, you first load in the seed and then run Liquibase update.</p>
+        <p>Depending on how much variation you have between your schemas, even with this approach you may need to rely on preconditions or a “mark changes ran” script in order to standardize and handle those variations.</p>
+        <h2 id="people-and-processes">People and Processes</h2>
+        <p>Finally, remember that starting to use Liquibase–especially on an existing project–isn’t just about how you bootstrap your changeLog file. It is also a question of how you introduce Liquibase into your existing processes and culture.</p>
+        <p>For many companies and projects, everyone realizes the problems that need fixing and are on board with the advantages of change. 
+For others, however, there can be entrenched interests and strong resistance similar to any other process change. 
+Liquibase provides many tools and approaches that can be used to ease it into an existing process such as <a href="sql_output.html">SQL output</a>, <a href="sql_format.html">SQL formatted changelogs</a>, <a href="diff.html">diffChangeLog</a> and more that can be combined
+in ways that works best for your group.</p>
+        <p>If you know that introducing Liquibase is going to be complex, either from a technical or processes standpoint, it is usually best to introduce it slowly.
+Start with it on a new project as a trial run and once you have a good grasp of how it works and available options, apply it to other existing projects.</p>
+        <p>If you want help getting a project set up, check out <a href="https://support.liquibase.org/">Liquibase Pro</a>, which includes support.</p>
+    </body>
+</html>

@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" >
+  <head></head>
+  <body>
+
+    <h1 id="offline-database-support">Offline Database Support</h1>
+
+<p>If you cannot run Liquibase directly against a database, there are two major options to ensure your database is kept up to date</p>
+
+<h2 id="updatesql">updateSql</h2>
+
+<p>The most common way to manage “offline” databases is to use the <a href="sql_output.html">updateSql</a> functionality.</p>
+
+<p>The updateSql command reads a database’s DATABASECHANGELOG table and outputs the SQL that would run as part of the upgrade.
+This SQL includes inserts into the DATABASECHANGELOG table and can be ran against any database to both upgrade it and keep its history correct.</p>
+
+<p>It is important that the database you generate the SQL from is the same as the database(s) you plan to run the SQL against.</p>
+
+<p>Unless you have preconditions in your changelog file, the updateSql process only reads the DATABASECHANGELOG table to determine what changeSets to run.
+Therefore if, for example, you have a production database that you cannot run Liquibase against directly and it may be different than your test databases,
+you can copy/restore just the DATABASECHANGELOG table from the production database into a database you can run updateSql against. Then run the generated SQL against the actual production database.</p>
+
+<h2 id="offline-database">Offline Database</h2>
+
+<p><em>Since 3.1.0</em></p>
+
+<p>If your environment does not lend itself to using updateSql with test and backup databases, you can run Liquibase using an “offline” database.</p>
+
+<p>Running in offline mode only supports “updateSql”, “rollbackSQL”, “tag”, and “tagExists”. It does not support direct update, diff, or preconditions as there is nothing to actually update or state to check.</p>
+
+<p>An offline database is “connected” to using a url syntax of <code class="highlighter-rouge">offline:DATABASE_TYPE?param1=value1&amp;aparam2=value2</code>.</p>
+
+<h3 id="available-parameters">Available parameters:</h3>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>changeLogFile</strong></td>
+      <td>Specify the file acting as the DATABASECHANGELOG table. Defaults to “databasechangelog.csv” in the working directory.</td>
+    </tr>
+    <tr>
+      <td><strong>version</strong></td>
+      <td>Specify the database version to ensure generated SQL matches target database version. Example: 5.4.2 or 12.1.0.3</td>
+    </tr>
+    <tr>
+      <td><strong>productName</strong></td>
+      <td>Specify “product name” seen by the JDBC driver.</td>
+    </tr>
+    <tr>
+      <td><strong>catalog</strong></td>
+      <td>Specify the connection catalog</td>
+    </tr>
+    <tr>
+      <td><strong>caseSensitive</strong></td>
+      <td>Specify if the database is case sensitive or not</td>
+    </tr>
+    <tr>
+      <td><strong>outputLiquibaseSql</strong></td>
+      <td>If set to “true”, output from updateSQL will include create/insert statements for the DatabaseChangeLog table. Defaults to “false”</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="examples">Examples:</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">offline:oracle</code></li>
+  <li><code class="highlighter-rouge">offline:mssql?changeLogFile=/src/changelog.csv</code></li>
+  <li><code class="highlighter-rouge">offline:mysql?version=5.4.21&amp;changeLogFile=/src/changelog.csv</code></li>
+</ul>
+
+
+
+  </body>
+</html>
