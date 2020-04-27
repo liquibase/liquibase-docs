@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1 id="jee-cdi-integration">JEE CDI Integration</h1>
+        <p><MadCap:variable name="General.Liquibase" /> can be run in a <a href="http://seamframework.org/Weld">JEE CDI</a> environment by implementing a number of CDI Procducers methods. 
+The CDI <MadCap:variable name="General.Liquibase" /> integration is a simple CDI extension that performs a <MadCap:variable name="General.Liquibase" /> update when the CDI container boots.</p>
+        <h2 id="how-to-configure-liquibase">How to Configure Liquibase</h2>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-java" data-lang="java"><span class="cm">/**
+ * A Simple CDI Producer to configure the CDI Liquibase integration
+ *
+ */</span>  
+<span class="kd">public</span>  <span class="kd">class</span>  <span class="nc">LiquibaseProducer</span>  <span class="o">{</span>  
+
+    <span class="nd">@Resource</span>  
+    <span class="kd">private</span>  <span class="nc">DataSource</span>  <span class="n">myDataSource</span><span class="o">;</span>  
+
+    <span class="nd">@Produces</span>  <span class="nd">@LiquibaseType</span>  
+    <span class="kd">public</span>  <span class="nc">CDILiquibaseConfig</span>  <span class="nf">createConfig</span><span class="o">()</span>  <span class="o">{</span>  
+        <span class="nc">CDILiquibaseConfig</span>  <span class="n">config</span>  <span class="o">=</span>  <span class="k">new</span>  <span class="nc">CDILiquibaseConfig</span><span class="o">();</span>  
+        <span class="n">config</span><span class="o">.</span><span class="na">setChangeLog</span><span class="o">(</span><span class="s">"liquibase/parser/core/xml/simpleChangeLog.xml"</span><span class="o">);</span>  
+        <span class="k">return</span>  <span class="n">config</span><span class="o">;</span>  
+    <span class="o">}</span>  
+
+    <span class="nd">@Produces</span>  <span class="nd">@LiquibaseType</span>  
+    <span class="kd">public</span>  <span class="nc">DataSource</span>  <span class="nf">createDataSource</span><span class="o">()</span>  <span class="kd">throws</span>  <span class="nc">SQLException</span>  <span class="o">{</span>  
+        <span class="k">return</span>  <span class="n">myDataSource</span><span class="o">;</span>  
+    <span class="o">}</span>  
+
+    <span class="nd">@Produces</span>  <span class="nd">@LiquibaseType</span>  
+    <span class="kd">public</span>  <span class="nc">ResourceAccessor</span>  <span class="nf">create</span><span class="o">()</span>  <span class="o">{</span>  
+        <span class="k">return</span>  <span class="k">new</span>  <span class="nf">ClassLoaderResourceAccessor</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getClassLoader</span><span class="o">());</span>  
+    <span class="o">}</span>  
+
+<span class="o">}</span></code></pre>
+        </figure>
+        <h2 id="cdiliquibaseconfig-available-attributes">CDILiquibaseConfig Available Attributes</h2>
+        <ul>
+            <li><MadCap:variable name="General.changelog" style="font-style: italic;" />
+            </li>
+            <li>contexts</li>
+            <li>parameters</li>
+            <li>defaultSchema</li>
+            <li>dropFirst <strong>since 2.0.2</strong></li>
+        </ul>
+        <p>If you don’t want <MadCap:variable name="General.Liquibase" /> to run you can configure the following system property: <code class="highlighter-rouge">liquibase.should.run=false</code></p>
+    </body>
+</html>
