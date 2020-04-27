@@ -1,0 +1,406 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1 id="preconditions">Preconditions</h1>
+        <p>Preconditions can be attached to <a href="databasechangelog.html"><MadCap:variable name="General.changelog" style="font-style: italic;" /></a> or <a href="changeset.html"><MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i></a> to control the execution of an update based on the state of the database.</p>
+        <p>There are several reasons to use preconditions, including:</p>
+        <ul>
+            <li>Document what assumptions the writers of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> had when creating it.</li>
+            <li>Enforce that those assumptions are not violated by users running the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</li>
+            <li>Perform data checks before performing an unrecoverable change such as <a href="changes/drop_table.html">drop_Table</a></li>
+            <li>Control what <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are run and not run based on the state of the database.</li>
+        </ul>
+        <p>If desired, a precondition can be the only tag in a <code class="highlighter-rouge">&lt;changeSet&gt;</code>.</p>
+        <p>Preconditions at the <MadCap:variable name="General.changelog" style="font-style: italic;" /> level apply to <strong>all</strong><MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, not just those listed in the current <MadCap:variable name="General.changelog" style="font-style: italic;" /> or its child <MadCap:variable name="General.changelog" style="font-style: italic;" />.</p>
+        <h2 id="sample-with-preconditions">Sample with preconditions</h2>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>  
+
+<span class="nt">&lt;databaseChangeLog</span>  
+  <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span>  
+  <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
+  <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;preConditions&gt;</span>  
+        <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
+        <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"SYSTEM"</span>  <span class="nt">/&gt;</span>  
+    <span class="nt">&lt;/preConditions&gt;</span>  
+
+    <span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"1"</span>  <span class="na">author=</span><span class="s">"bob"</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;preConditions</span>  <span class="na">onFail=</span><span class="s">"WARN"</span><span class="nt">&gt;</span>  
+            <span class="nt">&lt;sqlCheck</span>  <span class="na">expectedResult=</span><span class="s">"0"</span><span class="nt">&gt;</span>select count(*) from oldtable<span class="nt">&lt;/sqlCheck&gt;</span>  
+        <span class="nt">&lt;/preConditions&gt;</span>  
+        <span class="nt">&lt;comment&gt;</span>Comments should go after preCondition. If they are before then liquibase usually gives error.<span class="nt">&lt;/comment&gt;</span>  
+        <span class="nt">&lt;dropTable</span>  <span class="na">tableName=</span><span class="s">"oldtable"</span><span class="nt">/&gt;</span>  
+    <span class="nt">&lt;/changeSet&gt;</span>  
+<span class="nt">&lt;/databaseChangeLog&gt;</span></code></pre>
+        </figure>
+        <p>The above <MadCap:variable name="General.changelog" style="font-style: italic;" /> will only run if the database executed against is Oracle and the database user executing the script is “SYSTEM”. It will also only run the <a href="changes/drop_table.html">drop_Table</a> command if there are no values in the “oldtable”.</p>
+        <h2 id="handling-failures-and-errors">Handling failures and errors</h2>
+        <p><MadCap:variable name="General.Liquibase" /> distinguishes between precondition “failures” (check failed) and “errors” (exception thrown in execution of check) and the reaction to both can be controlled via the “onFail” and “onError” attributes on the <code class="highlighter-rouge">&lt;preConditions&gt;</code> tag.  <strong>Since 1.8</strong></p>
+        <h3 id="available-attributes">Available attributes</h3>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>onFail</td>
+                <td>What to do when preconditions fail (see below).</td>
+            </tr>
+            <tr>
+                <td>onError</td>
+                <td>What to do when preconditions error (see below).</td>
+            </tr>
+            <tr>
+                <td>onSqlOutput</td>
+                <td>What to do in updateSQL mode (see below). <b>Since 1.9.5</b> </td>
+            </tr>
+            <tr>
+                <td>onFailMessage</td>
+                <td>Custom message to output when preconditions fail. <b>Since 2.0</b> </td>
+            </tr>
+            <tr>
+                <td>onErrorMessage</td>
+                <td>Custom message to output when preconditions fail. <b>Since 2.0</b></td>
+            </tr>
+        </table>
+        <h3 id="possible-onfailonerror-values">Possible onFail/onError values</h3>
+        <table>
+            <tr>
+                <th>Value</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>HALT</td>
+                <td>Immediately halt the execution of the entire <MadCap:variable name="General.changelog" style="font-style: italic;" />. <b>[DEFAULT]</b></td>
+            </tr>
+            <tr>
+                <td>CONTINUE</td>
+                <td>Skip over the <MadCap:variable name="General.changeset" style="font-style: italic;" />. Execution of the change set will be attempted again on the next update. Continue with the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</td>
+            </tr>
+            <tr>
+                <td>MARK_RAN</td>
+                <td>Skip over the <MadCap:variable name="General.changeset" style="font-style: italic;" />, but mark it as executed. Continue with the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</td>
+            </tr>
+            <tr>
+                <td>WARN</td>
+                <td>Output a warning and continue executing the <MadCap:variable name="General.changeset" style="font-style: italic;" /> / <MadCap:variable name="General.changelog" style="font-style: italic;" /> as normal.</td>
+            </tr>
+        </table>
+        <p>Outside a <MadCap:variable name="General.changeset" style="font-style: italic;" /> (e.g. at the beginning of the change log), only HALT and WARN are possible values.</p>
+        <h3 id="possible-onsqloutput-values">Possible onSqlOutput values</h3>
+        <table>
+            <tr>
+                <th>Value</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>TEST</td>
+                <td>Run the <MadCap:variable name="General.changeset" style="font-style: italic;" /> in updateSQL mode.</td>
+            </tr>
+            <tr>
+                <td>FAIL</td>
+                <td>Fail the preCondition in updateSQL mode.</td>
+            </tr>
+            <tr>
+                <td>IGNORE</td>
+                <td>Ignore the preCondition in updateSQL mode (default).</td>
+            </tr>
+        </table>
+        <h2 id="andornot-logic">AND/OR/NOT Logic</h2>
+        <p>Conditional logic can be applied to preconditions using nestable <code class="highlighter-rouge">&lt;and&gt;</code>, <code class="highlighter-rouge">&lt;or&gt;</code> and <code class="highlighter-rouge">&lt;not&gt;</code> tags. <strong>If no conditional tags are specified, it defaults to AND</strong>.</p>
+        <p>Examples:</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">    <span class="nt">&lt;preConditions</span>  <span class="na">onFail=</span><span class="s">"WARN"</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
+        <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"SYSTEM"</span>  <span class="nt">/&gt;</span>  
+    <span class="nt">&lt;/preConditions&gt;</span></code></pre>
+        </figure>
+        <p>Will check that the update is running on Oracle AND with the SYSTEM user, but will only generate a warning if the precondition fails.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"> <span class="nt">&lt;preConditions&gt;</span>  
+     <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
+     <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"mysql"</span>  <span class="nt">/&gt;</span>  
+ <span class="nt">&lt;/preConditions&gt;</span></code></pre>
+        </figure>
+        <p>Will require running on Oracle AND MySQL, which will always be false, unless a huge and unexpected merger takes place.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"> <span class="nt">&lt;preConditions&gt;</span>  
+     <span class="nt">&lt;or&gt;</span>  
+         <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
+         <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"mysql"</span>  <span class="nt">/&gt;</span>  
+     <span class="nt">&lt;/or&gt;</span>  
+ <span class="nt">&lt;/preConditions&gt;</span></code></pre>
+        </figure>
+        <p>Will require running on Oracle OR MySQL which makes more sense than the above example.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"> <span class="nt">&lt;preConditions&gt;</span>  
+     <span class="nt">&lt;or&gt;</span>  
+         <span class="nt">&lt;and&gt;</span>  
+            <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
+            <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"SYSTEM"</span>  <span class="nt">/&gt;</span>  
+         <span class="nt">&lt;/and&gt;</span>  
+         <span class="nt">&lt;and&gt;</span>  
+            <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"mssql"</span>  <span class="nt">/&gt;</span>  
+            <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"sa"</span>  <span class="nt">/&gt;</span>  
+         <span class="nt">&lt;/and&gt;</span>  
+     <span class="nt">&lt;/or&gt;</span>  
+ <span class="nt">&lt;/preConditions&gt;</span></code></pre>
+        </figure>
+        <p>Will require running as SYSTEM if executing against an Oracle database or running as SA if running against a MS-SQL database.</p>
+        <h2 id="available-preconditions">Available preconditions</h2>
+        <h3 id="dbms">&lt;dbms&gt;</h3>
+        <p>Passes if the database executed against matches the type specified.</p>
+        <h4 id="available-attributes-1">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>type</td>
+                <td>Type of <a href="../databases.html">database</a> expected. Multiple dbms values can be specified using comma separated values. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="runningas">&lt;runningAs&gt;</h3>
+        <p>Passes if the database user executed under matches the username specified.</p>
+        <h4 id="available-attributes-2">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>Database user script is expected to run as. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="changesetexecuted">&lt;changeSetExecuted&gt;</h3>
+        <p>Passes if the specified <MadCap:variable name="General.changeset" style="font-style: italic;" /> has already been executed. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-3">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>Change set "id". <b>required</b></td>
+            </tr>
+            <tr>
+                <td>author</td>
+                <td>Change set "author". <b>required</b></td>
+            </tr>
+            <tr>
+                <td>changeLogFile</td>
+                <td>File name (including classpath relative path) of <MadCap:variable name="General.changeset" style="font-style: italic;" />. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="columnexists">&lt;columnExists&gt;</h3>
+        <p>Passes if the specified column exists in the database. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-4">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>schemaName</td>
+                <td>Name of the table's schema. <b>required</b></td>
+            </tr>
+            <tr>
+                <td>tableName</td>
+                <td>Name of the column's table. <b>required</b></td>
+            </tr>
+            <tr>
+                <td>columnName</td>
+                <td>Name of column. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="tableexists">&lt;tableExists&gt;</h3>
+        <p>Passes if the specified table exists in the database. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-5">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>schemaName</td>
+                <td>Name of the table's schema. <b>required*</b></td>
+            </tr>
+            <tr>
+                <td>tableName</td>
+                <td>Name of the table. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="viewexists">&lt;viewExists&gt;</h3>
+        <p>Passes if the specified view exists in the database. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-6">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>schemaName</td>
+                <td>Name of the view's schema. <b>required</b></td>
+            </tr>
+            <tr>
+                <td>viewName</td>
+                <td>Name of the view. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="foreignkeyconstraintexists">&lt;foreignKeyConstraintExists&gt;</h3>
+        <p>Passes if the specified foreign key exists in the database. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-7">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>schemaName</td>
+                <td>Name of the foreign key's schema. <b>required</b></td>
+            </tr>
+            <tr>
+                <td>foreignKeyName</td>
+                <td>Name of the foreign key. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="indexexists">&lt;indexExists&gt;</h3>
+        <p>Passes if the specified index exists in the database. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-8">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>schemaName</td>
+                <td>Name of the index's schema. <b>required</b></td>
+            </tr>
+            <tr>
+                <td>indexName</td>
+                <td>Name of the index. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="sequenceexists">&lt;sequenceExists&gt;</h3>
+        <p>Passes if the specified sequence exists in the database. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-9">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>schemaName</td>
+                <td>Name of the sequences' schema. <b>required</b> </td>
+            </tr>
+            <tr>
+                <td>sequenceName</td>
+                <td>Name of the sequence. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="primarykeyexists">&lt;primaryKeyExists&gt;</h3>
+        <p>Passes if the specified primary key exists in the database. <strong>Since 1.8</strong></p>
+        <h4 id="available-attributes-10">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>schemaName</td>
+                <td>Name of the primary key's schema.</td>
+            </tr>
+            <tr>
+                <td>primaryKeyName</td>
+                <td>Name of the primary key. <b>tableName OR primaryKeyName required</b></td>
+            </tr>
+            <tr>
+                <td>tableName</td>
+                <td>Name of the table containing primary key. <b>tableName OR primaryKeyName required</b><b>Since 1.9</b></td>
+            </tr>
+        </table>
+        <h3 id="sqlcheck">&lt;sqlCheck&gt;</h3>
+        <p>Executes an SQL string and checks the returned value. The SQL must return a single row with a single value. To check numbers of rows, use the “count” SQL function. To check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;sqlCheck</span>  <span class="na">expectedResult=</span><span class="s">"1"</span><span class="nt">&gt;</span>SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'<span class="nt">&lt;/sqlCheck&gt;</span></code></pre>
+        </figure>
+        <h4 id="available-attributes-11">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>expectedResult</td>
+                <td>Value to compare the SQL result to. <b>required</b></td>
+            </tr>
+        </table>
+        <h3 id="changelogpropertydefined">&lt;changeLogPropertyDefined&gt;</h3>
+        <p>Checks whether given <a href="changelog_parameters.html#property"><MadCap:variable name="General.changelog" /> parameter</a> is present. If a value is also given, it only fails, if the value is not the same as given. <strong>Since 2.0</strong></p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;changeLogPropertyDefined</span>  <span class="na">property=</span><span class="s">"myproperty"</span><span class="nt">/&gt;</span>  
+<span class="nt">&lt;changeLogPropertyDefined</span>  <span class="na">property=</span><span class="s">"myproperty"</span>  <span class="na">value=</span><span class="s">"requiredvalue"</span><span class="nt">/&gt;</span></code></pre>
+        </figure>
+        <h4 id="available-attributes-12">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>Name of the property to check for. <b>required</b></td>
+            </tr>
+            <tr>
+                <td>value</td>
+                <td>Required value for given property.</td>
+            </tr>
+        </table>
+        <h3 id="customprecondition">&lt;customPrecondition&gt;</h3>
+        <p>Custom preconditions can be created by creating a class that implements the <a href="/javadoc/liquibase/precondition/CustomPrecondition.html">liquibase.precondition.CustomPrecondition</a> interface. Parameters on custom classes are set through reflection based on the &lt;param&gt; sub-tags. Parameters are passed as strings to the custom precondition.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;customPrecondition</span>  <span class="na">className=</span><span class="s">"com.example.CustomTableCheck"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;param</span>  <span class="na">name=</span><span class="s">"tableName"</span>  <span class="na">value=</span><span class="s">"our_table"</span><span class="nt">/&gt;</span>  
+    <span class="nt">&lt;param</span>  <span class="na">name=</span><span class="s">"count"</span>  <span class="na">value=</span><span class="s">"42"</span><span class="nt">/&gt;</span>  
+<span class="nt">&lt;/customPrecondition&gt;</span></code></pre>
+        </figure>
+        <h4 id="available-attributes-13">Available attributes</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>className</td>
+                <td>Name of custom precondition class. <b>required</b></td>
+            </tr>
+        </table>
+        <h4 id="available-sub-tags">Available sub-tags</h4>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>param</td>
+                <td>Parameter to pass to the custom precondition.</td>
+            </tr>
+        </table>
+        <h5 id="available-param-sub-tag-attributes">Available “param” sub-tag Attributes</h5>
+        <table>
+            <tr>
+                <th>Attribute</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>Name of the parameter to set. <b>required</b></td>
+            </tr>
+            <tr>
+                <td>value</td>
+                <td>String value to set parameter to. <b>required</b></td>
+            </tr>
+        </table>
+        <h2 id="implementation-notes">Implementation notes</h2>
+        <p>Preconditions are checked at the beginning of the execution of a particular <MadCap:variable name="General.changelog" style="font-style: italic;" />. If you use the “include” tag and only have preconditions on the child <MadCap:variable name="General.changelog" style="font-style: italic;" />, those preconditions will not be checked until the migrator reaches that file. This behavior may change in future releases, so don’t rely on this behavior.</p>
+    </body>
+</html>
