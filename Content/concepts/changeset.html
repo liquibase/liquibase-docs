@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1 id="changeset-tag"><MadCap:variable name="General.changeset" style="font-style: italic;" />
+        </h1>
+        <p>The <MadCap:variable name="General.changeset" style="font-style: italic;" /> tag is what you use to group database <MadCap:xref href="../change-types/home.html">Change Types</MadCap:xref> together.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>  
+
+<span class="nt">&lt;databaseChangeLog</span>  
+  <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span>  
+  <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
+  <span class="na">xmlns:pro=</span><span class="s">"http://www.liquibase.org/xml/ns/pro"</span>  
+  <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+      http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"1"</span>  <span class="na">author=</span><span class="s">"bob"</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;comment&gt;</span>A sample change log<span class="nt">&lt;/comment&gt;</span>  
+        <span class="nt">&lt;createTable/&gt;</span>  
+    <span class="nt">&lt;/changeSet&gt;</span>  
+    <span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"2"</span>  <span class="na">author=</span><span class="s">"bob"</span>  <span class="na">runAlways=</span><span class="s">"true"</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;alterTable/&gt;</span>  
+    <span class="nt">&lt;/changeSet&gt;</span>  
+    <span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"3"</span>  <span class="na">author=</span><span class="s">"alice"</span>  <span class="na">failOnError=</span><span class="s">"false"</span>  <span class="na">dbms=</span><span class="s">"oracle"</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;alterTable/&gt;</span>  
+    <span class="nt">&lt;/changeSet&gt;</span>  
+    <span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"4"</span>  <span class="na">author=</span><span class="s">"alice"</span>  <span class="na">failOnError=</span><span class="s">"false"</span>  <span class="na">dbms=</span><span class="s">"!oracle"</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;alterTable/&gt;</span>  
+    <span class="nt">&lt;/changeSet&gt;</span>  
+
+<span class="nt">&lt;/databaseChangeLog&gt;</span></code></pre>
+        </figure>
+        <p>Each <MadCap:variable name="General.changeset" style="font-style: italic;" /> tag is uniquely identified by the combination of the “id” tag, the “author” tag, and the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file classpath name. The id tag is only used as an identifier, it does not direct the order that changes are run and does not even have to be an integer. If you do not know or do not wish to save the actual author, simply use a placeholder value such as “UNKNOWN”.</p>
+        <p>As <MadCap:variable name="General.Liquibase" /> executes the <MadCap:variable name="General.databasechangelog" />, it reads the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in order and, for each one, checks the <MadCap:variable name="General.databasechangelog" /> table to see if the combination of id/author/filepath has been run. If it has been run, the <MadCap:variable name="General.changeset" style="font-style: italic;" /> will be skipped unless there is a true “runAlways” tag. After all the changes in the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are run, <MadCap:variable name="General.Liquibase" /> will insert a new row with the id/author/filepath along with an MD5Sum of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> (see below) in the <MadCap:variable name="General.databasechangelog" />.</p>
+        <dl>
+            <dt>Note</dt>
+            <dd><i>filepath</i> is the path how the changeLogFile parameter is defined. Even if the same file is referenced with a different path, that is considered a different file unless the <code>logicalFilePath</code> is defined.</dd>
+        </dl>
+        <p><MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end, or rolled back if there is an error. Some databases will auto-commit statements which interferes with this transaction setup and could lead to an unexpected database state. Therefore, it is usually best to have just one change per <MadCap:variable name="General.changeset" style="font-style: italic;" /> unless there is a group of non-auto-committing changes that you want applied as a transaction such as inserting data.</p>
+        <h2 id="available-attributes">Available Attributes</h2>
+        <table>
+            <tr>
+                <td>id</td>
+                <td>An alpha-numeric identifier <b>required</b> </td>
+            </tr>
+            <tr>
+                <td>author</td>
+                <td>The creator of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> <b>required</b></td>
+            </tr>
+            <tr>
+                <td>dbms</td>
+                <td>The type of a database which that <MadCap:variable name="General.changeset" style="font-style: italic;" /> is to be used for. When the migration step is running, it checks the database type against this 
+ attribute. Valid database type names are listed on the <a href="../databases.html">supported databases page</a>. It is possible to list multiple databases separated by commas. 
+ You can also specify that a <MadCap:variable name="General.changeset" style="font-style: italic;" /> is <b>NOT</b> applicable to a particular database type by prefixing with <code>!</code>. The keywords <code>all</code> and <code>none</code> are 
+ also available.</td>
+            </tr>
+            <tr>
+                <td>runAlways</td>
+                <td>Executes the <MadCap:variable name="General.changeset" style="font-style: italic;" /> on every run, even if it has been run before </td>
+            </tr>
+            <tr>
+                <td>runOnChange</td>
+                <td>Executes the change the first time it is seen and each time the change set has been changed </td>
+            </tr>
+            <tr>
+                <td><a href="/documentation/contexts.html">context</a>
+                </td>
+                <td>Controls whether a <MadCap:variable name="General.changeset" style="font-style: italic;" /> is executed, depending on runtime settings. Any string can be used for the context name and they are checked case-insensitively. </td>
+            </tr>
+            <tr>
+                <td><a href="/documentation/labels.html">labels</a>
+                </td>
+                <td>Controls whether a <MadCap:variable name="General.changeset" style="font-style: italic;" /> is executed, depending on runtime settings. Any string can be used for the label name and they are checked case-insensitively.</td>
+            </tr>
+            <tr>
+                <td>runInTransaction</td>
+                <td>Should the <MadCap:variable name="General.changeset" style="font-style: italic;" /> be ran as a single transaction (if possible)? Defaults to true.  <b>Warning: be careful with this attribute. If set to false and an error occurs part way through running a <MadCap:variable name="General.changeset" style="font-style: italic;" /> containing multiple statements, the <MadCap:variable name="General.Liquibase" /><MadCap:variable name="General.databasechangelog" /> table will be left in an invalid state.  </b><b>Since 1.9</b> </td>
+            </tr>
+            <tr>
+                <td>failOnError</td>
+                <td>Should the migration fail if an error occurs while executing the <MadCap:variable name="General.changeset" style="font-style: italic;" />? <i>Default=true</i></td>
+            </tr>
+            <tr>
+                <td>objectQuotingStrategy</td>
+                <td>This controls how object names are quoted in the SQL generated or used in calls to the database. Different databases do different things to
+the names of objects, for example Oracle converts everything to uppercase (unless quoted). There are three possible values. The default value is <code>LEGACY</code>.<br /><code>LEGACY</code> - Same behavior as in <MadCap:variable name="General.Liquibase" /> 2.0<br /><code>QUOTE_ALL_OBJECTS</code> - Every object gets quoted. e.g. person becomes "person".<br /><code>QUOTE_ONLY_RESERVED_WORDS</code> - Quote reserved keywords and invalid column names.</td>
+            </tr>
+            <tr>
+                <td>runOrder</td>
+                <td><b>Since 3.5</b>
+                </td>
+            </tr>
+            <tr>
+                <td>created</td>
+                <td><b>Since 3.5</b>
+                </td>
+            </tr>
+            <tr>
+                <td>ignore</td>
+                <td>Ignore the <MadCap:variable name="General.changeset" style="font-style: italic;" /> from the execution<b>Since 3.6</b></td>
+            </tr>
+            <tr>
+                <td>logicalFilePath</td>
+                <td>Use to override the file name and path when creating the unique identifier of <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. Required when moving or renaming change logs.</td>
+            </tr>
+        </table>
+        <h2 id="available-sub-tags">Available Sub-Tags</h2>
+        <table>
+            <tr>
+                <td>comment</td>
+                <td>A description of the <MadCap:variable name="General.changeset" style="font-style: italic;" />. XML comments will provide the same benefit, future releases of <MadCap:variable name="General.Liquibase" /> may be able to make use of &lt;comment&gt; tag comments to generate documentation </td>
+            </tr>
+            <tr>
+                <td>preConditions</td>
+                <td><a href="preconditions.html"><MadCap:xref href="preconditions.html">Preconditions</MadCap:xref></a> that must pass before the change set will be executed. Useful for doing a data sanity check before doing something unrecoverable such as a dropTable <b>Since 1.7</b> </td>
+            </tr>
+            <tr>
+                <td>&lt;Any Refactoring Tag(s)&gt;</td>
+                <td>The database change(s) to run as part of this <MadCap:variable name="General.changeset" style="font-style: italic;" /> (so called <a href="changes/index.html"><MadCap:xref href="../change-types/home.html">Change Types</MadCap:xref></a>).</td>
+            </tr>
+            <tr>
+                <td>validCheckSum</td>
+                <td>Add a checksum that is considered valid for this <MadCap:variable name="General.changeset" style="font-style: italic;" />, regardless of what is stored in the database. Used 
+primarily when you need to change a <MadCap:variable name="General.changeset" style="font-style: italic;" /> and don't want errors thrown on databases on which it has already run (not a recommended procedure). Special value "1:any" will match to any checksum and not execute the <MadCap:variable name="General.changeset" style="font-style: italic;" /> on ANY change<b>Since 1.7</b> </td>
+            </tr>
+            <tr>
+                <td>rollback</td>
+                <td>SQL statements or <MadCap:variable name="General.changetypes" /> tags that describe how to rollback the <MadCap:variable name="General.changeset" style="font-style: italic;" />. See <MadCap:xref href="../workflows/liquibase-community/using-rollback.htm">Rolling back [%=General.changeset%]s</MadCap:xref>.</td>
+            </tr>
+        </table>
+        <hr />
+        <h3 id="rollback-tag">Rollback Tag</h3>
+        <p>The rollback tag describes how to roll back a change using SQL statement(s), change tags, or a reference to a previous <MadCap:variable name="General.changeset" style="font-style: italic;" />.</p>
+        <h4 id="rollback-tag-examples">Rollback Tag Examples</h4>
+        <p>Here we see that you can just have plain SQL in the content part of the <code class="highlighter-rouge">&lt;rollback&gt;</code> element. The text in the element is treated as a <code class="highlighter-rouge">&lt;sql&gt;</code> change with <code class="highlighter-rouge">stripComments</code> set to <code class="highlighter-rouge">true</code>, 
+<code class="highlighter-rouge">splitStatements</code> set to <code class="highlighter-rouge">true</code> and <code class="highlighter-rouge">endDelimiter</code> set to <code class="highlighter-rouge">;</code>.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"1"</span>  <span class="na">author=</span><span class="s">"bob"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;createTable</span>  <span class="na">tableName=</span><span class="s">"testTable"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;rollback&gt;</span>
+        drop table testTable
+    <span class="nt">&lt;/rollback&gt;</span>  
+<span class="nt">&lt;/changeSet&gt;</span></code></pre>
+        </figure>
+        <p>Here we see that you can have any type of change in the <code class="highlighter-rouge">&lt;rollback&gt;</code> element.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"1"</span>  <span class="na">author=</span><span class="s">"bob"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;createTable</span>  <span class="na">tableName=</span><span class="s">"testTable"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;rollback&gt;</span>  
+        <span class="nt">&lt;dropTable</span>  <span class="na">tableName=</span><span class="s">"testTable"</span><span class="nt">/&gt;</span>  
+    <span class="nt">&lt;/rollback&gt;</span>  
+<span class="nt">&lt;/changeSet&gt;</span></code></pre>
+        </figure>
+        <p>This example shows how a <code class="highlighter-rouge">&lt;rollback&gt;</code> element can refer to another <MadCap:variable name="General.changeset" style="font-style: italic;" />. This would be interpreted as “In order to roll back this <MadCap:variable name="General.changeset" style="font-style: italic;" /> (id=”2”), apply the <MadCap:variable name="General.changeset" style="font-style: italic;" /> with id=1”</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"2"</span>  <span class="na">author=</span><span class="s">"bob"</span><span class="nt">&gt;</span>  
+    <span class="nt">&lt;dropTable</span>  <span class="na">tableName=</span><span class="s">"testTable"</span><span class="nt">/&gt;</span>  
+    <span class="nt">&lt;rollback</span>  <span class="na">changeSetId=</span><span class="s">"1"</span>  <span class="na">changeSetAuthor=</span><span class="s">"bob"</span><span class="nt">/&gt;</span>  
+<span class="nt">&lt;/changeSet&gt;</span></code></pre>
+        </figure>
+        <h2 id="changeset-check-sums">ChangeSet Check Sums</h2>
+        <p>When <MadCap:variable name="General.Liquibase" /> reaches a <MadCap:variable name="General.changeset" style="font-style: italic;" />, it computes a check sum and stores it in the <MadCap:variable name="General.databasechangelog" />. The value of storing the checksum is so that <MadCap:variable name="General.Liquibase" /> can know if 
+someone changed the changes in the <MadCap:variable name="General.changeset" style="font-style: italic;" /> since it was run. If the <MadCap:variable name="General.changeset" style="font-style: italic;" /> was changed since it was run, <MadCap:variable name="General.Liquibase" /> will exit the migration with an error message like
+<code class="highlighter-rouge">Validation failed: change set check sums &lt;changeset identifer&gt; was: &lt;old checksum&gt; but is now: &lt;newchecksum&gt;</code>. This is because <MadCap:variable name="General.Liquibase" /> cannot know what was changed and the 
+database may be in a state different than what the changeLog is expecting. If there was a valid reason for the <MadCap:variable name="General.changeset" style="font-style: italic;" /> to have 
+been changed and you want to ignore this error, you have two options.</p>
+        <p>The first option is to manually update the <MadCap:variable name="General.databasechangelog" /> table so that the row with the corresponding id/author/filepath has a null value for the check sum. You would 
+need to do this for all environments where the <MadCap:variable name="General.changeset" style="font-style: italic;" /> has been deployed. The next time you run the <MadCap:variable name="General.Liquibase" /> update command, it will update the check sum value to the new correct value.</p>
+        <p>The second option is to add a <code class="highlighter-rouge">&lt;validCheckSum&gt;</code> element to the <MadCap:variable name="General.changeset" style="font-style: italic;" />. The text contents of the element should be the “old” checksum from the error message.</p>
+        <p>Check sums are also used in conjunction with the “runOnChange” <MadCap:variable name="General.changeset" style="font-style: italic;" /> attribute. There are times you may not want to add a new <MadCap:variable name="General.changeset" style="font-style: italic;" /> because you only need to know 
+about the current version, but you want this change applied whenever it is updated. A good example of when you would want this is stored procedures. If you copy the entire 
+text of the stored procedure to a new <MadCap:variable name="General.changeset" style="font-style: italic;" /> each time you make a change you will not only end up with a very long <MadCap:variable name="General.changelog" style="font-style: italic;" />, but you will lose the merging and diff-ing 
+power of your source control. Instead, put the text of the stored procedure in a <MadCap:variable name="General.changeset" style="font-style: italic;" /> with a runOnChange=”true” attribute. The stored procedure will be re-created 
+when and only when there is a change to the text of it.</p>
+    </body>
+</html>
