@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+	    <title >Liquibase runWith Changeset Attribute</title>>
+    </head>
+    <body>
+	<h1 id="runWith">Liquibase runWith</h1>
+
+ 
+	<h2 id="sql-plus-integration-and-custom-executors-using-runWith-attribute">Sql Plus Integration and Custom Executors using runWith attribute</h2>
+		<p>Devs and DBAs (and many others) use Liquibase to track their database changes in SQL, XML, JSON or YAML changelogs, almost always processed over traditional JDBC connections. While this works for most people most of the time, there are occasions when the JDBC connector has trouble processing highly-specialized or variable-rich SQL.</p>
+	
+
+		<p>For Liquibase Community and Pro users, the optional changeset attribute, <code>runWith=&lt;executor&gt;</code> allows you to specify an executor to run your SQL. This capability works with changesets in Formatted SQL changelogs, and in changesets which are in XML, JSON, YAML changelogs which call inline SQL or sqlFile tagged changesets.</p>
+	
+	<h2 id="sql-plus-integration-via-runWith-for-liquibase-pro-users">SQL Plus integration via <code>runWith</code> for Liquibase Pro users</h2>
+		<p>For Liquibase Pro users, SQL Plus integration is built-in.</p>
+		<ol>
+			<li>Make sure you have the latest version of Liquibase (download Liquibase 3.10.0 or higher).
+			<li>Have SQL Plus in your PATH (or configure it in the accompanying <code>liquibase.sqlplus.conf</code> file)
+			<li>Add <code>runWith=sqlplus</code> attribute to a changeset
+		</ol>
+
+<h2 id="runwith-example">runWith Examples:</h2>
+	<p><strong>Formatted SQL changeset using runWith attribute</strong></p>
+		<code>
+		--liquibase formatted sql<br>
+		<br>
+		--changeset myauthorname:2314 runwith=sqlplus<br>
+		DECLARE l_emp_name VARCHAR2(250);<br>
+		l_emp_no NUMBER;<br>
+		l_salary NUMBER;<br>
+		l_manager VARCHAR2(250);<br>
+		BEGIN<br>
+		INSERT INTO emp(emp_name,emp_no,salary,manager) VALUES('BBB',1000,25000,'AAA');<br>
+		...[and so on]...<br>
+		END;<br>
+		/
+		</code>
+	
+	<p><strong>XML changelog with inline SQL changeset using runWith attribute</strong></p>
+		<figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"2"</span>  <span class="na">author=</span><span class="s">"myauthorname"</span>  <span class="na">runWith=</span><span class="s">"sqlplus"</span><span class="nt">&gt;</span>  
+	<span class="nt">&lt;sql&gt;</span>
+		DECLARE l_emp_name VARCHAR2(250);
+		l_emp_no NUMBER;
+		l_salary NUMBER;
+		l_manager VARCHAR2(250);
+		BEGIN
+		INSERT INTO emp(emp_name,emp_no,salary,manager) VALUES('BBB',1000,25000,'AAA');
+		...[and so on]...
+		END;<br>
+		/
+	<span class="nt">&lt;/sql&gt;</span>  
+	
+<span class="nt">&lt;/changeSet&gt;</span></code></pre>
+</figure>
+
+
+
+	<p><strong>XML/YML/JSON changelog pointing to a sql file with raw sql in it</strong></p>
+		<figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"2315"</span>  <span class="na">author=</span><span class="s">"myauthorname"</span>  <span class="na">runWith=</span><span class="s">"sqlplus"</span><span class="nt">&gt;</span>  
+	<span class="nt">&lt;sqlFile</span>
+	path="my/path/file.sql"
+	...etc etc... &gt;</span>  
+<span class="nt">&lt;/changeSet&gt;</span></code></pre>
+</figure>
+		
+
+
+
+<h2 id="the-optional-conf-file">The optional .conf file</h2>
+For Liquibase Pro users, there is a <code>liquibase.sqlplus.conf</code> file which lives alongside your liquibase.properties or POM file, where you can optionally specify some useful key-value pairs for configuring your executor, such as:
+
+Configuration to keep the temporary SQL file generated when using a native executor. For sqlplus:
+<code>liquibase.sqlplus.keep.temp=[true|false=default]</code>
+For example, when the user encounters an error in the native execution, it stops. We throw a ERROR telling them user execution has stopped, and if they would like to know more, they should set<br>
+<code>liquibase.sqlplus.keep.temp=true</code>
+
+Configuring the length of timeout, or period to wait for some response from SQL Plus, set:
+
+<code>liquibase.sqlplus.timeout=<number in seconds></code>
+<ul>
+	<li>"–1" disables the timeout & lets you hang yourself
+	<li>“0” returns an error
+	<li>default is 1800 seconds (30 minutes!)
+</ul>
+
+
+
+<h2 id="open-and-custom-executor-extensibility">Open and custom executor extensibility</h2>
+<p>True to open-source and open-extensibility, Liquibase Community and Pro users can write their own classes to integrate their own executor. Say, for example, you need an encrypted JDBC tool, which you want to call as “<code>ejdbc</code>” from your changeset? We’ve included an example executor with the 3.10.0 release files so you can see exactly how to do the following:</p>
+<ul>
+	<li>Write and configure the classes to call your tool. 
+	<li>Optionally, set up a .conf file (in this example, it would be named <code>liquibase.ejdbc.conf</code>).
+	<li>Add <code>runWith=ejdbc</code> to select changesets to process them with your custom executor.
+
+ 
+
+
+
+
+   
+    </body>
+</html>
