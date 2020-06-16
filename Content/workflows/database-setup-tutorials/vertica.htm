@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
+    </head>
+    <body>
+        <h1>Vertica Tutorial</h1>
+        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Vertica. In this tutorial, you will generate an example project and follow the instructions to apply and learn concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with Vertica.</p>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>If you have not installed the latest version of <MadCap:variable name="General.Liquibase" />, navigate to <a href="https://www.liquibase.org/download">https://www.liquibase.org/download</a> to install the software application.</li>
+            <li>Ensure the <MadCap:variable name="General.Liquibase" /> install directory path is set to a location in the PATH System variable.</li>
+            <li>Navigate to <a href="https://www.vertica.com/download/vertica/client-drivers/">https://www.vertica.com/download/vertica/client-drivers/</a> and download the jdbc jar driver file.</li>
+            <li>Navigate to <a href="https://github.com/liquibase/liquibase-vertica/releases">https://github.com/liquibase/liquibase-vertica/releases</a> and download the latest <MadCap:variable name="General.Liquibase" /> extension jar file.</li>
+            <li>Place the two jar files in the <code>liquibase/lib</code> install directory.</li>
+        </ul>
+        <h2>Tutorial</h2>
+        <p>To create a <MadCap:variable name="General.Liquibase" /> project with Vertica on your machine, begin with the following steps:</p>
+        <ol>
+            <li>Create a new project folder and name it <code>LiquibaseProj</code>.</li>
+            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>dbchangelog.sql</code>.</li>
+            <li>Open the d<code>bchangelog.sql</code> file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</li>
+        </ol><pre><code class="language-sql">--liquibase formatted sql</code></pre>
+        <ol MadCap:continue="true">
+            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>liquibase.properties</code>.</li>
+            <li>Edit the <code>liquibase.properties</code> file to add the following properties:</li><pre><code class="language-html">changeLogFile: dbchangelog.sql
+url: jdbc:vertica://localhost:5433/docker
+username: dbadmin
+driver: com.vertica.jdbc.Driver
+password: password</code></pre>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <MadCap:variable name="General.liquiPropFile" />. Ex: <code>liquibaseProLicenseKey: &lt;paste code here&gt;</code>.</p>
+        <ol MadCap:continue="true">
+            <li>Add a <MadCap:variable name="General.changeset" style="font-style: italic;" /> to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> – <MadCap:variable name="General.changeset" style="font-style: italic;" /> are uniquely identified by <code>author</code> and <code>id</code> attributes. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end.
+In the <code>dbchangelog.sql</code> file line 3 add a new “department” create table change set as follows:</li><pre><code class="language-sql">
+--liquibase formatted sql
+
+--changeset bob:1
+CREATE TABLE "DEPARTMENT" ("ID" INTEGER, "NAME" CHAR(20), "ACTIVE" BOOLEAN);</code></pre>
+            <li>Open the command prompt. Navigate to the LiquibaseProj directory.<br />Run the following command: <code>liquibase update</code></li>
+            <li>From SQL Developer Tool User Interface, check your database changes under “<strong>public schema</strong>”.
+You should see a new “<strong>department</strong>” table added to the database. For example:</li>
+        </ol><pre><code class="language-sql">SELECT * FROM "public"."DEPARTMENT";</code></pre>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">NAME</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">ACTIVE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">NULL</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Also, you should see two more tables:</p>
+        <ul>
+            <li><strong><MadCap:variable name="General.databasechangelog"></MadCap:variable></strong> tracking table – This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were deployed. This way, next time when you deploy again, the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> will be compared with the <MadCap:variable name="General.databasechangelog"></MadCap:variable> tracking table and only the new <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog"></MadCap:variable> will be deployed. You will notice that a new row was created in that table with the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable> information we have just deployed.
+For this example:</li>
+        </ul>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">AUTHOR</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">FILENAME</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">DATEEXECUTED</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ORDEREXECUTED</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">EXECTYPE</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">MDSUM</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">…</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">bob</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">dbchangelog.sql</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">date&amp;time</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">EXECUTED</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">checksumvalue</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">…</td>
+                </tr>
+            </tbody>
+        </table>
+        <ul>
+            <li><strong><MadCap:variable name="General.databasechangeloglock" /></strong> – This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> table during deployment.</li>
+        </ul>
+    </body>
+</html>
