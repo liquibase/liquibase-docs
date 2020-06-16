@@ -4,7 +4,7 @@ Documentation for the liquibase website.
 
 ***Please send pull requests!***
 
-## Project Overview - How to apply changes to https://docs.liquibase.com
+Project Overview - How to apply changes to https://docs.liquibase.com
 ========================================================================
 Cloning the https://github.com/Datical/liquibase-docs.git repository.
 
