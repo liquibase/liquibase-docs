@@ -3,87 +3,79 @@
     <head>
     </head>
     <body>
-<h1>How to set up <MadCap:variable name="General.Liquibase" /> with multiple environments</h1>
-<p>The <a href="https://www.liquibase.org/get-started">Getting Started Guide</a> works well when you want to use <MadCap:variable name="General.Liquibase" /> on a new environment with an empty <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that matches your empty database. However, when you have multiple environments and want to set up <MadCap:variable name="General.Liquibase" /> with all of them to match your current database schema, the process differs.</p>
-<p>For example, you have an HR database and two different environments called: HR_Dev and HR_Test, and you want them all to match your HR database.</p>
-<p>You will learn how to introduce <MadCap:variable name="General.Liquibase" /> to your HR_Dev and HR_Test database environments without affecting your current database schema. You will create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that matches the current state of your HR database and then apply this <MadCap:variable name="General.changelog" style="font-style: italic;" /> file to the HR_Dev and HR_Test databases so it will match all the environments.</p>
-<h2>Step 1: Create a <MadCap:variable name="General.changelog" style="font-style: italic;" /></h2>
-<p>First, you will create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that contains all the SQL changes from the source HR database. You can create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file to match your HR database manually or it can be done automatically by using the <a href="https://docs.liquibase.com/commands/community/generatechangelog.html?Highlight=generateChangeLog">generateChangeLog</a> command.</p>
-<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For any database larger than a few tables, use the <code>generateChangeLog</code> command.</p>
-<p>To run the <code>generateChangeLog</code> command, you need to specify your driver, class path, URL, and user authentication information in your <code>liquibase.properties</code> file. For more information, see <a href="https://docs.liquibase.com/workflows/liquibase-community/creating-config-properties.html?Highlight=liquibase.properties">Creating and configuring a liquibase.properties file</a>. You can also specify these properties in your command line.</p>
-<p>Then run the <code>generateChangeLog</code> command:</p>
-<code>liquibase --changeLogFile=dbchangelog.xml generateChangeLog</code>
-<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> that you want to use in place of <code>dbchangelog.xml</code>.</p>
-<p>The <code>generateChangeLog</code> command generates a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that contains all your objects (represented as <i><MadCap:variable name="General.Changeset" />s</i >) and places the file in the same directory where the command was run.</p>
-<p>The <MadCap:variable name="General.changelog" style="font-style: italic;" /> file name extension determines the format of the <MadCap:variable name="General.changelog" style="font-style: italic;" />, so if you specify the file name as <code>changelog.xml</code>, you will get an XML formatted <MadCap:variable name="General.changelog" style="font-style: italic;" />. Likewise, if you specify the file name as .yaml, .json, or .sql, you will get <i><MadCap:variable name="General.Changelog" />s</i > formatted in YAML, JSON, or SQL, respectively.</p>      
-<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you generate an SQL formatted <MadCap:variable name="General.changelog" style="font-style: italic;" />, specify the <a href="https://www.liquibase.org/get-started/databases">type name</a> of the targeted database as a part of the file name:</p>
-<code>changelog.&lt;db_type&gt;.sql</code>     
-<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> does not always detect complex structures like stored procedures or details like an index that is not clustered. Once you have generated a <MadCap:variable name="General.changelog" style="font-style: italic;" />, inspect the output. Review the generated <i><MadCap:variable name="General.Changeset" />s</i > and ensure that the data types look as expected.</p>
-<MadCap:dropDown>
-    <MadCap:dropDownHead>
-<MadCap:dropDownHotspot>XML <MadCap:variable name="General.changelog" style="font-style: italic;" /> example:</MadCap:dropDownHotspot>
-    </MadCap:dropDownHead>
-    <MadCap:dropDownBody><pre><code class="language-text">&lt;?xml version="1.0" encoding="UTF-8"?&gt;  
- &lt;databaseChangeLog  
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"  
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
-  xmlns:pro="http://www.liquibase.org/xml/ns/pro"  
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
-      http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;  
-      &lt;changeSet  author="diff-generated"  id="1185214997195-2"&gt;  
-        &lt;createTable  name="DEPT"&gt;  
-           &lt;column  name="DEPTNO"  type="NUMBER(2,0)"/&gt;  
-           &lt;column  name="DNAME"  type="VARCHAR2(14,0)"/&gt;  
-           &lt;column  name="LOC"  type="VARCHAR2(13,0)"/&gt;  
-        &lt;/createTable&gt;  
-     &lt;/changeSet&gt;  
-     &lt;changeSet  author="diff-generated"  id="1185214997195-6"&gt;  
-       &lt;createIndex  indexName="PK_DEPT"  tableName="DEPT"&gt;  
-          &lt;column  name="DEPTNO"/&gt;  
-       &lt;/createIndex&gt;  
-     &lt;/changeSet&gt;  
-     &lt;changeSet  author="diff-generated"  id="1185214997195-7"&gt;  
-      &lt;createIndex  indexName="PK_EMP"  tableName="EMP"&gt;  
-           &lt;column  name="EMPNO"/&gt;  
-           &lt;/createIndex&gt;  
-     &lt;/changeSet&gt;  
-     &lt;changeSet  author="diff-generated"  id="1185214997195-8"&gt;  
-           &lt;addPrimaryKey  columnNames="DEPTNO"  tableName="DEPT"/&gt;  
-     &lt;/changeSet&gt;  
-   &lt;/databaseChangeLog&gt;   
-</code></pre>
-</MadCap:dropDownBody>
-</MadCap:dropDown>
-<h2>Step 2: Populate the DATABASECHANGELOG tracking table</h2>
-<p>Once you have your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, populate the DATABASECHANGELOG tracking table with the <i><MadCap:variable name="General.Changeset" />s</i > from this <MadCap:variable name="General.changelog" style="font-style: italic;" />.</p>
-<p><MadCap:variable name="General.Liquibase" /> keeps track of your already deployed changes with the help of its <a href="https://docs.liquibase.com/concepts/basic/databasechangelog-table.html">DATABASECHANGELOG tracking table</a>.</p>
-<p>To create this table for the first time, use the <code><a href="https://docs.liquibase.com/commands/community/changelogsync.html">changeLogSync</a><code> command. The <code>changeLogSync</code> command will populate the DATABASECHANGELOG table with the <i><MadCap:variable name="General.Changeset" />s</i > metadata as if you have been using <MadCap:variable name="General.Liquibase" /> all along.</p>
-<p>Another approach you can choose is to <a href="#_Adding_the_contexts">add the contexts</a>.</p>
-<h3>Running the <code>changeLogSyncSQL</code> and <code>changeLogSync</code> commands:</h3>
-<ul>
-<li>Run the <code><a href="https://docs.liquibase.com/commands/community/changelogsyncsql.html">changeLogSyncSQL</a></code> command to inspect the SQL and ensure that everything looks good before executing the <code><a href="https://docs.liquibase.com/commands/community/changelogsync.html">changeLogSync</a></code> command:</li>
-</ul>
-<code>liquibase --changelogFile=dbchangelog.xml changelogSyncSQL</code>
-<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> that you want to use in place of <code>dbchangelog.xml</code>.</p>
-<ul>
-<li>Run the <code>changeLogSync</code> command to ensure that the <i><MadCap:variable name="General.Changeset" />s</i > are treated as already run since they exist in our HR database. The command will mark the <i><MadCap:variable name="General.Changeset" />s</i > in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file as already deployed. This will prevent <MadCap:variable name="General.Liquibase" /> from attempting to redeploy those <i><MadCap:variable name="General.Changeset" />s</i > next time when you run the <code>update</code> command.</li>
-</ul>
-<code>liquibase --changelogFile=dbchangelog.xml changelogSync</code>
-<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> that you want to use in place of <code>dbchangelog.xml</code>.</p>
-<h3>Adding the contexts</h3>
-<p>Alternatively, you can add <a href="https://docs.liquibase.com/concepts/advanced/contexts.html">contexts</a> to the <i><MadCap:variable name="General.Changeset" />s</i > such as <code>&lt;changeSet ... context="legacy"&gt;</code>:</p>
-<pre><code class="language-text">&lt;changeSet author="diff-generated" id="1185214997195-8" context="legacy"&gt;
-&lt;addPrimaryKey columnNames="DEPTNO" tableName="DEPT"/&gt;
+        <h1 id="adding-liquibase-on-an-existing-project">Adding <MadCap:variable name="General.Liquibase" /> on an existing project</h1>
+        <p>The <a href="https://www.liquibase.org/get-started">Getting Started Guide</a> works when you want to use <MadCap:variable name="General.Liquibase" /> on a new environment with an empty <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that matches your empty database. However, when you have multiple environments and want to set up <MadCap:variable name="General.Liquibase" /> with all of them to match your current database schema, the process differs.</p>
+        <p>For example, you have an HR database and two different environments called: <code>HR_Dev</code> and <code>HR_Test</code>, and you want them all to match your HR database.</p>
+        <p>You will learn how to introduce <MadCap:variable name="General.Liquibase" /> to your <code>HR_Dev</code> and <code>HR_Test</code> database environments without affecting your current database schema. You will create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that matches the current state of your HR database and then apply this <MadCap:variable name="General.changelog" style="font-style: italic;" /> file to the <code>HR_Dev</code> and <code>HR_Test</code> databases so it will match all the environments.</p>
+        <h2>Step 1: Create a <MadCap:variable name="General.changelog" style="font-style: italic;" /></h2>
+        <p>First, you will create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that contains all the SQL changes from the source HR database. You can create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file to match your HR database manually or it can be done automatically by using the <code>generateChangeLog</code> command.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For any database larger than a few tables, use the <MadCap:xref href="../../commands/community/generateChangeLog.html">generateChangeLog command</MadCap:xref>.</p>
+        <p>To run the <code>generateChangeLog</code> command, you need to specify your driver, class path, URL, and user authentication information in your <code><MadCap:variable name="General.liquiPropFile" /></code> file. For more information, see <MadCap:xref href="creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>. You can also specify these properties in your command line.</p>
+        <p>Then run the <code>generateChangeLog</code> command:</p><pre><code class="language-text">liquibase --changeLogFile=dbchangelog.xml generateChangeLog</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> that you want to use in place of <code>dbchangelog.xml</code>.</p>
+        <p>The <code>generateChangeLog</code> command generates a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that contains all your objects (represented as <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>) and places the file in the same directory where the command was run.</p>
+        <p>The <MadCap:variable name="General.changelog" style="font-style: italic;" /> file name extension determines the format of the <MadCap:variable name="General.changelog" style="font-style: italic;" />, so if you specify the file name as <code>changelog.xml</code>, you will get an XML formatted <MadCap:variable name="General.changelog" style="font-style: italic;" />. Likewise, if you specify the file name as <code>.yaml</code>, <code>.json</code>, or <code>.sql</code>, you will get <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> formatted in YAML, JSON, or SQL, respectively.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Note:	If you generate an SQL formatted <MadCap:variable name="General.changelog" style="font-style: italic;" />, specify the type name of the targeted database as a part of the file name:</p><pre><code class="language-text">changelog.&lt;db_type&gt;.sql</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> does not always detect complex structures like stored procedures or details like an index that is not clustered. Once you have generated a <MadCap:variable name="General.changelog" style="font-style: italic;" />, inspect the output. Review the generated <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and ensure that the data types look as expected.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML changelog example:</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+	http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;
+	&lt;changeSet  author="diff-generated"  id="1185214997195-2"&gt;
+		&lt;createTable  name="DEPT"&gt;
+			&lt;column  name="DEPTNO"  type="NUMBER(2,0)"/&gt;
+			&lt;column  name="DNAME"  type="VARCHAR2(14,0)"/&gt;
+			&lt;column  name="LOC"  type="VARCHAR2(13,0)"/&gt;
+		&lt;/createTable&gt;
+	&lt;/changeSet&gt;
+	&lt;changeSet  author="diff-generated"  id="1185214997195-6"&gt;
+		&lt;createIndex  indexName="PK_DEPT"  tableName="DEPT"&gt;
+			&lt;column  name="DEPTNO"/&gt;
+		&lt;/createIndex&gt;
+	&lt;/changeSet&gt;
+	&lt;changeSet  author="diff-generated"  id="1185214997195-7"&gt;
+		&lt;createIndex  indexName="PK_EMP"  tableName="EMP"&gt;
+			&lt;column  name="EMPNO"/&gt;
+		&lt;/createIndex&gt;
+	&lt;/changeSet&gt;
+	&lt;changeSet  author="diff-generated"  id="1185214997195-8"&gt;
+		&lt;addPrimaryKey  columnNames="DEPTNO"  tableName="DEPT"/&gt;
+	&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Step 2: Populate the <MadCap:variable name="General.databasechangelog" /> tracking table</h2>
+        <p>Once you have your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, populate the <MadCap:variable name="General.databasechangelog" /> tracking table with the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> from this <MadCap:variable name="General.changelog" style="font-style: italic;" />.</p>
+        <p><MadCap:variable name="General.Liquibase" /> keeps track of your already deployed changes with the help of its <MadCap:variable name="General.databasechangelog" /> tracking table.</p>
+        <p>To create this table for the first time, use the <code>changeLogSync</code> command. The <code>changeLogSync</code> command will populate the <MadCap:variable name="General.databasechangelog" /> table with the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> metadata as if you have been using <MadCap:variable name="General.Liquibase" /> all along.</p>
+        <p>Another approach you can choose is to add the contexts.</p>
+        <h3>Running the <code>changeLogSyncSQL</code> and <code>changeLogSync</code> commands:</h3>
+        <ul>
+            <li>Run the <code>changeLogSyncSQL</code> command to inspect the SQL and ensure that everything looks good before executing the <code>changeLogSync</code> command:</li>
+        </ul><pre><code class="language-text">liquibase --changelogFile=dbchangelog.xml changelogSyncSQL</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> that you want to use in place of <code>dbchangelog.xml</code>.</p>
+        <ul>
+            <li>Run the <code>changeLogSync</code> command to ensure that the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are treated as already run since they exist in our HR database. The command will mark the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file as already deployed. This will prevent <MadCap:variable name="General.Liquibase" /> from attempting to redeploy those <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> next time when you run the update command.</li>
+        </ul><pre><code class="language-text">liquibase --changelogFile=dbchangelog.xml changelogSync</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> that you want to use in place of <code>dbchangelog.xml</code>.</p>
+        <h3>Adding the contexts</h3>
+        <p>Alternatively, you can add contexts to the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> such as <code>&lt;changeSet ... context="legacy"&gt;</code>:</p><pre><code class="language-text">&lt;changeSet  author="diff-generated"  id="1185214997195-8" context="legacy"&gt;
+	&lt;addPrimaryKey  columnNames="DEPTNO"  tableName="DEPT"/&gt;
 &lt;/changeSet&gt;</code></pre>
-<p>The contexts can be added to the <MadCap:variable name="General.changeset" style="font-style: italic;" /> to control which <MadCap:variable name="General.changeset" style="font-style: italic;" /> will be executed in any run. Only the <i><MadCap:variable name="General.Changeset" />s</i > marked with the specific contexts in your <MadCap:variable name="General.changelog" style="font-style: italic;" /> that are used with the <code>--contexts</code> flag during the runtime will be run.</p>
-<ul>
-<li>When you run the <MadCap:variable name="General.changelog" style="font-style: italic;" /> on the HR_Dev and HR_Test database environments, enter the following:</li>
-</ul>
-<code>liquibase --contexts=legacy update</code>
-<ul>
-<li>When you run it on your existing database, which is HR, enter the following:</li>
-</ul>
-<code>liquibase --contexts=non-legacy update</code>
-<p>After creating a <MadCap:variable name="General.changelog" style="font-style: italic;" /> and populating the HR DATABASECHANGELOG table with the <code>changeLogSync</code> command or with the contexts, you can now deploy this generated <MadCap:variable name="General.changelog" style="font-style: italic;" /> to the HR_Dev and HR_Test database environments that need to match you HR database.</p> 
-</body>
+        <p>The contexts can be added to the <MadCap:variable name="General.changeset" style="font-style: italic;" /> to control which <MadCap:variable name="General.changeset" style="font-style: italic;" /> will be executed in any run. Only the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> marked with the specific contexts in your <MadCap:variable name="General.changelog" style="font-style: italic;" /> that are used with the <code>--contexts</code> flag during the runtime will be run.</p>
+        <ul>
+            <li>When you run the <MadCap:variable name="General.changelog" style="font-style: italic;" /> on the <code>HR_Dev</code> and <code>HR_Test</code> database environments, enter the following:</li>
+        </ul><pre><code class="language-text">liquibase --contexts=legacy update</code></pre>
+        <ul>
+            <li>When you run it on your existing database, which is HR, enter the following:</li>
+        </ul><pre><code class="language-text">liquibase --contexts=non-legacy update</code></pre>
+        <p>After creating a <MadCap:variable name="General.changelog" style="font-style: italic;" /> and populating the HR <MadCap:variable name="General.databasechangelog" /> table with the <code>changeLogSync</code> command or with the contexts, you can now deploy this generated <MadCap:variable name="General.changelog" style="font-style: italic;" /> to the <code>HR_Dev</code> and <code>HR_Test</code> database environments that need to match you HR database.</p>
+    </body>
 </html>
