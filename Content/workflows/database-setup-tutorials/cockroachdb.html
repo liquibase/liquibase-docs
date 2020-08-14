@@ -1,38 +1,53 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-		<title>Using Liquibase with Sybase Anywhere | Liquibase Docs</title>
-        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using <MadCap:variable name="General.Liquibase" /> with Sybase Anywhere</title>
-    	<meta name="description" content="This page guides you through the process of creating a new Liquibase project with Sybase Anywhere." />
-	</head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using <MadCap:variable name="General.Liquibase" /> with CockroachDB</title>
+    </head>
     <body>
-        <h1> Using <MadCap:variable name="General.Liquibase" /> with Sybase Anywhere</h1>
-        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Sybase Anywhere. In this tutorial, you will learn how to generate an example project and follow the instructions to apply concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with Sybase Anywhere.</p>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with CockroachDB</h1>
+        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with CockroachDB. In this tutorial, you will learn how to generate an example project and follow the instructions to apply concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with CockroachDB.</p>
         <h2>Prerequisites</h2>
         <ul>
             <li>Ensure that you have installed the latest version of <MadCap:variable name="General.Liquibase" />. If not, go to <a href="https://www.liquibase.org/download">https://www.liquibase.org/download</a> to install it.</li>
             <li>Ensure the <code>liquibase.bat</code> file's path is set to a location in the PATH System variable.</li>
-            <li>Go to <a href="https://mvnrepository.com/artifact/net.sourceforge.jtds/jtds">https://mvnrepository.com/artifact/net.sourceforge.jtds/jtds</a> to download the jdbc jar driver file.</li>
+            <li>Go to <a href="https://jdbc.postgresql.org/download.html">https://jdbc.postgresql.org/download.html</a> to download the PostgreSQL jdbc jar driver file to connect to CockroachDB.</li>
         </ul>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Place your jar file in the <code>Liquibase/lib</code> install directory or in any other known directory so you can locate it easily.</p>
+        <ul>
+            <li>Generate <a href="http://cockroach-docs-review.s3-website-us-east-1.amazonaws.com/0223bcc6998a4ffe50fa2c93e08715a0aa61e942/v20.2/cockroach-cert.html">TLS certificates</a> for the user that you created during <a href="http://cockroach-docs-review.s3-website-us-east-1.amazonaws.com/0223bcc6998a4ffe50fa2c93e08715a0aa61e942/v20.2/secure-a-cluster.html">a secure CockroachDB cluster setup</a>. Use the <code>cockroach cert</code> command to generate the certificates:</li>
+        </ul>
+        <pre><code class="language-text">cockroach cert create-client user --certs-dir=certs --ca-key=my-safe-directory/ca.key --also-generate-pkcs8-key</code></pre>
         <h2>Tutorial</h2>
-        <p><strong>To create a <MadCap:variable name="General.Liquibase" /> project with Sybase Anywhere, perform the following steps:</strong>
+        <p><strong>To create a <MadCap:variable name="General.Liquibase" /> project with CockroachDB, perform the following steps:</strong>
         </p>
         <ol>
-            <li>Create a new project folder and name it <code>LiquibaseSybaseAnywhere</code>.</li>
-            <li>In your <code>LiquibaseSybaseAnywhere</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile" /></code>.</li>
+            <li>Create a new project folder and name it <code>LiquibaseCockroachDB</code>.</li>
+            <li>In your <code>LiquibaseCockroachDB</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile" /></code>.</li>
             <li>Edit the <code><MadCap:variable name="General.liquiPropFile" /></code> file to add the following properties:</li>
-        </ol><pre><code class="language-text">changeLogFile: dbchangelog.xml
-url: jdbc:jtds:sybase://localhost:5002/MYDATABASE
+        </ol>
+            <h3>CockroachDB on-premises sample <code><MadCap:variable name="General.liquiPropFile" /></code> file</h3>
+            <pre><code class="language-text">changeLogFile: dbchangelog.xml
+url:jdbc:postgresql://localhost:26257/database?ssl=true&amp;sslmode=require&amp;sslrootcert=/full-path/certs/ca.crt&amp;sslkey=/full-ath/certs/client.user.key.pk8&amp;sslcert=/full-path/certs/client.user.crt
 username: user1
 password: password
-driver: net.sourceforge.jtds.jdbc.Driver
-classpath: ../../Liquibase/lib/jtds-1.3.1.jar</code></pre>
+driver: org.postgresql.Driver
+classpath: ../../Liquibase_Drivers/postgresql-42.2.8.jar</code></pre>
+<p>When using the CockroachDB on-premises and specifying URL, enter your IP address or host name, and then the port followed by the database name. The example of the format is the following: <code>jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:&lt;PORT&gt;/&lt;DATABASE&gt;</code>.</p>
+<p>The SSL connection parameters to the full paths of the certificates that you generated are optional.</p>
+<p>A key in <code>PKCS#8</code> format is the standard key encoding format in Java.</p>
+<h3>CockroachDB cloud sample <code><MadCap:variable name="General.liquiPropFile" /></code> file</h3>
+<pre><code class="language-text">changeLogFile: dbchangelog.xml
+url: jdbc:postgresql://liquibase-3r8.aws-us-east-2.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full&amp;sslrootcert=liquibase-ca.crt
+username: user1
+password: password
+driver: org.postgresql.Driver
+classpath: ../../Liquibase_Drivers/postgresql-42.2.8.jar</code></pre>
+<p>When using the CockroachCloud instance and specifying URL, enter a global host name and the port <code>26257</code> by referring to the <a href="https://www.cockroachlabs.com/docs/cockroachcloud/stable/">CockroachCloud</a> website. Also, add the database name with the SSL mode and the path to the CA certificate to your URL.</p>           
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Specifying your password, take into account that <MadCap:variable name="General.Liquibase" /> supports only the following special characters: <code>~ # $ % * ( ) - _ + [ ] { } . ?</code>. Unsupported special characters are as follows: <code>@ &amp; / : &lt; &gt; " ' ` | ^ ! = , \ &lt;spaces&gt;</code>.</p>
         <p>If you placed your jar file in the <code>Liquibase/lib</code> install directory, there is no need to specify the <code>classpath</code> property in the <code><MadCap:variable name="General.liquiPropFile" /></code> file. Otherwise, put the path to your driver as it is shown in the preceding example.</p>
         <p>If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile" /></code> file:</p><pre><code class="language-text">liquibaseProLicenseKey: &lt;paste license key&gt;</code></pre>
         <ol start="4">
-            <li>In your <code>LiquibaseSybaseAnywhere</code> folder, create a new text file and name it <code>dbchangelog.xml</code>. The <MadCap:variable name="General.changelog" style="font-style: italic;" /> files contain a sequence of <i><MadCap:variable name="General.changeset" />s</i>, each of which makes small changes to the structure of your database.</li>
+            <li>In your <code>LiquibaseCockroachDB</code> folder, create a new text file and name it <code>dbchangelog.xml</code>. The <MadCap:variable name="General.changelog" style="font-style: italic;" /> files contain a sequence of <i><MadCap:variable name="General.changeset" />s</i>, each of which makes small changes to the structure of your database.</li>
         </ol>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Instead of creating an empty <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, you can use an existing database to generate a <MadCap:variable name="General.changelog" style="font-style: italic;" />. In this tutorial, you will manually add a single change. To add this change, open the XML file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</p><pre><code class="language-text">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
   &lt;databaseChangeLog
@@ -65,17 +80,19 @@ classpath: ../../Liquibase/lib/jtds-1.3.1.jar</code></pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The preceding <MadCap:variable name="General.changeset" style="font-style: italic;" /> is XML format. The corresponding SQL statement looks like the following:</p><pre><code class="language-sql">--liquibase formatted sql
 
 --changeset bob:1
-CREATE TABLE department (id INTEGER NOT NULL, 
+CREATE TABLE "DEPARTMENT" ("ID" INTEGER, "NAME" STRING, "ACTIVE" BOOLEAN);
+--changeset bob:1
+CREATE TABLE public.department (id INTEGER NOT NULL, 
 name VARCHAR(50) NOT NULL, 
 active BOOLEAN DEFAULT TRUE, 
 CONSTRAINT DEPARTMENT_PKEY PRIMARY KEY (id));
 </code></pre>
         <ol start="6">
-            <li>Open the command prompt, navigate to the <code>LiquibaseSybaseAnywhere</code> directory, and then run the following command:</li>
+            <li>Open the command prompt, navigate to the <code>LiquibaseCockroachDB</code> directory, and then run the following command:</li>
         </ol><pre><code class="language-text">liquibase update</code></pre>
         <ol start="7">
             <li>From a database UI Tool, check your database changes. You will see a new <code>department</code>; table added to the database. For example:</li>
-        </ol><pre><code class="language-sql">SELECT * FROM "dbo"."department";</code></pre>
+        </ol><pre><code class="language-sql">SELECT * FROM "public"."department";</code></pre>
         <table style="margin-left: auto;margin-right: auto;width: 633;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" />
             <col class="TableStyle-TableStyles-Column-Column1" />
@@ -149,5 +166,10 @@ CONSTRAINT DEPARTMENT_PKEY PRIMARY KEY (id));
             </tbody>
         </table>
         <p><strong><MadCap:variable name="General.databasechangeloglock" /></strong> tracking table. This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> table during deployment.</p>
+        <h2>See also</h2>
+        <p><a href="https://www.cockroachlabs.com/docs/stable/">CockroachDB Docs</a></p>
+        <p><a href="http://cockroach-docs-review.s3-website-us-east-1.amazonaws.com/0223bcc6998a4ffe50fa2c93e08715a0aa61e942/cockroachcloud/stable/">CockroachCloud Docs</a></p>
+        <p><a href="http://cockroach-docs-review.s3-website-us-east-1.amazonaws.com/0223bcc6998a4ffe50fa2c93e08715a0aa61e942/v20.2/cockroach-cert.html">Cockroach CA</a></p>
+        <p><a href="http://cockroach-docs-review.s3-website-us-east-1.amazonaws.com/0223bcc6998a4ffe50fa2c93e08715a0aa61e942/v20.2/cockroach-sql.html">Cockroach SQL</a></p>
     </body>
 </html>
