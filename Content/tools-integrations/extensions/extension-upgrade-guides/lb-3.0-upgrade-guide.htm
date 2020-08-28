@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Liquibase 3.0 Extension Upgrade Guide | Liquibase Docs</title>
+        <meta name="description" content="Learn about the impact of changes in the Liquibase 3.0 release that affect Liquibase extension developers, contributors, and users. " />
+    </head>
+    <body>
+        <h1><MadCap:variable name="General.Liquibase" /> 3.0 Extension Upgrade Guide</h1>
+        <p>For the normal <MadCap:variable name="General.Liquibase" /> end user, <MadCap:variable name="General.Liquibase" /> 3.0.0 is a drop-in replacement for any <MadCap:variable name="General.Liquibase" /> 2.0.x version.</p>
+        <p>For developers of <MadCap:variable name="General.Liquibase" /> extensions, there has been some Java API changes that may impact your code. This page continue to be updated with those changes.</p>
+        <p><a href="lb-2.0-upgrade-guide.htm">1.x to 2.x upgrade guide</a>
+        </p>
+        <h2><code>runOnChange</code> and Other Checksum Related Functionality</h2>
+        <p>There was a change in how checksums are computed between 2.x and 3.x. We try to keep these changes to a minimum, but unfortunately they do happen, especially when there are extensive code changes like there was in 3.0.0. <MadCap:variable name="General.Liquibase" /> will detect that there has been a checksum version change and automatically update the checksums accordingly when you first run 3.0, but that also means <MadCap:variable name="General.Liquibase" /> cannot detect differences between a <MadCap:variable name="General.changeset" style="font-style: italic;" /> between a 2.x and a 3.x run.</p>
+        <p>When <MadCap:variable name="General.Liquibase" /> cannot determine if a <MadCap:variable name="General.changeset" style="font-style: italic;" /> has changed or not it assumes it has not.</p>
+        <p>Therefore, if you use runOnChange functionality that you think may be triggered, you will want to run <MadCap:variable name="General.Liquibase" /> 3.0 against your target database with a known unchanged <MadCap:variable name="General.changelog" style="font-style: italic;" /> file before running a new <MadCap:variable name="General.changelog" style="font-style: italic;" /> file.</p>
+        <h2>API changes</h2>
+        <h3>Database.escapeDatabaseObject</h3><pre><code class="language-text">Database.escapeDatabaseObject -&gt; Database.escapeObjectName(String objectName, Class&lt;? extends DatabaseObject&gt; objectType)</code></pre>
+        <p>To better support escaping objects, we removed the generic <code>escapeDatabaseObject</code> method in favor of a new one that better describes what you are doing (escaping the name, not escaping the object) and specifies the type of object that is being escaped.</p>
+        <h3>Database.escape * Name(schema, tableName)</h3>
+        <p>In 3.0, we now support catalogs in addition to schemas and so all the <code>escapeTYPEName</code> methods such as <code>escapeTableName</code>, <code>escapeColumnName</code> etc. take an additional catalog parameter now.</p>
+        <h3>AbstractChange constructor</h3>
+        <p>In 2.x, change metadata such as priority, name, and description was passed in the constructor. To better support subclassing default Changes, the metadata was moved to a new @DatabaseChange class level annotation.</p>
+        <p>For example, in 2.x you would create a class as:</p><pre><code class="language-text">public AddCheckChange() {
+super("addCheck", "Add Check", ChangeMetaData.PRIORITY_DEFAULT);
+}</code></pre>
+        <p>but in 3.x you would have a no-arg constructor and instead add the following to the class definition:</p><pre><code class="language-text">@DatabaseChange(
+name="addCheck",
+description = "Add Check",
+priority = ChangeMetaData.PRIORITY_DEFAULT)</code></pre>
+    </body>
+</html>
