@@ -5,8 +5,41 @@
     </head>
     <body>
         <h1 id="labels">Labels</h1>
-        <p>Labels in <MadCap:variable name="General.Liquibase" /> are tags you can add to <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to control which will be executed in any particular migration run.</p>
-        <p>Labels were added in <MadCap:variable name="General.Liquibase" /> 3.3 to work like contexts, but “backwards” in who can specify logical expressions. In your <MadCap:variable name="General.changeset" /> you can only specify a simple list of “labels” that apply to the <MadCap:variable name="General.changeset" style="font-style: italic;" /> but at runtime you can write a complex expression to chose the labels you want to execute. This allows you to specify a <MadCap:variable name="General.changeset" style="font-style: italic;" /> with labels=”qa, acme_inc” and then at runtime use expressions such as<code> --labels="!acme_inc"</code> or --labels="pro or (free and beta)".</p>
-        <p>Labels work best when you can simply enumerate/describe what a <MadCap:variable name="General.changeset" style="font-style: italic;" /> is for, but the deployment time environment is complex to describe. An example of when labels would work well is when you can describe <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> as for a particular feature or version such as “1.0” and/or “shopping_cart” but the decision on which features and/or versions needs to run is complex and chosen at deployment time. Labels in this case would allow you to run with <code>--labels="1.0 or (1.1 and shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and only the 1.1. features related to the shopping cart to one database and<code> --labels="1.0 or (1.1 and !shopping_cart)"</code> to another database.</p>
+        <p>Labels are tags that you can add to <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to control which <MadCap:variable name="General.changeset" /> will be executed in any migration run. Labels control whether a <MadCap:variable name="General.changeset" /> is executed depending on runtime settings. Any string can be used for the label name, and it is case-insensitive.</p>
+        <h2>Uses</h2>
+        <p><MadCap:variable name="General.Liquibase" /> allows you to run the <code>--labels</code> attribute to determine which <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" /> to evaluate based on its label.</p>
+        <ul>
+            <li>In your <MadCap:variable name="General.changelog" />, you can specify only a simple list of labels to apply to the <MadCap:variable name="General.changeset" />. For example,  <code>labels="qa, acme_inc"</code>.</li>
+            <li>	At runtime, you can specify a complex expression with the labels that you want to execute. For example, <code>--labels="!acme_inc"</code> or <code>--labels="pro or (free and beta)"</code>.</li>
+        </ul>
+        <h2>How to work with labels</h2>
+        <p>It is best practice to enumerate your <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> or describe what a <MadCap:variable name="General.changeset" /> is used for. An example of labels indicating the version or a specific feature can be <code>"1.0"</code> or<code> "shopping_cart"</code>. In this case, labels will allow you to run changes with:</p>
+        <ul>
+            <li><code>--labels=1.0</code> to deploy the 1.0 <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> or <code>--labels=shopping_cart</code> to deploy the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> related to the shopping cart.</li>
+            <li><code>--labels="1.0 or (1.1 and shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and only the 1.1. features related to the shopping cart.</li>
+            <li><code>--labels="1.0 or (1.1 and !shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and the 1.1. features that are not related to the shopping cart.</li>
+        </ul><pre><code class="language-text">liquibase --changeLogFile=changelog.xml --outputFile=updateSQL.txt --labels=1.0 updateSQL</code></pre>
+        <p>An example of the <MadCap:variable name="General.changelog" /> file with labels:</p><pre><code class="language-text">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+        &lt;databaseChangeLog  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;
+        
+		&lt;changeSet  author="Liquibase User"    id="1::createTableforSynonym-proschema"  labels="1.0"  objectQuotingStrategy="QUOTE_ALL_OBJECTS"&gt;
+        &lt;createTable  schemaName="proschema"  tableName="primary_table"&gt;
+        &lt;column  name="name"  type="CHAR(20)"/&gt;
+        &lt;/createTable&gt;
+        &lt;/changeSet&gt;
+        
+		&lt;changeSet  author="Liquibase Pro User"  id="2::createTableforView-proschema"  labels="1.1"  objectQuotingStrategy="QUOTE_ALL_OBJECTS"&gt;
+        &lt;createTable  schemaName="proschema"  tableName="account"&gt;
+        &lt;column  name="acct_num"  type="NUMBER(20,0)"/&gt;
+        &lt;column  name="amoount"  type="NUMBER(10,2)"/&gt;
+        &lt;/createTable&gt;
+        &lt;/changeSet&gt;
+        &lt;/databaseChangeLog&gt;</code></pre>
     </body>
 </html>
