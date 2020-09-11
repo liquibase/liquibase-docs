@@ -2,5 +2,5 @@ Get-ChildItem "C:\Users\Datical\Documents\MadCap Flare Projects\LiquibasePro\Out
     Foreach-Object {
         $c = ($_ | Get-Content) 
         $c = $c -replace 'meta rel','link rel'
-        [IO.File]::WriteAllText($_.FullName, ($c -join "`r`n"))
+        [IO.File]::WriteAllText($_.FullName, ($c -join "`r`n"), System.Text.UTF8Encoding)
     }
