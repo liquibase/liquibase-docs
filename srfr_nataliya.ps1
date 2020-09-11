@@ -1,4 +1,4 @@
-Get-ChildItem "C:\Users\Datical\Documents\MadCap Flare Projects\LiquibasePro\Output\Datical\HTML5" *.html -recurse |
+Get-ChildItem "C:\Users\nmelny\Documents\My Projects\LiquibasePro\Output\nmelny\HTML5" *.html -recurse |
     Foreach-Object {
         $c = ($_ | Get-Content) 
         $c = $c -replace 'meta rel','link rel'
