@@ -1,19 +1,72 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head>
-		<title>customChange | Liquibase Docs</title>
-		<meta rel="canonical" href="https://docs.liquibase.com/change-types/community/custom-change.html" />
+    <head><title>customChange | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/change-types/community/custom-change.html" />
         <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
         <meta name="description" content="Reference information for the customChange changetype. The customChange changetype allows you to create a custom changetype class." />
     </head>
     <body>
         <h1 id="change-customchange">customChange</h1>
-        <p>Creates a custom <MadCap:variable name="General.changetypes" /> class.</p>
+        <p>The <code>customChange</code> type creates a custom <MadCap:variable name="General.changetypes" /> class.</p>
         <h2>Uses</h2>
-        <p>Although <MadCap:variable name="General.Liquibase" /> tries to provide a wide range of database <MadCap:variable name="General.changetypes" />s, there are times you may want to create your own custom <MadCap:variable name="General.changetypes" /> class.</p>
-        <p>To create your own custom <MadCap:variable name="General.changetypes" />, simply create a class that implements the liquibase.change.custom.CustomSqlChange or liquibase.change.custom.CustomTaskChange interface &lt;customChange&gt; tag in your change set.</p>
-        <p>If your change can be rolled back, implement the liquibase.change.custom.CustomSqlRollback interface as well.</p>
-        <p>For a sample custom change class, see liquibase.change.custom.ExampleCustomSqlChange in the test folder</p>
+        <p>Although <MadCap:variable name="General.Liquibase" /> tries to provide a wide range of database <MadCap:variable name="General.changetypes" />s, you may want to create your own custom <MadCap:variable name="General.changetypes" /> class. The <code>customChange</code> type allows you to run the needed code within a <MadCap:variable name="General.changeset" style="font-style: italic;" />.</p>
+        <p>You can typically use the <code>customChange</code> <MadCap:variable name="General.changetypes" /> to run your script when you want to:</p>
+        <ul>
+            <li>Loop through all the tables in the database and convert datatypes</li>
+            <li>Download data from a webserver and insert it into your database</li>
+            <li>Change the lighting color in your data center</li>
+            <li>Perform the other needed custom features</li>
+        </ul>
+        <p>The <code>customChange</code> type is the way to integrate your custom code into the <MadCap:variable name="General.changelog" style="font-style: italic;" />. To create your own custom <MadCap:variable name="General.changetypes" /> by integrating the custom code, follow these steps:</p>
+        <ol>
+            <li>Create a java class that implements the <code><a href="#CustomSq"><code>liquibase.change.custom.CustomSqlChange</code> or <code>liquibase.change.custom.CustomTaskChange</code></a></code> interface &lt;customChange&gt; tag in your <MadCap:variable name="General.changeset" style="font-style: italic;" />.</li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>The example of a class</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">public class ExampleCustomTaskChange implements CustomTaskChange, CustomTaskRollback {
+private String helloTo;
+@SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
+    private ResourceAccessor resourceAccessor;
+    public String getHelloTo() {
+        return helloTo;
+    }  
+    public void setHelloTo(String helloTo) {
+        this.helloTo = helloTo;
+    }
+    @Override
+    public void execute(Database database) throws CustomChangeException {
+        Scope.getCurrentScope().getLog(getClass()).info("Hello "+getHelloTo());
+    } 
+    @Override
+    public void rollback(Database database) throws CustomChangeException, RollbackImpossibleException {
+        Scope.getCurrentScope().getLog(getClass()).info("Goodbye "+getHelloTo());
+    }
+    @Override
+    public String getConfirmationMessage() {
+        return "Said Hello";
+    }
+    @Override
+    public void setUp() throws SetupException {
+    ;
+    }
+    @Override
+    public void setFileOpener(ResourceAccessor resourceAccessor) {
+        this.resourceAccessor = resourceAccessor;
+    } 
+    @Override
+    public ValidationErrors validate(Database database) {
+        return new ValidationErrors();
+    }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <p>There is a settable <code>helloTo</code> and the <code>execute(Database database)</code> method in the class that is a part of the interface. You can put any code within the <code>execute()</code> method.</p>
+        <ol start="2">
+            <li>Compile the created class, package it into a jar file, and then add it to a <MadCap:variable name="General.Liquibase" /> classpath.</li>
+            <li>Add the class to your <MadCap:variable name="General.changelog" style="font-style: italic;" /> as it is shown in the examples:</li>
+        </ol>
         <!--
 		<h2 id="available-attributes">Available attributes</h2>
         <table>
@@ -25,15 +78,38 @@
                 <th>Since</th>
             </tr>
         </table> -->
-        <h3>XML example</h3><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><span class="nt">&lt;changeSet</span>  <span class="na">author=</span><span class="s">"liquibase-docs"</span>  <span class="na">id=</span><span class="s">"customChange-example"</span><span class="nt">&gt;</span>  
-    <span class="nt">&lt;customChange/&gt;</span>  
-<span class="nt">&lt;/changeSet&gt;</span></code></pre>
-        <h3>YAML example</h3><pre xml:space="preserve"><code class="language-yaml" data-lang="yaml"><span class="na">changeSet</span><span class="pi">:</span>  
-  <span class="na">id</span><span class="pi">:</span>  <span class="s">customChange-example</span>  
-  <span class="na">author</span><span class="pi">:</span>  <span class="s">liquibase-docs</span>  
-  <span class="na">changes</span><span class="pi">:</span>  
-  <span class="pi">-</span>  <span class="na">customChange</span><span class="pi">:</span>  <span class="pi">{}</span></code></pre>
-        <h3>JSON example</h3><pre xml:space="preserve"><code class="language-json" data-lang="json"><span class="p">{</span><span class="w">  </span><span class="s2">"changeSet"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="w">  </span><span class="s2">"id"</span><span class="p">:</span><span class="w">  </span><span class="s2">"customChange-example"</span><span class="p">,</span><span class="w">  </span><span class="s2">"author"</span><span class="p">:</span><span class="w">  </span><span class="s2">"liquibase-docs"</span><span class="p">,</span><span class="w">  </span><span class="s2">"changes"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="w">  </span><span class="p">{</span><span class="w">  </span><span class="s2">"customChange"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="w">  </span><span class="p">}</span><span class="w">  </span><span class="p">}]</span><span class="w">  </span><span class="p">}</span><span class="w">  </span><span class="p">}</span></code></pre>
+        <h3>XML example</h3><pre><code class="language-xml">&lt;changeSet id="21" author="nvoxland"&gt;
+        &lt;customChange class="liquibase.change.custom.ExampleCustomTaskChange" helloTo="world"/&gt;
+ &lt;/changeSet&gt;</code></pre>
+        <h3>YAML example</h3><pre><code class="language-yaml">changeSet:
+   id:  21
+   author: nvoxland
+   changes:
+   -  customChange:  {
+“class”: "liquibase.change.custom.ExampleCustomTaskChange",
+“helloTo”: "world" }</code></pre>
+        <h3>JSON example</h3><pre xml:space="preserve"><code class="language-json">{
+  "changeSet": {
+  "id": "21",
+  "author": "nvoxland",
+  "changes": [
+    {
+       "customChange": {
+ “class”: "liquibase.change.custom.ExampleCustomTaskChange",
+ “helloTo”: "world"
+         }
+       }
+     ]
+   }
+ }</code></pre>
+        <p>When that <MadCap:variable name="General.changeset" style="font-style: italic;" /> is executed, <code>helloTo</code> will be set to "world" and the <code>execute()</code> method will be called to run what you specified.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If your change can be rolled back, implement the <code>liquibase.change.custom.CustomSqlRollback</code> as well.</p>
+        <h2><a name="CustomSq"></a><code>CustomSqlChange</code> and <code>CustomTaskChange</code></h2>
+        <p>The difference between <code>CustomTaskChange</code> and <code>CustomSqlChange</code> is the following:</p>
+        <ul>
+            <li>In <code>CustomTaskChange</code>, you have the <code>execute()</code> method that executes the needed string.</li>
+            <li>In <code>CustomSqlChange</code>, there is a <code>generateStatements(Database database</code> method that doesn't execute the needed string but returns the SQL that should be run. This makes the custom change work better with the <code>updateSQL</code> command, which displays the SQL being run.</li>
+        </ul>
         <h2 id="database-support">Database support</h2>
         <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
