@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/maven/commands/maven-syncHub.html" />
+        <meta name="description" content="Reference information and use cases for the syncHub Maven goal." />
+    </head>
+    <body>
+        <h1>Maven <code>syncHub</code></h1>
+        <p><code>syncHub</code> synchronizes the local <MadCap:variable name="General.databasechangelog" /> table with <MadCap:variable name="General.Hub" />.</p>
+        <h2>Uses</h2>
+        <p><code>syncHub</code> is typically used when you want to:</p>
+        <ul>
+            <li>Ensure that <MadCap:variable name="General.Hub"></MadCap:variable> shows the latest results from your <MadCap:variable name="General.databasechangelog"></MadCap:variable> table.</li>
+            <li>Synchronize the <MadCap:variable name="General.databasechangelog"></MadCap:variable> table of a new project that has pre-existing data in the <MadCap:variable name="General.databasechangelog"></MadCap:variable> table.</li>
+            <li>Synchronize your local data if <code>update</code>, <code>rollback</code>, <code>changelogSync</code>, or <code>dropAll</code> were run while <MadCap:variable name="General.Hub"></MadCap:variable> was offline.</li>
+        </ul>
+        <p>When you run the <code>syncHub</code> goal, you will not see any operations added to the Project associated with your <MadCap:variable name="General.changelog" style="font-style: italic;" />. <code>syncHub</code> cannot associate previous <code><MadCap:variable name="General.Liquibase" /></code> operations, so you will not see any operations in <MadCap:variable name="General.Hub" />. You will only see <i><MadCap:variable name="General.changeset" />s</i> added to the <i><MadCap:variable name="General.changeset" style="font-weight: bold;" /><b>s</b></i> tab in your <MadCap:variable name="General.Hub" /> project.</p>
+        <h2>Maven configuration</h2>
+        <p><MadCap:variable name="General.Liquibase"></MadCap:variable> Maven can be configured multiple ways. One way is to define your
+        <MadCap:variable name="General.Liquibase"></MadCap:variable> configuration properties in your <code>pom.xml</code> file. You can
+        also indicate the location of your<code> liquibase.properties</code> file using the following syntax:</p>
+        <p><code>&lt;liquibase.propertyFile&gt;path/to/properties_file&lt;/liquibase.propertyFile&gt;</code>
+        </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Replace <code>path/to/properties_file</code> with the
+        location of your default properties file. See the example below.</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>&lt;liquibase.propertyFile&gt;${project.basedir}/local.liquibase.properties&lt;/liquibase.propertyFile&gt;</code>
+        </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Multiple profiles can be created in the
+        <code>pom.xml</code> which contain different
+        <MadCap:variable name="General.Liquibase" /> properties. See the example below.</p>
+        <p>There is also a list of the <MadCap:variable name="General.Hub" /> properties you can specify in the <code>pom.xml</code> file:</p><pre><code class="language-text">&lt;!-- Hub Mode --&gt;
+&lt;liquibase.hub.apiKey&gt;HUB API KEY&lt;/liquibase.hub.apiKey&gt;
+&lt;!--liquibase.hubMode&gt;all|meta|off&lt;/liquibase.hubMode--&gt;
+&lt;!--liquibase.hubConnectionId&gt;CONNECTION ID&lt;/liquibase.hubConnectionId&gt;
+&lt;!--liquibase.hubProjectId&gt;PROJECT ID&lt;/liquibase.hubProjectId-&gt;</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You cannot specify the <code>hubConnectionId</code> and <code>hubProjectId</code> in the <MadCap:variable name="General.liquiPropFile" /> file. Only the API Key and <MadCap:variable name="General.Hub" /> mode can be specified in the <MadCap:variable name="General.liquiPropFile" /> file as well as on the command line. The <MadCap:variable name="General.Hub" /> mode property is optional, its default value is set to <code>all</code>.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example of a Maven <code>pom.xml</code> output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+&lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+    &lt;version&gt;2.1.9.RELEASE&lt;/version&gt;
+    &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+&lt;/parent&gt;
+&lt;groupId&gt;com.example&lt;/groupId&gt;
+&lt;artifactId&gt;liquibase-project&lt;/artifactId&gt;
+&lt;version&gt;05XII19&lt;/version&gt;
+    &lt;profiles&gt;
+    &lt;profile&gt;
+    &lt;id&gt;DEV&lt;/id&gt;
+    &lt;properties&gt;
+                    
+&lt;liquibase.propertyFile&gt;${project.basedir}/DEV.properties&lt;/liquibase.propertyFile&gt;
+    &lt;/properties&gt;
+&lt;/profile&gt;
+&lt;profile&gt;
+    &lt;id&gt;QA&lt;/id&gt;
+    &lt;properties&gt;
+                    
+&lt;liquibase.propertyFile&gt;${project.basedir}/QA.properties&lt;/liquibase.propertyFile&gt;
+    &lt;/properties&gt;
+&lt;/profile&gt;
+&lt;profile&gt;
+    &lt;id&gt;PROD&lt;/id&gt;
+    &lt;properties&gt;
+                    
+&lt;liquibase.propertyFile&gt;${project.basedir}/PROD.properties&lt;/liquibase.propertyFile&gt;
+    &lt;/properties&gt;
+&lt;/profile&gt;
+&lt;/profiles&gt;
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.microsoft.sqlserver&lt;/groupId&gt;
+        &lt;artifactId&gt;mssql-jdbc&lt;/artifactId&gt;
+        &lt;version&gt;8.1.0.jre8-preview&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;!-- https://mvnrepository.com/artifact/com.oracle.jdbc/ojdbc6 --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.oracle.jdbc&lt;/groupId&gt;
+        &lt;artifactId&gt;ojdbc8&lt;/artifactId&gt;
+        &lt;version&gt;19.3.0.0&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+&lt;build&gt;
+    &lt;pluginManagement&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+                &lt;artifactId&gt;liquibase-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;3.8.9&lt;/version&gt;
+
+        &lt;!--  &lt;executions&gt;
+            &lt;execution&gt;
+                &lt;goals&gt;
+                    &lt;goal&gt;syncHub&lt;/goal&gt;
+                &lt;/goals&gt;
+                &lt;phase&gt;process-classes&lt;/phase&gt;
+            &lt;/execution&gt;
+        &lt;/executions&gt;--&gt;
+    &lt;dependencies&gt;
+
+ &lt;!-- Hub Mode --&gt;
+ &lt;liquibase.hub.apiKey&gt;yourapikey&lt;/liquibase.hub.apiKey&gt;
+ &lt;!--liquibase.hubMode&gt;all&lt;/liquibase.hubMode--&gt;
+ &lt;!--liquibase.hubConnectionId&gt;yourconnectionid&lt;/liquibase.hubConnectionId--&gt;
+						        
+    &lt;!--Pick ONLY ONE of the following database dependencies.  These are working examples for you to use to start with --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.microsoft.sqlserver&lt;/groupId&gt;
+            &lt;artifactId&gt;mssql-jdbc&lt;/artifactId&gt;
+            &lt;version&gt;7.4.1.jre8&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;postgresql&lt;/groupId&gt;
+            &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+            &lt;version&gt;9.1-901-1.jdbc4&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;!--  How to add Oracle JDBC driver in your Maven local repository
+            https://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/ --&gt;
+            &lt;groupId&gt;com.oracle&lt;/groupId&gt;
+            &lt;artifactId&gt;ojdbc7&lt;/artifactId&gt;
+            &lt;version&gt;4.1.3&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/plugin&gt;
+&lt;/plugins&gt;
+&lt;/pluginManagement&gt;
+&lt;/build&gt;
+&lt;/project&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Running the <code>syncHub</code> Maven goal</h2>
+        <p>Also, the following items are required:</p>
+        <ul>
+            <li>The <MadCap:variable name="General.Hub" /> API Key</li>
+            <p>There are three ways to specify your API Key:</p>
+            <ul>
+                <li>Including <code>liquibase.hub.ApiKey</code> value in the <code><MadCap:variable name="General.liquiPropFile" /></code> file:</li><pre><code class="language-text">liquibase.hub.ApiKey: &lt;addYourHubApiKeyHere&gt;</code></pre>
+                <li>Including <code>liquibase.hub.apiKey</code> value in the <code>pom.xml</code> file:</li><pre><code class="language-text">&lt;liquibase.hub.apiKey&gt;HUB API KEY&lt;/liquibase.hub.apiKey&gt;</code></pre>
+            </ul>
+            <ul>
+                <li>Passing <code>liquibaseHubApiKey</code> on the command line:</li><pre><code class="language-text">-- liquibaseHubApiKey=addYourHubApiKeyHere</code></pre>
+            </ul>
+            <ul>
+                <li>Specifying API key in your JAVA_OPTS as <code>-Dliquibase.hub.apiKey</code>. To specify JAVA_OPTS on Windows, Linux, or MacOS, run <code>SET JAVA_OPTS=”-Dliquibase.hub.apikey”</code></li>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	 To retrieve or manage your API keys, go to <b>Settings</b> &gt; <b>API Keys</b> by selecting the settings icon on the left side of the page.</p>
+            </ul>
+            <li>The <MadCap:variable name="General.changelog" style="font-style: italic;" /> file</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Add your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file to the <code>pom.xml</code> or <code><MadCap:variable name="General.liquiPropFile" /></code> file or specify it as the <code>-Dliquibase.changeLogFile</code> attribute while running the goal.</p>
+            <li>The <code>hubConnectionId</code> attribute:<ul><li><p>If you enter the <code>-Dliquibase.changeLogFile</code> attribute, there is no need to specify <code>hubConnectionId</code> with the goal.</p></li><li><p>If you use <code>hubConnectionId</code>, add it to the <code>pom.xml</code> file or to the <code>syncHub</code> goal on the command line. It cannot be specified in the <code><MadCap:variable name="General.liquiPropFile" /></code> file. You can find the <code>hubConnectionId</code> in <b>Project</b> &gt; <b>Connections</b> &gt; <b>Connection</b> in the lower-left corner.</p></li><li><p>If you specify both the <code>hubConnectionId</code> and the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file will be ignored and the connection Id will be used.</p></li></ul></li>
+        </ul>
+        <p><pre><code class="language-text">&lt;!--liquibase.hubConnectionId&gt;CONNECTION ID&lt;/liquibase.hubConnectionId&gt;</code></pre>
+            <p>Additionally, you can set the level of data, which you want to send to <MadCap:variable name="General.Hub" />, in your JAVA_OPTS as<code> -Dliquibase.hub.apiKey</code> or in the <code><MadCap:variable name="General.liquiPropFile" /></code> file:</p><pre><code class="language-text">liquibase.hub.mode:[all|meta|off]</code></pre>
+            <ul>
+                <li><code>all</code> sends all data, including the <MadCap:variable name="General.changeset" style="font-style: italic;" /> body, generated SQL, and logs (the default value is all).</li>
+                <li><code>meta</code> does not send the <MadCap:variable name="General.changeset" style="font-style: italic;" /> body, generated SQL, or operation-event and change-event logs. This mode sends the <MadCap:variable name="General.changeset" style="font-style: italic;" /> name, author, id, timestamps, <MadCap:variable name="General.Liquibase" /> version, and others.</li>
+                <li><code>off</code> sends no data to <MadCap:variable name="General.Hub" />.</li>
+            </ul>
+            <p>Before running the <code>syncHub</code> goal, register your <MadCap:variable name="General.changelog" style="font-weight: normal; font-style: italic;" /> file by using the <code>registerChangeLog</code> goal:</p><pre><code class="language-text">mvn liquibase:registerChangeLog</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>registerChangeLog</code> goal connects your local <MadCap:variable name="General.Liquibase" /> activity to a specific <MadCap:variable name="General.Hub" /> Project.</p>
+            <p>To run the goal, type the following in your command line:</p>
+            <p><code class="language-text">mvn liquibase:syncHub</code>
+            </p>
+            <h2>Output</h2>
+            <p>When successful, the <code>syncHub</code> Maven goal produces the following output:</p><pre><code class="language-text">Starting Liquibase at 12:18:41 (version 4.0.1-DAT-5252-SNAPSHOT #7 built at 2020-09-08 17:40+0000)
+[INFO] Executing on Database: jdbc:oracle:thin:@//localhost:1522/BUCKET_01
+Sep 11, 2020 12:18:42 PM liquibase.hub
+INFO: Connected to Liquibase Hub with an API Key 'cTMOXZ************'
+Sep 11, 2020 12:18:42 PM liquibase.changelog
+INFO: Reading from DATABASECHANGELOG
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.028 s
+[INFO] Finished at: 2020-09-11T12:18:43-05:00
+[INFO] ------------------------------------------------------------------------</code></pre>
+            <h2><code>syncHub</code> optional Maven configuration properties</h2>
+            <table style="width: 100%;margin-left: auto;margin-right: auto;mc-table-style: url('../../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+                <col class="TableStyle-TableStyles-Column-Column1" />
+                <col class="TableStyle-TableStyles-Column-Column1" />
+                <thead>
+                    <tr class="TableStyle-TableStyles-Head-Header1">
+                        <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Property</th>
+                        <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Definition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="TableStyle-TableStyles-Body-Body1">
+                        <td class="TableStyle-TableStyles-BodyB-Column1-Body1">hubConnectionId</td>
+                        <td class="TableStyle-TableStyles-BodyA-Column1-Body1">
+                            <p>Specifies the connection needed for the <code>syncHub</code> goal to synchronize the local <MadCap:variable name="General.databasechangelog" /> table with <MadCap:variable name="General.Hub" />.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
+    </body>
+</html>
