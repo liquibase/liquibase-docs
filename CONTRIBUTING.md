@@ -28,5 +28,8 @@ Project Overview - How to apply changes to https://docs.liquibase.com
 
 Where and how to find and modify the required html file from the url
 ====================================================================
-The file system hierarchy in the https://github.com/Datical/liquibase-docs.git repository will store the html files with the same way they are presented in the https://docs.liquibase.com website.
-For example: For the file residing in liquibase-docs/Content/commands/pro/rollbackonechangeset.html repository, the corresponding url would be: https://docs.liquibase.com/commands/pro/rollbackonechangeset.html
+The file system hierarchy in the https://github.com/Datical/liquibase-docs.git repository mirrors the way they are presented in the https://docs.liquibase.com website.
+
+For example: 
+- For the file residing in **liquibase-docs/Content/commands/pro/rollbackonechangeset.html** repository
+- the corresponding url would be: **https://docs.liquibase.com/commands/pro/rollbackonechangeset.html**
