@@ -1,4 +1,4 @@
-# docs.liquibase.io
+# docs.liquibase.com
 
 Documentation for the liquibase website.
 
