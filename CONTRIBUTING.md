@@ -21,7 +21,7 @@ Project Overview - How to apply changes to https://docs.liquibase.com
     2. git commit -m <message> (put a meaningful message that clearly explains the changes)
     3. git push -u origin [newBranchName] - to create the remote branch
 4. **Create a Pull Request**
-    1. make a pull request  staging <-- [newBranchName]  and request a review. You do this using the github.com website UI.
+    1. make a pull request to the **staging** branch <-- [newBranchName]  and request a review. You do this using the github.com website UI.
 5. **Await approval of your changes**
     1. When approved, the staging branch will be merged to master.
     2. Your branch will be deleted.  In this example: git checkout master && git branch -D [newBranchName] && git branch -d [newBranchName] && git push
