@@ -11,7 +11,7 @@
         <h2>Uses</h2>
         <p>In <MadCap:variable name="General.Liquibase" />, you can break up your master <MadCap:variable name="General.changelog" style="font-style: italic;" /> into more manageable pieces by creating multiple <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> to separate your <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in a way that makes sense for you. For example, you can separate <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> into their own files, according to features, releases, or other logical boundaries. Breaking up your <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> can make it easier to find and manage complex database schema scripts. </p>
         <p>The reason why you would use the <code>&lt;include&gt;</code> tag rather than using XML's built-in include functionality is that the parser sees just one large XML document. <MadCap:variable name="General.Liquibase" /> needs to uniquely identify each <MadCap:variable name="General.changeset" style="font-style: italic;" /> with an id, author, and file name.</p>
-        <h2>How to Use the <code>&lt;include&gt;</code> Tag</h2>
+        <h2>How to use the <code>&lt;include&gt;</code> tag</h2>
         <ol>
             <li>
                 <p>Create a master <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, if you do not have one already. </p>
@@ -35,7 +35,7 @@
 	&lt;include file="com/example/news/news.changelog.sql"/&gt;
 	&lt;include file="com/example/directory/directory.changelog.sql"/&gt;
 &lt;/databaseChangeLog&gt;</code></pre>
-        <h2>How the <code>&lt;include&gt;</code> tag runs <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i></h2>
+        <h2>How the <code>&lt;include&gt;</code> tag runs in a <MadCap:variable name="General.changelog" style="font-style: italic;" /></h2>
         <p>All included <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are run in the order they are found. So make sure that the included <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are completely independent or that any required <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are run first. </p>
         <p>In the master <MadCap:variable name="General.changelog" style="font-style: italic;" /> example above, the root <MadCap:variable name="General.changelog" style="font-style: italic;" /> includes first the changes in <code>com/example/news/news.changelog.sql</code> then the changes in <code>com/example/directory/directory.changelog.sql</code>.</p>
         <p>
@@ -44,9 +44,12 @@
         <p><MadCap:variable name="General.Liquibase" /> does not check for the double inclusion of <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> in your master file. However, if you include a <MadCap:variable name="General.changelog" style="font-style: italic;" /> twice, <MadCap:variable name="General.Liquibase" /> recognizes that the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> have already been run and will not run them again, even if you use a <code>&lt;runAlways&gt;</code> tag.</p>
         <h2>About infinite loops in <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i></h2>
         <p><MadCap:variable name="General.Liquibase" /> does not check for looping <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> in your master file. However, if you create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> loop like the following, you will get an infinite loop which will prevent the operation from completing:</p>
-        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>root.changelog.xml</code> includes <code>news.changelog.xml</code> which includes <code>root.changelog.xml</code></p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>root.changelog.xml</code> includes <code>news.changelog.xml</code> which includes <code>root.changelog.xml</code>.</p>
         <p>Make sure to avoid infinite loops when referencing<i> </i><MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>.</p>
-        <h2>Available Attributes</h2>
+        <p>If you create an infinite loop, <MadCap:variable name="General.Liquibase"></MadCap:variable> will display the following error, and will continue to loop until the process runs out of memory: </p>
+        <p><code>Unexpected error running <MadCap:variable name="General.Liquibase" />: Unknown reason</code>
+        </p>
+        <h2>Available attributes</h2>
         <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
             <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
@@ -72,14 +75,51 @@
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Optional</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>context</code>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>context</code>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
                         <p>Appends a context (using an AND statement) to all contained <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Contexts only work with the <code>&lt;include&gt;</code> tag when referencing non-SQL files.</p>
+                        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>&lt;include file="dbchangelog_roll-forward.xml" context="DEV"/&gt;</code>
+                        </p>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Optional</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Optional</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>labels</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">
+                        <p>Appends a label to all contained <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Labels only work with the <code>&lt;include&gt;</code> tag when referencing non-SQL files.</p>
+                        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>&lt;include file="dbchangelog_roll-forward.xml" labels="rollback_version1"/&gt;</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Optional</td>
                 </tr>
             </tbody>
         </table>
+        <h3>Related links</h3>
+        <ul>
+            <li>
+                <p>
+                    <MadCap:xref href="includeall.html">&lt;includeAll&gt; tag</MadCap:xref>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <MadCap:xref href="labels.html">Labels</MadCap:xref>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <MadCap:xref href="contexts.html">Contexts</MadCap:xref>
+                </p>
+            </li>
+            <li>
+                <p>
+                    <MadCap:xref href="../basic/changelog.html">[%=General.changelog%]</MadCap:xref>
+                </p>
+            </li>
+        </ul>
     </body>
 </html>
