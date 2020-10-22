@@ -1,18 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head>
-		<title>labels | Liquibase Docs</title>
-		<meta rel="canonical" href="https://docs.liquibase.com/concepts/advanced/labels.html" />
+    <head><title>labels | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/advanced/labels.html" />
         <meta name="description" content="Reference information for using Labels in Liquibase. Labels are tags you can add to changesets to control which will be executed in any particular migration run." />
     </head>
     <body>
         <h1 id="labels">Labels</h1>
         <p style="font-style: normal;">Labels are tags that you can add to <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to control which <MadCap:variable name="General.changeset" style="font-style: italic;" /> will be executed in any migration run. Labels control whether a <MadCap:variable name="General.changeset" style="font-style: italic;" /> is executed depending on runtime settings. Any string can be used for the label name, and it is case-insensitive.</p>
+        <p>Labels allow you to choose a subset of <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i> to execute at the runtime and represent a simple list on each <MadCap:variable name="General.changeset" style="font-style: italic;" /> and complex expressions that are supplied at the runtime. It means that <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i> are tagged with a list of labels (not expressions), and during the runtime, you can pass a label expression to choose the <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i> which match the expression.</p>
         <h2>Uses</h2>
-        <p><MadCap:variable name="General.Liquibase" /> allows you to run the <code>--labels</code> attribute to determine which <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> to evaluate based on its label.</p>
+        <p>You can typically use labels to:</p>
         <ul>
-            <li>In your <MadCap:variable name="General.changelog" style="font-style: italic;" />, you can specify only a simple list of labels to apply to the <MadCap:variable name="General.changeset" style="font-style: italic;" />. For example,  <code>labels="qa, acme_inc"</code>.</li>
-            <li>	At runtime, you can specify a complex expression with the labels that you want to execute. For example, <code>--labels="!acme_inc"</code> or <code>--labels="pro or (free and beta)"</code>.</li>
+            <li>Manage and track your deployments.</li>
+            <li>Apply complex logic to your deployments.</li>
+            <li>Mark <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i> based on features and then selectively apply those features at the execution time instead of using version control branches.</li>
+            <li>Use different languages for marking <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i>. For example, you can mark your <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i> both with Spanish and English.</li>
+        </ul>
+        <h2>Labels Syntax</h2>
+        <p>Labels can be specified using <code>AND</code>, <code>OR</code>, <code>!</code>, and <code>()</code> (parentheses that are used for grouping). For example:</p>
+        <ul>
+            <li>labels=”!v.0.1”</li>
+            <li>labels=”v.1.0 and v.1.1”</li>
+            <li>labels=”v.1.0 or v.1.1”</li>
+            <li>labels=”!v.1.0 and !v.1.1”</li>
+        </ul>
+        <p>Using <code>“,”</code> to separate labels works the same as an <code>OR</code> operation. For example:</p>
+        <ul>
+            <li><code>labels=“v.1.0, v.1.1”</code> is the same as <code>labels=“v.1.0 OR v.1.1”</code></li>
+            <li><code>labels=“v.0.1, v.1.0 and v.1.1”</code> is the same as <code>labels=“(v.0.1) OR (v.1.0 and v.1.1)"</code></li>
+        </ul>
+        <p>You can run the <code>--labels</code> attribute to determine which <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> to evaluate based on its label.</p>
+        <ul>
+            <li>In your <MadCap:variable name="General.changelog" style="font-style: italic;" />, you can specify only a simple list of labels to apply to the <MadCap:variable name="General.changeset" style="font-style: italic;" />. For example,  <code>labels="v.0.1, v.1.0"</code>.</li>
+            <li>	At runtime, you can specify a complex expression with the labels that you want to execute. For example, <code>--labels="!v.0.1"</code> or <code>--labels="v.1.0 or (v.1.1 and v.1.2)"</code>.</li>
         </ul>
         <h2>How to work with labels</h2>
         <p>It is best practice to enumerate your <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> or describe what a <MadCap:variable name="General.changeset" style="font-style: italic;" /> is used for. An example of labels indicating the version or a specific feature can be <code>"1.0"</code> or<code> "shopping_cart"</code>. In this case, labels will allow you to run changes with:</p>
@@ -20,28 +40,112 @@
             <li><code>--labels=1.0</code> to deploy the 1.0 <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> or <code>--labels=shopping_cart</code> to deploy the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> related to the shopping cart.</li>
             <li><code>--labels="1.0 or (1.1 and shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and only the 1.1. features related to the shopping cart.</li>
             <li><code>--labels="1.0 or (1.1 and !shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and the 1.1. features that are not related to the shopping cart.</li>
-        </ul><pre><code class="language-text">liquibase --changeLogFile=changelog.xml --outputFile=updateSQL.txt --labels=1.0 updateSQL</code></pre>
-        <p>An example of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with labels:</p><pre><code class="language-text">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
-        &lt;databaseChangeLog  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
-        http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
-        http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;
+        </ul>
+        <p>You can see an example of running the <code>update</code> command with complex label statements:</p><pre><code class="language-text">liquibase --changeLogFile=changelog.xml --outputFile=update.txt --labels="1.0 or (1.1 and !shopping_cart)" update</code></pre>
+        <h2>XML example</h2><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd
+	http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.0.xsd"&gt;
         
-		&lt;changeSet  author="Liquibase User"    id="1::createTableforSynonym-proschema"  labels="1.0"  objectQuotingStrategy="QUOTE_ALL_OBJECTS"&gt;
-        &lt;createTable  schemaName="proschema"  tableName="primary_table"&gt;
-        &lt;column  name="name"  type="CHAR(20)"/&gt;
-        &lt;/createTable&gt;
-        &lt;/changeSet&gt;
-        
-		&lt;changeSet  author="Liquibase Pro User"  id="2::createTableforView-proschema"  labels="1.1"  objectQuotingStrategy="QUOTE_ALL_OBJECTS"&gt;
-        &lt;createTable  schemaName="proschema"  tableName="account"&gt;
-        &lt;column  name="acct_num"  type="NUMBER(20,0)"/&gt;
-        &lt;column  name="amoount"  type="NUMBER(10,2)"/&gt;
-        &lt;/createTable&gt;
-        &lt;/changeSet&gt;
-        &lt;/databaseChangeLog&gt;</code></pre>
+&lt;changeSet  author="Liquibase User"    id="1"  labels="1.0"  objectQuotingStrategy="QUOTE_ALL_OBJECTS"&gt;
+       &lt;createTable  schemaName="proschema"  tableName="primary_table"&gt;
+       &lt;column  name="name"  type="CHAR(20)"/&gt;
+       &lt;/createTable&gt;
+&lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+        <h2>SQL example</h2><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+
+--changeset Liquibase User:1
+--labels: 1.0
+create table primary_table (  
+   id int primary key,
+   name varchar(50) not null,
+   address1 varchar(50),
+   address2 varchar(50),
+   city varchar(30)
+)</code></pre>
+        <h2>YAML example</h2><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:  
+  -  changeSet:  
+     id:  1  
+     author:  Liquibase User
+     labels: 1.0
+     changes:  
+     -  createTable:  
+	 tableName:  primary_table  
+	 columns:  
+        -  column:  
+	    name:  id  
+	    type:  int  
+	    autoIncrement:  true  
+	    constraints:  
+	     primaryKey:  true  
+	     nullable:  false  
+	    -  column:  
+	    name:  firstname  
+	    type:  varchar(50)  
+	    -  column:  
+	    name:  lastname  
+	    type:  varchar(50)  
+	    constraints:  
+	     nullable:  false  
+	    -  column:  
+	    name:  state  
+	    type:  char(2)</code></pre>
+        <h2>JSON example</h2><pre xml:space="preserve"><code class="language-json">{
+	"databaseChangeLog": [
+	  {
+	   "changeSet": {
+	      "id": "1",
+	      "author": "Liquibase User",
+	      "labels": "1.0",
+	      "changes": [
+		{
+		 "createTable": {
+		 "tableName": "primary_table",
+		 "columns": [
+		   {
+		    "column": {
+		     "name": "id",
+		     "type": "int",
+		     "autoIncrement": true,
+		     "constraints": {
+		       "primaryKey": true,
+		       "nullable": false
+		    },            
+		  }
+		},
+		  {
+		      "column": {
+			"name": "firstname",
+			"type": "varchar(50)"
+		  }
+		},
+		  {
+		      "column": {
+		      "name": "lastname",
+		      "type": "varchar(50)",
+		      "constraints": {
+			"nullable": false                              
+		  }
+		 }		
+		},
+		  {
+		      "column": {
+		      "name": "state",
+		      "type": "char(2)"
+		          }
+		        }
+		      ]
+	        }
+	      }
+        ]
+      }
+    }
+  ]
+}			
+</code></pre>
     </body>
 </html>

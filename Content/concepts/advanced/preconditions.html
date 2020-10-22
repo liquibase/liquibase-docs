@@ -7,44 +7,205 @@
     </head>
     <body>
         <h1 id="preconditions">Preconditions</h1>
-        <p>Preconditions can be attached to a <MadCap:xref href="../basic/changelog.html">[%=General.changelog%]</MadCap:xref> or a <MadCap:xref href="../basic/changeset.html">[%=General.changeset%]</MadCap:xref> to control the execution of an update based on the state of the database.</p>
-        <p>There are several reasons to use preconditions, including:</p>
+        <p>Preconditions are <MadCap:variable name="General.changelog" style="font-style: italic;" /> or <MadCap:variable name="General.changeset" style="font-style: italic;" /> tags which control the execution of an update based on the state of the database.</p>
+        <h2>Uses</h2>
+        <p>Preconditions are typically used to:</p>
         <ul>
-            <li>Document what assumptions the writers of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> had when creating it.</li>
+            <li>Document what assumptions the author of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> had when creating it.</li>
             <li>Enforce that those assumptions are not violated by users running the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</li>
             <li>Perform data checks before performing an unrecoverable change such as <MadCap:xref href="../../change-types/community/drop-table.html">dropTable</MadCap:xref>.</li>
             <li>Control what <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are run and not run based on the state of the database.</li>
         </ul>
-        <p>If desired, a precondition can be the only tag in a <code class="highlighter-rouge">&lt;changeSet&gt;</code>.</p>
-        <p>Preconditions at the <MadCap:variable name="General.changelog" style="font-style: italic;" /> level apply to <strong>all</strong> <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, not just those listed in the current <MadCap:variable name="General.changelog" style="font-style: italic;" /> or its child <MadCap:variable name="General.changelog" style="font-style: italic;" />.</p>
-        <h2 id="sample-with-preconditions">Sample with preconditions</h2>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>  
+        <h2>Running <i><MadCap:variable name="General.changelog" style="font-style: italic;" />s</i> with preconditions</h2>
+        <p>A precondition can be the only tag in a <MadCap:variable name="General.changeset" style="font-style: italic;" />. Also, preconditions at the <MadCap:variable name="General.changelog" style="font-style: italic;" /> level are applied to all <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i>, not just those listed in the current <MadCap:variable name="General.changelog" style="font-style: italic;" /> or its child <i><MadCap:variable name="General.changelog" style="font-style: italic;" />s</i>.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Preconditions are checked at the beginning of the execution of a particular <MadCap:variable name="General.changelog" style="font-style: italic;" />. If you use the include tag and only have preconditions on the child <MadCap:variable name="General.changelog" style="font-style: italic;" />, those preconditions will not be checked until the migrator reaches that file. However, this behavior may change in future releases.</p>
+        <p>While running the <MadCap:variable name="General.changelog" style="font-style: italic;" /> or <MadCap:variable name="General.changeset" style="font-style: italic;" /> with the precondition, add it to your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file as shown in the examples.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+     &lt;databaseChangeLog  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+      xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd
+      http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.0.xsd"&gt;
+   
+&lt;preConditions&gt;
+    &lt;dbms  type="oracle"  /&gt;
+    &lt;runningAs  username="SYSTEM"  /&gt;
+&lt;/preConditions&gt;
 
-<span class="nt">&lt;databaseChangeLog</span>  
-  <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span>  
-  <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
-  <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog
-         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span>  
-    <span class="nt">&lt;preConditions&gt;</span>  
-        <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
-        <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"SYSTEM"</span>  <span class="nt">/&gt;</span>  
-    <span class="nt">&lt;/preConditions&gt;</span>  
-
-    <span class="nt">&lt;changeSet</span>  <span class="na">id=</span><span class="s">"1"</span>  <span class="na">author=</span><span class="s">"bob"</span><span class="nt">&gt;</span>  
-        <span class="nt">&lt;preConditions</span>  <span class="na">onFail=</span><span class="s">"WARN"</span><span class="nt">&gt;</span>  
-            <span class="nt">&lt;sqlCheck</span>  <span class="na">expectedResult=</span><span class="s">"0"</span><span class="nt">&gt;</span>select count(*) from oldtable<span class="nt">&lt;/sqlCheck&gt;</span>  
-        <span class="nt">&lt;/preConditions&gt;</span>  
-        <span class="nt">&lt;comment&gt;</span>Comments should go after preCondition. If they are before then liquibase usually gives error.<span class="nt">&lt;/comment&gt;</span>  
-        <span class="nt">&lt;dropTable</span>  <span class="na">tableName=</span><span class="s">"oldtable"</span><span class="nt">/&gt;</span>  
-    <span class="nt">&lt;/changeSet&gt;</span>  
-<span class="nt">&lt;/databaseChangeLog&gt;</span></code>
-            </pre>
-        </figure>
-        <p>The above <MadCap:variable name="General.changelog" style="font-style: italic;" /> will only run if the database executed against is Oracle and the database user executing the script is “SYSTEM”. It will also only run <MadCap:xref href="../../change-types/community/drop-table.html">dropTable</MadCap:xref> if there are no values in the “oldtable”.</p>
+&lt;changeSet  id="1"  author="Liquibase User"&gt;
+    &lt;preConditions  onFail="WARN"&gt;
+    &lt;sqlCheck  expectedResult="0"&gt;select count(*) from oldtable&lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;comment&gt;Comments should go after preCondition. If they are located before the precondition, then Liquibase usually gives error.&lt;/comment&gt;
+    &lt;dropTable  tableName="oldtable"/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+                <p>The sample <MadCap:variable name="General.changelog" style="font-style: italic;" /> will only run if the database executed against is Oracle and the database user executing the script is SYSTEM. It will also only run <MadCap:xref href="../../change-types/community/drop-table.html">dropTable</MadCap:xref> if there are no values in the <code>oldtable</code>.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>Currently, only the SQL check precondition is supported.</p><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+			
+--changeset Liquibase User:1
+--precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM primary_table
+--comment: /*comments should go after preCondition. If they are located before the precondition, then Liquibase usually gives error.*/
+create table primary_table (  
+	id int primary key,
+	name varchar(50) not null,
+	address1 varchar(50),
+	address2 varchar(50),
+	city varchar(30)
+)</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:  
+  -  preConditions:  
+     - sqlCheck:
+     expectedResult: 0
+     sql: select count(*) from primary_table
+  -  changeSet:  
+     id:  1  
+     author:  Liquibase User
+     changes:  
+      -  createTable:  
+	  tableName:  primary_table  
+	  columns:  
+	  -  column:  
+	     name:  id  
+	     type:  int  
+	     autoIncrement:  true  
+	     constraints:  
+	      primaryKey:  true  
+	      nullable:  false  
+      -  column:  
+         name:  firstname  
+	  type:  varchar(50)  
+      -  column:  
+	  name:  lastname  
+	  type:  varchar(50)  
+         constraints:  
+	  nullable:  false  
+      -  column:  
+	  name:  state  
+	  type:  char(2)</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-json">{
+      "databaseChangeLog": [
+	 {
+	  "preConditions": [
+	    {
+         “sqlCheck”: {
+	  “expectedResult”: 0,
+	  “sql”: “select count(*) from primary_table”
+		}
+	       }
+	      ]
+	     },
+	    {
+	      "changeSet": {
+		"id": "1",
+		"author": "Liquibase User",
+		"labels": "1.0",
+		"changes": [
+		   {
+		    "createTable": {
+		    "tableName": "primary_table",
+		    "columns": [
+		    {
+		      "column": {
+		        "name": "id",
+		        "type": "int",
+		        "autoIncrement": true,
+		        "constraints": {
+		          "primaryKey": true,
+		          "nullable": false                         
+		     }
+		    }
+		  },
+		{
+		      "column": {
+		      "name": "firstname",
+		      "type": "varchar(50)"
+		     }
+		   },
+		{
+		      "column": {
+		      "name": "lastname",
+		      "type": "varchar(50)",
+		      "constraints": {
+		      "nullable": false
+		     },
+                              
+		    }
+		 },
+		{
+		      "column": {
+		      "name": "state",
+		      "type": "char(2)"
+		          }
+		        }
+		      ]
+		    }
+		  }
+		]
+	  }
+	}
+  ]
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Preconditions syntax</h2>
+        <p>You can apply conditional logic to preconditions using nestable &lt;and&gt;, &lt;or&gt;, and &lt;not&gt; tags. If no conditional tags are specified, the default value is <code>AND</code>.</p>
+        <p>The following syntax example will check that the update is running on Oracle and with the SYSTEM user but will only generate a warning message if the precondition fails:</p><pre xml:space="preserve"><code class="language-text">&lt;preConditions  onFail="WARN"&gt;
+    &lt;dbms  type="oracle"  /&gt;
+    &lt;runningAs  username="SYSTEM"  /&gt;
+ &lt;/preConditions&gt;</code></pre>
+        <p>In the next example, the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be require to run on Oracle and MySQL, which will always be false unless a huge and unexpected merger takes place:</p><pre xml:space="preserve"><code class="language-text">&lt;preConditions&gt;
+    &lt;dbms  type="oracle"  /&gt;
+    &lt;dbms  type="mysql"  /&gt;
+ &lt;/preConditions&gt;</code></pre>
+        <p>The following will require running the <MadCap:variable name="General.changelog" style="font-style: italic;" /> on Oracle or MySQL:</p><pre xml:space="preserve"><code class="language-text">&lt;preConditions&gt;
+     &lt;or&gt;
+   &lt;dbms  type="oracle"  /&gt;
+   &lt;dbms  type="mysql"  /&gt;
+     &lt;/or&gt;
+&lt;/preConditions&gt;</code></pre>
+        <p>You can also see the precondition running as SYSTEM if executing against an Oracle database or running as SA if executing against a MS SQL database.</p><pre xml:space="preserve"><code class="language-text">&lt;preConditions&gt;
+    &lt;or&gt;
+       &lt;and&gt;
+          &lt;dbms  type="oracle"  /&gt;  
+          &lt;runningAs  username="SYSTEM"  /&gt;
+       &lt;/and&gt;
+       &lt;and&gt;
+          &lt;dbms  type="mssql"  /&gt;
+          &lt;runningAs  username="sa"  /&gt;
+       &lt;/and&gt;
+     &lt;/or&gt;
+&lt;/preConditions&gt;</code></pre>
         <h2 id="handling-failures-and-errors">Handling failures and errors</h2>
-        <p><MadCap:variable name="General.Liquibase" /> distinguishes between precondition “failures” (check failed) and “errors” (exception thrown in execution of check) and the reaction to both can be controlled via the “onFail” and “onError” attributes on the <code class="highlighter-rouge">&lt;preConditions&gt;</code> tag.  <strong>Since 1.8</strong></p>
+        <p><MadCap:variable name="General.Liquibase" /> defines two types of preconditions:</p>
+        <ul>
+            <li>Precondition failures which represent that the check failed</li>
+            <li>Precondition errors that are the exceptions thrown in the execution of a check</li>
+        </ul>
+        <p>The process of both can be controlled through the <code>onFail</code> and <code>onError</code> attributes on the <code>&lt;preConditions&gt;</code> tag.</p>
         <h3 id="available-attributes">Available attributes</h3>
         <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" />
@@ -58,15 +219,15 @@
             <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">onFail</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">What to do when preconditions fail (see below).</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">What to do when preconditions fail.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body2">onError</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">What to do when preconditions error (see below).</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">What to do when preconditions error.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">onSqlOutput</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">What to do in updateSQL mode (see below). <b>Since 1.9.5</b> </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">What to do in the updateSQL mode. <b>Since 1.9.5</b> </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body2">onFailMessage</td>
@@ -78,7 +239,7 @@
                 </tr>
             </tbody>
         </table>
-        <h3 id="possible-onfailonerror-values">Possible onFail/onError values</h3>
+        <h3>onFail/onError values</h3>
         <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" />
             <col class="TableStyle-TableStyles-Column-Column1" />
@@ -91,24 +252,23 @@
             <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">HALT</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Immediately halt the execution of the entire <MadCap:variable name="General.changelog" style="font-style: italic;" />. <b>[DEFAULT]</b></td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Halts the execution of the entire <MadCap:variable name="General.changelog" style="font-style: italic;" /> (default). HALT can be put outside a <MadCap:variable name="General.changeset" style="font-style: italic;" /> (e.g. at the beginning of the <MadCap:variable name="General.changelog" style="font-style: italic;" />).</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body2">CONTINUE</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Skip over the <MadCap:variable name="General.changeset" style="font-style: italic;" />. Execution of the change set will be attempted again on the next update. Continue with the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Skips over the <MadCap:variable name="General.changeset" style="font-style: italic;" />. Execution of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> will be attempted again on the next update. Continues with the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">MARK_RAN</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Skip over the <MadCap:variable name="General.changeset" style="font-style: italic;" />, but mark it as executed. Continue with the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Skips over the <MadCap:variable name="General.changeset" style="font-style: italic;" />, but mark it as executed. Continues with the <MadCap:variable name="General.changelog" style="font-style: italic;" />.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyB-Column1-Body2">WARN</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Output a warning and continue executing the <MadCap:variable name="General.changeset" style="font-style: italic;" /> / <MadCap:variable name="General.changelog" style="font-style: italic;" /> as normal.</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Outputs a warning and continue executing the <MadCap:variable name="General.changeset" style="font-style: italic;" /> / <MadCap:variable name="General.changelog" style="font-style: italic;" /> as normal. WARN can be put outside a <MadCap:variable name="General.changeset" style="font-style: italic;" /> (e.g. at the beginning of the <MadCap:variable name="General.changelog" style="font-style: italic;" />).</td>
                 </tr>
             </tbody>
         </table>
-        <p>Outside a <MadCap:variable name="General.changeset" style="font-style: italic;" /> (e.g. at the beginning of the change log), only HALT and WARN are possible values.</p>
-        <h3 id="possible-onsqloutput-values">Possible onSqlOutput values</h3>
+        <h3 id="possible-onsqloutput-values">onSqlOutput values</h3>
         <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" />
             <col class="TableStyle-TableStyles-Column-Column1" />
@@ -121,417 +281,233 @@
             <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">TEST</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Run the <MadCap:variable name="General.changeset" style="font-style: italic;" /> in updateSQL mode.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Runs the <MadCap:variable name="General.changeset" style="font-style: italic;" /> in the updateSQL mode.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body2">FAIL</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Fail the preCondition in updateSQL mode.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Fails the <code>preCondition</code> in the updateSQL mode.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
                     <td class="TableStyle-TableStyles-BodyB-Column1-Body1">IGNORE</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Ignore the preCondition in updateSQL mode (default).</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Ignores the <code>preCondition</code> in the updateSQL mode (default).</td>
                 </tr>
             </tbody>
         </table>
-        <h2 id="andornot-logic">AND/OR/NOT logic</h2>
-        <p>Conditional logic can be applied to preconditions using nestable <code class="highlighter-rouge">&lt;and&gt;</code>, <code class="highlighter-rouge">&lt;or&gt;</code> and <code class="highlighter-rouge">&lt;not&gt;</code> tags. <strong>If no conditional tags are specified, it defaults to AND</strong>.</p>
-        <p>Examples:</p>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">    <span class="nt">&lt;preConditions</span>  <span class="na">onFail=</span><span class="s">"WARN"</span><span class="nt">&gt;</span>  
-        <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
-        <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"SYSTEM"</span>  <span class="nt">/&gt;</span>  
-    <span class="nt">&lt;/preConditions&gt;</span></code>
-            </pre>
-        </figure>
-        <p>Will check that the update is running on Oracle AND with the SYSTEM user, but will only generate a warning if the precondition fails.</p>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml"> <span class="nt">&lt;preConditions&gt;</span>  
-     <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
-     <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"mysql"</span>  <span class="nt">/&gt;</span>  
- <span class="nt">&lt;/preConditions&gt;</span></code>
-            </pre>
-        </figure>
-        <p>Will require running on Oracle AND MySQL, which will always be false, unless a huge and unexpected merger takes place.</p>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml"> <span class="nt">&lt;preConditions&gt;</span>  
-     <span class="nt">&lt;or&gt;</span>  
-         <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
-         <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"mysql"</span>  <span class="nt">/&gt;</span>  
-     <span class="nt">&lt;/or&gt;</span>  
- <span class="nt">&lt;/preConditions&gt;</span></code>
-            </pre>
-        </figure>
-        <p>Will require running on Oracle OR MySQL which makes more sense than the above example.</p>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml"> <span class="nt">&lt;preConditions&gt;</span>  
-     <span class="nt">&lt;or&gt;</span>  
-         <span class="nt">&lt;and&gt;</span>  
-            <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"oracle"</span>  <span class="nt">/&gt;</span>  
-            <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"SYSTEM"</span>  <span class="nt">/&gt;</span>  
-         <span class="nt">&lt;/and&gt;</span>  
-         <span class="nt">&lt;and&gt;</span>  
-            <span class="nt">&lt;dbms</span>  <span class="na">type=</span><span class="s">"mssql"</span>  <span class="nt">/&gt;</span>  
-            <span class="nt">&lt;runningAs</span>  <span class="na">username=</span><span class="s">"sa"</span>  <span class="nt">/&gt;</span>  
-         <span class="nt">&lt;/and&gt;</span>  
-     <span class="nt">&lt;/or&gt;</span>  
- <span class="nt">&lt;/preConditions&gt;</span></code>
-            </pre>
-        </figure>
-        <p>Will require running as SYSTEM if executing against an Oracle database or running as SA if running against a MS-SQL database.</p>
         <h2 id="available-preconditions">Available preconditions</h2>
-        <h3 id="dbms">&lt;dbms&gt;</h3>
-        <p>Passes if the database executed against matches the type specified.</p>
-        <h4 id="available-attributes-1">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
+        <p>You can use any precondition mentioned in the following table:</p>
+        <table width="690" style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">type</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Type of database expected. Multiple dbms values can be specified using comma separated values. <b>required</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 id="runningas">&lt;runningAs&gt;</h3>
-        <p>Passes if the database user executed under matches the username specified.</p>
-        <h4 id="available-attributes-2">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">username</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Database user script is expected to run as. <b>required</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 id="changesetexecuted">&lt;changeSetExecuted&gt;</h3>
-        <p>Passes if the specified <MadCap:variable name="General.changeset" style="font-style: italic;" /> has already been executed. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-3">Available attributes</h4>
-        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;width: 100%;" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">id</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Change set "id". <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><strong>Precondition</strong>
+                        </p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><strong>Description</strong>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
+                        <p><strong>Attributes</strong>
+                        </p>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">author</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Change set "author". <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>dbms</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>Defines if the database executed against matches the type specified.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" width="149">
+                        <p><strong>type</strong> - type of database expected. Multiple dbms values can be specified using comma separated values. (required)</p>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">changeLogFile</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">File name (including classpath relative path) of <MadCap:variable name="General.changeset" style="font-style: italic;" />. <b>required</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 id="columnexists">&lt;columnExists&gt;</h3>
-        <p>Passes if the specified column exists in the database. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-4">Available attributes</h4>
-        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;width: 100%;" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">schemaName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the table's schema. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>runningAs</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>Defines if the database user executed under matches the username specified.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
+                        <p><strong>username</strong> - database user script which is expected to run as. (required)</p>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">tableName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Name of the column's table. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>changeSetExecuted</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>Defines if the specified <MadCap:variable name="General.changeset" style="font-style: italic;" /> has already been executed.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>Id</strong> - <MadCap:variable name="General.changeset" style="font-style: italic;" /> id. (required)</li>
+                            <li style="text-align: left;"> <b>author</b> - <MadCap:variable name="General.changeset" style="font-style: italic;" /> author. (required)</li>
+                            <li style="text-align: left;"> <strong>changeLogFile</strong> - file name (including classpath relative path) of <MadCap:variable name="General.changeset" style="font-style: italic;" />. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">columnName</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Name of column. <b>required</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 id="tableexists">&lt;tableExists&gt;</h3>
-        <p>Passes if the specified table exists in the database. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-5">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">schemaName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the table's schema. <b>required*</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>columnExists</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>Defines if the specified column exists in the database.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>schemaName</strong> - name of the table's schema. (required)</li>
+                            <li style="text-align: left;"> <strong>tableName</strong> - name of the column's table. (required)</li>
+                            <li style="text-align: left;"> <strong>columnName</strong> - name of the column. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">tableName</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Name of the table. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>tableExists</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>Defines if the specified table exists in the database.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>schemaName</strong> - name of the table's schema. (required)</li>
+                            <li style="text-align: left;"> <strong>tableName</strong> - name of the table. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
-            </tbody>
-        </table>
-        <h3 id="viewexists">&lt;viewExists&gt;</h3>
-        <p>Passes if the specified view exists in the database. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-6">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">schemaName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the view's schema. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>viewExists</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>Defines if the specified view exists in the database.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>schemaName</strong> - name of the view's schema. (required)</li>
+                            <li style="text-align: left;"> <strong>viewName</strong> - name of the view. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">viewName</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Name of the view. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>foreignKeyConstraintExists</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>Defines if the specified foreign key exists in the database.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>schemaName</strong> - name of the foreign key's schema. (required)</li>
+                            <li style="text-align: left;"> <strong>foreignKeyName</strong> -name of the foreign key. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
-            </tbody>
-        </table>
-        <h3 id="foreignkeyconstraintexists">&lt;foreignKeyConstraintExists&gt;</h3>
-        <p>Passes if the specified foreign key exists in the database. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-7">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">schemaName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the foreign key's schema. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>indexExists</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>Defines if the specified index exists in the database.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>schemaName</strong> - name of the index's schema. (required)</li>
+                            <li style="text-align: left;"> <strong>indexName</strong> - name of the index. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">foreignKeyName</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Name of the foreign key. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>sequenceExists</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>Defines if the specified sequence exists in the database.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>schemaName</strong> - name of the sequences' schema. (required)</li>
+                            <li style="text-align: left;"> <strong>sequenceName</strong> - name of the sequence. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
-            </tbody>
-        </table>
-        <h3 id="indexexists">&lt;indexExists&gt;</h3>
-        <p>Passes if the specified index exists in the database. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-8">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">schemaName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the index's schema. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>primaryKeyExists</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>Defines if the specified primary key exists in the database.</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
+                        <ul>
+                            <li style="text-align: left;"> <strong>schemaName</strong> - name of the primary key's schema.</li>
+                            <li style="text-align: left;"> <strong>primaryKeyName</strong> - name of the primary key.</li>
+                            <li style="text-align: left;"> <strong>tableName</strong> - name of the table containing primary key. <br />(<code>tableName</code> or <code>primaryKeyNam</code>e is required)</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">indexName</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Name of the index. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>sqlCheck</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>Executes an SQL string and checks the returned value. The SQL must return a single row with a single value.</p>
+                        <ul>
+                            <li style="text-align: left;"> To check a number of rows, use the <code>count</code> SQL function.</li>
+                            <li style="text-align: left;"> To check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.</li>
+                        </ul>
+                        <p style="text-align: left;"><pre xml:space="preserve"><code class="language-xml">&lt;sqlCheck expectedResult="1"&gt;
+SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'
+&lt;/sqlCheck&gt;</code></pre>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" width="149">
+                        <p><strong>expectedResult</strong> - value to compare the SQL result to. (required)</p>
+                    </td>
                 </tr>
-            </tbody>
-        </table>
-        <h3 id="sequenceexists">&lt;sequenceExists&gt;</h3>
-        <p>Passes if the specified sequence exists in the database. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-9">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">schemaName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the sequences' schema. <b>required</b> </td>
+                    <td width="207" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>changeLogPropertyDefined</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>Checks whether given <MadCap:variable name="General.changelog" style="font-style: italic;" /> attribute is present. It fails if the value is not the same as given.</p>
+                        <p><pre xml:space="preserve" style="text-align: left;"><code class="language-xml">&lt;changeLogPropertyDefined property="myproperty"/&gt;
+&lt;changeLogPropertyDefined property="myproperty" value="requiredvalue"/&gt;</code></pre>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
+                        <ul>
+                            <li style="text-align: left;"><strong>property</strong> - name of the property to check for. (required)</li>
+                            <li style="text-align: left;"><strong>value</strong> - the required value for a given property.</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">sequenceName</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Name of the sequence. <b>required</b></td>
+                    <td width="207" class="TableStyle-TableStyles-BodyB-Column1-Body2">
+                        <p>customPrecondition</p>
+                    </td>
+                    <td width="333" class="TableStyle-TableStyles-BodyB-Column1-Body2">
+                        <p>Can be created by adding a class that implements the <code>liquibase.precondition.CustomPrecondition</code> interface. Parameters on custom classes are set through reflection based on the <code>&lt;param&gt;</code> sub-tags. Pass parameters as strings to the custom precondition.</p>
+                        <p style="text-align: left;"><pre xml:space="preserve"><code class="language-xml">&lt;customPrecondition className="com.example.CustomTableCheck"&gt;
+ &lt;param name="tableName" value="our_table"/&gt;
+ &lt;param name="count" value="42"/&gt;
+ &lt;/customPrecondition&gt;</code></pre>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2" width="149">
+                        <p><strong>className</strong> - name of the custom precondition class. (required)</p>
+                        <p><strong>The </strong><b>customPrecondition</b><strong> sub-tags:</strong>
+                        </p>
+                        <ul>
+                            <li style="text-align: left;"> <strong>param</strong> - parameter to pass to the custom precondition.</li>
+                            <li style="text-align: left;"> <strong>name</strong> - name of the parameter to set. (required)</li>
+                            <li style="text-align: left;"> <strong>value</strong> - a string value to set parameter to. (required)</li>
+                        </ul>
+                    </td>
                 </tr>
             </tbody>
         </table>
-        <h3 id="primarykeyexists">&lt;primaryKeyExists&gt;</h3>
-        <p>Passes if the specified primary key exists in the database. <strong>Since 1.8</strong></p>
-        <h4 id="available-attributes-10">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">schemaName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the primary key's schema.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">primaryKeyName</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Name of the primary key. <b>tableName OR primaryKeyName required</b></td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">tableName</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Name of the table containing primary key. <b>tableName OR primaryKeyName required</b><b>Since 1.9</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 id="sqlcheck">&lt;sqlCheck&gt;</h3>
-        <p>Executes an SQL string and checks the returned value. The SQL must return a single row with a single value. To check numbers of rows, use the “count” SQL function. To check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.</p>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="nt">&lt;sqlCheck</span>  <span class="na">expectedResult=</span><span class="s">"1"</span><span class="nt">&gt;</span>SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'<span class="nt">&lt;/sqlCheck&gt;</span></code>
-            </pre>
-        </figure>
-        <h4 id="available-attributes-11">Available attributes</h4>
-        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;width: 100%;" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">expectedResult</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Value to compare the SQL result to. <b>required</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 id="changelogpropertydefined">&lt;changeLogPropertyDefined&gt;</h3>
-        <p>Checks whether given <a href="../basic/changelog-property-substitution.html#property"><MadCap:variable name="General.changelog" /> parameter</a> is present. If a value is also given, it only fails, if the value is not the same as given. <strong>Since 2.0</strong></p>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="nt">&lt;changeLogPropertyDefined</span>  <span class="na">property=</span><span class="s">"myproperty"</span><span class="nt">/&gt;</span>  
-<span class="nt">&lt;changeLogPropertyDefined</span>  <span class="na">property=</span><span class="s">"myproperty"</span>  <span class="na">value=</span><span class="s">"requiredvalue"</span><span class="nt">/&gt;</span></code>
-            </pre>
-        </figure>
-        <h4 id="available-attributes-12">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">property</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the property to check for. <b>required</b></td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">value</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Required value for given property.</td>
-                </tr>
-            </tbody>
-        </table>
-        <h3 id="customprecondition">&lt;customPrecondition&gt;</h3>
-        <p>Custom preconditions can be created by creating a class that implements the <a href="https://api.liquibase.org/javadocs/liquibase/precondition/CustomPrecondition.html">liquibase.precondition.CustomPrecondition</a> interface. Parameters on custom classes are set through reflection based on the &lt;param&gt; sub-tags. Parameters are passed as strings to the custom precondition.</p>
-        <figure class="highlight"><pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="nt">&lt;customPrecondition</span>  <span class="na">className=</span><span class="s">"com.example.CustomTableCheck"</span><span class="nt">&gt;</span>  
-    <span class="nt">&lt;param</span>  <span class="na">name=</span><span class="s">"tableName"</span>  <span class="na">value=</span><span class="s">"our_table"</span><span class="nt">/&gt;</span>  
-    <span class="nt">&lt;param</span>  <span class="na">name=</span><span class="s">"count"</span>  <span class="na">value=</span><span class="s">"42"</span><span class="nt">/&gt;</span>  
-<span class="nt">&lt;/customPrecondition&gt;</span></code>
-            </pre>
-        </figure>
-        <h4 id="available-attributes-13">Available attributes</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">className</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Name of custom precondition class. <b>required</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h4 id="available-sub-tags">Available sub-tags</h4>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">param</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Parameter to pass to the custom precondition.</td>
-                </tr>
-            </tbody>
-        </table>
-        <h5 id="available-param-sub-tag-attributes">Available “param” sub-tag Attributes</h5>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">name</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of the parameter to set. <b>required</b></td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">value</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">String value to set parameter to. <b>required</b></td>
-                </tr>
-            </tbody>
-        </table>
-        <h2 id="implementation-notes">Implementation notes</h2>
-        <p>Preconditions are checked at the beginning of the execution of a particular <MadCap:variable name="General.changelog" style="font-style: italic;" />. If you use the “include” tag and only have preconditions on the child <MadCap:variable name="General.changelog" style="font-style: italic;" />, those preconditions will not be checked until the migrator reaches that file. This behavior may change in future releases, so don't rely on this behavior.</p>
     </body>
 </html>
