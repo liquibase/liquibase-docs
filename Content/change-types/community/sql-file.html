@@ -7,15 +7,68 @@
     </head>
     <body>
         <h1 id="change-sqlfile">sqlFile</h1>
-        <p>The ‘sqlFile' tag allows you to specify any sql statements and have it stored external in a file. It is useful for complex changes that are not supported through <MadCap:variable name="General.Liquibase" />'S automated <MadCap:variable name="General.changetypes" /> tags such as stored procedures.</p>
-        <p>The sqlFile <MadCap:variable name="General.changetypes" /> finds the file by searching in the following order:</p>
-        <p>The file is searched for in the classpath. This can be manually set and by default the <MadCap:variable name="General.Liquibase" /> startup script adds the current directory when run.
-The file is searched for using the file attribute as a file name. This allows absolute paths to be used or relative paths to the working directory to be used.
-The ‘sqlFile' tag can also support multiline statements in the same file. Statements can either be split using a ; at the end of the last line of the SQL or a go on its own on the line between the statements can be used. Multiline SQL statements are also supported and only a ; or go statement will finish a statement, a new line is not enough. Files containing a single statement do not need to use a ; or go.</p>
-        <p>The sql file can also contain comments of either of the following formats:</p>
-        <p>A multiline comment that starts with /* and ends with */.
-A single line comment starting with &lt;space&gt;–&lt;space&gt; and finishing at the end of the line</p>
-        <p>The sqlFile Change Type can be included within the rollback section in the changeset.</p>
+        <p>The <code>&lt;sqlFile&gt;</code> <MadCap:variable name="General.changetypes" /> allows you to specify sql statements in an external file.</p>
+        <h2>Uses</h2>
+        <p>The <code>&lt;sqlFile&gt;</code> <MadCap:variable name="General.changetypes" /> is useful for complex changes that are not supported through <MadCap:variable name="General.Liquibase" /> automated <MadCap:variable name="General.changetypes" />s such as stored procedures. The SQL contained in the <code>&lt;sqlFile&gt;</code> <MadCap:variable name="General.changetypes" /> can be multi-line.</p>
+        <p>Using the <code>sqlFile</code> <MadCap:variable name="General.changetypes" /></p>
+        <p>The <code>&lt;sqlFile&gt;</code> <MadCap:variable name="General.changetypes" /> finds the file by searching in the following order:</p>
+        <ul>
+            <li>The file is searched for in the classpath. This can be manually set and by default the <MadCap:variable name="General.Liquibase" /> startup script adds the current directory when run.</li>
+            <li>The file is searched for using the file attribute as a file name. This allows absolute paths to be used or relative paths to the working directory to be used.</li>
+        </ul>
+        <p>The <code>&lt;sqlFile&gt;</code> <MadCap:variable name="General.changetypes" /> supports multiple SQL statements in the same file:</p>
+        <ul>
+            <li>Single-line SQL statements can be separated using a ; at the end of the last line of the SQL or a <code>GO</code> statement.  A <code>GO</code> statement must be on a separate line between the two SQL statements.</li>
+            <li>Multi-line SQL statements are also supported. Only a ; or <code>GO</code> statement will finish a multi-line SQL statement, a new line is not enough.</li>
+            <li>Files containing a single SQL statement do not need to use a ; or <code>GO</code> statement.</li>
+        </ul>
+        <p>The <code>&lt;sqlFile&gt;</code> <MadCap:variable name="General.changetypes" /> supports comments using the following formats:</p>
+        <ul>
+            <li>A multi-line comment that starts with /* and ends with */.</li>
+            <li>A single-line comment starting with -- and finishing at the end of the line.</li>
+        </ul>
+        <p>The <code>&lt;sqlFile&gt;</code> <MadCap:variable name="General.changetypes" /> can be included within the rollback section in the <MadCap:variable name="General.changeset" style="font-style: italic;" />.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">By default <MadCap:variable name="General.Liquibase" /> will attempt to split statements on a ; or <code>GO</code> at the end of lines. If you have a comment or non-statement ending with ; or <code>GO</code>, do not include it at the end of a line or you will get invalid SQL.</p>
+        <h2>SQL Example</h2>
+        <p>Currently, there is no SQL Example for the <code>&lt;sqlFile&gt;</code> Change Type because you can just put sql directly into a sql formatted <MadCap:variable name="General.changelog" style="font-style: italic;" />.</p>
+        <h2>XML Example</h2><pre><code class="language-xml">&lt;changeSet author="liquibase-docs" id="sqlFile-example"&gt;
+     &lt;sqlFile dbms="!h2, oracle, mysql"
+        encoding="UTF-8"
+        endDelimiter="\nGO"
+        path="my/path/file.sql"
+        relativeToChangelogFile="true"
+        splitStatements="true"
+        stripComments="true"/&gt;
+&lt;/changeSet&gt;</code></pre>
+        <h2>YAML Example</h2><pre><code class="language-yaml">-  changeSet:
+        id:  sqlFile-example
+        author:  liquibase-docs
+        changes:
+        -  sqlFile:
+        comment:  What about Bob?
+        dbms:  '!h2,  oracle,  mysql'
+        endDelimiter:  \nGO
+        splitStatements:  true
+        path:  my/path/file.sql
+        stripComments:  true</code></pre>
+        <h2>JSON Example</h2><pre xml:space="preserve"><code class="language-json">{
+   "changeSet":{
+   "id":"sqlFile-example",
+   "author":"liquibase-docs",
+   "changes":[
+      {
+        "sqlFile":{
+          "comment":"What about Bob?",
+          "dbms":"!h2,  oracle,  mysql",
+          "endDelimiter":"\nGO",
+          "splitStatements":true,
+          "path":"my/path/file.sql",
+          "stripComments":true
+               }
+             }
+           ]
+         }
+       }</code></pre>
         <h2 id="available-attributes">Available attributes</h2>
         <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" />
@@ -84,120 +137,7 @@ Or You can also specify that a change is <b>NOT</b> applicable to a particular d
                     <td style="vertical-align: top;" class="TableStyle-TableStyles-BodyA-Column1-Body1"> </td>
                 </tr>
             </tbody>
-        </table>
-        <h3>XML example</h3><pre xml:space="preserve">
-            <code class="language-xml" data-lang="xml">
-                <span class="nt">&lt;changeSet</span>  <span class="na">author=</span><span class="s">"liquibase-docs"</span>  <span class="na">id=</span><span class="s">"sqlFile-example"</span><span class="nt">&gt;</span>  
-    <span class="nt">&lt;sqlFile</span>  <span class="na">dbms=</span><span class="s">"!h2, oracle, mysql"</span>  
-            <span class="na">encoding=</span><span class="s">"UTF-8"</span>  
-            <span class="na">endDelimiter=</span><span class="s">"\nGO"</span>  
-            <span class="na">path=</span><span class="s">"my/path/file.sql"</span>  
-            <span class="na">relativeToChangelogFile=</span><span class="s">"true"</span>  
-            <span class="na">splitStatements=</span><span class="s">"true"</span>  
-            <span class="na">stripComments=</span><span class="s">"true"</span><span class="nt">/&gt;</span>  
-<span class="nt">&lt;/changeSet&gt;</span></code>
-        </pre>
-        <h3>YAML example</h3><pre xml:space="preserve">
-            <code class="language-yaml" data-lang="yaml">
-                <span class="na">changeSet</span>
-                <span class="pi">:</span>  
-  <span class="na">id</span><span class="pi">:</span>  <span class="s">sqlFile-example</span>  
-  <span class="na">author</span><span class="pi">:</span>  <span class="s">liquibase-docs</span>  
-  <span class="na">changes</span><span class="pi">:</span>  
-  <span class="pi">-</span>  <span class="na">sqlFile</span><span class="pi">:</span>  
-      <span class="na">dbms</span><span class="pi">:</span>  <span class="s1">'</span><span class="s">!h2,</span><span class="nv">  </span><span class="s">oracle,</span><span class="nv">  </span><span class="s">mysql'</span>  
-      <span class="na">encoding</span><span class="pi">:</span>  <span class="s">UTF-8</span>  
-      <span class="na">endDelimiter</span><span class="pi">:</span>  <span class="s">\nGO</span>  
-      <span class="na">path</span><span class="pi">:</span>  <span class="s">my/path/file.sql</span>  
-      <span class="na">relativeToChangelogFile</span><span class="pi">:</span>  <span class="no">true</span>  
-      <span class="na">splitStatements</span><span class="pi">:</span>  <span class="no">true</span>  
-      <span class="na">stripComments</span><span class="pi">:</span>  <span class="no">true</span></code>
-        </pre>
-        <h3>JSON example</h3><pre xml:space="preserve">
-            <code class="language-json" data-lang="json">
-                <span class="p">{</span>
-                <span class="w">  </span>
-                <span class="s2">"changeSet"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="p">{</span>
-                <span class="w">  </span>
-                <span class="s2">"id"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="s2">"sqlFile-example"</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"author"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="s2">"liquibase-docs"</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"changes"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="p">[</span>
-                <span class="w">  </span>
-                <span class="p">{</span>
-                <span class="w">  </span>
-                <span class="s2">"sqlFile"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="p">{</span>
-                <span class="w">  </span>
-                <span class="s2">"dbms"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="s2">"!h2, oracle, mysql"</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"encoding"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="s2">"UTF-8"</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"endDelimiter"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="s2">"</span>
-                <span class="se">\\</span>
-                <span class="s2">nGO"</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"path"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="s2">"my/path/file.sql"</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"relativeToChangelogFile"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="kc">true</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"splitStatements"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="kc">true</span>
-                <span class="p">,</span>
-                <span class="w">  </span>
-                <span class="s2">"stripComments"</span>
-                <span class="p">:</span>
-                <span class="w">  </span>
-                <span class="kc">true</span>
-                <span class="w">  </span>
-                <span class="p">}</span>
-                <span class="w">  </span>
-                <span class="p">}]</span>
-                <span class="w">  </span>
-                <span class="p">}</span>
-                <span class="w">  </span>
-                <span class="p">}</span>
-            </code>
-        </pre>
+        </table><pre xml:space="preserve">&#160;</pre>
         <h2 id="database-support">Database support</h2>
         <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" />
