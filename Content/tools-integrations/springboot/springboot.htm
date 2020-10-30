@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with Spring Boot</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/springboot/springboot" />
+        <meta name="description" content="This page is a step by step guide on how to use Liquibase with Spring Boot." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with Spring Boot</h1>
+        <table style="margin-left: auto;margin-right: auto;">
+            <col style="width: 98px;" />
+            <col style="width: 300px;" />
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">
+                        <img src="../../Z_Resources/Images/community-members/julius.jpg" style="border-top-left-radius: 50px;border-top-right-radius: 50px;border-bottom-right-radius: 50px;border-bottom-left-radius: 50px;" alt="Image of Julius Krah">
+                        </img>
+                    </td>
+                    <td><b>Written by: </b><a href="https://juliuskrah.com/" target="_blank" style="font-weight: bold;">Julius Krah</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>The purpose of this tutorial is to guide you through the process of using <MadCap:variable name="General.Liquibase" /> as part of your <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/">Spring Boot</a> workflow. Spring Boot makes it easy to create standalone, production grade Spring-based Applications that just works.</p>
+        <h2>Uses</h2>
+        <p>You can use Spring Boot to create Java applications that can be started by using <code>java -jar</code> or more traditional war deployments.</p>
+        <p>With Spring Boot some of the heavy lifting of configuring beans to setup things like messaging, database connection, migration, etc. are already done for you and what you need to do is add the correct jar file on the classpath to be picked up by the framework for <i>auto configuration</i>.</p>
+        <p>Some Spring Boot features include<span style="text-decoration: none;"> </span><span style="font-weight: bold;text-decoration: none;">Profiles</span><span style="text-decoration: none;">, </span><span style="font-weight: bold;text-decoration: none;">Logging</span><span style="text-decoration: none;">, </span><span style="font-weight: bold;text-decoration: none;">Security</span><span style="text-decoration: none;">, </span><span style="font-weight: bold;text-decoration: none;">Caching</span><span style="text-decoration: none;">, </span><span style="font-weight: bold;text-decoration: none;">Spring Integration</span><span style="text-decoration: none;">, </span><span style="font-weight: bold;text-decoration: none;">Testing</span><span style="text-decoration: none;">, </span>and more.</p>
+        <h2>Prerequisites</h2>
+        <p>To be able to follow along with this tutorial, you need a Java Development Kit <a href="https://www.oracle.com/java/technologies/javase-downloads.html">(JDK 14+</a>).</p>
+        <h2>Tutorial</h2>
+        <p>We will be working with a Gradle project. To create the project, head over to the <a href="https://start.spring.io/)">Spring Initializer</a> website.</p>
+        <ol>
+            <li>
+                Under
+<b>Project</b> select <b>Gradle Project</b>. </li>
+            <li>Select Java as your <b>Language</b>.</li>
+            <li>Under <b>Spring Boot</b>, select 2.3.4.</li>
+            <li>For <b>Packaging</b>, select <b>Jar</b>.</li>
+            <li>Java = 11.</li>
+        </ol>
+        <p>After picking your options, your selection should look similar to the screenshot below:</p>
+        <p style="text-align: center;">
+            <img src="../../Z_Resources/Images/Screenshots/workflows/springboot.png" />
+        </p>
+        <p>Click on <b>generate</b> to download your project template as a zip file. Next, extract it and open in your favorite IDE.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> supports a variety of <MadCap:xref href="../../commands/home.htm">Commands</MadCap:xref>. At the time of this article, Spring Boot only integrates the <code>update</code>, <code>futureRollbackSQL</code>, <code>dropAll</code>, <code>updateTestingRollback</code>, and <code>clearChecksums</code> commands.</p>
+        <p>Spring Boot offers a subset of the <MadCap:variable name="General.Liquibase" /> configuration options. In the table below, you can see the Spring Boot options listed against the <MadCap:variable name="General.Liquibase" /> options.</p>
+        <table style="width: 100%;margin-left: auto;margin-right: auto;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Spring Boot</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.Liquibase" />
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>spring.liquibase.change-log</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>changeLogFile</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><MadCap:variable name="General.changelog" /> configuration path</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>spring.liquibase.labels</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>labels</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Comma-separated list of runtime labels to use</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>spring.liquibase.contexts</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>Contexts</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Comma-separated list of runtime contexts to use</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>spring.liquibase.database-change-log-lock-table</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>databaseChangeLogLockTableName</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Name of table to use for tracking concurrent <MadCap:variable name="General.Liquibase" /> usage</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>spring.liquibase.database-change-log-table</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>databaseChangeLogTableName</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Name of table to use for tracking change history</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>spring.liquibase.default-schema</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>defaultSchemaName</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Default database schema</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>spring.liquibase.liquibase-schema</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>liquibaseSchemaName</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Schema to use for <MadCap:variable name="General.Liquibase" /> objects</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>spring.liquibase.liquibase-tablespace</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>databaseChangeLogTablespaceName</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Tablespace to use for <MadCap:variable name="General.Liquibase" /> objects</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>spring.liquibase.parameters.*</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>parameter.*</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><MadCap:variable name="General.changelog" /> parameters</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>spring.liquibase.password</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>password</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Login password of the database to migrate</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>spring.liquibase.tag</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Tag name to use when applying database changes. Can also be used with <code>rollbackFile</code> to generate a rollback script for all existing changes associated with that tag</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>spring.liquibase.url</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>url</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">JDBC URL of the database to migrate. If not set, the primary configured data source is used</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>spring.liquibase.user</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>username</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Login user of the database to migrate</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Now we tell Spring Boot how to run the <MadCap:variable name="General.Liquibase" /> migrations. We will make the changes in <code>src/main/resources/application.properties</code>. Add the following values (modify to fit your database requirements):</p><pre><code class="language-text">
+spring.datasource.url=jdbc:h2:~/liquibase;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.username=sa
+spring.datasource.password=
+spring.liquibase.change-log=classpath:db/changelog/db.changelog-master.xml
+</code></pre>
+        <p>The final step is to create the <MadCap:variable name="General.changelog" /> file <code>src/main/resources/db/changelog/db.changelog-master.xml</code></p><pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:pro="http://www.liquibase.org/xml/ns/pro" 
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;
+	&lt;changeSet id="202010211812" author="Julius Krah"&gt;
+		&lt;createTable tableName="house"&gt;
+			&lt;column name="id" type="bigint"&gt;
+				&lt;constraints primaryKey="true" primaryKeyName="house_id_pk" /&gt;
+			&lt;/column&gt;
+			&lt;column name="owner" type="varchar(250)"&gt;
+				&lt;constraints unique="true" uniqueConstraintName="house_owner_unq" /&gt;
+			&lt;/column&gt;
+			&lt;column name="fully_paid" type="boolean" defaultValueBoolean="false"&gt;&lt;/column&gt;
+		&lt;/createTable&gt;
+		&lt;createTable tableName="item"&gt;
+			&lt;column name="id" type="bigint"&gt;
+				&lt;constraints primaryKey="true" primaryKeyName="item_id_pk" /&gt;
+			&lt;/column&gt;
+			&lt;column name="name" type="varchar(250)" /&gt;
+			&lt;column name="house_id" type="bigint"&gt;
+				&lt;constraints nullable="false" notNullConstraintName="item_house_id_nn" /&gt;
+			&lt;/column&gt;
+		&lt;/createTable&gt;
+		&lt;addAutoIncrement tableName="house" columnName="id" columnDataType="bigint" startWith="1" incrementBy="1" /&gt;
+		&lt;addAutoIncrement tableName="item" columnName="id" columnDataType="bigint" startWith="1" incrementBy="1" /&gt;
+		&lt;createSequence sequenceName="hibernate_sequence" incrementBy="1" startValue="1" /&gt;
+		&lt;addForeignKeyConstraint baseTableName="item" baseColumnNames="house_id" constraintName="item_house_id_fk" referencedTableName="house" referencedColumnNames="id" /&gt;
+	&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+        <p>When you have completed these steps, you can run your migration with the following command: <code>./gradlew bootRun</code></p>
+        <p>Source code is available at: <a href="https://github.com/juliuskrah/spring-boot-liquibase">https://github.com/juliuskrah/spring-boot-liquibase</a></p>
+        <h2>See also</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../../concepts/advanced/home.htm">Advanced Concepts</MadCap:xref>
+            </li>
+            <li><a href="https://juliuskrah.com/tutorial/2017/02/26/database-migration-with-liquibase-hikaricp-hibernate-and-jpa/" style="font-weight: bold;">Database Migration with Liquibase, HikariCP, Hibernate and JPA</a>
+            </li>
+            <li><a href="https://gradle.org/install/" style="font-weight: bold;">Gradle</a>
+            </li>
+        </ul>
+    </body>
+</html>
