@@ -13,49 +13,50 @@
         <h2>Setting up Spinnaker and the Run Job pipeline stage</h2>
         <p><b>Step 1:</b> Make sure that you installed Spinnaker. You can use the <a href="https://github.com/armory/minnaker">Spinnaker Quick Start</a> provided by <a href="https://www.armory.io/">Armory</a>.</p>
         <p><b>Step 2:</b> Configure the Run Job pipeline stage by <a href="https://spinnaker.io/setup/install/providers/docker-registry/">setting up a docker registry</a> so that Spinnaker can access the images to run.</p>
-        <p><b>Step 3:</b> Use the following manifest source text (YML):</p><pre><code class="language-json">{
-"keepWaitingPipelines": false,
-"lastModifiedBy": "admin",
-"limitConcurrent": true,
-"spelEvaluator": "v4",
-"stages": [
-  {
-	"account": "spinnaker",
-	"alias": "runJob",
-	"application": "liquibasejenkins",
-	"cloudProvider": "kubernetes",
-	"credentials": "spinnaker",
-	"manifest": {
-	  "apiVersion": "batch/v1",
-	  "kind": "Job",
-	  "metadata": {
-		"name": "liquibase-runner"
-	  },
-	  "spec": {
-		"backoffLimit": 0,
-		"template": {
-		  "spec": {
-			"containers": [
-			  {
-				"args": [
-				  "--classpath=/workspace/example/changelogs",
-				  "--changeLogFile=samplechangelog.h2.sql",
-				  "--username=liqubase",
-				  "--password=password",
-				  "--url=jdbc:h2:file:./H2_project/h2tutorial",
-				  "update"
-				],
-				"image": "index.docker.io/liquibase/liquibase:4.1",
-				"name": "liquibase",
-				"volumeMounts": [
-				  {
-				    "mountPath": "/workspace",
-				    "name": "workspace"
-				  }
-				]
-			 }
-
-		</code></pre>
+        <p><b>Step 3:</b> Use the following manifest source text (YML):</p><pre><code class="language-yaml">apiVersion: batch/v1
+kind: Job
+metadata:
+ name: liquibase-runner
+spec:
+ backoffLimit: 0
+ template:
+   spec:
+	 containers:
+		- args:
+		- '--classpath=/workspace/example/changelogs'
+		- '--changeLogFile=samplechangelog.h2.sql'
+		- '--username=liqubase'
+		- '--password=password'
+		- '--url=jdbc:sqlserver://&lt;IP OR HOSTNAME&gt;:1433;database=&lt;database name&gt;'
+		- update
+		image: 'index.docker.io/liquibase/liquibase:4.1'
+		name: liquibase
+		volumeMounts:
+		  - mountPath: /workspace
+			name: workspace
+		initContainers:
+		  - command:
+			  - git
+			  - clone
+			  - '--single-branch'
+			  - '--branch'
+			  - $(BRANCH)
+			  - $(REPO)
+			  - /workspace
+		    env:
+			  - name: BRANCH
+				value: main
+			  - name: REPO
+				value: 'https://github.com/liquibase/liquibase-github-action-example'
+			image: alpine/git
+			name: git
+			volumeMounts:
+			  - mountPath: /workspace
+				name: workspace
+		restartPolicy: Never
+		volumes:
+		  - emptyDir: {}
+			name: workspace</code></pre>
         <p>The following parameters are hard coded for reference:</p>
         <ul>
             <li>BRANCH: main</li>
