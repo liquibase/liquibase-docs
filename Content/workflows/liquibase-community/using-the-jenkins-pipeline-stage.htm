@@ -47,7 +47,7 @@
             <li>Perform pre-check to ensure all tooling is installed and obtain the needed information about each tool’s version</li>
             <li>Check out a branch from a Git repository</li>
             <li>Deploy code to DEV database</li>
-            <li>Create a versioned artifact in <a href="https://plugins.jenkins.io/nexus-jenkins-plugin/">Nexus</a></li>
+            <li>Create a versioned artifact</li>
         </ol>
         <p>The following is an example of the <code>Jenkinsfile</code> to package <MadCap:variable name="General.Liquibase" /> <i><MadCap:variable name="General.changeset" style="font-style: italic;" />s</i>:</p><pre><code class="language-text">#!/usr/bin/env groovy
 // Packager declarative pipeline
@@ -141,18 +141,20 @@ pipeline {
 		 echo
 		 echo "=====FINISHED===="
 	  '''
-	  // upload artifacts to Nexus
-	  nexusArtifactUploader  artifacts: [[   artifactId: "LB_mongo",
-									  classifier: 'database',
-									  file: '${BUILD_NUMBER}.zip',
-									  type: 'zip']],
-				credentialsId: 'nexusAdmin',
-				groupId: "DEMO",                            
-				nexusUrl: 'martha-uat.datical.net:8081',
-				nexusVersion: 'nexus3',
-				protocol: 'http',
-				repository: "LBMONGO",
-				version: "${BUILD_NUMBER}"
+		// upload artifacts to Artifactory
+		script {
+		    def server = Artifactory.server 'ArtifactoryServer'
+			def uploadSpec = """{
+			  "files": [
+				{
+				 "pattern": "*.zip",
+				 "target": "${REPOSITORY_BASE}/${BRANCH}/database/",
+				 "flat" : "false"
+				}
+			   ]
+			  }"""
+			  server.upload(uploadSpec)
+
 		} // steps for Artifact
      } // stage artifact
       
@@ -174,7 +176,7 @@ pipeline {
         <p style="font-weight: bold;">The pseudo-code looks like this:</p>
         <ol>
             <li>Perform pre-check to ensure all tooling is installed and obtain necessary information about each tool’s version</li>
-            <li>Check out a specific version of the artifact from <a href="https://plugins.jenkins.io/nexus-jenkins-plugin/">Nexus</a></li>
+            <li>Check out a specific version of the artifact</li>
             <li>Deploy code to a target database</li>
         </ol>
         <p>The following is an example of the <code>Jenkinsfile</code> to deploy a <MadCap:variable name="General.Liquibase" /> change:</p><pre><code class="language-text">#!/usr/bin/env groovy
@@ -192,8 +194,6 @@ pipeline {
 	TARGET_DB="${params.TARGET_DB}"
 	ARTIFACT_VERSION="${params.ARTIFACT_VERSION}"
 	PATH="$PATH:/opt/liquibase/lb_4.00"
-	NEXUS_URL="http://martha-uat.datical.net:8081/repository/LBMONGO/DEMO/LB_mongo"
-	NEXUSID="LB_mongo"
 	PROJ_DIR="LB_mongo"
   }
   
@@ -211,12 +211,23 @@ pipeline {
 
 	stage('Retrieve Artifact') {
 	  steps {
-		// download artifact from Nexus
-		sh '''
-		   echo Downloading file from Nexus
-		   wget "${NEXUS_URL}/${ARTIFACT_VERSION}/${NEXUSID}-${ARTIFACT_VERSION}-database.zip"
-		   unzip ${NEXUSID}-${ARTIFACT_VERSION}-database.zip
-		   '''
+	   // download artifact from Artifactory
+	   script {
+			def server = Artifactory.server 'ArtifactoryServer'
+			def downloadSpec = """
+			{
+			 "files": [
+			   {
+				"target": "${PROJ_DDB}/",
+				"pattern": "${REPOSITORY_BASE}/${BRANCH}/database/${ARTIFACT_VERSION}.zip",
+				"explode": "true",
+				"flat" : "false"
+				}
+			   ]
+			  }
+			  """
+			 server.download(downloadSpec)
+           }
 		} // steps for Artifact
 	} // stage artifact 
     
