@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1><MadCap:variable name="General.LBPro" /> and MySQL GRANT Best Practices</h1>
+        <p>When using <MadCap:variable name="General.LBPro" /> stored logic with MySQL, MySQL has a default feature that limits access to stored logic bodies when the user requesting access is not the user who created them.</p>
+        <p>Also, the access can be limited when the user is not the <code>DEFINER</code> in MySQL. In this case, the <code>generateChangeLog</code>, <code>diffChangeLog</code>, and <code>snapshot</code> commands run by a user who is not the <code>DEFINER</code> cannot check the procedures, functions, triggers, views, and check constraints because of permissions that are not controlled. The lack of permissions results in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> that cannot be used for <code>STOLO</code> exports.</p>
+        <p>To see procedures, functions, triggers, views, and check constraints, you need to set user’s GRANTs.</p>
+        <h2><MadCap:variable name="General.LBPro" /> Stored Logic and GRANTs in MySQL 5.7 and MySQL 8.0</h2>
+        <p>As permissions are different for MySQL 5.7 and MySQL 8.0, follow the information for the version that you are using.</p>
+        <h3>Minimum GRANTs for <MadCap:variable name="General.LBPro" /> with MySQL 5.7 (Standard or RDS)</h3>
+        <p>In MySQL, set the following permissions required to capture procedures, functions, triggers, views, and check constraints:</p><pre><code class="language-sql">GRANT SELECT ON mysql.proc TO 'your_user'@'your_host';
+GRANT SELECT, SHOW VIEW, CREATE VIEW ON your_db.* TO 'your_user'@'your_host';
+GRANT CREATE ROUTINE, ALTER ROUTINE ON your_db.* TO 'your_user'@'your_host';
+GRANT TRIGGER ON your_db.* TO 'your_user'@'your_host';
+GRANT ALTER, CREATE, DELETE, DROP, INDEX, INSERT, REFERENCES, SELECT, UPDATE ON your_db.* TO 'your_user'@'your_host';
+GRANT PROCESS ON *.* TO 'testuser'@'%';</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about GRANT statement in MySQL 5.7, which grants privileges to MySQL user accounts, see <a href="https://dev.mysql.com/doc/refman/8.0/en/grant.html">GRANT Statement</a>.</p>
+        <h3>Minimum GRANTs for <MadCap:variable name="General.LBPro" /> with MySQL 8.0 (Standard or RDS)</h3>
+        <p>In MySQL, set the following permissions required to capture procedures, functions, triggers, views, and check constraints:</p><pre><code class="language-sql">GRANT CREATE ROUTINE, ALTER ROUTINE ON your_db.* TO 'your_user'@'your_host';
+GRANT CREATE VIEW, SHOW VIEW ON your_db.* TO 'your_user'@'your_host';
+GRANT TRIGGER ON testdb1.* to 'your_user'@'your_host';
+GRANT ALTER, CREATE, DELETE, DROP, INDEX, INSERT, SELECT ,REFERENCES, UPDATE on ON your_db.* TO 'your_user'@'your_host';
+GRANT PROCESS ON *.* TO 'your_user'@'your_host';
+GRANT SELECT ON *.* TO 'your_user'@'your_host';</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about GRANT statement in MySQL 5.7, which grants privileges to MySQL user accounts, see <a href="https://dev.mysql.com/doc/refman/8.0/en/grant.html">GRANT Statement</a>.</p>
+        <p>Additionally, there are a few configuration requirements and notes:</p>
+        <ul>
+            <li>
+                In MySQL 5.7, if a user does not have the <code>SELECT ON mysql.proc</code> permission, <MadCap:variable name="General.LBPro" /> cannot get procedure or function bodies.
+            </li>
+            <li>
+                In MySQL 8.0, if a user does not have the <code>GRANT CREATE ROUTINE</code> and <code>ALTER ROUTINE</code> permissions, <MadCap:variable name="General.LBPro" /> cannot get procedure or function bodies. The <code>DEFINER</code>, or the user who created the procedure or function, without the <code>GRANT CREATE ROUTINE</code> and <code>ALTER ROUTINE</code> permissions can only retrieve stored logic bodies.
+            </li>
+            <li>
+                If a user does not have GRANTs to <code>SELECT</code> and <code>SHOW</code> views, <MadCap:variable name="General.LBPro" /> cannot access the <code>view</code> definition. Also, <MadCap:variable name="General.LBPro" /> will not capture the <code>view</code> configuration for <code>ALGORITHM</code>, <code>DEFINER</code>, or <code>SQL SECURITY</code>. Review the generated <MadCap:variable name="General.changelog" style="font-style: italic;" /> and update the <code>view</code> SQL to include an additional configuration.
+            </li>
+            <li>
+               If the stored logic bodies or views are <code>null</code> due to the lack of permissions, <MadCap:variable name="General.LBPro" /> writes the string <code>"[CANNOT READ OBJECT BODY];"</code> to the generated SQL. However, when a <MadCap:variable name="General.changelog" style="font-weight: normal; font-style: italic;" /> where <MadCap:variable name="General.LBPro" /> replaced null bodies with the string is generated, it will not be deployable. If you encounter such an issue, you can either expand your <MadCap:variable name="General.LBPro" /> connection user permissions or edit the generated <MadCap:variable name="General.changelog" style="font-style: italic;" /> to include stored logic bodies skipped due to the lack of permissions.
+            </li>
+            <li>
+               If you use AWS RDS, configure the MySQL instance to allow the creation of stored logic objects. You can configure it using a parameter group that sets <code>log_bin_trust_function_creators=1</code>. Also, restart the MySQL instance to apply the modified parameter group.
+</li>
+        </ul>
+        <h2>How to See User GRANTs in MySQL 5.7 and MySQL 8.0 </h2>
+        <p>Both MySQL 5.7 and MySQL 8.0 have the same syntax for checking user GRANTs:</p><pre><code class="language-sql">SHOW GRANTS FOR 'YOUR_USER'@'YOUR_HOST';</code></pre>
+        <h2>Known issues in MySQL 5.7 and MySQL 8.0</h2>
+        <p><MadCap:variable name="General.LBPro" /> is not able to snapshot view definitions if the <MadCap:variable name="General.LBPro" /> user isn't the <code>DEFINER</code> of the <code>view</code>. This issue is caused due to a bug in MySQL, which you can review in the <a href="https://bugs.mysql.com/bug.php?id=22763">MySQL bug reporting page</a>.</p>
+        <p>As a workaround, grant the <code>SHOW VIEW</code> permissions to your <MadCap:variable name="General.LBPro" /> user on a specific <code>view</code> after this <code>view</code> has been created. For example:</p><pre><code class="language-sql">GRANT SHOW VIEW ON YOUR_DB.YOUR_VIEW TO 'YOUR_USER'@'YOUR_HOST';</code></pre>
+        <p>Another way is to configure the <MadCap:variable name="General.LBPro" /> connection user to be the user that creates <code>views</code>. In this case, the user becomes the <code>DEFINER</code> and can see all objects they create.</p>
+        <p>For more information, see the <a href="https://dev.mysql.com/doc/refman/5.7/en/create-view.html">CREATE VIEW Statement</a>.</p>
+    </body>
+</html>
