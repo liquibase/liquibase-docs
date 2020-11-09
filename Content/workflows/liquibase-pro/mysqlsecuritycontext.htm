@@ -1,9 +1,49 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head>
+    <head><title>Liquibase Pro and MySQL Security Context Limitation | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-pro/mysqlsecuritycontext.html" />
+        <meta name="description" content="This page contains information and best practices on how to use MySQL Security Context Limitation in Liquibase Pro." />
     </head>
     <body>
         <h1><MadCap:variable name="General.LBPro" /> and MySQL Security Context Limitation</h1>
-        <p>Delete this text and replace it with your own content.</p>
+        <p>MySQL provides security contexts to determine how stored logic behaves when being executed during a deployment.</p>
+        <p>The three configuration options are:</p>
+        <ul>
+            <li>
+               DEFINER
+            </li>
+            <li>
+                ALGORITHM
+            </li>
+            <li>
+                SQL SECURITY
+            </li>
+        </ul>
+        <p>When you generate a <MadCap:variable name="General.changelog" style="font-style: italic;" /> using the <MadCap:variable name="General.Liquibase" /> <code>generateChangeLog</code> command, the <code>generateChangeLog</code> command does not retrieve MySQL security context settings defined for functions, procedures, triggers, or views.</p>
+        <p>Deploying the <MadCap:variable name="General.changelog" style="font-style: italic;" /> may result in the unexpected behavior during stored logic execution due to security context differences. The limitation affects views, procedures, functions, and triggers.</p>
+        <p>To have the security context defined for functions, procedures, triggers, or views in your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, you need to examine and edit the generated <MadCap:variable name="General.changelog" style="font-style: italic;" /> to include security contexts omitted by <code>generateChangeLog</code>.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If there are views, procedures, functions, or triggers that need a security context defined prior to deploying to another database, update the generated SQL to include the context.</p>
+        <h2>An example of the syntax for a procedure with a security context</h2>
+        <p>You can use the same example for a function, however, replace the <code>PROCEDURE</code> object type with <code>FUNCTION</code>.</p><pre><code class="language-sql">CREATE
+	[OR REPLACE]
+	[DEFINER = user]
+	PROCEDURE sp_name ([func_parameter[,...]])
+	RETURNS type
+	[ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
+	[DEFINER = user]
+	[SQL SECURITY { DEFINER | INVOKER }]
+routine_body</code></pre>
+        <h2>An example of the syntax for a view with a security context</h2><pre><code class="language-sql">CREATE
+	[OR REPLACE]
+	[ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}]
+	[DEFINER = user]
+	[SQL SECURITY { DEFINER | INVOKER }]
+	VIEW view_name [(column_list)]
+	AS select_statement
+	[WITH [CASCADED | LOCAL] CHECK OPTION]</code></pre>
+        <h2>An example syntax for a trigger with a security syntax</h2><pre><code class="language-sql">CREATE
+	[DEFINER = { user | CURRENT_USER }]
+	TRIGGER trigger_name trigger_time trigger_event
+	ON tbl_name FOR EACH ROW trigger_stmt</code></pre>
     </body>
 </html>
