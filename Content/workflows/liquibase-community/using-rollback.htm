@@ -172,7 +172,7 @@ Used when auditors need to verify that all database changes have a rollback.
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
                         <MadCap:xref href="../../commands/pro/rollbackonechangesetsql.html">rollbackOneChangeSetSQL command</MadCap:xref>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">This helper command is used in conjunction with the <code>rollbackOneChangeSet </code>command to inspect the SQL <MadCap:variable name="General.Liquibase" /> will use to rollback changes based on the specified <MadCap:variable name="General.changeset" style="font-style: italic;" />.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">This helper command is used in conjunction with the <code>rollbackOneChangeSet</code> command to inspect the SQL <MadCap:variable name="General.Liquibase" /> will use to rollback changes based on the specified <MadCap:variable name="General.changeset" style="font-style: italic;" />.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyB-Column1-Body2">
@@ -183,7 +183,7 @@ Used when auditors need to verify that all database changes have a rollback.
             </tbody>
         </table>
         <h2>Rollback test cycle</h2>
-        <p>Rollback scripts are like any other change. They need to be tested just like application code so we know they work as designed.</p>
+        <p>Rollback scripts need to be tested just like application code so we know they work as designed.</p>
         <p>You will need to carefully test your rollback scripts. This includes determining who will test the rollback script, how and when they will be tested.</p>
         <p><b>A complete test cycle should include</b>:</p>
         <ol>
@@ -191,16 +191,30 @@ Used when auditors need to verify that all database changes have a rollback.
                 <p>Deploying all changes to the database and validating that they were deployed.</p>
             </li>
             <li>
-                <p>Rolling back all changes to the database, validate that all changes were reversed, and verification that the database was brought back to the previous state.</p>
+                <p>Rolling back all changes to the database, validating that all changes were reversed, and verification that the database was brought back to the previous state.</p>
             </li>
             <li>
-                <p>Redeploy all changes to the database. This is required to verify that the rollback did not miss any changes that could impact a future deployment.</p>
+                <p>Redeploying all changes to the database. This is required to verify that the rollback did not miss any changes that could impact a future deployment.</p>
             </li>
         </ol>
         <h2>Creating rollback statements</h2>
         <p>Many <MadCap:variable name="General.changetypes" />s such as <b>create table</b>, <b>rename column</b>, and <b>add column</b> can automatically create rollback statements. If your <MadCap:variable name="General.changelog" /> contains only statements that fit into this category, your rollback commands will be generated automatically.</p>
-        <p>Other <MadCap:variable name="General.changetypes" />s such as <b>drop table</b> and <b>insert data</b> have no corresponding rollback commands that can be automatically generated. In these cases, and cases where you want to override the default generated rollback commands, you can specify the rollback commands via the tag within the <MadCap:variable name="General.changeset" style="font-style: italic;" /> tag. If you do not want anything done to undo a change in rollback mode, use an empty rollback tag.</p>
-        <p>To determine if <MadCap:variable name="General.Liquibase" /> can automatically rollback a specific change type, check the <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref> documentation and navigate to the Database Support section to determine whether auto rollback is available for your database platform.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Automatic rollback is <b>NOT supported</b> for formatted SQL <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. You should add custom rollback statements to formatted SQL <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> if you want to use rollback commands.</p>
+        <p>Other <MadCap:variable name="General.changetypes" />s such as <b>drop table</b> and <b>insert data</b> have no corresponding rollback commands that can be automatically generated. In these cases, and cases where you want to override the default generated rollback commands, you can specify the rollback commands via the tag within the <MadCap:variable name="General.changeset" style="font-style: italic;" /> tag. If you do not want to undo a change in a rollback mode, use an empty rollback tag:</p><pre><code class="language-xml">&lt;changeSet id="3" author="liquibaseuser"&gt;
+        &lt;createTable tableName="changeRollback"&gt;
+        &lt;column name="id" type="int"/&gt;
+        &lt;/createTable&gt;
+     &lt;rollback/&gt;
+&lt;/changeSet&gt;</code></pre>
+        <p>To determine if <MadCap:variable name="General.Liquibase" /> can automatically rollback a specific change type, check the <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref> documentation. Go to the <b>Database Support</b> section to determine whether auto rollback is available for your database platform.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Automatic rollback is <b>not supported</b> for formatted SQL <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. You should add custom rollback statements to formatted SQL <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> if you want to use rollback commands.</p>
+        <h3>Examples of custom rollback statements in the formatted SQL <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>:</h3>
+        <p style="font-weight: bold;">Drop table:</p><pre><code class="language-sql">-- changeset liquibaseuser:1 
+create table Details1 ( id int primary key, name varchar(255) );
+-- rollback drop table Details1;</code></pre>
+        <p style="font-weight: bold;">Insert data:</p><pre><code class="language-sql">-- liquibase formatted sql
+-- changeset liquibaseuser:2
+insert into Details1 values ('1','The First', 'Country')
+insert into Details1 values ('1','The Second', 'Country2')
+-- rollback delete from Details1 where id='1'</code></pre>
     </body>
 </html>
