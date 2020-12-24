@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Liquibase Pro and MariaDB GRANT Best Practices | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-pro/mariadbgrants.html" />
+        <meta name="description" content="This page contains information and best practices on how to use MariaDB GRANTs in Liquibase Pro." />
+    </head>
+    <body>
+        <h1><MadCap:variable name="General.LBPro" /> and MariaDB GRANT Best Practices</h1>
+        <p><MadCap:variable name="General.LBPro" /> supports native MariaDB stored logic for all <MadCap:variable name="General.Liquibase" /> operations. However, the MariaDB Oracle-compatible PL/SQL stored logic objects are not supported for the <MadCap:variable name="General.Liquibase" /> <code>generateChangeLog</code> or <code>diffChangeLog</code> operations. The <code>generateChangeLog</code> and <code>diffChangeLog</code> commands are unable to correctly generate the SQL to recreate Oracle-compatible PL/SQL stored logic objects. <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> containing the malformed SQL for Oracle-compatible PL/SQL stored logic objects will be unable to deploy without an error.</p>
+        <p>You can deploy Oracle-compatible PL/SQL stored logic using a <MadCap:variable name="General.Liquibase" /> formatted SQL <MadCap:variable name="General.changelog" style="font-style: italic;" /> or the <a href="https://docs.liquibase.com/change-types/community/sql-file.html">sqlFile Change Type</a> in a <MadCap:variable name="General.Liquibase" /> XML <MadCap:variable name="General.changelog" style="font-style: italic;" />.</p>
+        <p>To deploy an Oracle-compatible stored logic from an XML <MadCap:variable name="General.changelog" style="font-style: italic;" />, use the <code>sqlFile</code> Change Type, and then reference an SQL file which includes the Oracle-compatible stored logic SQL. The SQL file referenced by the <code>sqlFile</code> Change Type needs to have the <code>SET</code> configured to <code>SET sql_mode=oracle</code> at the beginning of the script and <code>SET sql_mode=" "</code> at the end of the script.</p>
+        <p>The SQL, which is directly written in a formatted SQL <MadCap:variable name="General.changelog" style="font-style: italic;" />, must also include the <code>SET</code> commands at the beginning and the end of the stored logic definition. If you don’t include the <code>SET</code> statements, <MadCap:variable name="General.Liquibase" /> won’t deploy an update that has native MariaDB stored logic.</p>
+        <h2><MadCap:variable name="General.LBPro" /> Stored Logic and GRANTs in MariaDB 10.4</h2>
+        <p>In MariaDB, configure the following settings and permissions required to capture procedures, functions, triggers, views, and check constraints:</p>
+        <h3>Server-side Settings (Standard)</h3><pre><code class="language-sql">set global log_bin_trust_function_creators=1;
+set global automatic_sp_privileges=1;</code></pre>
+        <h3>Server-side Settings for an AWS Instance of MariaDB 10.4</h3>
+        <p>The user-level GRANTs are the same for MariaDB 10.4 on AWS and the local instances. However, due to AWS's security policies, configure the server-side settings in a MariaDB parameter group, and apply them to the instance with a reboot.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html">Working with DB parameter groups</a>.</p>
+        <h3>Minimum GRANTs for <MadCap:variable name="General.LBPro" /> and MariaDB 10.4 (Standard and AWS)</h3><pre><code class="language-sql">GRANT CREATE ROUTINE, ALTER ROUTINE ON database.* TO 'user'@'hostname';
+GRANT CREATE VIEW, SHOW VIEW ON database.* to 'user'@'hostname';
+GRANT TRIGGER ON database.* to 'user'@'hostname';
+GRANT ALTER,CREATE,DELETE,DROP,INDEX,INSERT,SELECT,REFERENCES,UPDATE on database.* to 'user'@'hostname';
+GRANT SELECT ON mysql.proc TO 'user'@'hostname';</code></pre>
+        <h2>How to See User GRANTs in MariaDB 10.4</h2>
+        <p>You can check user GRANTs in MariaDB 10.4 by running the following commands:</p><pre><code class="language-sql">USE YourDatabaseNameGoesHere;
+SHOW GRANTS FOR 'your_username'@'your_hostname'</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	For more information about GRANT statements in MariaDB, see <a href="https://mariadb.com/kb/en/grant/">GRANTS</a>.</p>
+    </body>
+</html>
