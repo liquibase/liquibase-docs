@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using Liquibase and your Maven POM File | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/maven/using-liquibase-and-maven-pom-file.html" />
+        <meta name="description" content="The purpose of this document is to guide you through the process of using Liquibase and your Maven POM File." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> and your Maven POM File</h1>
+        <p>It is recommended to use Apache Maven 3.1 or earlier to make it easier to configure the <a href="https://maven.apache.org/maven-logging.html" target="_blank">log-level of</a> <MadCap:variable name="General.Liquibase" /> Maven plugin with MAVEN_OPTs or by passing the following command: <code class="highlighter-rouge">-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG</code>. You can also edit the properties in the <code>${maven.home}/conf/logging/simplelogger.properties</code> file.
+        </p>
+        <h2>Using paths to files</h2>
+        <p>As of version 1.6.1.0 of the Maven plugin, all files are resolved from the Maven test classpath for the Maven project or an absolute path. This allows for your <MadCap:xref href="../../concepts/basic/changelog.html">[%=General.changelog%]</MadCap:xref> to be present in other Maven artifacts (on the classpath) and able to be used to invoke <MadCap:variable name="General.Liquibase"></MadCap:variable> on a database.</p>
+        <h2>Using Configuration Property Files</h2>
+        <p>Configuration settings for the Maven <MadCap:variable name="General.Liquibase"></MadCap:variable> plugin can be specified in standard Java Property files. If a configuration property file is specified, it will be used to set up the properties for the invocation of the Maven <MadCap:variable name="General.Liquibase"></MadCap:variable> plugin.</p>
+        <p>For each property defined in the file that matches a property in the goal being invoked that property of the goal will be set. If the property does not match any of the properties for the goal, then a warning will be displayed to the user, but execution will continue.</p>
+        <p>The reason for only printing a warning is to allow a user to define a single master configuration property file that can be re-used for multiple Maven <MadCap:variable name="General.Liquibase"></MadCap:variable> goals like <MadCap:xref href="commands/maven-update.html">Maven update</MadCap:xref> and <MadCap:xref href="commands/maven-tag.html">Maven tag</MadCap:xref>.</p>
+        <h3>Using both a Configuration Property File and specifying Configuration Values</h3>
+        <p>It is possible to specify a Configuration Property File and individual Properties in the <code class="highlighter-rouge">&lt;configuration&gt;</code> section of the Maven <MadCap:variable name="General.Liquibase"></MadCap:variable> plugin.</p>
+        <p>If this is done, the properties specified in the <code class="highlighter-rouge">&lt;configuration&gt;</code> section will be used in preference over those defined in the properties file. If this behavior is not desirable, then the properties file can be setup to override the specified properties in the <code class="highlighter-rouge">&lt;configuration&gt;</code> section by adding the following to the <code class="highlighter-rouge">&lt;configuration&gt;</code> section:</p><pre><code class="language-text">&lt;propertyFileWillOverride&gt;true&lt;/propertyFileWillOverride&gt;</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example of Maven <MadCap:variable name="General.Liquibase"></MadCap:variable> update command</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>You need to ensure that you include the relevant JDBC driver for your database in the <code>&lt;dependency&gt;&lt;/dependency&gt;</code> section of Maven POM file.</p>
+                <p style="font-weight: bold;">MySQL example:</p><pre xml:space="preserve"><code class="language-text">&lt;project&gt;
+   &lt;dependencies&gt;  
+     &lt;dependency&gt;
+       &lt;groupId&gt;&lt;/groupId&gt; 
+       &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt; 
+&lt;!-- Replace with the version of the MySQL driver you want to use --&gt; 
+&lt;version&gt;${mysql-version}&lt;/version&gt;
+   &lt;/dependency&gt; 
+   &lt;/dependencies&gt; 
+&lt;/project&gt;</code></pre>
+                <p style="font-weight: bold;">Oracle example (thin driver):</p><pre xml:space="preserve"><code class="language-text">&lt;project&gt; 
+   &lt;dependencies&gt; 
+     &lt;dependency&gt; 
+       &lt;groupId&gt;com.oracle&lt;/groupId&gt; 
+       &lt;artifactId&gt;ojdbc14&lt;/artifactId&gt;  
+       &lt;version&gt;10.2.0.4&lt;/version&gt; 
+   &lt;/dependency&gt; 
+  &lt;/dependencies&gt; 
+&lt;/project&gt;</code></pre>
+                <p>The following is a sample configuration for the <MadCap:variable name="General.Liquibase"></MadCap:variable> Maven plugin, version 1.6.1.0, showing an example of the <MadCap:xref href="commands/maven-update.html">Maven update</MadCap:xref> goal;</p><pre xml:space="preserve"><code class="language-text">&lt;project&gt;  
+    &lt;build&gt;
+      &lt;plugins&gt;
+        &lt;plugin&gt; 
+          &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+          &lt;artifactId&gt;liquibase-maven-plugin&lt;/artifactId&gt; 
+           &lt;configuration&gt;                  
+             &lt;propertyFile&gt;src/main/resources/liquibase/liquibase.properties&lt;/propertyFile&gt;  
+           &lt;/configuration&gt;                 
+           &lt;executions&gt; 
+             &lt;execution&gt;
+              &lt;phase&gt;process-resources&lt;/phase&gt;                                                                   
+              &lt;goals&gt; 
+              &lt;goal&gt;update&lt;/goal&gt;
+              &lt;/goals&gt;
+             &lt;/execution&gt;
+           &lt;/executions&gt;
+       &lt;/plugin&gt;    
+      &lt;/plugins&gt;
+    &lt;/build&gt; 
+   &lt;/project&gt;</code></pre>
+                <p>This example configuration will execute the <MadCap:xref href="commands/maven-update.html">Maven update</MadCap:xref> goal as part of the process-resources phase of the build. The <MadCap:variable name="General.Param/Attr/Uppercased" />s for running <MadCap:variable name="General.Liquibase" /> are specified in the <code class="highlighter-rouge">src/main/resources/liquibase.properties</code>.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The path to the file <code>src/main/resources/liquibase.properties</code> could be shortened to <code>liquibase.properties</code> if there was only one on the classpath.</p>
+                <p>All the parameters for executing the Maven <MadCap:variable name="General.Liquibase"></MadCap:variable> plugin can also be specified in <code class="highlighter-rouge">&lt;configuration&gt;</code> section of the plugin. Below is an example of this:</p>
+                <figure class="highlight"><pre xml:space="preserve">
+                <code class="language-xml" data-lang="xml">    <span class="nt">&lt;plugin&gt;</span>  
+      <span class="nt">&lt;groupId&gt;</span>org.liquibase<span class="nt">&lt;/groupId&gt;</span>  
+      <span class="nt">&lt;artifactId&gt;</span>liquibase-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>  
+      <span class="nt">&lt;version&gt;</span>3.0.5<span class="nt">&lt;/version&gt;</span>  
+      <span class="nt">&lt;configuration&gt;</span>  
+        <span class="nt">&lt;changeLogFile&gt;</span>src/main/resources/org/liquibase/business_table.xml<span class="nt">&lt;/changeLogFile&gt;</span>  
+          <span class="nt">&lt;driver&gt;</span>oracle.jdbc.driver.OracleDriver<span class="nt">&lt;/driver&gt;</span>  
+          <span class="nt">&lt;url&gt;</span>jdbc:oracle:thin:@tf-appserv-linux:1521:xe<span class="nt">&lt;/url&gt;</span>  
+          <span class="nt">&lt;username&gt;</span>liquibaseTest<span class="nt">&lt;/username&gt;</span>  
+          <span class="nt">&lt;password&gt;</span>pass<span class="nt">&lt;/password&gt;</span>
+          <span class="nt">&lt;outputChangeLogFile&gt;</span>myGenChangeLog.xml<span class="nt">&lt;/outputChangeLogFile&gt;</span>
+        <span class="nt">&lt;/configuration&gt;</span>  
+      <span class="nt">&lt;executions&gt;</span>  
+        <span class="nt">&lt;execution&gt;</span>  
+          <span class="nt">&lt;phase&gt;</span>process-resources<span class="nt">&lt;/phase&gt;</span>  
+          <span class="nt">&lt;goals&gt;</span>  
+            <span class="nt">&lt;goal&gt;</span>update<span class="nt">&lt;/goal&gt;</span>  
+          <span class="nt">&lt;/goals&gt;</span>  
+        <span class="nt">&lt;/execution&gt;</span>  
+      <span class="nt">&lt;/executions&gt;</span>  
+    <span class="nt">&lt;/plugin&gt;</span></code>
+            </pre>
+                </figure>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Using further configuration properties</h2>
+        <p>To disable the pop up dialog that confirms migrations on non-local databases, add the following code snippet:</p>
+        <p><code class="highlighter-rouge">&lt;promptOnNonLocalDatabase&gt;false&lt;/promptOnNonLocalDatabase&gt;</code>
+        </p>
+        <p>Use the following Maven command to get hints about all available configuration parameters within the <MadCap:variable name="General.Liquibase"></MadCap:variable> Maven plugin:</p>
+        <p><code class="highlighter-rouge">mvn help:describe -DgroupId=org.liquibase -DartifactId=liquibase-maven-plugin -Dversion=2.0.1 -Dfull=true</code>
+        </p>
+        <h2>Using a global configuration for multiple projects</h2>
+        <p>Through the usage of a parent-pom (some call it company super-pom) it is possible to have a centralized <MadCap:variable name="General.Liquibase"></MadCap:variable> plugin configuration that applies to all your Maven child projects. For a detailed explanation of the super-pom concept, see <a href="http://maven.apache.org/guides/introduction/introduction-to-the-pom.html">Maven manual Pom section</a>.</p>
+        <p>In this setup, the plugin configuration is set in the super-pom, so that it becomes available to all child projects. The adaptation to each project needs (database driver, jdbc url, and others) is made through a local <code><MadCap:variable name="General.liquiPropFile" /></code> file. In addition, since several configurations may be necessary inside the project, <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> can be filtered by with the Maven resource filtering system.</p>
+        <p style="font-weight: bold;">Parent <code class="highlighter-rouge">pom.xml</code> configuration:</p>
+        <figure class="highlight"><pre xml:space="preserve">
+                <code class="language-xml" data-lang="xml">  <span class="nt">&lt;project&gt;</span>  
+    <span class="nt">&lt;build&gt;</span>  
+      <span class="nt">&lt;plugins&gt;</span>  
+        <span class="nt">&lt;plugin&gt;</span>  
+          <span class="nt">&lt;groupId&gt;</span>org.liquibase<span class="nt">&lt;/groupId&gt;</span>  
+          <span class="nt">&lt;artifactId&gt;</span>liquibase-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>  
+          <span class="nt">&lt;version&gt;</span>x.x.x.x<span class="nt">&lt;/version&gt;</span>  
+          <span class="nt">&lt;configuration&gt;</span>  
+            <span class="nt">&lt;propertyFileWillOverride&gt;</span>true<span class="nt">&lt;/propertyFileWillOverride&gt;</span>  
+            <span class="nt">&lt;propertyFile&gt;</span>target/classes/liquibase.properties<span class="nt">&lt;/propertyFile&gt;</span>  
+          <span class="nt">&lt;/configuration&gt;</span>  
+        <span class="nt">&lt;/plugin&gt;</span>  
+      <span class="nt">&lt;/plugins&gt;</span>  
+    <span class="nt">&lt;/build&gt;</span>  
+  <span class="nt">&lt;/project&gt;</span></code>
+            </pre>
+        </figure>
+        <p>You want to replace <code>x.x.x.x</code> by the most recent version of the plugin.</p>
+        <p>As shown above, you may want to add an <code class="highlighter-rouge">&lt;executions&gt;</code> section, or put more configuration properties in the <code class="highlighter-rouge">&lt;configuration&gt;</code> section. Keep in mind that any modification will apply to all child projects. It is possible to some extent to override this global configuration in your local <code class="highlighter-rouge">liquibase.properties</code> file as <code class="highlighter-rouge">&lt;propertyFileWillOverride&gt;</code> is set to <code class="highlighter-rouge">true</code>. If you have a few exceptions among your projects but want to keep a global config for all the others, you can always add the <code class="highlighter-rouge">&lt;plugin&gt;</code> section to your child <code class="highlighter-rouge">pom.xml</code>. This will override the global config.</p>
+        <p>The <code class="highlighter-rouge">liquibase.properties</code> must be put in the <code class="highlighter-rouge">src/main/resources</code> folder, as well as your <code class="highlighter-rouge">db.changelog.xml</code>. It can hold as many properties as you need. Here's an already quite complete example:</p>
+        <figure class="highlight"><pre xml:space="preserve">
+                <code class="language-properties" data-lang="properties">
+                    <span class="py">contexts</span>
+                    <span class="p">:</span>  <span class="s">${liquibase.contexts} </span>  
+<span class="py">changeLogFile</span><span class="p">:</span>  <span class="s">com/company/client/project/db.changelog.xml </span>  
+<span class="py">driver</span><span class="p">:</span>  <span class="s">${dataSource.project.driverClass} </span>  
+<span class="py">url</span><span class="p">:</span>  <span class="s">${dataSource.project.jdbcURL} </span>  
+<span class="py">username</span><span class="p">:</span>  <span class="s">${dataSource.project.user} </span>  
+<span class="py">password</span><span class="p">:</span>  <span class="s">${dataSource.project.password} </span>  
+<span class="py">verbose</span><span class="p">:</span>  <span class="s">true </span>  
+<span class="py">dropFirst</span><span class="p">:</span>  <span class="s">false </span></code>
+            </pre>
+        </figure>
+        <p>The placeholders are filtered by the Maven resource filtering system. In order to get your Maven standard <code class="highlighter-rouge">resources/</code> folder filtered you need to have this config in your <code class="highlighter-rouge">pom.xml</code>:</p>
+        <figure class="highlight"><pre xml:space="preserve">
+                <code class="language-xml" data-lang="xml">
+                    <span class="nt">&lt;build&gt;</span>  
+    <span class="nt">&lt;resources&gt;</span>  
+      <span class="nt">&lt;resource&gt;</span>  
+        <span class="nt">&lt;directory&gt;</span>src/main/resources<span class="nt">&lt;/directory&gt;</span>  
+        <span class="nt">&lt;filtering&gt;</span>true<span class="nt">&lt;/filtering&gt;</span>  
+      <span class="nt">&lt;/resource&gt;</span>  
+    <span class="nt">&lt;/resources&gt;</span>  
+<span class="nt">&lt;/build&gt;</span></code>
+            </pre>
+        </figure>
+        <p>See <a href="http://maven.apache.org/guides/getting-started/index.html#How_do_I_filter_resource_files">How do I filter resource files</a> for more details.</p>
+        <p>In this particular setup, the project jdbc url, database driver, username and password are used for <MadCap:variable name="General.Liquibase"></MadCap:variable> as well.</p>
+        <p>The placeholders are replaced by values found in filter property files located in <code class="highlighter-rouge">src/main/filters</code>.</p>
+        <p>You can have as many property file filters as you need. To specify the filter to use on Maven execution, you need to use <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven profiles</a>.</p>
+        <p>A typical invocation would look like this:</p>
+        <p><code class="highlighter-rouge">mvn resources:resources liquibase:update -P&lt;profile_name&gt;</code>
+        </p>
+        <p>Invoking the <code class="highlighter-rouge">resources</code> is necessary in order to have the <code class="highlighter-rouge">liquibase.properties</code> placeholders filtered. The <code class="highlighter-rouge">-P</code> option tells Maven the profile to use and thus the set of values (from the filter properties file) to use for filtering.</p>
+        <p>If you don't need the filtering capabilities, you can replace in the super-pom plugin configuration with the following:</p>
+        <p><code class="highlighter-rouge">&lt;propertyFile&gt;target/classes/liquibase.properties&lt;/propertyFile&gt; by &lt;propertyFile&gt;src/main/resources/liquibase.properties&lt;/propertyFile&gt;</code>
+        </p>
+        <p>Invocation is then simplified to a mere: <code class="highlighter-rouge">mvn liquibase:update</code>.</p>
+        <p>The main advantages of this setup are:</p>
+        <ul>
+            <li>No <MadCap:variable name="General.Liquibase"></MadCap:variable> plugin configuration in your projects. Only the <code class="highlighter-rouge">liquibase.properties</code> is required.</li>
+            <li>A unique place where to update the plugin version (you don't need to manual edit all your <code class="highlighter-rouge">pom.xml</code> and commit them)</li>
+        </ul>
+        <p>&#160;</p>
+    </body>
+</html>
