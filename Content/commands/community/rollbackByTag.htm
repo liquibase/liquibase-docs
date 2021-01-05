@@ -6,23 +6,29 @@
         <meta name="description" content="Reference information and use cases for the rollback &lt;tag&gt; command. The rollback &lt;tag&gt; command will roll back changes made to the database based on the specified tag." />
     </head>
     <body>
-        <h1>rollback &lt;tag&gt; command</h1>
-        <p>The <code>rollback &lt;tag&gt;</code> command will roll back changes made to the database based on the specified tag.</p>
-        <h2>Description</h2>
-        <p><MadCap:variable name="General.Liquibase" /> allows for reverting changes to the database through rollback commands. The<code> rollback &lt;tag&gt;</code> command will revert all changes that were made to the database after the specified tag.</p>
-        <ul>
-            <li>If the tag name is unknown, it can be found in the <MadCap:variable name="General.databasechangelog" /> table.</li>
-            <li>When you run a rollback &lt;tag&gt;, <MadCap:variable name="General.Liquibase" /> will roll back sequentially all the deployed changes until it reaches the tag row in the <MadCap:variable name="General.databasechangelog" /> table.</li>
-            <li><MadCap:variable name="General.changetypes" />s such as <MadCap:xref href="../../change-types/community/drop-table.html">dropTable</MadCap:xref> and <MadCap:xref href="../../change-types/community/insert.html">insert</MadCap:xref> have no corresponding rollback commands that can be automatically generated.</li>
-        </ul>
+        <h1><code>rollback &lt;tag&gt;</code> command</h1>
+        <p>The <code>rollback &lt;tag&gt;</code> command rolls back changes made to the database based on the specified tag.</p>
         <h2>Uses</h2>
-        <p>The <code>rollback &lt;tag&gt;</code> command is typically used when you want to undo a series of changes made to your database related to a specific tag such as a numbered release.</p>
-        <p>If you have tags for release 1, release 2, and release 3, and need to make a correction in release 2, you have to rollback to release 3 first.</p>
+        <p>The <code>rollback &lt;tag&gt;</code> command is typically used to revert all changes that were made to the database after the tag you specify.</p>
+        <p>When you run <code>rollback &lt;tag&gt;</code>, <MadCap:variable name="General.Liquibase" /> will roll back sequentially all the deployed changes until it reaches the tag row in the <MadCap:variable name="General.databasechangelog" /> table. For example, you can use the <code>rollback &lt;tag&gt;</code> command when you want to undo a series of changes made to your database related to a specific tag such as a numbered release. If you have tags for <code>release 1</code>, <code>release 2</code>, and <code>release 3</code>, and need to make a correction in <code>release 2</code>, the <code>rollback &lt;tag&gt;</code> command will rollback <code>release 3</code> first.</p>
+        <p>The following image shows that if we deploy the <code>createTable C</code> <MadCap:variable name="General.changeset" style="font-style: italic;" /> and run the <code>rollback version1</code> command to revert changes, <MadCap:variable name="General.Liquibase" /> will roll back only <code>createTable C</code> value:</p>
+        <p style="text-align: center;">
+            <img src="../../Z_Resources/Images/Screenshots/commands/rollbackTagDiagram.png" style="width: 435px;height: 326px;" />
+        </p>
+        <h2>Impact of running the <code>rollback &lt;tag&gt;</code> command</h2>
+        <p>Using the <code>rollback &lt;tag&gt;</code> command comes with risks to your database, so it's important to look for potential unintended consequences before executing this command.</p>
+        <p>It is a best practice to run the <a href="https://docs.liquibase.com/commands/community/rollbacksqltag.html">rollbackSQL &lt;tag&gt;</a> command that allows you to inspect for potential mistakes before running the command.</p>
+        <h2>Running the <code>rollback &lt;tag&gt;</code> command</h2>
+        <p>To run the <code>rollback &lt;tag&gt;</code> command, you need to specify your driver, class path, and URL in your <code><MadCap:variable name="General.liquiPropFile" /></code> file. For more information, see <a href="https://docs.liquibase.com/workflows/liquibase-community/creating-config-properties.html">Creating and configuring a liquibase.properties file</a>. You can also specify these properties in your command line.</p>
+        <p>Also, before running the <code>rollback &lt;tag&gt;</code> command, you need to know the following:</p>
         <ul>
-            <li>Use an empty tag when you do not want to undo changes in rollback mode.</li>
-            <li>When you want to override the default generated rollback commands, specify the rollback commands using the tag within the <MadCap:variable name="General.changeset" style="font-style: italic;" /> tag</li>
-        </ul>
-        <h2><code>rollback &lt;tag&gt;</code> global attributes</h2>
+            <li>If the tag name is unknown to you, you can find it in the <MadCap:variable name="General.databasechangelog" /> table.</li>
+            <li>If you don’t have any tags specified, you can run the <a href="https://docs.liquibase.com/commands/community/tag.html">tag &lt;tag string&gt; command</a>. If you run the <code>tag</code> command to mark the current database state or release, your tag will be applied to the last row in the <MadCap:variable name="General.databasechangelog" /> table.</li>
+            <li>If you use the <a href="https://docs.liquibase.com/change-types/community/tag-database.html">tagDatabase Change Type</a> to create a tag <MadCap:variable name="General.changeset" style="font-style: italic;" /> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file and want to roll back changes applied after this tag, the <code>rollback &lt;tag&gt;</code> command will remove all changes made after this tag row and the tag row.</li>
+            <li>If you run the <code>tag</code> command, deploy <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, and then add the <code>tagDatabase</code> <MadCap:variable name="General.changetypes" /> in your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, your changes and the tag row created by the <code>tagDatabase</code> Change Type will be removed till the command reaches the tag specified with the <code>rollback &lt;tag&gt;</code> command.</li>
+        </ul><pre><code class="language-xml">liquibase --changeLogFile=dbchangelog.xml rollback version1</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of your <MadCap:variable name="General.changelog" style="font-style: italic;" /> and tag in place of <code>dbchangelog.xml</code> and <code>version1</code>.</p>
+        <h2><code>rollback &lt;tag&gt;</code> global <MadCap:variable name="General.Param/Attribute" />s</h2>
         <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
             <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
@@ -36,114 +42,115 @@
             </thead>
             <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>--changeLogFile</code>*</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>--changeLogFile</code>
+                    </td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">The root <i>changelog</i></td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Required</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-weight: bold;">Required</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>--url</code>
                     </td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body2">The JDBC database connection URL</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Required</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-weight: bold;">Required</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>--username</code>
                     </td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">The database username</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Required</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-weight: bold;">Required</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
                     <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>--password</code>
                     </td>
                     <td class="TableStyle-TableStyles-BodyB-Column1-Body2">The database password</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Required</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2" style="font-weight: bold;">Required</td>
                 </tr>
             </tbody>
         </table>
-        <h2>Impact of running the <code>rollback &lt;tag&gt;</code> command</h2>
-        <p>Using the <code>rollback &lt;tag&gt;</code> command comes with risks to your database, so it's important to look for potential unintended consequences before executing this command.</p>
-        <p>It is a best practice to run the <MadCap:xref href="rollbackSQLtag.htm">rollbackSQL &lt;tag&gt; command</MadCap:xref> that allows you to inspect for potential mistakes before running the command.</p>
-        <h2>Running the <code>rollback &lt;tag&gt;</code> command</h2>
-        <p>Before using the rollback commands, verify your <code>liquibase.properties</code> file includes the driver class path, database URL, and user authentication information.</p>
-        <p>If you have not set any tags, run <code>liquibase tag mytagname</code> to specify a tag name for your releases.</p>
-        <h3>Using CLI</h3><pre><code class="language-html">liquibase [global params] rollback [your tag name]</code></pre>
-        <p><pre><code class="language-html">liquibase --changeLogFile=postgres_lbpro_master_changelog.xml tag v3.2.1</code></pre>
-        </p>
-        <h3>Using Maven</h3>
-        <p>To use the Maven rollback command, you need to specify two properties in your <code>pom.xml</code> file, run:</p><pre><code class="language-html">&lt;liquibase.tag&gt;v3.2.1&lt;/liquibase.tag&gt;</code></pre>
-        <p>and</p><pre><code class="language-html">&lt;liquibase.rollbackTag&gt;${liquibase.tag}&lt;/liquibase.rollbackTag&gt;</code></pre>
-        <p>Then run the rollback <code>mvn compile liquibase:rollback</code></p>
-        <h3>Using Ant</h3>
-        <p>Create a build script with your defined tasks and call the <MadCap:variable name="General.Liquibase" /> tag function.</p><pre><code class="language-html">&lt;target name="tag" depends="prepare"&gt;
-	&lt;tagDatabase
-		changeLogFile="${changelogLogFile}"
-		url="${url}"
-		username="${username}"
-		password="${password}"
-		promptOnNonLocalDatabase="false"
-		classpathref="classpath"
-		tag="ant-tag"&gt;
-	&lt;/tagDatabase&gt;
-&lt;/target&gt;</code></pre>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>Using this command:</p><pre><code class="language-text">liquibase --changeLogFile=postgres_lbpro_master_changelog.xml tag myTag</code></pre>
-                <p>When successful, the command produces the following output:</p><pre><code class="language-text">Liquibase Pro 3.8.10-DAT-4254-SNAPSHOT by Datical licensed to Liquibase Pro Customer until Tue Nov 03 19:00:00 CST 2020
-Rolling Back Changeset:postgres_lbpro_master_changelog.xml::4::functionForTrigger::Liquibase Pro User
-Rolling Back Changeset:postgres_lbpro_master_changelog.xml::3::createTableforCC-proschema::Liquibase Pro User
-Rolling Back Changeset:postgres_lbpro_master_changelog.xml::2::createTableforView-proschema::Liquibase Pro User
-Rolling Back Changeset:postgres_lbpro_master_changelog.xml::1::createTableforSynonym-proschema::Liquibase Pro User
-Rolling Back Changeset:changelogLevel.xml::2::logicalFilePath::changelog::Liquibase Pro User
-Rolling Back Changeset:third_changelog.xml::1::logicalFilePath::changeset:: Liquibase Pro User
-Liquibase command 'tag' was executed successfully.</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>Additional Outputs</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>Many change tags do not require a <code>rollback &lt;tag&gt;</code> because they can be generated from the update command.</p><pre><code class="language-xml">&lt;changeSet id="changeRollback2-create" author="nvoxland"&gt;
-&lt;createTable tableName="changeRollback2"&gt;
-&lt;column name="id" type="int"/&gt;
-&lt;/createTable&gt;
-&lt;/changeSet&gt;
-Standard change tags can be used in a rollback &lt;tag&gt;
-&lt;changeSet id="changeRollback" author="nvoxland"&gt;
-&lt;createTable tableName="changeRollback1"&gt;
-&lt;column name="id" type="int"/&gt;
-&lt;/createTable&gt;
-&lt;rollback&gt;
-&lt;dropTable tableName="changeRollback1"/&gt;
-&lt;/rollback&gt;
+        <h2><code>rollback &lt;tag&gt;</code> command <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Definition</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>&lt;tag&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">The tag you can add to <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to determine which <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> to evaluate based on their tags.</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1"><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Additional <code>rollback &lt;tag&gt;</code> functionality</h2>
+        <ul>
+            <li>Add custom rollback SQL to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> for any <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> which <MadCap:variable name="General.Liquibase" /> cannot auto-generate rollback SQL. <MadCap:variable name="General.Liquibase" /> cannot auto-generate rollbacks for SQL <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>. Also, some <MadCap:variable name="General.changetypes" />s have no corresponding <code>rollback</code> commands that can be automatically generated.</li>
+        </ul><pre><code class="language-sql">-- changeset liquibaseuser:1
+create table Details1 ( id int primary key, name varchar(255) );
+-- rollback drop table Details1;</code></pre>
+        <ul>
+            <li>Use an empty tag when you do not want to undo changes in a rollback mode.</li>
+        </ul><pre xml:space="preserve"><code class="language-xml">&lt;changeSet id="noRollback" author="liquibase"&gt;
+  &lt;createTable tableName="changeRollback"&gt;
+    &lt;column name="id" type="int"/&gt;
+  &lt;/createTable&gt;
+&lt;rollback/&gt;
 &lt;/changeSet&gt;</code></pre>
-                <p>Multiple <code>rollback &lt;tag&gt;</code> can be specified in one <MadCap:variable name="General.changeset" />.</p><pre><code class="language-xml">&lt;changeSet id="multiRollbackTest" author="rs"&gt;
-&lt;createTable tableName="multiRollback1"&gt;
-&lt;column name="id" type="int"/&gt;
-&lt;/createTable&gt;
-&lt;createTable tableName="multiRollback2"&gt;
-&lt;column name="id" type="int"/&gt;
-&lt;/createTable&gt;
-&lt;createTable tableName="multiRollback3"&gt;
-&lt;column name="id" type="int"/&gt;
-&lt;/createTable&gt;
+        <ul>
+            <li>Specify the <code>rollback</code> commands using the tag within the <MadCap:variable name="General.changeset" style="font-style: italic;" /> tag when you want to override the default generated <code>rollback</code> commands. You can also specify multiple <code>rollback &lt;tag&gt;</code>.</li>
+        </ul><pre xml:space="preserve"><code class="language-xml">&lt;changeSet  author="liquibase"  id="30"&gt;
+  &lt;createTable tableName="table30"&gt;
+    &lt;column name="id" type="int"/&gt;
+    &lt;column name="heading" type="varchar(36)"/&gt;
+    &lt;column name="author" type="varchar(36)"/&gt;
+  &lt;/createTable&gt;
+&lt;rollback&gt;
+drop table table30
+&lt;/rollback&gt;
+&lt;/changeSet&gt;
+
+&lt;changeSet id="multiRollbackTest" author="rs"&gt;
+  &lt;createTable tableName="multiRollback1"&gt;
+    &lt;column name="id" type="int"/&gt;
+  &lt;/createTable&gt;
+  &lt;createTable tableName="multiRollback2"&gt;
+    &lt;column name="id" type="int"/&gt;
+  &lt;/createTable&gt;
+  &lt;createTable tableName="multiRollback3"&gt;
+    &lt;column name="id" type="int"/&gt;
+  &lt;/createTable&gt;
 &lt;rollback&gt;
 drop table multiRollback1;
 drop table multiRollback2;
 &lt;/rollback&gt;
 &lt;rollback&gt;drop table multiRollback3&lt;/rollback&gt;
 &lt;/changeSet&gt;</code></pre>
-                <p>A <code>rollback &lt;tag&gt;</code> can reference the <MadCap:variable name="General.changeset" /> that originally created a statement.</p><pre><code class="language-xml">&lt;changeSet id="changeRollback2-drop" author="nvoxland"&gt;
-&lt;dropTable tableName="changeRollback2"/&gt;
-&lt;rollback changeSetId="changeRollback2-create" changeSetAuthor="nvoxland"/&gt;
+        <ul>
+            <li>A <code>rollback &lt;tag&gt;</code> can reference the <MadCap:variable name="General.changeset" style="font-style: italic;" /> that originally created a statement.</li>
+        </ul><pre xml:space="preserve"><code class="language-xml">&lt;changeSet id="changeRollback2-drop" author="liquibase"&gt;
+  &lt;dropTable tableName="changeRollback2"/&gt;
+  &lt;rollback changeSetId="changeRollback2-create" changeSetAuthor="liquibase"/&gt;
 &lt;/changeSet&gt;</code></pre>
-                <p>A <code>rollback &lt;tag&gt;</code> can be empty if a rollback is not possible or required.</p><pre><code class="language-xml">&lt;changeSet id="noRollback" author="nvoxland"&gt;
-&lt;sql&gt;insert into multiRollback3 (id) values (1)&lt;/sql&gt;
-&lt;rollback/&gt;
-&lt;/changeSet&gt;</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>When successful, the <code>rollback &lt;tag&gt;</code> command produces the following output:</p><pre><code class="language-xml">Liquibase Pro 4.1.0 by Datical licensed to Liquibase Pro Customer until Tue Nov 03 19:00:00 CST 2020
+Rolling Back Changeset: changelog.xml::4::functionForTrigger::Liquibase Pro User
+Rolling Back Changeset: changelog.xml::3::createTableforCC-proschema::Liquibase Pro User
+Rolling Back Changeset: changelog.xml::2::createTableforView-proschema::Liquibase Pro User
+Rolling Back Changeset: changelog.xml::1::createTableforSynonym-proschema::Liquibase Pro User
+Rolling Back Changeset: changelog2.xml::2::logicalFilePath::changelog::Liquibase Pro User
+Rolling Back Changeset: changelog3.xml::1::logicalFilePath::changeset:: Liquibase Pro User
+Liquibase: Rollback has been successful.</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
     </body>
