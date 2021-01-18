@@ -91,7 +91,7 @@ create table primary_table (
 	          nullable: false  
           - column:  
              name:  firstname  
-	      type:  varchar(50)  
+	         type:  varchar(50)  
           - column:  
 	         name:  surname  
 	         type:  varchar(50)  
@@ -108,58 +108,55 @@ create table primary_table (
                 <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre><code class="language-json">{
-      "databaseChangeLog": [
-	 {
+  "databaseChangeLog": [
+	{
 	  "preConditions": [
 	    {
-         “sqlCheck”: {
-	  “expectedResult”: 0,
-	  “sql”: “select count(*) from primary_table”
-		}
-	       }
-	      ]
-	     },
-	    {
-	      "changeSet": {
-		"id": "1",
-		"author": "Liquibase User",
-		"labels": "1.0",
-		"changes": [
-		   {
-		    "createTable": {
-		    "tableName": "primary_table",
-		    "columns": [
-		    {
-		      "column": {
-		        "name": "id",
-		        "type": "int",
-		        "autoIncrement": true,
-		        "constraints": {
-		          "primaryKey": true,
-		          "nullable": false                         
-		     }
-		    }
-		  },
-		{
-		      "column": {
-		      "name": "firstname",
-		      "type": "varchar(50)"
-		     }
-		   },
-		{
-		      "column": {
-		      "name": "lastname",
-		      "type": "varchar(50)",
-		      "constraints": {
-		      "nullable": false
-		     },
-                              
-		    }
-		 },
-		{
-		      "column": {
-		      "name": "state",
-		      "type": "char(2)"
+         "sqlCheck": {
+	       "expectedResult": 1,
+	       "sql": "select count(*) from DATABASECHANGELOGLOCK"
+		 }
+	   }
+	 ],
+	 "changeSet": {
+	   "id": "1",
+	   "author": "Liquibase User",
+	   "labels": "1.0",
+	   "changes": [
+		 {
+		   "createTable": {
+		     "tableName": "primary_table",
+		     "columns": [
+		        {
+		          "column": {
+		            "name": "id",
+		            "type": "int",
+		            "autoIncrement": true,
+		            "constraints": {
+		              "primaryKey": true,
+		              "nullable": false                         
+		           }
+		    	 }
+		  	   },
+		   	   {
+		         "column": {
+		           "name": "firstname",
+		           "type": "varchar(50)"
+		         }
+		   	   },
+		       {
+		      	 "column": {
+		      	   "name": "lastname",
+		     	   "type": "varchar(50)",
+		      	   "constraints": {
+		      	     "nullable": false
+		           }             
+		   	     }
+		 	   },
+		 	   {
+		         "column": {
+		           "name": "state",
+		           "type": "char(2)"
 		          }
 		        }
 		      ]
@@ -178,7 +175,7 @@ create table primary_table (
     &lt;dbms  type="oracle"  /&gt;
     &lt;runningAs  username="SYSTEM"  /&gt;
  &lt;/preConditions&gt;</code></pre>
-        <p>In the next example, the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be required to run on Oracle and MySQL, which will always be false unless a huge and unexpected merger takes place:</p><pre xml:space="preserve"><code class="language-text">&lt;preConditions&gt;
+        <p>In the next example, the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be required to run on Oracle and MySQL:</p><pre xml:space="preserve"><code class="language-text">&lt;preConditions&gt;
     &lt;dbms  type="oracle"  /&gt;
     &lt;dbms  type="mysql"  /&gt;
  &lt;/preConditions&gt;</code></pre>
@@ -297,7 +294,7 @@ create table primary_table (
         </table>
         <h2 id="available-preconditions">Available preconditions</h2>
         <p>The examples of preconditions shown in the table doesn’t include the <code>schemaName</code> <MadCap:variable name="General.Param/Attribute" />. It is best practice not to keep the <code>schemaName</code> in the <MadCap:variable name="General.changeset" style="font-style: italic;" /> and rely on the default schema except for times you don’t want to create something in the default schema.</p>
-        <p>Additionally, you can include the <code>onError</code> or <code>onFail</code> <MadCap:variable name="General.Param/Attribute" />s with the <code>WARN</code>, <code>HALT</code>, <code>CONTINUE</code>, or <code>MARK_RAN</code> values in the preconditions tag, however, the <code>CONTINUE</code> and <code>MARK_RAN</code> options can only be applied to preconditions inside a <MadCap:variable name="General.changeset" style="font-style: italic;" />.</p>
+        <p>Additionally, you can include the <code>onError</code> or <code>onFail</code> <MadCap:variable name="General.Param/Attribute" />s with the <code>WARN</code>, <code>HALT</code>, <code>CONTINUE</code>, or <code>MARK_RAN</code> value in the preconditions tag, however, the <code>CONTINUE</code> and <code>MARK_RAN</code> options can only be applied to preconditions inside a <MadCap:variable name="General.changeset" style="font-style: italic;" />.</p>
         <p>You can use any precondition mentioned in the following table:</p>
         <table width="690" style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col style="width: 283px;" class="TableStyle-TableStyles-Column-Column1" />
@@ -497,9 +494,11 @@ create table primary_table (
                             <li style="text-align: left;"> To check a number of rows, use the <code>count</code> SQL function.</li>
                             <li style="text-align: left;"> To check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.</li>
                         </ul>
-                        <p style="text-align: left;"><pre xml:space="preserve"><code class="language-xml">&lt;sqlCheck expectedResult="1"&gt;
+                        <p style="text-align: left;"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+&lt;sqlCheck expectedResult="1"&gt;
 SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'
-&lt;/sqlCheck&gt;</code></pre>
+&lt;/sqlCheck&gt;
+&lt;/preConditions</code></pre>
                         </p>
                     </td>
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body2" width="149">
@@ -512,8 +511,10 @@ SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'
                     </td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
                         <p>Checks whether given <MadCap:variable name="General.changelog" style="font-style: italic;" /> <MadCap:variable name="General.Param/Attribute" /> is present. It fails if the value is not the same as given.</p>
-                        <p><pre xml:space="preserve" style="text-align: left;"><code class="language-xml">&lt;changeLogPropertyDefined property="myproperty"/&gt;
-&lt;changeLogPropertyDefined property="myproperty" value="requiredvalue"/&gt;</code></pre>
+                        <p><pre xml:space="preserve" style="text-align: left;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+&lt;changeLogPropertyDefined property="myproperty"/&gt;
+&lt;changeLogPropertyDefined property="myproperty" value="requiredvalue"/&gt;
+&lt;/preConditions&gt;</code></pre>
                         </p>
                     </td>
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body1" width="149">
