@@ -3,7 +3,7 @@ name: Content-written template
 about: Submission community written content
 title: ''
 labels: community, written
-assignees: ''
+assignees: carolhunt
 
 ---
 
