@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase and Docker | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/using-liquibase-and-docker.html" />
+        <meta name="description" content="This page explains how to use Liquibase and Docker" />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> and Docker</h1>
+        <p><a href="https://www.docker.com/">Docker</a> is an open platform for developing, shipping, and running applications. Docker provides the ability to package and run an application in a loosely isolated environment called a container. You can also create and use images, networks, volumes, plugins, and other objects. For more information, see <a href="https://docs.docker.com/get-started/overview/">Docker's overview</a>.</p>
+        <p>If you use a virtual machine, it requires a separate copy of the operating system, which needs space. Docker leverages the host system for the operating system to cut down on space. Additionally, Docker helps to start your application more quickly.</p>
+        <p>You can find the official repository for <MadCap:variable name="General.Liquibase" /> images on the <a href="https://download.liquibase.org/">download</a> page.</p>
+        <p>Docker pull command:</p><pre><code class="language-text">docker pull liquibase/liquibase</code></pre>
+        <h2><MadCap:variable name="General.Liquibase" /> Docker supported tags</h2>
+        <p>The following tags are officially supported:</p>
+        <ul>
+            <li>Overall most recent build</li>
+            <p>The latest tag will be kept up to date with the most advanced <MadCap:variable name="General.Liquibase" /> release: <code>latest</code>.</p>
+            <li>Latest major or minor builds</li>
+            <p>These tags are kept up to date with the most recent patch release of each stream:<ul><li>4.2</li><li>	4.1</li><li>3.10</li></ul></p>
+        </ul>
+        <ul>
+            <li>Specific releases</li>
+            <p>Each specific release has an associated tag:<ul><li>4.2.2</li><li>4.2.0</li><li>4.1.1</li><li>4.1.0</li><li>3.10.3</li></ul></p>
+        </ul>
+        <h2><MadCap:variable name="General.changelog" style="font-style: italic;" /> files</h2>
+        <p>The docker image has a <code>/liquibase/changelog</code> volume in which the directory that contains the root of your <MadCap:variable name="General.changelog" style="font-style: italic;" /> tree can be mounted. Your <code>--changeLogFile</code> <MadCap:variable name="General.Param/Attribute" /> should include the path relative to the volume.</p>
+        <p>You can also use the <code>/liquibase/changelog</code> volume for commands that create output files, such as <code>generateChangeLog</code>.</p>
+        <h3>Example</h3>
+        <p>If you have a local <code>c:\projects\my-project\src\main\resources\com\example\changelogs\root.changelog.xml</code> file, you can run:</p><pre><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog --changeLogFile=com/example/changelogs/root.changelog.xml update</code></pre>
+        <h2>Configuration files</h2>
+        <p>If you use a defaults file (for example, you can have the <code><MadCap:variable name="General.liquiPropFile" /></code> file) to specify <MadCap:variable name="General.Param/Attribute" />s instead of passing them on the command line, include it in your <MadCap:variable name="General.changelog" style="font-style: italic;" /> volume mount and reference it when running commands.</p>
+        <p>When you specify a custom <code><MadCap:variable name="General.liquiPropFile" /></code> file, ensure you include <code>classpath=/liquibase/changelog</code> so that <MadCap:variable name="General.Liquibase" /> can continue looking for your <MadCap:variable name="General.changelog" style="font-style: italic;" /> files there.</p>
+        <h3>Example</h3>
+        <p>If you have a local <code>c:\projects\my-project\src\main\resources\liquibase.properties</code> file, you can run:</p><pre><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog --defaultsFile=/liquibase/changelog/liquibase.properties update</code></pre>
+        <h2>Drivers and extensions</h2>
+        <p>The <MadCap:variable name="General.Liquibase" /> docker container includes drivers for many databases. If your driver is not included or if you have an extension, you can mount a local directory that contains .jar files to <code>/liquibase/classpath</code> and add .jar files to your classpath setting.</p>
+        <h3>Example</h3>
+        <p>If you have a local <code>c:\projects\my-project\lib\my-driver.jar</code> file, you can run:</p><pre><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog -v c:\projects\my-project\lib:/liquibase/classpath --classpath=liquibase/changelog:liquibase/classpath/my-driver.jar update</code></pre>
+        <h2>Best practices</h2>
+        <ul>
+            <li>Specify everything by using arguments</li>
+        </ul><pre><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase --url="jdbc:sqlserver://&lt;IP OR HOSTNAME&gt;:1433;database=&lt;DATABASE&gt;;" --changeLogFile=com/example/changelog.xml --username=&lt;USERNAME&gt; --password=&lt;PASSWORD&gt; --liquibaseProLicenseKey="&lt;PASTE LB PRO LICENSE KEY HERE&gt;" update</code></pre>
+        <ul>
+            <li>Use the following example for configuring the <code>liquibase.docker.properties</code> file</li>
+        </ul><pre><code class="language-text">classpath: /liquibase/changelog
+url: jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;
+changeLogFile: changelog.xml
+username: &lt;USERNAME&gt;
+password: &lt;PASSWORD&gt;
+liquibaseProLicenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
+        <ul>
+            <li>Use the <code>--defaultsFile</code> argument to evoke the <code>liquibase.docker.properties</code> file when running commands in the CLI</li>
+        </ul><pre><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase --defaultsFile=/liquibase/changelog/liquibase.docker.properties update</code></pre>
+        <h2>Example JDBC URLs</h2>
+        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Database</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">JDBC URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>MS SQL Server</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">
+                        <p>jdbc:sqlserver://&lt;IP OR HOSTNAME&gt;:1433;database=&lt;DATABASE&gt;</p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>PostgreSQL</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">
+                        <p>jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;</p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p>MySQL</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">
+                        <p> jdbc:mysql://&lt;IP OR HOSTNAME&gt;:3306/&lt;DATABASE&gt;</p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>MariaDB</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">
+                        <p>jdbc:mariadb://&lt;IP OR HOSTNAME&gt;:3306/&lt;DATABASE&gt;</p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">DB2</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> jdbc:db2://&lt;IP OR HOSTNAME&gt;:50000/&lt;DATABASE&gt;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">Snowflake</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2"> jdbc:snowflake://&lt;IP OR HOSTNAME&gt;/?db=&lt;DATABASE&gt;&amp;schema=&lt;SCHEMA NAME&gt;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Sybase</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> jdbc:jtds:sybase://&lt;IP OR HOSTNAME&gt;:/&lt;DATABASE&gt;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">SQLite</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">
+                        <p>jdbc:sqlite:/tmp/&lt;DB FILE NAME&gt;.db</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>An example of using <MadCap:variable name="General.Liquibase" /> and PostgreSQL with Docker</h2>
+        <p>When you start a PostgreSQL database using <code>docker run postgres</code>, the command looks at the local system to see if the PostgreSQL Docker container already exists. If the container doesn’t exist, the command will refer to Docker Hub and download it.</p>
+        <p>To run PostgreSQL and <MadCap:variable name="General.Liquibase" />, your <MadCap:variable name="General.Liquibase" /> <MadCap:variable name="General.changelog" style="font-style: italic;" /> needs to be accessible to the Docker container. Mount the directory that includes the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the <code>-v</code> option:</p><pre><code class="language-text">docker run -v /home/changelog:/liquibase/changelog liquibase/liquibase --driver=org.postgresql.Driver --url=”jdbc:postgresql://&lt;DATABASE_IP&gt;:5432/postgres” --changeLogFile=/liquibase/changelog/changelog.xml --username=postgres --password=postgres</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the directory that contains your <MadCap:variable name="General.changelog" style="font-style: italic;" /> in place of <code>/home/changelog</code>. Also, enter the <code>hostname/ip</code> of your database. If you are running PostgreSQL as a Docker container, use <code>docker inspect &lt;CONTAINER_NAME&gt;</code> to find the IP address of your PostgreSQL database.</p>
+    </body>
+</html>
