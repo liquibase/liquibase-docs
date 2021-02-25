@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Diffing Multiple Schemas in Liquibase | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/diffing-multiple-schemas-in-liquibase.html" />
+        <meta name="description" content="This page explains how to diff multiple schemas in Liquibase" />
+    </head>
+    <body>
+        <h1>Diffing Multiple Schemas in <MadCap:variable name="General.Liquibase" /></h1>
+        <p>You can diff multiple schemas to capture the changes made by a few people in their database environments and add those changes into a release artifact so they can be deployed in the existing release automation.</p>
+        <p><MadCap:variable name="General.Liquibase" /> allows handling multiple schemas with the following commands:</p>
+        <ul>
+            <li><a href="https://docs.liquibase.com/commands/community/diff.html"><MadCap:xref href="../../commands/community/diff.htm">diff command</MadCap:xref></a>
+            </li>
+            <li><a href="https://docs.liquibase.com/commands/community/diffchangelog.html"><MadCap:xref href="../../commands/community/diffChangeLog.html">diffChangeLog command</MadCap:xref></a>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/community/generateChangeLog.html">generateChangeLog command</MadCap:xref>
+            </li>
+            <li><a href="https://docs.liquibase.com/commands/community/snapshot.html"><MadCap:xref href="../../commands/community/snapshot.html">snapshot command</MadCap:xref></a>
+            </li>
+        </ul>
+        <h2>Using <MadCap:variable name="General.Liquibase" /> with Multiple Schemas</h2>
+        <p>There are a lot of workflows you can apply and use with multiple schemas. One of the typical workflows to diff multiple schemas is the following:</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Before running commands, ensure that you have configured the <code><MadCap:variable name="General.liquiPropFile" /></code> file to include your driver, classpath, and URL for the database you want to capture. Another way is to pass all <MadCap:variable name="General.Param/Attribute" />s on the command line.</p>
+        <ol>
+            <li>Run the <code>snapshot</code> command to capture the state of the database containing different schemas:</li><pre><code class="language-text">liquibase --outputFile=mySnapshot.json snapshot --snapshotFormat=json --schemas=lookup,public</code></pre>
+            <p>When running the <code>snapshot</code> command on multiple schemas, enter the <code>--schemas</code> flag after the <code>snapshot</code> command.</p>
+            <p>The <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file sample:</p><pre><code class="language-text">changeLogFile: myChangelog.xml
+url: jdbc:postgresql://localhost:5432/MYDATABASE
+username: postgres
+password: password
+classpath: ../../Drivers/postgresql-42.2.8.jar
+liquibaseProLicenseKey: &lt;ProKey&gt;
+includeSchema: true</code></pre>
+        </ol>
+        <ol start="2">
+            <li>Manually make some changes to the target database on the different schemas.</li>
+            <li>Run the <code>diff</code> command specifying the snapshot (an offline mode) and the database with new changes:</li><pre><code class="language-text">liquibase
+--url=offline:postgresql?snapshot=mySnapshot.json
+--referenceUrl="jdbc:postgresql://localhost:5432/MYDATABASE"
+--referenceUsername=&lt;USERNAME&gt;
+--referencePassword=&lt;PASSWORD&gt;
+diff</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The format for the URL is the following: <code>offline:&lt;db_type&gt;?snapshot=&lt;path/to/snapshot.json&gt;</code>. Use the name of your database type from the list of the <a href="https://www.liquibase.org/get-started/databases?_ga=2.184478054.1366596955.1613465188-198385488.1595954650">supported databases</a> in place of <code>&lt;db_type&gt;</code> and the path relative to where the command is running in place of <code>&lt;path/to/snapshot.json&gt;</code>. If you are using another database, like H2, you may need to wrap your URL in <code>"</code>: <code>"offline:&lt;db_type&gt;?snapshot=&lt;path/to/snapshot.json&gt;"</code>.</p>
+        </ol>
+        <ol start="4">
+            <li>Run the <code>diffChangeLog</code> command specifying the snapshot (an offline mode) and the database with new changes:</li><pre><code class="language-text">liquibase
+--referenceUrl=jdbc:postgresql://localhost:5432/MYDATABASE
+--url=offline:postgresql?snapshot=mySnapshot.json
+--changeLogFile=mydiffchangelog.xml
+diffChangeLog</code></pre>
+            <p>The generated <MadCap:variable name="General.changelog" style="font-style: italic;" /> will contain new changes. Now, you can compare and confirm those changes.</p>
+        </ol>
+        <ol start="5">
+            <li>Check the changes manually or by running automation tests, and then deploy them to the production.</li>
+        </ol>
+        <h2>Best Practices</h2>
+        <ul>
+            <li>Use the <code>generateChangeLog</code> command when you start using <MadCap:variable name="General.Liquibase" /> with an existing project and want to sync your changes for different schemas. The command will create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with a sequence of <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that describe how to recreate the current state of the database.</li>
+            <li>Identify a change over which you do not have control or the change that someone applies directly to the database. Using the <code>diffChangeLog</code> command, you can identify the change and generate a <MadCap:variable name="General.changelog" style="font-style: italic;" /> update.</li>
+            <li>Document your changes. Run the <code>diff</code> command to see the output of all changes.</li>
+        </ul>
+        <p>Nevertheless, there are times when you cannot use diffing capabilities to handle database schema changes. See the following examples:</p>
+        <ul>
+            <li>Performance. As your data set grows, the amount of information to compare grows until it becomes unmanageable.</li>
+            <li>Data changes. During development, the test data is often added to the development database and should not be copied into other databases. Also, the new data may be added to testing and production databases and should not be deleted because it does not exist in the development database.</li>
+            <li><code>Diff</code> commands do not handle all expected differences. For example, you can use 50 states, which are inserted in different orders or with different sequence start values. Their id will be different but they will work as expected.</li>
+        </ul>
+        <h3>Related Links</h3>
+        <ul>
+            <li>
+                <MadCap:xref href="creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../home.htm">Workflows</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
