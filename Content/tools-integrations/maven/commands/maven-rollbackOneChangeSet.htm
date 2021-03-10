@@ -1,620 +1,326 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-		<title>rollbackOneChangeSet Maven Goal | Liquibase Docs</title>
-		<meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/maven/commands/maven-rollbackonechangeset.html" />
-        <link href="../../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
-		<meta name="description" content="Reference information and use cases for the rollbackOneChangeSet Maven goal. The rollbackOneChangeSet Maven goal reverts (rolls back) one non-sequential changesets made during a previous change to your database. It is only available for Liquibase Pro users." />
+        <link href="../../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>rollbackOneChangeSet Maven Goal | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/maven/commands/maven-rollbackonechangeset.html" />
+        <meta name="description" content="Reference information and use cases for the rollbackOneChangeSet Maven goal. The rollbackOneChangeSet Maven goal reverts (rolls back) one non-sequential changesets made during a previous change to your database. It is only available for Liquibase Pro users." />
     </head>
     <body>
-        <h1>Maven rollbackOneChangeSet</h1>
-        <h3>Full name:</h3>
-        <p>org.liquibase:liquibase-maven-plugin:3.10.1:rollbackOneChangeSet</p>
-        <h3>Description:</h3>
-        <p>Reverts (rolls back) one non-sequential <MadCap:variable name="General.changeset" /> made during a previous change to your database. It is only available for <MadCap:variable name="General.LBPro" /> users.</p>
-        <h3>Attributes:</h3>
+        <h1>Maven <code>rollbackOneChangeSet</code></h1>
+        <p><code>rollbackOneChangeSet</code> rolls back one non-sequential <MadCap:variable name="General.changeset" style="font-style: italic;" /> that is deployed to your database. It is only available for <MadCap:variable name="General.LBPro" /> users.</p>
+        <h2>Uses</h2>
+        <p><code>rollbackOneChangeSet</code> is typically used when you want to undo a change made to your database and revert it to a previous state without affecting any other changes made to your database.</p>
+        <p>While the <code><a href="https://docs.liquibase.com/tools-integrations/maven/commands/maven-rollback.html">rollback</a></code> goal reverts all the deployed <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> sequentially to a specified point, the <code>rollbackOneChangeSet</code> goal allows you to target a specific <MadCap:variable name="General.changeset" style="font-style: italic;" /> without impacting <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that came before or after it.</p>
+        <p style="text-align: center;">
+            <img src="../../../Z_Resources/Images/Screenshots/commands/rollbackOneUpdate(new_version).png" style="width: 485px;height: 344px;" />
+        </p>
+        <p>The image shows <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> <code>A</code> through <code>I</code>, with <MadCap:variable name="General.changeset" style="font-style: italic;" /> <code>I</code> being the most recently deployed. As you can see, the <code>rollbackOneChangeSet</code> goal allows you to target <MadCap:variable name="General.changeset" style="font-style: italic;" /> <code>B</code> and revert it to its previous state without impacting the others.</p>
+        <h2>The impacts of <code>rollbackOneChangeSet</code></h2>
+        <p>Using the <code>rollbackOneChangeSet</code> goal comes with risks of unintended consequences. For this reason, it is a best practice to run the <code><a href="https://docs.liquibase.com/tools-integrations/maven/commands/maven-rollbackonechangesetsql.html">rollbackOneChangeSetSQL</a></code> goal because it allows you to inspect the rollback SQL and search for any potential mistakes before you execute <code>rollbackOneChangeset</code>.</p>
+        <p>Also, as the use of <code>rollbackOneChangeSet</code> comes with risks of unintended consequences, the goal requires a <code>liquibase.force</code> <MadCap:variable name="General.Param/Attribute" /> to specify that you intend to run the goal.</p>
+        <h2 xmlns="">Maven configuration</h2>
+        <p xmlns=""><MadCap:variable name="General.Liquibase" /> Maven can be configured in multiple ways. One way is to define your <MadCap:variable name="General.Liquibase" /> configuration properties in your <code>pom.xml</code> file. To configure your <code>pom.xml</code> file, refer to <a href="https://docs.liquibase.com/tools-integrations/maven/maven-pom-file.html">Configuring <MadCap:variable name="General.Liquibase" /> <MadCap:variable name="General.Param/Attr/Uppercased" />s in your Maven POM File</a>. If your <code>pom.xml</code> does not reference a <code><MadCap:variable name="General.liquiPropFile" /></code> file, include <code>&lt;changeLogFile&gt;specify your <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> file here&lt;/changeLogFile&gt;</code> and <code>&lt;ProLicenseKey&gt;specify your <MadCap:variable name="General.LBPro" /> license key here&lt;/ProLicenseKey&gt;</code> to the <code xmlns="http://www.w3.org/1999/xhtml">pom.xml</code> file.</p>
+        <h2>Running the <code>rollbackOneChangeSet</code> Maven goal</h2>
+        <p>Before running the <code>rollbackOneChangeSet</code> goal, gather the following information from your <MadCap:variable name="General.databasechangelog" /> table:</p>
         <ul>
-            <li>Requires a Maven 2.0 project to be executed.</li>
-            <li>Requires dependency resolution of artifacts in scope: test.</li>
+            <li>The <code>author</code> of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> you want to revert</li>
+            <li>The <code>id</code> of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> you want to revert</li>
+            <li>The <code>filename</code> (<MadCap:variable name="General.changeset" style="font-style: italic;" /> path) of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> you want to revert</li>
         </ul>
-        <h2>Optional Parameters</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>liquibase.rollbackScript</code> script is only needed if the <code>rollback</code> is not yet defined in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> and if it is not a <code>rollback</code> that is automatically provided by <MadCap:variable name="General.Liquibase" />.</p>
+        <p>Also, you can run the <code><a href="https://docs.liquibase.com/tools-integrations/maven/commands/maven-history.html">history</a></code> goal to see the history of all deployments against the configured database:</p><pre xml:space="preserve"><code class="language-text">mvn liquibase:history</code></pre>
+        <p>Next, run the <code>rollbackOneChangeSet</code> goal, with your information:</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Running the <code>rollbackOneChangeSet</code> goal requires a Maven project to be implemented.</p><pre xml:space="preserve"><code class="language-text">mvn liquibase:rollbackOneChangeSet
+-Dliquibase.changeSetAuthor="LiquibaseProUser"
+-Dliquibase.changeSetId="createProSchema"
+-Dliquibase.changeSetPath="changelog.xml" -Dliquibase.force</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> author, id, and the path with the <MadCap:variable name="General.changelog" style="font-style: italic;" /> filename that you want to use in place of <code>LiquibaseProUser</code>, <code>createProSchema</code>, and <code>changelog.xml</code>. For more information, run <code>mvn liquibase:help -Ddetail=true -Dgoal=rollbackOneChangeSet</code>.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>When successful, the <code>rollbackOneChangeSet</code> Maven goal produces the following output:</p><pre xml:space="preserve"><code class="language-text">[INFO] Scanning for projects...
+[INFO]
+[INFO] -------------------&lt; com.example:liquibase-project &gt;--------------------
+[INFO] Building liquibase-project 05XII19
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] --- liquibase-maven-plugin:4.1.1:rollbackOneChangeSet (default-cli) @ liquibase-project ---
+[INFO] ------------------------------------------------------------------------
+[INFO] Successfully installed license from Base64 string starting with 'ABwwGgQUvH' (property liquibaseProLicenseKey).
+[INFO] Liquibase Pro 4.1.1 by Datical licensed to support until Wed Sep 22 23:59:59 CDT 2021
+[INFO] Liquibase Pro 4.1.1 by Datical licensed to support until Wed Sep 22 23:59:59 CDT 2021
+[INFO] ####################################################
+##   _     _             _ _                      ##
+##  | |   (_)           (_) |                     ##
+##  | |    _  __ _ _   _ _| |__   __ _ ___  ___   ##
+##  | |   | |/ _` | | | | | '_ \ / _` / __|/ _ \  ##
+##  | |___| | (_| | |_| | | |_) | (_| \__ \  __/  ##
+##  \_____/_|\__, |\__,_|_|_.__/ \__,_|___/\___|  ##
+##              | |                               ##
+##              |_|                               ##
+##                                                ##
+##  Get documentation at docs.liquibase.com       ##
+##  Get certified courses at learn.liquibase.com  ##
+##  Get advanced features and support at          ##
+##      liquibase.com/support                     ##
+##                                                ##
+####################################################
+Starting Liquibase at 05:45:35 (version 4.1.1 #10 built at 2020-10-12 19:24+0000)
+[INFO] Parsing Liquibase Properties File local.liquibase.properties for changeLog parameters
+[INFO] Executing on Database: jdbc:oracle:thin:@localhost:1521/ORCL
+[INFO] Successfully installed license from Base64 string starting with 'ABwwGgQUvH' (property liquibaseProLicenseKey).
+[INFO] Liquibase Pro 4.1.1 by Datical licensed to support until Wed Sep 22 23:59:59 CDT 2021
+[INFO] Liquibase Pro 4.1.1 by Datical licensed to support until Wed Sep 22 23:59:59 CDT 2021
+[INFO] Successfully acquired change log lock
+[INFO] Reading from DATABASECHANGELOG
+Rolling Back Changeset:changelog.xml::createProSchema::LiquibaseProUser
+[INFO] Successfully released change log lock
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.356 s
+[INFO] Finished at: 2020-11-27T05:45:37-06:00
+[INFO] ------------------------------------------------------------------------</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2><code xmlns="http://www.w3.org/1999/xhtml">rollbackOneChangeSet</code> required Maven configuration <MadCap:variable name="General.Param/Attribute" />s</h2>
         <table style="width: 100%;margin-left: auto;margin-right: auto;mc-table-style: url('../../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
             <col class="TableStyle-TableStyles-Column-Column1" />
             <col class="TableStyle-TableStyles-Column-Column1" />
             <thead>
                 <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Name</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Type</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Since</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">
+                        <p xmlns="http://www.w3.org/1999/xhtml"><MadCap:variable name="General.Param/Attr/Uppercased" />
+                        </p>
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Definition</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.changeLogDirectory">liquibase.changeLogDirectory</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the directory where <MadCap:variable name="General.Liquibase" /> can find your <MadCap:variable name="General.changelog" /> file.</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.changeSetAuthor</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the <code>author</code> of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> you want to roll back.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.changeLogFile">liquibase.changeLogFile</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the <MadCap:variable name="General.changelog" /> file for <MadCap:variable name="General.Liquibase" /> to use.</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.changeSetId</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the <MadCap:variable name="General.changeset" style="font-style: italic;" /> <code>Id</code> to roll back.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.changeSetAuthor">liquibase.changeSetAuthor</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the author of the <MadCap:variable name="General.changeset" /> you want to rollback.</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.changeSetPath</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the path to the <MadCap:variable name="General.changelog" style="font-style: italic;" />, which contains the <MadCap:variable name="General.changeset" style="font-style: italic;" /> you want to roll back.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.changeSetId">liquibase.changeSetId</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">The <MadCap:variable name="General.changeset" /> ID to rollback</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.force</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies a required flag, which indicates you intend to run <code>rollbackOneChangeSet</code>.</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.changeSetPath">liquibase.changeSetPath</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the path to the <MadCap:variable name="General.changelog" /> which contains the <MadCap:variable name="General.changeset" /> you want to rollback.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.changelogCatalogName">liquibase.changelogCatalogName</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2"> 	Specifies the schema <MadCap:variable name="General.Liquibase" /> will use to create your <MadCap:variable name="General.changelog" /> tables.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.changelogSchemaName">liquibase.changelogSchemaName</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the schema <MadCap:variable name="General.Liquibase" /> will use to create your <MadCap:variable name="General.changelog" /> table.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.clearCheckSums">liquibase.clearCheckSums</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2"> 	A flag that forces checksums to be cleared from the <MadCap:variable name="General.databasechangelog" /> table.
-Default value is: <b>false</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.contexts">liquibase.contexts</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies which contexts <MadCap:variable name="General.Liquibase" /> will execute, which can be separated by a comma if multiple contexts are required. If a context is not specified, then ALL contexts will be executed.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.databaseChangeLogLockTableName">liquibase.databaseChangeLogLockTableName</a><![CDATA[ 	]]></td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the table name to use for the <MadCap:variable name="General.databasechangeloglock" /> table.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.databaseChangeLogTableName">liquibase.databaseChangeLogTableName</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> 	Specifies the table name to use for the <MadCap:variable name="General.databasechangelog" /> table.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.databaseClass">liquibase.databaseClass</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the database object class.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.defaultCatalogName">liquibase.defaultCatalogName</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the default catalog name to use for the database connection.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.defaultSchemaName">liquibase.defaultSchemaName</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the default schema name to use for the database connection.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.driver">liquibase.driver</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the driver class name to use for the database connection.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#driverPropertiesFile">driverPropertiesFile</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">File</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the location of a JDBC connection-properties file which contains properties the driver will use.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.emptyPassword">liquibase.emptyPassword</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Deprecated. Use an empty or null value for the password instead.
-Default value is: <b>false</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#expressionVariables">expressionVariables</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">Map</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">A map-based collection of <MadCap:variable name="General.changelog" /> properties to apply.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#expressionVars">expressionVars</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Properties</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">A property-based collection of <MadCap:variable name="General.changelog" /> properties to apply.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.force">liquibase.force</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">A required flag which indicates you intend to run <code>rollbackOneChangeSet</code></td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.includeArtifact">liquibase.includeArtifact</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Includes a Maven project artifact in the class loader which obtains the <code>liquibase.properties</code> and <MadCap:variable name="General.changelog" /> files.
-Default value is: <b>true</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.includeTestOutputDirectory">liquibase.includeTestOutputDirectory</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Includes the Maven test output directory in the class loader which obtains the <code>liquibase.properties</code> and <MadCap:variable name="General.changelog" /> files.
-Default value is: <b>true</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.labels">liquibase.labels</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies which <MadCap:variable name="General.Liquibase" /> labels <MadCap:variable name="General.Liquibase" /> will execute, which can be separated by a comma if multiple labels are required or you need to designate a more complex expression. If a label is not specified, then ALL labels will be executed.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.liquibaseProLicenseKey">liquibase.liquibaseProLicenseKey</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies your <MadCap:variable name="General.LBPro" /> license key.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.logging">liquibase.logging</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Controls the amount of logging detail <MadCap:variable name="General.Liquibase" /> outputs when executing. The values can be "DEBUG", "INFO", "WARNING", "SEVERE", or "OFF". The value is not case sensitive.
-Default value is: <b>INFO</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.outputDefaultCatalog">liquibase.outputDefaultCatalog</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies whether to ignore the catalog/database name.
-Default value is: <b>false</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.outputDefaultSchema">liquibase.outputDefaultSchema</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies whether to ignore the schema name.
-Default value is: <b>false</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.outputFileEncoding">liquibase.outputFileEncoding</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">A flag which indicates you want to set the character encoding of the output file during the updateSQL phase.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.password">liquibase.password</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the database password for database connection.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.promptOnNonLocalDatabase">liquibase.promptOnNonLocalDatabase</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Controls whether users are prompted before executing <MadCap:variable name="General.changeset" /> to a non-local database.
-Default value is: <b>true</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.propertyFile">liquibase.propertyFile</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the <code>liquibase.properties</code> you want to use to configure <MadCap:variable name="General.Liquibase" />.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.propertyFileWillOverride">liquibase.propertyFileWillOverride</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">A flag which indicates you want the <code>liquibase.properties</code> file to override any settings provided in the Maven plugin configuration. By default, if a property is explicitly specified it is not overridden if it also appears in the properties file.
-Default value is: <b>false</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.propertyProviderClass">liquibase.propertyProviderClass</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the property provider which must be a <code>java.util.Properties</code> implementation.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.rollbackScript">liquibase.rollbackScript</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the path to a rollback script</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.server">liquibase.server</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the server ID in the Maven <code>settings.xml</code> to use when authenticating.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.skip">liquibase.skip</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies whether to skip running <MadCap:variable name="General.Liquibase" />. The use of this parameter is NOT RECOMMENDED but can be used when needed.
-Default value is: <b>false</b>.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#systemProperties">systemProperties</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Properties</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> 	Specifies a list of system properties you want to pass to the database.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><a href="#liquibase.url">liquibase.url</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the database URL you want to use to execute <MadCap:variable name="General.Liquibase" />.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><a href="#liquibase.username">liquibase.username</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">-</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the database username for database connection.</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><a href="#liquibase.verbose">liquibase.verbose</a>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">boolean</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">-</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Controls the amount of output detail when you call the plugin.
-Default value is: <b>false</b>.</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">liquibase.liquibaseProLicenseKey</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Specifies your <MadCap:variable name="General.LBPro" /> license key.</td>
                 </tr>
             </tbody>
         </table>
-        <h2>Parameter Details</h2>
-        <h3><a name="liquibase.changeLogDirectory"></a>liquibase.changeLogDirectory:</h3>
-        <p>Specifies the directory where <MadCap:variable name="General.Liquibase" /> can find your <MadCap:variable name="General.changelog" /> file.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <h3><a name="liquibase.changeLogFile"></a>liquibase.changeLogFile:</h3>
-        <p>Specifies the <MadCap:variable name="General.changelog" /> file for <MadCap:variable name="General.Liquibase" /> to use.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.changeSetAuthor"></a>liquibase.changeSetAuthor:</h3>
-        <p>Specifies the author of the <MadCap:variable name="General.changeset" /> you want to rollback.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.changeSetId"></a>liquibase.changeSetId:</h3>
-        <p>The <MadCap:variable name="General.changeset" /> ID to rollback</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.changeSetPath"></a>liquibase.changeSetPath:</h3>
-        <p>Specifies the path to the <MadCap:variable name="General.changelog" /> which contains the <MadCap:variable name="General.changeset" /> you want to rollback.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.changelogCatalogName"></a>liquibase.changelogCatalogName:</h3>
-        <p>Specifies the schema <MadCap:variable name="General.Liquibase" /> will use to create your <MadCap:variable name="General.changelog" /> tables.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.changelogSchemaName"></a>liquibase.changelogSchemaName:</h3>
-        <p>Specifies the schema <MadCap:variable name="General.Liquibase" /> will use to create your <MadCap:variable name="General.changelog" /> table.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.clearCheckSums"></a>liquibase.clearCheckSums:</h3>
-        <p>A flag that forces checksums to be cleared from the <MadCap:variable name="General.databasechangelog" /> table.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: false</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.contexts"></a>liquibase.contexts:</h3>
-        <p>Specifies which contexts <MadCap:variable name="General.Liquibase" /> will execute, which can be separated by a comma if multiple contexts are required. If a context is not specified, then ALL contexts will be executed.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.databaseChangeLogLockTableName"></a>liquibase.databaseChangeLogLockTableName:</h3>
-        <p>Specifies the table name to use for the <MadCap:variable name="General.databasechangeloglock" /> table.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.databaseChangeLogTableName"></a>liquibase.databaseChangeLogTableName:</h3>
-        <p>Specifies the table name to use for the <MadCap:variable name="General.databasechangelog" /> table.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.databaseClass"></a>liquibase.databaseClass:</h3>
-        <p>Specifies the database object class.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.defaultCatalogName"></a>liquibase.defaultCatalogName:</h3>
-        <p>Specifies the default catalog name to use for the database connection.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.defaultSchemaName"></a>liquibase.defaultSchemaName:</h3>
-        <p>Specifies the default schema name to use for the database connection.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.driver"></a>liquibase.driver:</h3>
-        <p>Specifies the driver class name to use for the database connection.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="driverPropertiesFile"></a>driverPropertiesFile:</h3>
-        <p>Specifies the location of a JDBC connection-properties file which contains properties the driver will use.</p>
-        <ul>
-            <li>Type: java.io.File</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.emptyPassword"></a>liquibase.emptyPassword:</h3>
-        <p>Deprecated. Use an empty or null value for the password instead.</p>
-        <p>Use an empty string as the password for the database connection. This should not be used along side the password setting.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: false</li>
-        </ul>
-        <hr />
-        <h3><a name="expressionVariables"></a>expressionVariables:</h3>
-        <p>A map-based collection of <MadCap:variable name="General.changelog" /> properties to apply.</p>
-        <ul>
-            <li>Type: java.util.Map</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="expressionVars"></a>expressionVars:</h3>
-        <p>A property-based collection of <MadCap:variable name="General.changelog" /> properties to apply.</p>
-        <ul>
-            <li>Type: java.util.Properties</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.force"></a>liquibase.force:</h3>
-        <p>A required flag which indicates you intend to run <code>rollbackOneChangeSet</code>.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.includeArtifact"></a>liquibase.includeArtifact:</h3>
-        <p>Includes a Maven project artifact in the class loader which obtains the <code>liquibase.properties</code> and <MadCap:variable name="General.changelog" /> files.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: true</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.includeTestOutputDirectory"></a>liquibase.includeTestOutputDirectory:</h3>
-        <p>Includes the Maven test output directory in the class loader which obtains the <code>liquibase.properties</code> and <MadCap:variable name="General.changelog" /> files.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: true</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.labels"></a>liquibase.labels:</h3>
-        <p>Specifies which <MadCap:variable name="General.Liquibase" /> labels <MadCap:variable name="General.Liquibase" /> will execute, which can be separated by a comma if multiple labels are required or you need to designate a more complex expression. If a label is not specified, then ALL labels will be executed.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.liquibaseProLicenseKey"></a>liquibase.liquibaseProLicenseKey:</h3>
-        <p>Specifies your<MadCap:variable name="General.LBPro" /> license key.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.logging"></a>liquibase.logging:</h3>
-        <p>Controls the amount of logging detail <MadCap:variable name="General.Liquibase" /> outputs when executing. The values can be "DEBUG", "INFO", "WARNING", "SEVERE", or "OFF". The value is not case sensitive.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-            <li>Default: INFO</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.outputDefaultCatalog"></a>liquibase.outputDefaultCatalog:</h3>
-        <p>Specifies whether to ignore the catalog/database name.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: false</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.outputDefaultSchema"></a>liquibase.outputDefaultSchema:</h3>
-        <p>Specifies whether to ignore the schema name.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: false</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.outputFileEncoding"></a>liquibase.outputFileEncoding:</h3>
-        <p>A flag which indicates you want to set the character encoding of the output file during the updateSQL phase.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.password"></a>liquibase.password:</h3>
-        <p>Specifies the database password for database connection.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.promptOnNonLocalDatabase"></a>liquibase.promptOnNonLocalDatabase:</h3>
-        <p>Controls whether users are prompted before executing <MadCap:variable name="General.changeset" /> to a non-local database.</p>
-        <p>Type: boolean</p>
-        <ul>
-            <li>Required: No</li>
-            <li>Default: true</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.propertyFile"></a>liquibase.propertyFile:</h3>
-        <p>Specifies the <code>liquibase.properties</code> you want to use to configure <MadCap:variable name="General.Liquibase" />.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.propertyFileWillOverride"></a>liquibase.propertyFileWillOverride:</h3>
-        <p>A flag which indicates you want the <code>liquibase.properties</code> file to override any settings provided in the Maven plugin configuration. By default, if a property is explicitly specified it is not overridden if it also appears in the properties file.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: false</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.propertyProviderClass"></a>liquibase.propertyProviderClass:</h3>
-        <p>Specifies the property provider which must be a <code>java.util.Properties</code> implementation.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.rollbackScript"></a>liquibase.rollbackScript:</h3>
-        <p>Specifies the path to a rollback script.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.server"></a>liquibase.server:</h3>
-        <p>Specifies the server ID in the Maven <code>settings.xml</code> to use when authenticating.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.skip"></a>liquibase.skip:</h3>
-        <p>Specifies whether to skip running <MadCap:variable name="General.Liquibase" />. The use of this parameter is NOT RECOMMENDED but can be used when needed.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: false</li>
-        </ul>
-        <hr />
-        <h3><a name="systemProperties"></a>systemProperties:</h3>
-        <p>Specifies a list of system properties you want to pass to the database.</p>
-        <ul>
-            <li>Type: java.util.Properties</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.url"></a>liquibase.url:</h3>
-        <p>Specifies the database URL you want to use to execute <MadCap:variable name="General.Liquibase" />.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.username"></a>liquibase.username:</h3>
-        <p>Specifies the database username for database connection.</p>
-        <ul>
-            <li>Type: java.lang.String</li>
-            <li>Required: No</li>
-        </ul>
-        <hr />
-        <h3><a name="liquibase.verbose"></a>liquibase.verbose:</h3>
-        <p>Controls the amount of output detail when you call the plugin.</p>
-        <ul>
-            <li>Type: boolean</li>
-            <li>Required: No</li>
-            <li>Default: false</li>
-        </ul>
-        <hr />
+        <h2><code>rollbackOneChangeSet</code> optional Maven configuration <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <table style="width: 100%;margin-left: auto;margin-right: auto;mc-table-style: url('../../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Definition</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.changeLogDirectory</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the directory where <MadCap:variable name="General.Liquibase" /> can find your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.changeLogFile</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file for <MadCap:variable name="General.Liquibase" /> to use.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.changelogCatalogName</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the catalog
+						<MadCap:variable name="General.Liquibase" /> will use to create your
+					<MadCap:variable name="General.changelog" style="font-style: italic;" /> tables.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.changelogSchemaName</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the schema
+						<MadCap:variable name="General.Liquibase" /> will use to create your
+					<MadCap:variable name="General.changelog" style="font-style: italic;" /> tables.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.clearCheckSums [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Forces checksums to be cleared from
+						the
+						<MadCap:variable name="General.databasechangelog" /> table.
+						<b>Default value is: false</b>.
+					</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.contexts</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies which contexts <MadCap:variable name="General.Liquibase" /> will execute, which can be separated by a comma if multiple contexts are required. If a context is not specified, then all contexts will be executed.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.databaseChangeLogLockTableName</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the table name to use for the
+					<MadCap:variable name="General.databasechangeloglock" /> table.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.databaseChangeLogTableName</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the table name to use for the
+					<MadCap:variable name="General.databasechangelog" /> table.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.databaseClass</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the database object class.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.defaultCatalogName</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the default catalog name to use for the
+					database connection.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.defaultSchemaName</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the default schema name to use for the
+					database connection.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.driver</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the driver class name to use for the
+					database connection.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">driverPropertiesFile</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the location of a JDBC
+					connection properties file which contains properties the driver will use.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.emptyPassword [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2"><b>Deprecated</b>. Use an empty or null value for the
+					password instead. <b>Default value is: false</b>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">expressionVariables</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies a map-based collection of
+					<MadCap:variable name="General.changelog" style="font-style: italic;" /> properties to apply.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">expressionVars</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies a property-based collection of
+					<MadCap:variable name="General.changelog" style="font-style: italic;" /> properties to apply.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.includeArtifact [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Includes a Maven project artifact in the class
+						loader which obtains the <code>liquibase.properties</code> file and
+						<MadCap:variable name="General.changelog" style="font-style: italic;" /> files. <b>Default value is:
+					true</b>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.includeTestOutputDirectory [boolean]
+					</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Includes the Maven test output directory in the
+						class loader which obtains the <code>liquibase.properties</code> file and
+						<MadCap:variable name="General.changelog" style="font-style: italic;" /> files. <b>Default value is:
+						true</b>.
+					</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.labels</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies which labels <MadCap:variable name="General.Liquibase" /> will execute, which can be separated by a comma if multiple labels are required or you need to designate a more complex expression. If a label is not specified, then all labels will be executed.
+					</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.outputDefaultCatalog [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies whether to ignore the catalog or database
+					name. <b>Default value is: false</b>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.outputDefaultSchema [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies whether to ignore the schema name.
+					<b>Default value is: false</b>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.outputFileEncoding</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Indicates that you want to set the
+					character encoding of the output file during the <code>updateSQL</code> phase.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.password</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the database password for the database
+					connection.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.promptOnNonLocalDatabase [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Controls whether users are prompted before
+						executing
+						<MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to a non-local
+					database. <b>Default value is: true</b>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.propertyFile</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the <code><MadCap:variable name="General.liquiPropFile" /></code> file you want to use to configure
+					<MadCap:variable name="General.Liquibase" />.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.propertyFileWillOverride [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Indicates that you want the
+						<code><MadCap:variable name="General.liquiPropFile" /></code> file to override any settings provided in the Maven plugin
+						configuration. By default, if a property is explicitly specified, it is not overridden if it also
+					appears in the properties file. <b>Default value is: false</b>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.propertyProviderClass</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the property provider which must be a
+					<code>java.util.Properties</code> implementation.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.rollbackScript</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the path to a rollback script.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.server</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the server ID in the Maven
+					<code>settings.xml</code> to use when authenticating.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.skip [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies whether to skip running
+					<MadCap:variable name="General.Liquibase" />. The use of this parameter is not recommended                   but can be used when needed. <b>Default value is: false</b>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">systemProperties</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies a list of system properties you want to
+					pass to the database.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">liquibase.url</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Specifies the database URL you want to use to
+						execute
+					<MadCap:variable name="General.Liquibase" />.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">liquibase.username</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Specifies the database username for the database
+					connection.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">liquibase.verbose [boolean]</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Controls the amount of output detail when you
+					call the plugin. <b>Default value is: false</b>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+            <body class="composite">
+                <p xmlns="">&#160;</p>
+            </body>
+        </html>
     </body>
 </html>
