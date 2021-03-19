@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using the Liquibase Percona Toolkit Extension | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/using-the-liquibase-percona-toolkit-extension.html" />
+        <meta name="description" content="This page explains how to use Liquibase and Percona Toolkit" />
+    </head>
+    <body>
+        <h2>Using the <MadCap:variable name="General.Liquibase" /> Percona Toolkit Extension</h2>
+        <p><a href="https://www.percona.com/doc/percona-toolkit/LATEST/index.html">Percona Toolkit</a> is a collection of command-line tools, which help to perform MySQL, MongoDB, and system tasks that are too difficult or complex to perform manually.</p>
+        <p>There is a <MadCap:variable name="General.Liquibase" /> extension that supports the Percona Toolkit <a href="https://www.percona.com/doc/percona-toolkit/LATEST/pt-online-schema-change.html">pt-online-schema-change</a>. This extension replaces some default changes to use <code>pt-online-schema-change</code> instead of SQL. The <code>pt-online-schema-change</code> tool will allow you to perform a database upgrade without locking tables.</p>
+        <p>Currently, MySQL is the only supported database. The <a href="https://github.com/liquibase/liquibase-percona">liquibase-percona</a> extension checks whether you run it against a MySQL database, and if your database is not MySQL, the extension falls back to the default changes provided by <MadCap:variable name="General.Liquibase" />.</p>
+        <h2>Installing the <MadCap:variable name="General.Liquibase" /> Percona Toolkit extension</h2>
+        <p>To use the <MadCap:variable name="General.Liquibase" /> Percona Toolkit extension, follow these steps:</p>
+        <ol>
+            <li>Ensure that you have installed the latest version of <a href="https://www.liquibase.org/download"><MadCap:variable name="General.Liquibase" /></a>. If you use earlier versions of <MadCap:variable name="General.Liquibase" />, you need to have a <a href="https://github.com/liquibase/liquibase-percona/blob/master/README.md#changelog">compatible version</a> of the extension.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about installation or upgrade, see the <MadCap:xref href="../../concepts/installation/home.html">[%=General.Liquibase%] Installation</MadCap:xref> page.</p>
+        <ol start="2">
+            <li>Download the <code>.jar</code> file from the <a href="https://github.com/liquibase/liquibase-percona/releases">liquibase-percona</a> repository.</li>
+            <li>Locate your <code>liquibase-percona-&lt;version&gt;.jar</code> file:</li>
+        </ol>
+        <ul>
+            <li><b>CLI</b>
+            </li>
+            <p>After extracting the <code>.zip</code> file of <MadCap:variable name="General.Liquibase" />, place <code>liquibase-percona-&lt;version&gt;.jar</code> file in the <code>lib</code> subdirectory. The shell script <code>liquibase</code> / <code>liquibase.bat</code> will automatically pick up the <code>.jar</code> file, and the extension will be available to use.</p>
+        </ul>
+        <ul>
+            <li><b>Maven</b>
+            </li>
+            <p>Add the following dependency to the <MadCap:variable name="General.Liquibase" /> plugin:</p><pre><code class="language-text">&lt;dependency&gt;
+&lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+&lt;artifactId&gt;liquibase-percona&lt;/artifactId&gt;
+&lt;version&gt;4.3.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            <p>After adding the dependency, you can start using the <MadCap:variable name="General.Liquibase" /> Percona Toolkit extension.</p>
+            <p>You can download the latest snapshot version for the <code>liquibase-percona</code> dependency on the <a href="https://github.com/liquibase/liquibase-percona/releases">liquibase-percona releases</a> page and add it to your Maven configuration file. Snapshot builds contain the latest features. <code>4.3.1-SNAPSHOT</code> example:</p><pre><code class="language-text">&lt;dependency&gt;
+&lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+&lt;artifactId&gt;liquibase-percona&lt;/artifactId&gt;
+&lt;version&gt;4.3.1-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        </ul>
+        <h2>Configuring the <MadCap:variable name="General.Liquibase" /> Percona Toolkit extension</h2>
+        <p>You can use flags and system properties to control the use of Percona Toolkit when performing updates for your database.</p>
+        <h3>Flags</h3>
+        <p>To use Percona Toolkit flags, add the needed flag to your <MadCap:variable name="General.changelog" style="font-style: italic;" />:</p>
+        <ul>
+            <li><a name="usePerco"></a>usePercona</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Since liquibase-percona 1.3.0.</p>
+        <p>Each change allows you to enable or disable the use of Percona Toolkit by adding the <code>usePercona</code> flag. For more information, see the <a href="">liquibase.percona.defaultOn</a> system property.</p>
+        <p>YAML example:</p><pre><code class="language-yaml">- changeSet:
+    id: 2
+    author: Alice
+    changes:
+       - addColumn:
+           tableName: person
+           usePercona: false
+           columns:
+             - column:
+                 name: address
+                 type: varchar(255)</code></pre>
+        <p>The flag is supported in a YAML format. Since <MadCap:variable name="General.Liquibase" /> 3.6.0, you can use it in an XML format:</p><pre><code class="language-xml">&lt;addColumn tableName="person"
+xmlns:liquibasePercona="http://www.liquibase.org/xml/ns/dbchangelog-ext/liquibase-percona"
+    liquibasePercona:usePercona="false"&gt;
+  &lt;column name="address" type="varchar(255)"/&gt;
+&lt;/addColumn&gt;</code></pre>
+        <ul>
+            <li>perconaOptions</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Since liquibase-percona 2.0.0.</p>
+        <p>Each change allows you to specify options that are used when executing <code>pt-online-schema-change</code>. If you specify the <code>perconaOptions</code> flag, it will override the <a href="#Configur">liquibase.percona.options</a> system property. If you don’t specify the <code>perconaOptions</code> flag, then the system property will be used.</p>
+        <p>YAML example:</p><pre><code class="language-yaml">- changeSet:
+     id: 2
+     author: Alice
+     changes:
+       - addColumn:
+           tableName: person
+           perconaOptions: "--alter-foreign-keys-method=auto"
+           columns:
+             - column:
+                 name: address
+                 type: varchar(255)</code></pre>
+        <p>XML example:</p><pre><code class="language-xml">&lt;addColumn tableName="person"
+xmlns:liquibasePercona="http://www.liquibase.org/xml/ns/dbchangelog-ext/liquibase-percona"
+   liquibasePercona:perconaOptions="--alter-foreign-keys-method=auto"&gt;
+  &lt;column name="address" type="varchar(255)"/&gt;
+&lt;/addColumn&gt;</code></pre>
+        <h2>System properties</h2>
+        <p>You can set system properties by using the standard <code>java -D</code> option:</p><pre><code class="language-text">java -Dliquibase.percona.skipChanges=createIndex,dropColumn -jar liquibase.jar ...</code></pre>
+        <p>Also, to set the system property, you need to specify a <MadCap:variable name="General.Liquibase" /> <code>.jar</code> file and ensure that the <code>liquibase-percona.jar</code> file is on the classpath (the <code>--classpath</code> option).</p>
+        <p>When executing <MadCap:variable name="General.Liquibase" /> through Maven, you can use the <a href="http://www.mojohaus.org/properties-maven-plugin/usage.html#set-system-properties">Properties Maven Plugin</a> to set the system property.</p>
+        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Property</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><code>liquibase.percona.failIfNoPT: true/false</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">
+                        Allows you to enforce the use of Percona Toolkit. If the property is set to true and the command <code>pt-online-schema-change</code> is not found, the database update will fail. The default value: false.
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p><code>liquibase.percona.noAlterSqlDryMode: true/false</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">
+                        Allows you to generate SQL statements and puts them into the migration file. When running <code>updateSQL</code> or <code>rollbackSQL</code> to generate a migration SQL file, the command line that is executed will be added as a comment. Additionally, the SQL statements will be generated and put into the migration file. This allows executing the generated migration SQL to perform an update; however, Percona Toolkit will not be used. If the <code>liquibase.percona.noAlterSqlDryMode</code>  property is set to true, then no SQL statements will be put into the migration file. The default value: false.
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><code>liquibase.percona.skipChanges: a comma-separated list of changes</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">
+                        Allows you to disable one or more changes. If a change is disabled when using Percona Toolkit, then this change will be executed by the default <MadCap:variable name="General.Liquibase" /> implementation, and Percona Toolkit will not be used. By default, the <code>liquibase.percona.skipChanges</code> property is empty so that all supported changes are executed using Percona Toolkit. For example, if you don’t want to use Persona Toolkit for adding or dropping a column, set the property to <code>addColumn, dropColumn</code>.
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p><code>liquibase.percona.options: string of options</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">
+                        Allows you to pass additional command line options to <code>pt-online-schema-change</code>. For example, you can use this property in a complicated replication setup to change the way subordinate instances (also known as slaves) are detected and how their state is used. You can also specify a Percona configuration file using --config file.conf (See <a href="https://www.percona.com/doc/percona-toolkit/2.2/configuration_files.html"><a name="Configur"></a>Configuration Files</a>). Multiple options are separated by space. If an argument contains a space, use double quotation marks: <code>--config "filename with spaces.conf"</code>.
+<br />                        Since liquibase-percona 1.2.1, the default value is <code>--alter-foreign-keys-method=auto --nocheck-unique-key-change</code>. The default value is changed starting with liquibase-percona 1.6.0.
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>liquibase.percona.defaultOn: true/false</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">Allows you to change the default behavior for the </span>
+                        <MadCap:xref href="#usePerco" style="font-family: Arial;">usePercona</MadCap:xref><span style="font-family: Arial;"> flag. By default, all changes that are not specified with the </span><code style="font-family: Arial;">usePercona</code><span style="font-family: Arial;"> flag use the value from this system property. Setting the </span><code style="font-family: Arial;">liquibase.percona.defaultOn</code><span style="font-family: Arial;"> property to false allows controlling for each change whether to use Percona Toolkit.
+The default value: true. Since liquibase-percona 1.3.0.
+</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>liquibase.password: string with the password needed to connect to the database</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2"><a name=""></a>
+                        Allows you to shortcut the automatic detection of the password from the underlying <code>java.sql.Connection</code> (if it fails) or from the default <code><MadCap:variable name="General.liquiPropFile" /></code> file. If the <code>liquibase.password</code> property is set, then it is used for the password when executing <code>pt-online-schema-change</code>. The default value: &lt;empty&gt;. Since liquibase-percona 1.4.0.
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>liquibase.percona.path: path to the Percona Toolkit directory where the tool pt-online-schema-change is installed</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">Allows you to select a specific Percona Toolkit installation. If this property is not set, then Percona Toolkit will be searched on the PATH. You need to specify the </span><code style="font-family: Arial;">bin</code><span style="font-family: Arial;"> subfolder of the Percona Toolkit distribution. The default value: &lt;empty&gt;. Since liquibase-percona 1.4.1.</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>liquibase.percona.ptdebug: true/false</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Allows you to enable the debug output of <code>pt-online-schema-change</code> by setting the environment variable <code>PTDEBUG</code> before starting <code>pt-online-schema-change</code>. The default value: false. Since liquibase-percona 1.5.0.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>For more information about <MadCap:variable name="General.Liquibase" /> and Percona Toolkit changes for each version, see the <a href="https://github.com/liquibase/liquibase-percona#changelog">Changelog</a> section.</p>
+        <h3>Related Links</h3>
+        <ul>
+            <li>
+                <MadCap:xref href="running-liquibase-percona-toolkit-changes.htm">Running [%=General.Liquibase%] Percona Toolkit Changes</MadCap:xref>
+            </li>
+            <li><a href="http://www.percona.com/">Percona</a>
+            </li>
+            <li><a href="https://www.percona.com/doc/percona-toolkit/LATEST/index.html">Percona Toolkit Latest Documentation</a>
+            </li>
+            <li><a href="https://github.com/percona/percona-toolkit">Percona Toolkit on GitHub</a>
+            </li>
+            <li><a href="https://github.com/liquibase/liquibase-percona/blob/master/README.md"><MadCap:variable name="General.Liquibase" /> Percona Extension</a>
+            </li>
+            <li><a href="https://github.com/liquibase/liquibase-percona/blob/master/README.md">Building the <MadCap:variable name="General.Liquibase" /> Percona Extension</a>
+            </li>
+            <li><a href="http://java.dzone.com/articles/avoiding-mysql-alter-table">DZone: Avoiding MySQL ALTER Table Downtime</a>
+            </li>
+        </ul>
+        <p>&#160;</p>
+    </body>
+</html>
