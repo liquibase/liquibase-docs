@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Connecting to an Oracle Database with Liquibase via Kerberos and Active Directory | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html" />
+        <meta name="description" content="This page will guide you through the process of connecting to an Oracle database with Liquibase via Kerberos and Active Directory." />
+    </head>
+    <body>
+        <h1>Connecting to an Oracle Database with <MadCap:variable name="General.Liquibase" /> via Kerberos and Active Directory</h1>
+        <p>Kerberos is an authentication protocol that works based on tickets to provide strong authentication for client/server applications by using secret-key cryptography. The Kerberos authentication protocol doesn’t store passwords locally or send them over the Internet.</p>
+        <p>Kerberos authentication for an Oracle connection is typically used when Kerberos is the standard authentication mechanism that your company supports for accessing resources in your organization.</p>
+        <h2>Prerequisites</h2>
+        <p>Before using <MadCap:variable name="General.Liquibase" /> with Kerberos and Active Directory, ensure that you:</p>
+        <ul>
+            <li>Performed all steps to prepare the environment that can connect to the database. You need to set up Active Directory and integrate it with Kerberos.</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see <a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/dbseg/configuring-kerberos-authentication.html#GUID-DF84261F-457A-4B9F-AE41-CDE6FE9178C4">Configuring Kerberos Authentication</a> and <a href="https://docs.microsoft.com/en-us/azure/active-directory/">Azure Active Directory documentation</a>.</p>
+        </ul>
+        <ul>
+            <li>Installed the latest version of <a href="https://www.liquibase.org/download"><MadCap:variable name="General.Liquibase" /></a>. For more information about installation or upgrades, see the <MadCap:xref href="../../concepts/installation/home.html">[%=General.Liquibase%] Installation</MadCap:xref> page.</li>
+            <li>Have the following files available:<ul><li>The <code>krb5.conf</code> file.</li><li>The Kerberos cache file. The example provided later in the tutorial will have the cache file called <code>kerbcache</code>.</li><li>The <code>sqlnet.ora</code> and <code>tnsnames.ora</code> files. The <code>TNS_ADMIN</code> environment variable will reference the location of those files in the <MadCap:variable name="General.Liquibase" /> <code>url</code> property. If the TNS alias is not defined in the <code>tnsnames.ora</code> file, then use the hostname, port, and database name within the JDBC string instead.</li></ul></li>
+        </ul>
+        <h2>Step 1: Verify the connection to your environment</h2>
+        <p>You can confirm that you have a successful connection to your environment by making that connection with <a href="https://docs.oracle.com/cd/B19306_01/server.102/b14357/qstart.htm">SQL*Plus</a>:</p>
+        <ol>
+            <li>Open your SQL*Plus.</li>
+            <li>Run the <a href="https://docs.oracle.com/javase/7/docs/technotes/tools/windows/kinit.html">kinit command</a> to obtain and cache Kerberos ticket-granting ticket. An example from the <a href="https://docs.oracle.com/javase/7/docs/technotes/tools/windows/kinit.html">Oracle documentation</a>:</li>
+        </ol><pre><code class="language-text">kinit [-fp] [-c &lt;cache_name&gt;] [-k] [-t &lt;keytab_filename&gt;] [&lt;principal&gt;] [&lt;password&gt;] [-help]</code></pre>
+        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Command Option</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p style="font-family: Arial;">-A</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">
+                        <p><span style="font-family: Arial;">Do not include addresses.</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p>-f</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">
+                        <p>Issue a forwardable ticket.</p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><span style="font-family: Arial;">-p</span>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">
+                        <p><span style="font-family: Arial;">Issue a proxiable ticket.</span>
+                        </p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-c &lt;cache_name&gt;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">
+                        <p>The cache name (<code>FILE:d:\temp\mykrb5cc</code>).</p>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">-k</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">Use keytab.</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">-t &lt;keytab_filename&gt;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">The keytab name (<code>d:\winnt\profiles\duke\krb5.keytab</code>).</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">&lt;principal&gt;</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">The principal name (</span><code>duke@example.com</code><span style="font-family: Arial;">)</span>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&lt;password&gt;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">The principal's Kerberos password
+(do not specify on the command line or in a script).
+</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><span style="font-family: Arial;">-help</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1"><span style="font-family: Arial;">The option that displays instructions.</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <ol start="3">
+            <li>Run <code>klist</code> to see a Kerberos ticket:</li>
+        </ol><pre><code class="language-text">klist tickets</code></pre>
+        <ol start="4">
+            <li>Run <code>sqlplus /@&lt;alias_name&gt;</code> to connect to your Oracle database via Kerberos authentication.</li>
+        </ol>
+        <h2>Step 2: Connect to an Oracle database using <MadCap:variable name="General.Liquibase" /></h2>
+        <p>Run a <MadCap:variable name="General.Liquibase" /> update with the following arguments:</p><pre><code class="language-text">JAVA_OPTS=-Djava.security.krb5.conf=/path/to/krb5.conf
+-Doracle.net.kerberos5_cc_name=/path/to/kerbcache 
+-Dsun.security.krb5.debug=true 
+-Doracle.net.kerberos5_mutual_authentication=true 
+-Doracle.net.authentication_services=KERBEROS5 liquibase 
+--changeLogFile=path/to/changeLog.sql 
+--url=jdbc:oracle:thin:@&lt;tns alias name&gt;?TNS_ADMIN=/path/to/oracle_files 
+--classpath=path/to/ojdbc8.jar update</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">Starting Liquibase at 22:34:02 (version 4.2.2 #36 built at 2020-12-09 20:07+0000)
+Service ticket not found in the subject
+&gt;&gt;&gt; Credentials acquireServiceCreds: same realm
+Using builtin default etypes for default_tgs_enctypes
+default etypes for default_tgs_enctypes: 18 17 16 23.
+&gt;&gt;&gt; CksumType: sun.security.krb5.internal.crypto.RsaMd5CksumType
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.Aes256CtsHmacSha1EType
+&gt;&gt;&gt; KdcAccessibility: reset
+&gt;&gt;&gt; KrbKdcReq send: kdc=test.liquibase.net TCP:88, timeout=30000, number of retries =3, #bytes=1507
+&gt;&gt;&gt; KDCCommunication: kdc=test.liquibase.net TCP:88, timeout=30000,Attempt =1, #bytes=1507
+&gt;&gt;&gt;DEBUG: TCPClient reading 669 bytes
+&gt;&gt;&gt; KrbKdcReq send: #bytes read=669
+&gt;&gt;&gt; KdcAccessibility: remove test.liquibase.net
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.Aes256CtsHmacSha1EType
+&gt;&gt;&gt; KrbApReq: APOptions are 00000000 00000000 00000000 00000000
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.Aes256CtsHmacSha1EType
+Krb5Context setting mySeqNumber to: xxxxxxx
+Krb5Context setting peerSeqNumber to: 0
+Created InitSecContextToken:
+0000: 01 00 6E 82 02 34 30 82   02 30 A0 03 02 01 05 A1  ..n..40..0......
+0010: 03 02 01 0E A2 07 03 05   00 00 00 00 00 A3 82 01  ................
+00E0: 98 F5 DE BC 94 88 C8 A1   8F 23 EE C8 1F 08 EF 6D  .........#.....m
+00F0: 12 3F EE 1E CF 07 5F FB   F6 4B 52 96 C9 5B 0C 5C  .?...._..KR..[.\
+…
+Liquibase: Update has been successful.</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>
