@@ -1,0 +1,383 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>diff JSON command | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/commands/community/diff-json.html" />
+        <meta name="description" content="Reference information and use cases for the diff JSON command. The diff --format=json command in Liquibase allows you to compare two databases of the same type, or different types, to one another and use the output in a JSON format ." />
+    </head>
+    <body>
+        <h1><code>diff JSON</code> command</h1>
+        <p>Starting with <MadCap:variable name="General.Liquibase" /> 3.9.0, you can automate drift detection at scale in your database schemas with the <MadCap:variable name="General.LBPro" /> machine-readable JSON diff output. The <code>diff --format=json</code>  command is a <MadCap:variable name="General.LBPro" /> extension to the existing <MadCap:xref href="diff.htm">diff command</MadCap:xref>.</p>
+        <h2>Uses</h2>
+        <p>The <code>diff</code> command in a JSON format is typically used to detect drift between a model schema and a database's actual schema. You can use the output of the <code>diff</code> command in a JSON format as an input to automation processes. For example, the results in a JSON <code>diff</code> can be parsed in your build system to trigger alerts, generate reports, or run a <code>diffChangeLog</code> command.</p>
+        <p>After running the command, you will receive a JSON-structured object listing the differences between two databases, which values are configured in your <MadCap:variable name="General.liquiPropFile" /> or Maven POM file, or passed as command line arguments under the <code>url</code> and <code>referenceUrl</code> keys.</p>
+        <h2>Running the <code>diff JSON</code> command</h2>
+        <p>Running the <code>diff JSON</code> command requires two URLs:</p>
+        <ul>
+            <li><b>referenceURL</b> – the source for the comparison. The referenceURL <MadCap:variable name="General.Param/Attribute"></MadCap:variable> represents your source database which is the starting point and the basis for the database you want to compare.</li>
+            <li>
+                <p><b>url</b> – the target of the comparison. The URL <MadCap:variable name="General.Param/Attribute"></MadCap:variable> stands for your target database which you want to compare to the source database. You typically perform actions and run the commands against this database</p>
+            </li>
+        </ul>
+        <p>To compare two databases or schemas:</p>
+        <p>The first option is to run the <code>diff</code> command and pass the <MadCap:variable name="General.Param/Attribute" />s needed for your source database and target database. You can do this by running the following:
+        </p><pre xml:space="preserve"><code class="language-html">liquibase
+--driver=oracle.jdbc.OracleDriver
+--classpath=ojdbc14.jar
+--url="jdbc:oracle:thin:@&lt;IP OR HOSTNAME&gt;:&lt;PORT&gt;:&lt;SERVICE NAME OR SID&gt;"
+--username=&lt;USERNAME&gt;
+--password=&lt;PASSWORD&gt;
+--referenceUrl="jdbc:oracle:thin:@&lt;IP OR HOSTNAME&gt;:&lt;PORT&gt;:&lt;SERVICE NAME OR SID&gt;"
+--referenceUsername=&lt;USERNAME&gt;
+--referencePassword=&lt;PASSWORD&gt;				
+diff --format=json</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">When running <code>diff</code> against two different databases, the <code>classpath</code> property should reference both <code>.jar</code> files. Use the path separator that is correct for your operating system (a semicolon on Windows, a colon on Mac or Linux). </p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>classpath: ojdbc7.jar:postgresql-42.2.8.jar</code>
+        </p>
+        <p>Alternatively, you can configure the<code> <MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file to include your driver, classpath, and URL for both databases, and then run the following command:
+        </p><pre xml:space="preserve"><code class="language-html">liquibase diff --format=json</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For information, see <MadCap:xref href="../../workflows/liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</p>
+        <p>By default, the result is sent to <code>STDOUT</code>, which provides flexibility to use the result in other tools or in a processing pipeline. You can also have your output in a file using the <code>--outputFile=&lt;filename&gt;</code> global <MadCap:variable name="General.Param/Attribute" />.</p><pre><code class="language-html">liquibase --outputFile=myfile.json diff --format=json</code></pre>
+        <p>The <code>diff JSON</code> command produces a list of categories along with one of the following descriptions:</p>
+        <ul>
+            <li><b>Missing</b>: there are objects on your source database (referenceURL) that are not on your target database (URL).</li>
+            <li><b>Unexpected</b>: there are objects on your target database (URL) that are not on your source database (referenceURL).</li>
+            <li><b>Changed</b>: the object as it exists on the source database (referenceURL) is different than as it exists in the target database (URL).</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The changed description will not specify the type of change applied to your database. Run the <MadCap:xref href="diffChangeLog.html">diffChangeLog command</MadCap:xref> to generate a <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> that will apply the changes to the target database.</p>
+        <p><MadCap:variable name="General.LBPro"></MadCap:variable> <code>diff JSON</code> categories:</p>
+        <ul>
+            <li>Check Constraint</li>
+            <li>Package</li>
+            <li>Package Body</li>
+            <li>Function</li>
+            <li>Trigger</li>
+            <li>Synonyms</li>
+        </ul>
+        <p>Also, <MadCap:variable name="General.LBPro" /> includes <MadCap:variable name="General.LBCommunity" /> <code>diff</code> categories when running <code>--format=json</code>:</p>
+        <ul>
+            <li>Catalog</li>
+            <li>Column</li>
+            <li>Foreign Key</li>
+            <li>Index</li>
+            <li>Primary Key</li>
+            <li>Schema</li>
+            <li>Sequence</li>
+            <li>Procedure</li>
+            <li>Unique Constraints</li>
+            <li>View</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase"></MadCap:variable> does not currently check <code>datatype</code> length.</p>
+        <h3>Filtering <code>diff</code> types</h3>
+        <p><MadCap:variable name="General.Liquibase"></MadCap:variable> allows you to use <code>diffType</code> <MadCap:variable name="General.Param/Attribute"></MadCap:variable> to filter the types of objects you want to compare. Multiple filters can be added to the <MadCap:variable name="General.Param/Attribute"></MadCap:variable> as a comma-separated list. If no <code>diffTypes</code> are specified, all objects are considered.</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>liquibase --diffTypes=tables,indexes,views diff</code>
+        </p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-txt">Liquibase Pro 4.1.1 by Datical licensed to support until Wed Sep 22 23:59:59 CDT 2021
+####################################################
+##   _     _             _ _                      ##
+##  | |   (_)           (_) |                     ##
+##  | |    _  __ _ _   _ _| |__   __ _ ___  ___   ##
+##  | |   | |/ _` | | | | | '_ \ / _` / __|/ _ \  ##
+##  | |___| | (_| | |_| | | |_) | (_| \__ \  __/  ##
+##  \_____/_|\__, |\__,_|_|_.__/ \__,_|___/\___|  ##
+##              | |                               ##
+##              |_|                               ##
+##                                                ##
+##  Get documentation at docs.liquibase.com       ##
+##  Get certified courses at learn.liquibase.com  ##
+##  Get advanced features and support at          ##
+##      liquibase.com/support                     ##
+##                                                ##
+####################################################
+Starting Liquibase at 08:17:52 (version 4.1.1 #10 built at 2020-10-12 
+19:24+0000)
+{
+  "diff": {
+    "diffFormat": 1,
+    "created": "Mon Mar 22 08:18:00 CDT 2021",
+    "databases": {
+      "reference": {
+        "majorVersion": "Oracle Database 11g Release 11",
+        "minorVersion": "1",
+        "name": "Oracle",
+        "url": "jdbc:oracle:thin:@localhost:1521:ORCL"
+      },
+      "target": {
+        "majorVersion": "Oracle Database 11g Release 11",
+        "minorVersion": "1",
+        "name": "Oracle",
+        "url": "jdbc:oracle:thin:@localhost:1521:ORCL"
+      }
+    },
+    "unexpectedObjects": [
+      {
+        "unexpectedObject": {
+          "name": "SYS_C0031403",
+          "type": "primaryKey",
+          "schemaName": "SCHEMA1",
+          "catalogName": "SCHEMA1"
+        }
+      },
+      {
+        "unexpectedObject": {
+          "name": "PK_DEPARTMENT5",
+          "type": "index",
+          "schemaName": "SCHEMA1",
+          "catalogName": "SCHEMA1"
+         }
+       },
+       {
+         "unexpectedObject": {
+           "name": "ID",
+           "type": "column",
+           "relationName": "DEPARTMENT11542",
+           "schemaName": "SCHEMA1",
+           "catalogName": "SCHEMA1"
+          }
+        },
+        {
+          "unexpectedObject": {
+            "name": "PK_DEPARTMENT55367",
+            "type": "index",
+            "schemaName": "SCHEMA1",
+            "catalogName": "SCHEMA1"
+           }
+         },
+         {
+           "unexpectedObject": {
+             "name": "ID",
+             "type": "column",
+             "relationName": "TABLE27",
+             "schemaName": "SCHEMA1",
+             "catalogName": "SCHEMA1"
+            }
+          },
+          {
+            "unexpectedObject": {
+              "name": "PK_DEPARTMENT55359",
+              "type": "primaryKey",
+              "schemaName": "SCHEMA1",
+              "catalogName": "SCHEMA1"
+             }
+           },
+           {
+             "unexpectedObject": {
+               "name": "ID",
+               "type": "column",
+               "relationName": "TABLE339",
+               "schemaName": "SCHEMA1",
+               "catalogName": "SCHEMA1"
+              }
+            },
+            {
+              "unexpectedObject": {
+                "name": "CONTEXTS",
+                "type": "column",
+                "relationName": "DATABASECHANGELOG",
+                "schemaName": "SCHEMA1",
+                "catalogName": "SCHEMA1"
+               }
+             },
+             {
+               "unexpectedObject": {
+                 "name": "PK_DEPARTMENT555555",
+                 "type": "primaryKey",
+                 "schemaName": "SCHEMA1",
+                 "catalogName": "SCHEMA1"
+               }
+             },
+             {
+               "unexpectedObject": {
+                 "name": "ID",
+                 "type": "column",
+                 "relationName": "TABLE25",
+                 "schemaName": "SCHEMA1",
+                 "catalogName": "SCHEMA1"
+               }
+             },
+             {
+               "unexpectedObject": {
+                 "name": "PK_DEPARTMENT553789",
+                 "type": "index",
+                 "schemaName": "SCHEMA1",
+                 "catalogName": "SCHEMA1"
+                }
+              },
+              {
+                "unexpectedObject": {
+                  "name": "PK_DEPARTMENT55376",
+                  "type": "primaryKey",
+                  "schemaName": "SCHEMA1",
+                  "catalogName": "SCHEMA1"
+                }
+              },
+              {
+                "unexpectedObject": {
+                  "name": "ACTIVE",
+                  "type": "column",
+                  "relationName": "TABLE28",
+                  "schemaName": "SCHEMA1",
+                  "catalogName": "SCHEMA1"
+                }
+              },
+              {
+                "unexpectedObject": {
+                  "name": "ACTIVE",
+                  "type": "column",
+                  "relationName": "TABLE343",
+                  "schemaName": "SCHEMA1",
+                  "catalogName": "SCHEMA1"
+                }
+              },
+              {
+                "unexpectedObject": {
+                  "name": "PK_DEPARTMENT550",
+                  "type": "primaryKey",
+                  "schemaName": "SCHEMA1",
+                  "catalogName": "SCHEMA1"
+                }
+              },
+              {
+                "unexpectedObject": {
+                 "name": "PK_DEPARTMENT55371",
+                 "type": "index",
+                 "schemaName": "SCHEMA1",
+                 "catalogName": "SCHEMA1"
+                }
+              },
+              {
+                "unexpectedObject": {
+                  "name": "NAME",
+                  "type": "column",
+                  "relationName": "TABLE15",
+                  "schemaName": "SCHEMA1",
+                  "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PK_DEPARTMENT550",
+                   "type": "index",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "ACTIVE",
+                   "type": "column",
+                   "relationName": "TABLE326",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "NAME",
+                   "type": "column",
+                   "relationName": "TABLE34559",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PK_DEPARTMENT12",
+                   "type": "index",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PROCEDURE1",
+                   "type": "storedProcedure",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PK_DEPARTMENT547",
+                   "type": "primaryKey",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PK_DEPARTMENT12",
+                   "type": "primaryKey",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "ID",
+                   "type": "column",
+                   "relationName": "TABLE34557",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "ID",
+                   "type": "column",
+                   "relationName": "TABLE327",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PK_DEPARTMENT54",
+                   "type": "index",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "ACTIVE",
+                   "type": "column",
+                   "relationName": "TABLE34559",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PK_DEPARTMENT55372",
+                   "type": "index",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+               },
+               {
+                 "unexpectedObject": {
+                   "name": "PK_SERVICETECH2225",
+                   "type": "index",
+                   "schemaName": "SCHEMA1",
+                   "catalogName": "SCHEMA1"
+                 }
+              }]
+            }
+          }
+Liquibase command 'diff' was executed successfully.</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h3>Related Links</h3>
+        <ul>
+            <li><a href="http://www.liquibase.org/blog/liquibase-diffs">Best Practices for Using Diffs</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../workflows/liquibase-community/diffing-multiple-schemas-in-liquibase.htm">Diffing Multiple Schemas in [%=General.Liquibase%]</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
