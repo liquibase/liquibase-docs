@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>changeLogSyncToTagSQL Task | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/ant/commands/changelogsynctotagsql.html" />
+        <meta name="description" content="changeLogSyncToTagSQL is a helper task that produces the raw SQL that Liquibase would run when using the changeLogSyncToTag task to mark all undeployed changesets associated with the specified tag as executed in your database." />
+    </head>
+    <body>
+        <h1><code>changeLogSyncToTagSQL</code> Task</h1>
+        <p><code>changeLogSyncToTagSQL</code> is a helper task that produces the raw SQL that <MadCap:variable name="General.Liquibase" /> would run when using the <code>changeLogSyncToTag</code> task to mark all undeployed <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> associated with the specified tag as executed in your database.</p>
+        <h2>Uses</h2>
+        <p>The <code>changeLogSyncToTagSQL</code> task is typically used when you want to inspect the SQL <MadCap:variable name="General.Liquibase" /> will use to baseline a new database environment.</p>
+        <p>It is best practice to inspect any SQL that <MadCap:variable name="General.Liquibase" /> would run when using the <code>changeLogSyncToTag</code> task so you can review any changes the task would make to your database before running it. The <code>changeLogSyncToTag</code> task marks all <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> starting with the first <MadCap:variable name="General.changeset" style="font-style: italic;" /> at the top of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file and moving down to the <MadCap:variable name="General.changeset" style="font-style: italic;" /> up to and including the tag.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	If you don’t have any tag specified in your <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> file, add it by using the <MadCap:xref href="../../../change-types/community/tag-database.html">tagDatabase</MadCap:xref> <MadCap:variable name="General.changetypes"></MadCap:variable> as follows:</p><pre><code class="language-text">&lt;changeSet id="13.1" author="liquibase"&gt;
+&lt;tagDatabase tag="version_2.0"/&gt;
+&lt;/changeSet&gt;</code></pre>
+        <h2>Running the <code>changeLogSyncToTagSQL</code> task</h2>
+        <p>To execute the <code>changeLogSyncToTagSQL</code> task, include the following values in your Ant default file, which can be <code>build.xml</code>:</p><pre xml:space="preserve"><code class="language-text">&lt;project  name="Example"  xmlns:liquibase="antlib:liquibase.integration.ant"&gt;
+   &lt;taskdef  resource="liquibase/integration/ant/antlib.xml"  uri="antlib:liquibase.integration.ant"&gt;
+    &lt;classpath  path="path/to/liquibase/libs"/&gt;
+   &lt;/taskdef&gt;
+&lt;/project&gt;
+&lt;property name="db.changelog.file" value="oracle_lbpro_master_changelog.xml" /&gt;
+&lt;target name="changeLogSyncToTagSQL" depends="prepare"&gt;
+   &lt;liquibase:database id="my-database" driver="${driver.classname}"  url="${jdbc.url}" user="${username}" password="${password}"/&gt;
+   &lt;liquibase:changeLogSyncToTagSQL databaseref="my-database" changelogfile="com/example/oracle_lbpro_master_changelog.xml"
+   labels="mylabels"
+   toTag="version_1.1"
+   classpathref="classpath"/&gt;
+&lt;/target&gt;</code></pre>
+        <p>This example will sync the referenced database with the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> found in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file up to and including the tag <MadCap:variable name="General.changeset" style="font-style: italic;" />.</p>
+        <p>Next, run the following in the CLI to implement the task and update your database:</p><pre xml:space="preserve"><code class="language-text">ant -f build.xml changeLogSyncToTagSQL</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	It is important to type the task name in the command prompt exactly like you specify it in the target name of your <code>build.xml</code> file. Ant uses the task name to determine which <MadCap:variable name="General.Liquibase" /> command it will run.</p>
+        <h2><MadCap:variable name="General.Param/Attr/Uppercased" />s</h2>
+        <table style="mc-table-style: url('../../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;width: 100%;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Description</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Required</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">changeLogFile</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">The </span><MadCap:variable name="General.changelog" style="font-style: italic;font-family: Arial;" /><span style="font-family: Arial;"> file to run</span>.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">Yes</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">toTag</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">The <MadCap:variable name="General.Param/Attribute" /> that syncs the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> up to and including the tag.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Yes</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">contexts</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">A comma-separated list of </span>
+                        <MadCap:xref href="../../../concepts/advanced/contexts.html" style="font-family: Arial;">Contexts</MadCap:xref><span style="font-family: Arial;"> to execute. If not specified, all contexts are run.</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">No</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">outputFile</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">The file where <MadCap:variable name="General.Liquibase" /> will save the update SQL statements rather than executing them in the database.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">outputEncoding</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">The character encoding to use when writing SQL statements to output file.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">No. Defaults to system encoding.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">promptOnNonLocalDatabase</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"> A dialog box that will send you a warn message if set to true and you attempt to run <MadCap:variable name="General.Liquibase" /> against a database that is not on localhost.      </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No. The default value is set to false.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">classpathref</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">A reference to the classpath used to run the task.</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">No</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">databaseref</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">A reference to the database to which the <MadCap:variable name="General.Liquibase" /> will connect.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Yes, unless a nested <code>&lt;database&gt;</code> element is present.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">driver</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><b>Deprecated:</b> The name of the database driver with which you connect.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">No</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">url</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><b>Deprecated:</b> Use the <code>database url</code><MadCap:variable name="General.Param/Attribute" /> instead. The database URL.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">username</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><b>Deprecated:</b>The database username with which you connect.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">No</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">password</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><b>Deprecated:</b>The password to use when connecting to the database.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">defaultSchemaName</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><b>Deprecated:</b>The schema to use by default for managed database objects and <MadCap:variable name="General.Liquibase" /> control tables.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">No</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">currentDateTimeFunction</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><b>Deprecated:</b> Overrides the current date time function used in SQL. Useful for unsupported databases.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">databaseChangeLogTableName</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><b>Deprecated:</b> Overrides the name of the <MadCap:variable name="General.databasechangelog" /> table to use.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">No</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">databaseChangeLogLockTableName</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><b>Deprecated:</b> Overrides the name of the <MadCap:variable name="General.databasechangeloglock" /> table to use.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><span style="font-family: Arial;">logLevel</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;"><b>Deprecated:</b> Specifies one of the following logging levels: debug, info, warning, severe, off. The default level is <b>info</b>.</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1"><span style="font-family: Arial;">No</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2><MadCap:variable name="General.Param/Attr/Uppercased" />s specified as nested elements</h2>
+        <table style="mc-table-style: url('../../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;width: 100%;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Description</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Required</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><span style="font-family: Arial;">classpath</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">The classpath used to run the task.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><span style="font-family: Arial;">Optional</span>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">database</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">See <a href="https://docs.liquibase.com/tools-integrations/ant/home.html">database data type</a> for more information.</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Required unless a <code>databaseref </code><MadCap:variable name="General.Param/Attribute" /> is given.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><span style="font-family: Arial;">changelogparameters</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><span style="font-family: Arial;">See </span><a href="https://docs.liquibase.com/concepts/basic/changelog-property-substitution.html" style="font-family: Arial;">changelog Property Substitution</a><span style="font-family: Arial;"> for more information.</span>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1"><span style="font-family: Arial;">Optional</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>
