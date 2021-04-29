@@ -1,130 +1,187 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Using Liquibase with Cassandra | Liquibase Docs</title>
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with Cassandra | Liquibase Docs</title>
         <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/cassandra.html" />
-        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
         <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Cassandra." />
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with Cassandra</h1>
-        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Cassandra. In this tutorial, you will generate an example project and follow the instructions to apply and learn concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with Cassandra.</p>
-        <h2>Prerequisites</h2>
+        <p><a href="https://cassandra.apache.org/doc/latest/architecture/overview.html">Apache Cassandra</a> is an open source, distributed, NoSQL database. It presents a partitioned wide column storage model with consistent semantics.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://cassandra.apache.org/">Apache Cassandra</a> page.</p>
+        <h2>Supported Versions</h2>
         <ul>
-            <li>If you have not installed the latest version of <MadCap:variable name="General.Liquibase" />, navigate to <a href="https://www.liquibase.org/download">https://www.liquibase.org/download</a> to install the latest <MadCap:variable name="General.Liquibase" /> version.</li>
-            <li>Ensure the <MadCap:variable name="General.Liquibase" /> install directory path is set to a location in the PATH System variable.</li>
-            <li>Navigate to <a href="https://downloads.datastax.com/#odbc-jdbc-drivers">https://downloads.datastax.com/#odbc-jdbc-drivers</a> and download the Simba jdbc jar driver file for Apache Cassandra.</li>
-            <li>Navigate to <a href="https://github.com/liquibase/liquibase-cassandra/releases/">https://github.com/liquibase/liquibase-cassandra/releases/</a> and download the latest released<MadCap:variable name="General.Liquibase" /> extension jar file.</li>
+            <li>3.11</li>
         </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Maven, you also need to download the <code>.jar</code> file from the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-cassandra">Maven repository</a>. Additionally, specify the <MadCap:variable name="General.Liquibase" /> extension in your <code>pom.xml</code> file by referring to <MadCap:xref href="../../tools-integrations/maven/maven-pom-file.htm">Configuring [%=General.Liquibase%] [%=General.Param/Attr/Uppercased%]s in your Maven POM File</MadCap:xref> and make sure that the <MadCap:variable name="General.Liquibase" /> plugin and the extension have the same version.</p>
-        <ul>
-            <li>Place the two jar files in the <code>liquibase/lib</code> install directory.</li>
-        </ul>
-        <h2>Tutorial</h2>
-        <p>To create a <MadCap:variable name="General.Liquibase" /> project with Cassandra on your machine, begin with the following steps:</p>
+        <h2>Driver Information</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Apache Cassandra, you need to have two jar files – JDBC and the <MadCap:variable name="General.Liquibase" /> Cassandra extension:</p>
         <ol>
-            <li>Create a new project folder and name it <code>LiquibaseProj</code>.</li>
-            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>dbchangelog.sql</code>.</li>
-            <li>Open the <code>dbchangelog.sql</code> file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</li>
-        </ol><pre><code class="language-sql">--liquibase formatted sql</code></pre>
-        <ol MadCap:continue="true">
-            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>liquibase.properties</code>.</li>
-            <li>Edit the <code>liquibase.properties</code> file to add the following properties:</li><pre xml:space="preserve"><code class="language-html">changeLogFile: dbchangelog.sql
-url: jdbc:cassandra://localhost:9042/myKeyspace;DefaultKeyspace=myKeyspace
-username: user1
-password: password
-driver: com.simba.cassandra.jdbc42.Driver
-defaultSchemaName: myKeyspace
-</code></pre>
+            <li>Ensure you downloaded the Simba JDBC jar driver file. To download it, go to the <a href="https://downloads.datastax.com/#odbc-jdbc-drivers">DataStax ODBC/JDBC Drivers</a> page and select <b>Simba JDBC Driver for Apache Cassandra</b> from the dropdown menu. Also, select the default package option unless you need a specific package. The driver downloads as a <code>.zip</code> file named <code>SambacassandraJDBC43-x.x.x.zip</code>.</li>
+            <li>Extract the <code>CassandraJDBCxx.jar</code> file and place it in the <code>liquibase/lib</code> directory.</li>
         </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code>. Ex: <code>liquibaseProLicenseKey: &lt;paste code here&gt;</code>.</p>
-        <ol MadCap:continue="true">
-            <li>Add a <MadCap:variable name="General.changeset" style="font-style: italic;" /> to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> – <MadCap:variable name="General.changeset" style="font-style: italic;" /> are uniquely identified by <code>author</code> and <code>id</code> attributes. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end.
-In the <code>dbchangelog.sql</code> file line 3 add a new <code>department</code> create table change set as follows:</li><pre xml:space="preserve"><code class="language-sql">
---liquibase formatted sql
-
---changeset bob:1
-CREATE TABLE myKeyspace.DEPARTMENT (id int, NAME text, ACTIVE BOOLEAN);</code></pre>
-            <li>Open the command prompt. Navigate to the <code>LiquibaseProj</code> directory.<br />Run the following command: <code>liquibase update</code></li>
-            <li>From a SQL Client User Interface, check your database changes.
-You should see a new <code>department</code> table added to the database. For example:</li>
-        </ol><pre><code class="language-sql">SELECT * FROM "myKeyspace"."department";</code></pre>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">NAME</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">ACTIVE</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">NULL</td>
-                </tr>
-            </tbody>
-        </table>
-        <p>Also, you should see two more tables:</p>
+        <ol start="3">
+            <li>Go to the <a href="https://github.com/liquibase/liquibase-cassandra/releases/">liquibase-cassandra</a> repository and download the latest released <MadCap:variable name="General.Liquibase" /> extension <code>.jar</code> file.</li>
+            <li>Place the <code>liquibase-cassandra-version.jar</code> file in the <code>liquibase/lib</code> install directory or in any other known directory so you can locate it easily.</li>
+            <li>In your project folder, create a new text file called <code><MadCap:variable name="General.liquiPropFile" /></code> or use your existing defaults file where you store properties. For more information, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</li>
+            <li>Specify the driver and its path along with the path to the extension file in the <MadCap:variable name="General.liquiPropFile" /> file as follows:</li><pre><code class="language-text">driver: com.simba.cassandra.jdbc42.Driver
+classpath: ../path_to_drivers/CassandraJDBCxx.jar; liquibase-cassandra-version.jar</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you placed your <code>.jar</code> files in the <code>liquibase/lib</code> install directory, there is no need to specify the classpath property in the <code><MadCap:variable name="General.liquiPropFile" /></code> file. Otherwise, put the path to your driver and extension as it is shown in the preceding example.</p>
+        </ol>
+        <p>If you use Maven, you also need to download the Simba JDBC driver for Cassandra and put the driver in a location that your Maven build can access. Next, configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre><code class="language-text">&lt;dependency&gt;
+&lt;groupId&gt;com.datastax.jdbc&lt;/groupId&gt;
+&lt;artifactId&gt;CassandraJDBC42&lt;/artifactId&gt;
+&lt;version&gt;4.2&lt;/version&gt;
+&lt;scope&gt;system&lt;/scope&gt;
+&lt;systemPath&gt;${basedir}/lib/CassandraJDBC42.jar&lt;/systemPath&gt;
+&lt;/dependency&gt;</code></pre>
+        <p>You need to specify that the scope is <code>system</code> and provide the <code>systemPath</code> in <code>pom.xml</code>. In the example, the <code>${basedir}/lib</code> is the location of the driver jar file.</p>
+        <h2>Supported Commands and <MadCap:variable name="General.changetypes" />s</h2>
+        <p>The supported <MadCap:variable name="General.changetypes" />s for Cassandra  are:</p>
         <ul>
-            <li><strong><MadCap:variable name="General.databasechangelog"></MadCap:variable></strong> tracking table – This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were deployed. This way, next time when you deploy again, the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> will be compared with the <MadCap:variable name="General.databasechangelog"></MadCap:variable> tracking table and only the new <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog"></MadCap:variable> will be deployed. You will notice that a new row was created in that table with the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable> information we have just deployed.
-For this example:</li>
+            <li>createTable</li>
+            <li>addColumn</li>
+            <li>dropColumn</li>
+            <li>dropTable</li>
+            <li>renameColumn</li>
         </ul>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">AUTHOR</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">FILENAME</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">DATEEXECUTED</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ORDEREXECUTED</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">EXECTYPE</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">MDSUM</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">…</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">bob</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">dbchangelog.sql</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">date&amp;time</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">EXECUTED</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">checksumvalue</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">…</td>
-                </tr>
-            </tbody>
-        </table>
+        <p>You can use all the commands with <MadCap:variable name="General.Liquibase" /> and Cassandra, except for:</p>
         <ul>
-            <li><strong><MadCap:variable name="General.databasechangeloglock" /></strong> – This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> table during deployment.</li>
+            <li>diff</li>
+            <li>diff JSON</li>
+            <li>diffChangeLog</li>
+            <li>generateChangeLog</li>
+            <li>snapshot</li>
+        </ul>
+        <h2>Testing Your Connection</h2>
+        <p>For <MadCap:variable name="General.Liquibase" /> and Apache Cassandra to work, you need to:</p>
+        <ol>
+            <li>Specify the database URL in your <code><MadCap:variable name="General.liquiPropFile" /></code> file:</li>
+        </ol><pre><code class="language-text">url: jdbc:cassandra://localhost:9042/myKeyspace;DefaultKeyspace=myKeyspace</code></pre>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">	If you already have a <MadCap:variable name="General.Liquibase" /> Pro key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile" /></code> file: <code>liquibaseProLicenseKey: &lt;paste license key&gt;</code>.</p>
+        <ol start="2">
+            <li>Ensure your Cassandra database is configured. If you have Cassandra tools locally and want to check the status of Cassandra, run <code>$ bin/nodetool</code> status. The status column in the output should report UN which stands for “Up/Normal”:</li><pre><code class="language-text"># nodetool status
+Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+<table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;width: 100%;" class="TableStyle-TableStyles" cellspacing="0"><col class="TableStyle-TableStyles-Column-Column1" /><col class="TableStyle-TableStyles-Column-Column1" /><col class="TableStyle-TableStyles-Column-Column1" /><col class="TableStyle-TableStyles-Column-Column1" /><col class="TableStyle-TableStyles-Column-Column1" /><thead><tr class="TableStyle-TableStyles-Head-Header1"><th class="TableStyle-TableStyles-HeadE-Column1-Header1">-- Address Load</th><th class="TableStyle-TableStyles-HeadE-Column1-Header1">Tokens      </th><th class="TableStyle-TableStyles-HeadE-Column1-Header1">Owns (effective)</th><th class="TableStyle-TableStyles-HeadE-Column1-Header1">Host ID    </th><th class="TableStyle-TableStyles-HeadD-Column1-Header1">Rack</th></tr></thead><tbody><tr class="TableStyle-TableStyles-Body-Body1"><td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">UN 172.18.0.6 198.61 KiB</td><td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">276  </td><td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">100.0%           </td><td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">5rtc74d1-237f-87c0-88eb-72643bd0a8t7</td><td class="TableStyle-TableStyles-BodyA-Column1-Body1" style="font-family: Arial;">rack1</td></tr></tbody></table></code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://cassandra.apache.org/doc/latest/tools/index.html">Installing Cassandra</a> documentation.</p>
+        </ol>
+        <ol start="3">
+            <li>Create a <MadCap:xref href="../../concepts/basic/changelog.html">[%=General.changelog%]</MadCap:xref> file (XML, SQL, JSON, or YAML), add a <MadCap:xref href="../../concepts/basic/changeset.html">[%=General.changeset%]</MadCap:xref>, and run your first update with the <MadCap:variable name="General.Liquibase" /> <MadCap:xref href="../../commands/community/update.html">update command</MadCap:xref>, which will make changes to the database.</li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">t&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd"&gt;
+         &lt;changeSet id="1" author="Liquibase"&gt;
+         &lt;createTable tableName="test_table"&gt;
+               &lt;column name="test_id" type="int"&gt;
+               &lt;constraints primaryKey="true"/&gt;
+               &lt;/column&gt;
+               &lt;column name="test_column" type="varchar"/&gt;
+        &lt;/createTable&gt;
+       &lt;/changeSet&gt;
+  &lt;/databaseChangeLog&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">--liquibase formatted sql
+
+--changeset liquibase:1
+--Database: cassandra
+CREATE TABLE test_table (test_id INT, test_column VARCHAR, PRIMARY KEY (test_id))</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">databaseChangeLog:
+- changeSet:
+	id: 1
+	author: Liquibase
+	changes:
+	- createTable:
+		columns:
+		- column:
+			name: test_column
+			type: INT
+			constraints:  
+				   primaryKey:  true  
+				   nullable:  false  
+				   tableName: test_table</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">
+{ 
+  "databaseChangeLog": [
+  {
+	"changeSet": {
+	  "id": "1",
+      "author": "Liquibase",
+	  "changes": [
+	    {
+		  "createTable": {
+		    "columns": [
+			{
+			  "column": 
+		      {
+				"name": "test_column",
+				"type": "INT",
+				"constraints": 
+			  {
+				"primaryKey": true,
+				"nullable": false
+				}
+				}
+			  }]
+			,
+			"tableName": "test_table"
+		  }
+		}]
+	  }
+	}]
+  }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <ol start="4">
+            <li>	Run <code>liquibase --changeLogFile=mychangelog.xml status</code> to see whether the connection is successful.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> you want to use in place of <code>changelog.xml</code>. You can also add the <code>changeLogFile</code><MadCap:variable name="General.Param/Attribute" /> to your <code><MadCap:variable name="General.liquiPropFile" /></code> file.</p>
+        <p>After your first update, you will see a new table along with the <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tables added to a keyspace:</p>
+        <ul>
+            <li><MadCap:variable name="General.databasechangelog" /> tracking table. This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were deployed. When you deploy, the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> are compared with the <MadCap:variable name="General.databasechangelog" /> tracking table, and only the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog" /> will be deployed.</li>
+            <li><MadCap:variable name="General.databasechangeloglock" /> tracking table. This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.databasechangelog" /> table during deployment and ensure only one instance of <MadCap:variable name="General.Liquibase" /> is updating the database at a time, whether that is creating, updating or deleting changes.</li>
         </ul>
         <h3>Related Links</h3>
         <ul>
             <li><a href="https://www.liquibase.org/blog/running-liquibase-apache-cassandra">Get Up and Running with <MadCap:variable name="General.Liquibase" /> and Apache Cassandra</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../home.htm">Workflows</MadCap:xref>
             </li>
         </ul>
     </body>
