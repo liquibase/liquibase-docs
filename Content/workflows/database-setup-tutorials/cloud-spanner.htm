@@ -9,10 +9,10 @@
         <p><a href="https://cloud.google.com/spanner">Cloud Spanner</a> is a fully managed relational database with unlimited scale and strong consistency. It optimizes performance by automatically sharding the data based on request load and size of the data.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://cloud.google.com/spanner#section-5">Cloud Spanner documentation</a>.</p>
         <p>You can use the <a href="https://github.com/cloudspannerecosystem/liquibase-spanner">Cloud Spanner <MadCap:variable name="General.Liquibase" /> Extension</a> to manage database schema changes with <MadCap:variable name="General.Liquibase" />. With the Cloud Spanner <MadCap:variable name="General.Liquibase" /> extension, you can enable <MadCap:variable name="General.Liquibase" /> to target Cloud Spanner. All Cloud Spanner features, with the exception of some <a href="https://github.com/cloudspannerecosystem/liquibase-spanner/blob/master/limitations.md">limitations</a>, are supported.</p>
-        <p MadCap:autonum="">Additionally, the example <a href="https://github.com/cloudspannerecosystem/liquibase-spanner/blob/master/example/changelog.yaml">changelog.yaml</a> included with the Cloud Spanner <MadCap:variable name="General.Liquibase" /> extension demonstrates <MadCap:variable name="General.Liquibase" /> features and how to use them with Cloud Spanner.</p>
+        <p>Additionally, the example <a href="https://github.com/cloudspannerecosystem/liquibase-spanner/blob/master/example/changelog.yaml">changelog.yaml</a> included with the Cloud Spanner <MadCap:variable name="General.Liquibase" /> extension demonstrates <MadCap:variable name="General.Liquibase" /> features and how to use them with Cloud Spanner.</p>
         <h2>Supported <MadCap:variable name="General.changetypes"></MadCap:variable>s</h2>
-        <p>The following <MadCap:variable name="General.Liquibase"></MadCap:variable><MadCap:variable name="General.changetypes"></MadCap:variable>s are supported: <code>createTable</code>, <code>dropTable</code>, <code>addColumn</code>, <code>modifyDataType</code>, <code>addNotNullConstraint</code>, <code>dropColumn</code>, <code>createIndex</code>, <code>dropIndex</code>, <code>addForeignKeyConstraint</code>, <code>dropForeignKeyConstraint</code>, <code>dropAllForeignKeyConstraints</code>, <code>addLookupTable</code>.</p>
-        <p>The following data DML <MadCap:variable name="General.changetypes" /> are supported: <code>insert</code>, <code>update</code>, <code>loadData</code>, <code>loadUpdateData</code>.</p>
+        <p>The following <MadCap:variable name="General.Liquibase"></MadCap:variable> <MadCap:variable name="General.changetypes"></MadCap:variable>s are supported: <code>createTable</code>, <code>dropTable</code>, <code>addColumn</code>, <code>modifyDataType</code>, <code>addNotNullConstraint</code>, <code>dropColumn</code>, <code>createIndex</code>, <code>dropIndex</code>, <code>addForeignKeyConstraint</code>, <code>dropForeignKeyConstraint</code>, <code>dropAllForeignKeyConstraints</code>, <code>addLookupTable</code>.</p>
+        <p>The following data DML <MadCap:variable name="General.changetypes" />s are supported: <code>insert</code>, <code>update</code>, <code>loadData</code>, <code>loadUpdateData</code>.</p>
         <h2>Driver Information</h2>
         <p>To use <MadCap:variable name="General.Liquibase" /> and Cloud Spanner, you need to have the  Cloud Spanner <MadCap:variable name="General.Liquibase" /> extension file, which includes the extension, the Cloud Spanner SDK, and the Cloud Spanner JDBC driver:</p>
         <ol>
@@ -26,7 +26,7 @@
             <li>Give the extension temporary use of your own Cloud Spanner user credentials for API access by running the following <code>gcloud</code> command:</li><pre><code class="language-text">gcloud auth application-default login</code></pre>
         </ol>
         <ol start="3">
-            <li>Configure URL in the format:</li><pre xml:space="preserve"><code class="language-text">url: jdbc:cloudspanner:/projects/&lt;project&gt;/instances/&lt;instance&gt;/databases/&lt;database&gt;</code></pre>
+            <li>Configure URL in the format:</li><pre xml:space="preserve"><code class="language-text">jdbc:cloudspanner:/projects/&lt;project&gt;/instances/&lt;instance&gt;/databases/&lt;database&gt;</code></pre>
             <li>
                 <p>Create a <code>changelog.yaml</code> file, enter the following information, and save the changes:</p><pre><code class="language-text">databaseChangeLog:
    - preConditions:
@@ -52,11 +52,9 @@
             <li>Run the <MadCap:variable name="General.Liquibase" /> <code>update</code> command, replacing <code>&lt;URL&gt;</code> with the JDBC connection string, in the format <code>jdbc:cloudspanner:/projects/&lt;project&gt;/instances/&lt;instance&gt;/databases/&lt;database&gt;</code>. You can also specify the database URL in your <code><MadCap:variable name="General.liquiPropFile" /></code> file. For more information, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</li><pre xml:space="preserve"><code class="language-text">liquibase --changeLogFile=changelog.yaml --url &lt;URL&gt; update</code></pre>
         </ol>
         <ol start="6">
-            <li>Verify your changes.</li>
+            <li>Verify your changes. After running the first update, you will see three new tables  added to your database: <code>Singer</code>, <MadCap:variable name="General.databasechangelog" />, and <MadCap:variable name="General.databasechangeloglock" />. You can verify the existence of these tables through the Cloud Console or <code>gcloud</code> tool. For example, running the SQL query <code>SELECT * FROM INFORMATION_SCHEMA.TABLES</code> returns a list of all tables in your database.<pre><code class="language-text">gcloud spanner databases execute-sql &lt;DB&gt;  --instance=&lt;INSTANCE&gt; \
+--sql='SELECT * FROM INFORMATION_SCHEMA.TABLES'</code></pre> Also, you can see a record of the changes that were applied by querying the contents of <MadCap:variable name="General.databasechangelog" />.</li>
         </ol>
-        <p>After running your first update, you will see three new tables  added to your database: <code>Singer</code>, <MadCap:variable name="General.databasechangelog" />, and <MadCap:variable name="General.databasechangeloglock" />. You can verify the existence of these tables through the Cloud Console or <code>gcloud</code> tool. For example, running the SQL query <code>SELECT * FROM INFORMATION_SCHEMA.TABLES</code> returns a list of all tables in your database.</p><pre><code class="language-text">gcloud spanner databases execute-sql &lt;DB&gt;  --instance=&lt;INSTANCE&gt; \
---sql='SELECT * FROM INFORMATION_SCHEMA.TABLES'</code></pre>
-        <p>Also, you can see a record of the changes that were applied by querying the contents of <MadCap:variable name="General.databasechangelog" />.</p>
         <h3>Related Links</h3>
         <ul>
             <li><a href="https://github.com/cloudspannerecosystem/liquibase-spanner">Cloud Spanner <MadCap:variable name="General.Liquibase" /> Extension</a>
