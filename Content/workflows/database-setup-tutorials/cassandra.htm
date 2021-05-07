@@ -19,13 +19,12 @@
             <li>Ensure you downloaded the Simba JDBC jar driver file. To download it, go to the <a href="https://downloads.datastax.com/#odbc-jdbc-drivers">DataStax ODBC/JDBC Drivers</a> page and select <b>Simba JDBC Driver for Apache Cassandra</b> from the dropdown menu. Also, select the default package option unless you need a specific package. The driver downloads as a <code>.zip</code> file named <code>SambacassandraJDBC43-x.x.x.zip</code>.</li>
             <li>Extract the <code>CassandraJDBCxx.jar</code> file and place it in the <code>liquibase/lib</code> directory.</li>
             <li>Go to the <a href="https://github.com/liquibase/liquibase-cassandra/releases/">liquibase-cassandra</a> repository and download the latest released <MadCap:variable name="General.Liquibase" /> extension <code>.jar</code> file.</li>
-            <li>Place the <code>liquibase-cassandra-version.jar</code> file in the <code>liquibase/lib</code> install directory or in any other known directory so you can locate it easily.</li>
+            <li>Place the <code>liquibase-cassandra-version.jar</code> file in the <code>liquibase/lib</code> install directory.</li>
             <li>In your project folder, create a new text file called <code><MadCap:variable name="General.liquiPropFile" /></code> or use your existing defaults file where you store properties. For more information, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</li>
-            <li>Specify the driver and its path along with the path to the extension file in the <MadCap:variable name="General.liquiPropFile" /> file as follows:</li><pre><code class="language-text">driver: com.simba.cassandra.jdbc42.Driver
-classpath: ../path_to_drivers/CassandraJDBCxx.jar; liquibase-cassandra-version.jar</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you placed your <code>.jar</code> files in the <code>liquibase/lib</code> install directory, there is no need to specify the classpath property in the <code><MadCap:variable name="General.liquiPropFile" /></code> file. Otherwise, put the path to your driver and extension as it is shown in the preceding example.</p>
+            <li>Specify the driver in the <MadCap:variable name="General.liquiPropFile" /> file as follows:</li><pre><code class="language-text">driver: com.simba.cassandra.jdbc42.Driver</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you put the <code>CassandraJDBCxx.jar</code> and <code>liquibase-cassandra-version.jar</code> files  in any other directory, specify the path to them in the <code><MadCap:variable name="General.liquiPropFile" /></code> file: <code>classpath:../path_to_drivers/CassandraJDBCxx.jar; liquibase-cassandra-version.jar</code>. </p>
         </ol>
-        <p>If you use Maven, you also need to download the Simba JDBC driver for Cassandra and put the driver in a location that your Maven build can access. Next, configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre><code class="language-text">&lt;dependency&gt;
+        <p>If you use Maven, you also need to download the Simba JDBC driver for Cassandra and put the driver in a location that your Maven build can access. Configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre><code class="language-text">&lt;dependency&gt;
 &lt;groupId&gt;com.datastax.jdbc&lt;/groupId&gt;
 &lt;artifactId&gt;CassandraJDBC42&lt;/artifactId&gt;
 &lt;version&gt;4.2&lt;/version&gt;
@@ -33,23 +32,6 @@ classpath: ../path_to_drivers/CassandraJDBCxx.jar; liquibase-cassandra-version.j
 &lt;systemPath&gt;${basedir}/lib/CassandraJDBC42.jar&lt;/systemPath&gt;
 &lt;/dependency&gt;</code></pre>
         <p>You need to specify that the scope is <code>system</code> and provide the <code>systemPath</code> in <code>pom.xml</code>. In the example, the <code>${basedir}/lib</code> is the location of the driver jar file.</p>
-        <h2>Supported Commands and <MadCap:variable name="General.changetypes" />s</h2>
-        <p>The supported <MadCap:variable name="General.changetypes" />s for Cassandra  are:</p>
-        <ul>
-            <li>createTable</li>
-            <li>addColumn</li>
-            <li>dropColumn</li>
-            <li>dropTable</li>
-            <li>renameColumn</li>
-        </ul>
-        <p>You can use all the commands with <MadCap:variable name="General.Liquibase" /> and Cassandra, except for:</p>
-        <ul>
-            <li>diff</li>
-            <li>diff JSON</li>
-            <li>diffChangeLog</li>
-            <li>generateChangeLog</li>
-            <li>snapshot</li>
-        </ul>
         <h2>Testing Your Connection</h2>
         <p>For <MadCap:variable name="General.Liquibase" /> and Apache Cassandra to work, you need to:</p>
         <ol>
@@ -187,6 +169,33 @@ CREATE TABLE test_table (test_id INT, test_column VARCHAR, PRIMARY KEY (test_id)
         <ul>
             <li><MadCap:variable name="General.databasechangelog" /> tracking table. This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were deployed. When you deploy, the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> are compared with the <MadCap:variable name="General.databasechangelog" /> tracking table, and only the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog" /> will be deployed.</li>
             <li><MadCap:variable name="General.databasechangeloglock" /> tracking table. This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.databasechangelog" /> table during deployment and ensure only one instance of <MadCap:variable name="General.Liquibase" /> is updating the database at a time, whether that is creating, updating or deleting changes.</li>
+        </ul>
+        <h2>Supported Commands and <MadCap:variable name="General.changetypes"></MadCap:variable>s</h2>
+        <p>The supported <MadCap:variable name="General.changetypes" />s for Cassandra  are:</p>
+        <ul>
+            <li><code>createTable</code>
+            </li>
+            <li><code>addColumn</code>
+            </li>
+            <li><code>dropColumn</code>
+            </li>
+            <li><code>dropTable</code>
+            </li>
+            <li><code>renameColumn</code>
+            </li>
+        </ul>
+        <p>You can use all the commands with <MadCap:variable name="General.Liquibase" /> and Cassandra, except for:</p>
+        <ul>
+            <li><code>diff</code>
+            </li>
+            <li><code>diff JSON</code>
+            </li>
+            <li><code>diffChangeLog</code>
+            </li>
+            <li><code>generateChangeLog</code>
+            </li>
+            <li><code>snapshot</code>
+            </li>
         </ul>
         <h3>Related Links</h3>
         <ul>
