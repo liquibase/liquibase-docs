@@ -1,164 +1,367 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Using Liquibase with Apache Derby | Liquibase Docs</title>
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with Apache Derby | Liquibase Docs</title>
         <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/apache-derby.html" />
-        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
         <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Apache Derby." />
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with Apache Derby</h1>
-        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Apache Derby. In this tutorial, you will learn how to generate an example project and follow the instructions to apply concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with Apache Derby.</p>
+        <p><a href="https://db.apache.org/derby/">Apache Derby</a> is an open-source relational database implemented entirely in Java and available under the Apache License, Version 2.0.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://db.apache.org/derby/">Apache Derby</a> page.</p>
+        <h2>Supported Versions</h2>
+        <ul>
+            <li>10.14</li>
+            <li>10.15</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The supported versions are the versions that were tested with <MadCap:variable name="General.Liquibase" /> Test Harness.</p>
         <h2>Prerequisites</h2>
+        <p>Before using <MadCap:variable name="General.Liquibase" /> and Apache Derby, ensure you have completed the following:</p>
         <ul>
-            <li>Ensure that you have installed the latest version of <MadCap:variable name="General.Liquibase" />. If not, go to <a href="https://www.liquibase.org/download">https://www.liquibase.org/download</a> to install it.</li>
-            <li>Ensure the <code>liquibase.bat</code> file's path is set to a location in the PATH System variable.</li>
-            <li>Go to <a href="https://db.apache.org/derby/derby_downloads.html">https://db.apache.org/derby/derby_downloads.html</a> to download the Derby client jdbc jar driver file.</li>
+            <li><a href="https://docs.liquibase.com/concepts/installation/home.html">Installed and configured <MadCap:variable name="General.Liquibase" /></a>.</li>
+            <li>Created a <MadCap:variable name="General.Liquibase" /> project folder to store all <MadCap:variable name="General.Liquibase" /> files.</li>
+            <li>Created a new <code><MadCap:variable name="General.liquiPropFile" /></code> file or are using the existing <code><MadCap:variable name="General.liquiPropFile" /></code> file included in the installation package. For more information, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</li>
         </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Apache Derby 10.15 has the driver in the <code>derbytools.jar</code> file. Place your <code>derbytools.jar</code> file in the <code>Liquibase/lib</code> install directory or in any other known directory so you can locate it easily.</p>
-        <h2>Tutorial</h2>
-        <p><strong>To create a <MadCap:variable name="General.Liquibase" /> project with Apache Derby, perform the following steps:</strong>
-        </p>
+        <h2>Driver Information</h2>
+        <p>Apache Derby is based on the Java, JDBC, and SQL standards. To use <MadCap:variable name="General.Liquibase" /> and Apache Derby, you need to have Java and JDBC. For the JDBC driver:</p>
         <ol>
-            <li>Create a new project folder and name it <code>LiquibaseDerby</code>.</li>
-            <li>In your <code>LiquibaseDerby</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile" /></code>.</li>
-            <li>Edit the <code><MadCap:variable name="General.liquiPropFile" /></code> file to add the following properties:</li>
-        </ol><pre><code class="language-text">changeLogFile: dbchangelog.xml
-url: jdbc:derby://localhost:1527/MYDATABASE;create=true
-username: APP
-password: password
-driver: org.apache.derby.jdbc.ClientDriver
-classpath: ../../Liquibase_Drivers/derbytools.jar</code></pre>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Specifying your password, take into account that <MadCap:variable name="General.Liquibase" /> supports only the following special characters: <code>~ # $ % * ( ) - _ + [ ] { } . ?</code>. Unsupported special characters are as follows: <code>@ &amp; / : &lt; &gt; " ' ` | ^ ! = , \ &lt;spaces&gt;</code>.</p>
-        <ul>
-            <li>If you created MYDATABASE, use <code>create=false</code> or remove the <code>create=true</code> from URL.</li>
-            <li>If you placed your jar file in the <code>Liquibase/lib</code> install directory, there is no need to specify the <code>classpath</code> property in the <code><MadCap:variable name="General.liquiPropFile" /></code> file. Otherwise, put the path to your driver as it is shown in the preceding example.</li>
-            <li>If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile" /></code>file:</li><pre><code class="language-text">liquibaseProLicenseKey: &lt;paste license key&gt;</code></pre>
-        </ul>
-        <ol start="4">
-            <li>In your <code>LiquibaseDerby</code> folder, create a new text file and name it <code>dbchangelog.xml</code>. The <MadCap:variable name="General.changelog" style="font-style: italic;" /> files contain a sequence of <i><MadCap:variable name="General.changeset" />s</i>, each of which makes small changes to the structure of your database.</li>
+            <li>Ensure you downloaded the Derby client JDBC jar driver file. To download it, go to the <a href="https://db.apache.org/derby/derby_downloads.html">Apache Derby: Downloads</a> page. You can also find the Apache Derby driver in the <code>derbytools.jar</code> file by going to the <a href="https://mvnrepository.com/artifact/org.apache.derby/derbytools">Apache Derby Tools Maven repository</a>.</li>
+            <li>Place the <code>derbytools.jar</code> file in the <code>liquibase/lib</code> directory.</li>
         </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Instead of creating an empty <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, you can use an existing database to generate a <MadCap:variable name="General.changelog" style="font-style: italic;" />. In this tutorial, you will manually add a single change. To add this change, open the XML file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</p><pre><code class="language-text">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-  &lt;databaseChangeLog
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you put the <code>derbytools.jar</code> file in any other directory, specify the path to it in the <code><MadCap:variable name="General.liquiPropFile" /></code> file:<code> classpath:../path_to_drivers/derbytools.jar</code>. For more information, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</p>
+        <p>If you use Maven, you also need to download the Apache Derby driver jar file and put the driver in a location that your Maven build can access. Configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre><code class="language-text">&lt;dependency&gt;
+&lt;groupId&gt;org.apache.derby&lt;/groupId&gt;
+&lt;artifactId&gt;derbytools&lt;/artifactId&gt;
+&lt;version&gt;10.15.2.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h2>Testing Your Connection</h2>
+        <p>For <MadCap:variable name="General.Liquibase" /> and Apache Derby to work, you need to:</p>
+        <ol>
+            <li>Ensure your Apache Derby database is configured. As an option, you can run the <code>sysinfo</code> command to check the output of Derby system information. For more details, see the <a href="https://db.apache.org/derby/papers/DerbyTut/install_software.html">Install Software</a> documentation.</li>
+            <li>Specify the database URL in your <code><MadCap:variable name="General.liquiPropFile" /></code> file:</li><pre><code class="language-text">url: jdbc:derby://localhost:1527/MYDATABASE;create=true</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you created <code>MYDATABASE</code>, use <code>create=false</code> or remove <code>create=true</code> from URL.</p>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">	If you already have a <MadCap:variable name="General.LBPro"></MadCap:variable> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file: <code>liquibaseProLicenseKey: &lt;paste license key&gt;</code>.</p>
+        </ol>
+        <ol start="3">
+            <li>Create a text file called <MadCap:xref href="../../concepts/basic/changelog.html">[%=General.changelog%]</MadCap:xref> (<code>.xml</code>, <code>.sql</code>, <code>.json</code>, or <code>.yaml</code>) in your project directory and add a <MadCap:xref href="../../concepts/basic/changeset.html">[%=General.changeset%]</MadCap:xref>.</li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
           xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
-  /databaseChangeLog&gt;</code></pre>
-        <ol start="5">
-            <li>Add a <MadCap:variable name="General.changeset" style="font-style: italic;" /> to the <MadCap:variable name="General.changelog" style="font-style: italic;" />. The <i><MadCap:variable name="General.changeset" />s</i> are uniquely identified by <code>author</code> and <code>id</code>. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end. In the <code>dbchangelog.xml</code> file, add a new <code>department</code> create table <MadCap:variable name="General.changeset" style="font-style: italic;" /> as follows:</li>
-        </ol><pre><code class="language-text">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-
-&lt;databaseChangeLog
-       xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-              http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
-           &lt;changeSet id="1" author="bob"&gt;
-             &lt;createTable tableName="department"&gt;
-                &lt;column name="id" type="int"&gt;
-                     &lt;constraints primaryKey="true" nullable="false"/&gt;
-                &lt;/column&gt;
-                &lt;column name="name" type="varchar(50)"&gt;
-                      &lt;constraints nullable="false"/&gt;
-                &lt;/column&gt;
-                &lt;column name="active" type="boolean" defaultValueBoolean="true"/&gt;
-                &lt;/createTable&gt;
-             &lt;/changeSet&gt;
+          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd"&gt;
+          &lt;changeSet id="1" author="bob"&gt;
+               &lt;createTable tableName="department"&gt;
+                   &lt;column name="id" type="int"&gt;
+                        &lt;constraints primaryKey="true" nullable="false"/&gt;
+                   &lt;/column&gt;
+                   &lt;column name="name" type="varchar(50)"&gt;
+                   &lt;constraints nullable="false"/&gt;
+                   &lt;/column&gt;
+                   &lt;column name="active" type="boolean" defaultValueBoolean="true"/&gt;
+                   &lt;/createTable&gt;
+         &lt;/changeSet&gt;
 &lt;/databaseChangeLog&gt;</code></pre>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The preceding <MadCap:variable name="General.changeset" style="font-style: italic;" /> is XML format. The corresponding SQL statement looks like the following:</p><pre><code class="language-sql">--liquibase formatted sql
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
 
 --changeset bob:1
-CREATE TABLE "DEPARTMENT" ("ID" INTEGER, "NAME" STRING, "ACTIVE" BOOLEAN);
---changeset bob:1
-CREATE TABLE "DEPARTMENT" 
-(id INTEGER NOT NULL, 
- name VARCHAR (50) NOT NULL, 
- active BOOLEAN DEFAULT TRUE, 
- CONSTRAINT PK_DEPARTMENT id PRIMARY KEY);
-</code></pre>
-        <ol start="6">
-            <li>Open the command prompt, navigate to the <code>LiquibaseDerby</code> directory, and then run the following command:</li>
-        </ol><pre><code class="language-text">liquibase update</code></pre>
-        <ol start="7">
-            <li>From a database UI Tool, check your database changes. You will see a new <code>department</code>; table added to the database. For example:</li>
-        </ol><pre><code class="language-sql">SELECT * FROM "APP"."department";</code></pre>
-        <table style="margin-left: auto;margin-right: auto;width: 633;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Name</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Active</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>NULL</p>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>NULL</p>
-                    </td>
-                    <td width="220" class="TableStyle-TableStyles-BodyA-Column1-Body1">
-                        <p>NULL</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <p>Also, you will see two more tables:</p>
-        <p><strong><MadCap:variable name="General.databasechangelog" /></strong> tracking table. This table keeps a record of all the <i><MadCap:variable name="General.changeset" />s</i> that were deployed. This way, next time when you deploy again, the <i><MadCap:variable name="General.changeset" />s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be compared with the <MadCap:variable name="General.databasechangelog" /> tracking table, and only the new <i><MadCap:variable name="General.changeset" />s</i> that were not found in the <MadCap:variable name="General.databasechangelog" /> will be deployed. You will see that a new row was created in that table with the <MadCap:variable name="General.changeset" style="font-style: italic;" /> information we have just deployed. For example:</p>
-        <table style="margin-left: auto;margin-right: auto;width: 633;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Author</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Filename</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Dateexecuted</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Orderexecuted</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Exectype</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">MDSum</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td width="38" class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>1</p>
-                    </td>
-                    <td width="66" class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>bob</p>
-                    </td>
-                    <td width="113" class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>dbchangelog.xml</p>
-                    </td>
-                    <td width="104" class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>date&amp;time</p>
-                    </td>
-                    <td width="113" class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>1</p>
-                    </td>
-                    <td width="76" class="TableStyle-TableStyles-BodyB-Column1-Body1">
-                        <p>EXECUTED</p>
-                    </td>
-                    <td width="104" class="TableStyle-TableStyles-BodyA-Column1-Body1">
-                        <p>checksumvalue</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <p><strong><MadCap:variable name="General.databasechangeloglock" /></strong> tracking table. This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> table during deployment.</p>
-        <h2>Troubleshooting issues on the Mac OS</h2>
+CREATE TABLE "DEPARTMENT" ("ID" INTEGER, "NAME" VARCHAR(50), "ACTIVE" BOOLEAN);
+--changeset mike:2
+CREATE TABLE "PEOPLE" 
+(ID INT NOT NULL GENERATED ALWAYS AS IDENTITY,
+name VARCHAR (50) NOT NULL, 
+active BOOLEAN DEFAULT TRUE,
+PRIMARY KEY (ID));</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:  
+  -  changeSet:  
+	  id:  1  
+	  author:  bob  
+	  changes:  
+		-  createTable:  
+			tableName:  department  
+			columns:  
+			  -  column:  
+				  name:  id  
+				  type:  int  
+				  autoIncrement:  true  
+				  constraints:  
+					primaryKey:  true  
+					nullable:  false  
+			  -  column:  
+				  name:  name  
+				  type:  varchar(50)</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-json">{
+  "databaseChangeLog": [
+	{
+	  "changeSet": {
+		"id": "1",
+		"author": "bob",
+		"changes": [
+		  {
+			"createTable": {
+			  "tableName": "DEPARTMENT",
+			  "columns": [
+				{
+				  "column": {
+					"name": "id",
+					"type": "int",
+					"autoIncrement": true,
+					"constraints": {
+					  "primaryKey": true,
+					  "nullable": false
+					},
+				  }
+				},
+				{
+				 "column": {
+				   "name": "name",
+				   "type": "varchar(50)"
+				  }
+			    }                 
+			  ]
+		    }
+		  }
+	    ]
+	  }
+    }
+  ]
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <ol start="4">
+            <li>Run the <code>status</code> command to see whether the connection is successful. Specify the name of the <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> you created in place of <code>changelog.xml</code>. Also, to run <MadCap:variable name="General.Liquibase"></MadCap:variable> commands, you need to specify your username and password in the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file or on the command line. However, the username and password <MadCap:variable name="General.Param/Attribute"></MadCap:variable>s are not required for connections and systems which use alternate means of authentication.</li><pre><code class="language-text">liquibase --username=test --password=test --changeLogFile=changelog.xml status</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Alternatively, you can add the <code>changeLogFile</code> <MadCap:variable name="General.Param/Attribute"></MadCap:variable> to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file.</p>
+        </ol>
+        <ol start="5">
+            <li>Run your first update with the <MadCap:variable name="General.Liquibase" /> <MadCap:xref href="../../commands/community/update.html">update command</MadCap:xref>, which will make changes to your database:</li><pre><code class="language-text">liquibase --changeLogFile=changelog.xml update</code></pre>
+        </ol>
+        <p>After your first update, you will see a new table along with the <MadCap:variable name="General.databasechangelog"></MadCap:variable> and <MadCap:variable name="General.databasechangeloglock"></MadCap:variable> tables added to the database:</p>
+        <ul>
+            <li>
+                <MadCap:xref href="../../concepts/basic/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref>. This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were deployed. When you deploy, the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> are compared with the <MadCap:variable name="General.databasechangelog"></MadCap:variable> tracking table, and only the new <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog"></MadCap:variable> will be deployed.</li>
+            <li>
+                <MadCap:xref href="../../concepts/basic/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>. This table is used internally by <MadCap:variable name="General.Liquibase"></MadCap:variable> to manage access to the <MadCap:variable name="General.databasechangelog"></MadCap:variable> table during deployment and ensure only one instance of <MadCap:variable name="General.Liquibase"></MadCap:variable> is updating the database at a time, whether that is creating, updating or deleting changes.</li>
+        </ul>
+        <h2>Troubleshooting issues on the macOS</h2>
         <p>If your Derby Server is not running or you are not using the embedded driver, use the following commands on the Mac to start the Derby Server:</p><code>export DERBY_HOME=&lt;location_of the unzipped directory_for_derby&gt;</code>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>export DERBY_HOME=/Users/myname/Downloads/db-derby-10.15.2.0-bin</code>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>export DERBY_HOME=/Users/myname/Downloads/db-derby-10.15.2.0-bin</code>
         </p><code>export JAVA_HOME=&lt;path_to_your_JRE&gt;</code>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Use the actual installed location of the JRE in place of <code>&lt;path_to_your_JRE&gt;</code> since Apache Derby will expect a bin directory as a subfolder. For example, <code>export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-14.jdk/Contents/Home</code></p><code>java -jar $DERBY_HOME/lib/derbynet.jar start -h 0.0.0.0</code>
+        <h2>Supported <MadCap:variable name="General.changetypes" />s</h2>
+        <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes"></MadCap:variable>
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Supported</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addColumn</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>addDefaultValue</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addForeignKeyConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>addLookupTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addNotNullConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>addPrimaryKey</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addUniqueConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>alterSequence</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createFunction</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createIndex</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createPackage</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createPackageBody</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createProcedure</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createSequence</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createView</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>delete</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropColumn</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropDefaultValue</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropForeignKeyConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropIndex</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropNotNullConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropPrimaryKey</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropProcedure</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropSequence</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropUniqueConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropView</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>renameColumn</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>renameTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>renameView</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2" style="font-family: Arial;"><code>sql</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Related Links</h3>
+        <ul>
+            <li><a href="https://cwiki.apache.org/confluence/display/DERBY/FrontPage">Apache Derby Wiki</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../home.htm">Workflows</MadCap:xref>
+            </li>
+        </ul>
     </body>
 </html>
