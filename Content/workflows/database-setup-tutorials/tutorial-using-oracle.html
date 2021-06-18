@@ -379,15 +379,32 @@ JDeveloper is a great tool for editing <acronym title="Extensible Markup Languag
             </li>
         </ul>
         <p><strong>trunk/update.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;include file="v000/master.xml" /&gt;&lt;/databaseChangeLog&gt;
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+                   &lt;include file="v000/master.xml" /&gt;
+&lt;/databaseChangeLog&gt;
 </pre>
         <p>
 Create the file that will later contain the includes of each <MadCap:variable name="General.changelog" style="font-style: italic;" /> in order of applicability.
 </p>
         <p><strong>trunk/v000/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 0 --&gt;        &lt;sqlCheck expectedResult="0"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 0 --&gt;
+        &lt;sqlCheck expectedResult="0"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 You may be wondering why this file contains a preCondition. Doesn't <MadCap:variable name="General.Liquibase" /> already check which changes have been run? Well, if we perform a fresh install of version 5, then the database will not contain the list of changes before version 5. And we definitely don't want to run these changes by accident. So we define an explicit check in the form of a preCondition.
 </p>
@@ -440,21 +457,67 @@ We will create one changefile for these changes. It will consist of these change
 Create the following files:
 </p>
         <p><strong>trunk/v000/2009-10-15-73.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;createTable tableName="departments"                     remarks="The departments of this company. Does not include geographical divisions."&gt;            &lt;column name="id" type="number(4,0)"&gt;                &lt;constraints nullable="false" primaryKey="true"                             primaryKeyName="DPT_PK"/&gt;            &lt;/column&gt;            &lt;column name="dname" type="varchar2(14)"                    remarks="The official department name as registered on the internal website."/&gt;        &lt;/createTable&gt;        &lt;addUniqueConstraint constraintName="departments_uk1"                             columnNames="dname" tableName="departments"/&gt;        &lt;createSequence sequenceName="departments_seq"/&gt;    &lt;/changeSet&gt;    
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;createTable tableName="departments"
+                     remarks="The departments of this company. Does not include geographical divisions."&gt;
+            &lt;column name="id" type="number(4,0)"&gt;
+                &lt;constraints nullable="false" primaryKey="true"
+                             primaryKeyName="DPT_PK"/&gt;
+            &lt;/column&gt;
+            &lt;column name="dname" type="varchar2(14)"
+                    remarks="The official department name as registered on the internal website."/&gt;
+        &lt;/createTable&gt;
+        &lt;addUniqueConstraint constraintName="departments_uk1"
+                             columnNames="dname" tableName="departments"/&gt;
+        &lt;createSequence sequenceName="departments_seq"/&gt;
+    &lt;/changeSet&gt;    
     &lt;include file="latest/trg/departments_bi.xml"/&gt;    
-    &lt;changeSet author="jsmith" id="2"&gt;        &lt;createTable tableName="employees"&gt;            &lt;column name="id" type="number(4,0)"&gt;                &lt;constraints nullable="false" primaryKey="true"                             primaryKeyName="EMP_PK"/&gt;            &lt;/column&gt;            &lt;column name="ename" type="varchar2(14)"                    remarks="The first and last name"/&gt;            &lt;column name="salary" type="number(6,2)"                    remarks="The full remuneration"/&gt;            &lt;column name="dpt_id" type="number(4,0)"/&gt;        &lt;/createTable&gt;        &lt;addForeignKeyConstraint baseColumnNames="dpt_id"                                 baseTableName="employees"                                 constraintName="emp_dpt_fk"                                 referencedColumnNames="id"                                 referencedTableName="departments"/&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+    &lt;changeSet author="jsmith" id="2"&gt;
+        &lt;createTable tableName="employees"&gt;
+            &lt;column name="id" type="number(4,0)"&gt;
+                &lt;constraints nullable="false" primaryKey="true"
+                             primaryKeyName="EMP_PK"/&gt;
+            &lt;/column&gt;
+            &lt;column name="ename" type="varchar2(14)"
+                    remarks="The first and last name"/&gt;
+            &lt;column name="salary" type="number(6,2)"
+                    remarks="The full remuneration"/&gt;
+            &lt;column name="dpt_id" type="number(4,0)"/&gt;
+        &lt;/createTable&gt;
+        &lt;addForeignKeyConstraint baseColumnNames="dpt_id"
+                                 baseTableName="employees"
+                                 constraintName="emp_dpt_fk"
+                                 referencedColumnNames="id"
+                                 referencedTableName="departments"/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><![CDATA[
 ]]>The table and column remarks will be applied as table and column comments in the database.
 </p>
         <p><strong>trunk/latest/trg/departments_bi.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;        &lt;createProcedure&gt;create trigger departments_bi before insert on departments
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;
+        &lt;createProcedure&gt;create trigger departments_bi before insert on departments
 for each row
 when (new.id is null)
 begin
  select departments_seq.nextval into :new.id from dual;
 end;
-        &lt;/createProcedure&gt;        &lt;rollback&gt;            drop trigger departments_bi
-        &lt;/rollback&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        &lt;/createProcedure&gt;
+        &lt;rollback&gt;
+            drop trigger departments_bi
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><![CDATA[
 ]]>The runOnChange="true" attribute. This ensures that we can make future changes in this file and these changes will be applied automatically. Note also that in the file above, we have provided an explicit rollback statement to undo this change. <MadCap:variable name="General.Liquibase" /> can automatically generate rollback statements for many commands, but not for <acronym title="Structured Query Language">SQL</acronym> blocks in which anything may happen.
 </p>
@@ -462,9 +525,21 @@ end;
 Update the master.xml to include the change:
 </p>
         <p><strong>trunk/v000/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 0 --&gt;        &lt;sqlCheck expectedResult="0"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 0 --&gt;
+        &lt;sqlCheck expectedResult="0"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;    &lt;include file="v000/2009-10-15-73.xml" /&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;include file="v000/2009-10-15-73.xml" /&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Now we are ready to test the changes by applying them to the database. Run the batch file we created before:
 </p><pre xml:space="preserve">D:\projects\lbdemo\trunk&gt; lb_update</pre>
@@ -500,30 +575,80 @@ This description of this task is:
 Both objects are of the "replaceable" type, i.e. a new version can simply replace an older version. The files will therefore go into the <code>latest</code> directory. Create/update the following files:
 </p>
         <p><strong>trunk/v000/master.xml</strong> (add the new change to the end of the file)
-</p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 0 --&gt;        &lt;sqlCheck expectedResult="0"&gt;            SELECT NVL(MAX(id),0)
+</p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 0 --&gt;
+        &lt;sqlCheck expectedResult="0"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;    &lt;include file="v000/2009-10-15-73.xml" /&gt;    &lt;include file="v000/2009-10-15-59.xml" /&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;include file="v000/2009-10-15-73.xml" /&gt;
+    &lt;include file="v000/2009-10-15-59.xml" /&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p><strong>trunk/v000/2009-10-15-59.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;include file="latest/pks/departments_pck.xml"/&gt;    &lt;include file="latest/pkb/departments_pck.xml"/&gt;    &lt;include file="latest/vw/departments_vw.xml"/&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;include file="latest/pks/departments_pck.xml"/&gt;
+    &lt;include file="latest/pkb/departments_pck.xml"/&gt;
+    &lt;include file="latest/vw/departments_vw.xml"/&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p><strong>trunk/latest/pks/departments_pck.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;        &lt;createProcedure&gt;create or replace package departments_pck as
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;
+        &lt;createProcedure&gt;create or replace package departments_pck as
   function  upname(name in varchar2) return varchar2;
 end departments_pck;
-        &lt;/createProcedure&gt;        &lt;rollback&gt;            drop package departments_pck
-        &lt;/rollback&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        &lt;/createProcedure&gt;
+        &lt;rollback&gt;
+            drop package departments_pck
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p><strong>trunk/latest/pkb/departments_pck.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;        &lt;createProcedure&gt;create or replace package body departments_pck as
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;
+        &lt;createProcedure&gt;create or replace package body departments_pck as
   function upname(name in varchar2) return varchar2 is
   begin
     return upper(name);
   end;
 end departments_pck;
-        &lt;/createProcedure&gt;        &lt;rollback&gt;            drop package body departments_pck
-        &lt;/rollback&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        &lt;/createProcedure&gt;
+        &lt;rollback&gt;
+            drop package body departments_pck
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p><strong>trunk/latest/vw/departments_vw.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;        &lt;createView viewName="departments_vw"&gt;            select id, dname
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1" runOnChange="true"&gt;
+        &lt;createView viewName="departments_vw"&gt;
+            select id, dname
             from departments
-        &lt;/createView&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        &lt;/createView&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Now we are ready to test the changes by applying them to the database. Run the batch file we created before:
 </p><pre xml:space="preserve">D:\projects\lbdemo\trunk&gt; lb_update</pre>
@@ -550,10 +675,24 @@ We are ready to branch for release 1.x. This will allow us to perform a fresh in
 The last change to version 0 has been made. After all these changes have been applied, we are effectively at major version 1. The major version is recorded in table <MadCap:variable name="General.databasechangelog" />. Modify this file to record this version:
 </p>
         <p><strong>trunk/v000/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!--These changes should only be run against a schema with major version 0--&gt;        &lt;sqlCheck expectedResult="0"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!--These changes should only be run against a schema with major version 0--&gt;
+        &lt;sqlCheck expectedResult="0"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;    &lt;include file="v000/2009-10-15-73.xml"/&gt;    &lt;include file="v000/2009-10-15-59.xml"/&gt;    
-    &lt;!-- Do not include any more changes in this file --&gt;    &lt;changeSet author="MajorVersion" id="1" /&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;include file="v000/2009-10-15-73.xml"/&gt;
+    &lt;include file="v000/2009-10-15-59.xml"/&gt;    
+    &lt;!-- Do not include any more changes in this file --&gt;
+    &lt;changeSet author="MajorVersion" id="1" /&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Run the update command to apply the <MadCap:variable name="General.changeset" style="font-style: italic;" /> with the version number:
 </p><pre xml:space="preserve">lb_update</pre>
@@ -588,13 +727,69 @@ For now, we will create the installation <MadCap:variable name="General.changelo
 Our (manual) utility will create these files:
 </p>
         <p><strong>trunk/install/tab/departments.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;createTable tableName="departments"                     remarks="The departments of this company. Does not include geographical divisions."&gt;            &lt;column name="id" type="number(4,0)"&gt;                &lt;constraints nullable="false" primaryKey="true"                             primaryKeyName="DPT_PK"/&gt;            &lt;/column&gt;            &lt;column name="dname" type="varchar2(14)"                    remarks="The official department name as registered on the internal website."/&gt;        &lt;/createTable&gt;        &lt;addUniqueConstraint constraintName="departments_uk1" columnNames="dname"                             tableName="departments" /&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;createTable tableName="departments"
+                     remarks="The departments of this company. Does not include geographical divisions."&gt;
+            &lt;column name="id" type="number(4,0)"&gt;
+                &lt;constraints nullable="false" primaryKey="true"
+                             primaryKeyName="DPT_PK"/&gt;
+            &lt;/column&gt;
+            &lt;column name="dname" type="varchar2(14)"
+                    remarks="The official department name as registered on the internal website."/&gt;
+        &lt;/createTable&gt;
+        &lt;addUniqueConstraint constraintName="departments_uk1" columnNames="dname"
+                             tableName="departments" /&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p><strong>trunk/install/tab/employees.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;createTable tableName="employees"&gt;            &lt;column name="id" type="number(4,0)"&gt;                &lt;constraints nullable="false" primaryKey="true"                             primaryKeyName="EMP_PK"/&gt;            &lt;/column&gt;            &lt;column name="ename" type="varchar2(14)"                    remarks="The first and last name"/&gt;            &lt;column name="salary" type="number(6,2)"                    remarks="The full remuneration"/&gt;            &lt;column name="dpt_id" type="number(4,0)"/&gt;        &lt;/createTable&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;createTable tableName="employees"&gt;
+            &lt;column name="id" type="number(4,0)"&gt;
+                &lt;constraints nullable="false" primaryKey="true"
+                             primaryKeyName="EMP_PK"/&gt;
+            &lt;/column&gt;
+            &lt;column name="ename" type="varchar2(14)"
+                    remarks="The first and last name"/&gt;
+            &lt;column name="salary" type="number(6,2)"
+                    remarks="The full remuneration"/&gt;
+            &lt;column name="dpt_id" type="number(4,0)"/&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p><strong>trunk/install/seq/departments_seq.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;createSequence sequenceName="departments_seq"/&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;createSequence sequenceName="departments_seq"/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p><strong>trunk/install/cst/employees.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;addForeignKeyConstraint baseColumnNames="dpt_id"                                 baseTableName="employees"                                 constraintName="emp_dpt_fk"                                 referencedColumnNames="id"                                 referencedTableName="departments"/&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;addForeignKeyConstraint baseColumnNames="dpt_id"
+                                 baseTableName="employees"
+                                 constraintName="emp_dpt_fk"
+                                 referencedColumnNames="id"
+                                 referencedTableName="departments"/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <h3><a>Step 5.3: Reorganize changelog directories and scripts</a>
         </h3>
         <p>
@@ -604,14 +799,31 @@ Create a new directory for the <MadCap:variable name="General.changelog" style="
 Create a new master.xml in this directory:
 </p>
         <p><strong>trunk/v001/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;        &lt;sqlCheck expectedResult="1"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;
+        &lt;sqlCheck expectedResult="1"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Edit the update file:
 </p>
         <p><strong>trunk/update.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;include file="v001/master.xml" /&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;include file="v001/master.xml" /&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Create the install script for fresh installs of version 1.x:
 </p>
@@ -626,7 +838,20 @@ As you can see above, after the installation of 1.x, we run the updates from 1.x
 Create the <code>install.xml</code>. This file does the fresh install of objects, records the MajorVersion number and includes new changes from version v001 (see last 2 lines in script below):
 </p>
         <p><strong> trunk/install.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;includeAll path="install/tab/" /&gt;    &lt;includeAll path="install/seq" /&gt;    &lt;includeAll path="install/cst" /&gt;    &lt;includeAll path="latest/pks" /&gt;    &lt;includeAll path="latest/vw" /&gt;    &lt;includeAll path="latest/pkb" /&gt;    &lt;includeAll path="latest/trg" /&gt;    &lt;changeSet author="MajorVersion" id="1" /&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;includeAll path="install/tab/" /&gt;
+    &lt;includeAll path="install/seq" /&gt;
+    &lt;includeAll path="install/cst" /&gt;
+    &lt;includeAll path="latest/pks" /&gt;
+    &lt;includeAll path="latest/vw" /&gt;
+    &lt;includeAll path="latest/pkb" /&gt;
+    &lt;includeAll path="latest/trg" /&gt;
+    &lt;changeSet author="MajorVersion" id="1" /&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <h3><a>Step 5.4: Test the Fresh Install</a>
         </h3>
         <p>
@@ -774,14 +999,46 @@ This change has been registered in our issue tracker with number 102. The change
 Remember that our changes are now taking us from version 1.x, so the <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> go in directory v001. Create this <MadCap:variable name="General.changelog" style="font-style: italic;" />:
 </p>
         <p><strong> trunk/v001/2009-10-16-102.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;addColumn tableName="employees"&gt;            &lt;column name="fixed_salary" type="number(6,2)"                    remarks="Monthly gross salary"/&gt;            &lt;column name="bonus" type="number(6,2)"                    remarks="On-target monthly bonus"/&gt;        &lt;/addColumn&gt;        &lt;update tableName="employees"&gt;            &lt;column name="fixed_salary" valueNumeric="salary * 0.9"/&gt;            &lt;column name="bonus" valueNumeric="salary * 0.1"/&gt;        &lt;/update&gt;        &lt;addNotNullConstraint tableName="employees" columnName="fixed_salary" /&gt;        &lt;addNotNullConstraint tableName="employees" columnName="bonus" /&gt;        &lt;dropColumn tableName="employees" columnName="salary" /&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;addColumn tableName="employees"&gt;
+            &lt;column name="fixed_salary" type="number(6,2)"
+                    remarks="Monthly gross salary"/&gt;
+            &lt;column name="bonus" type="number(6,2)"
+                    remarks="On-target monthly bonus"/&gt;
+        &lt;/addColumn&gt;
+        &lt;update tableName="employees"&gt;
+            &lt;column name="fixed_salary" valueNumeric="salary * 0.9"/&gt;
+            &lt;column name="bonus" valueNumeric="salary * 0.1"/&gt;
+        &lt;/update&gt;
+        &lt;addNotNullConstraint tableName="employees" columnName="fixed_salary" /&gt;
+        &lt;addNotNullConstraint tableName="employees" columnName="bonus" /&gt;
+        &lt;dropColumn tableName="employees" columnName="salary" /&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Update <code>master.xml</code> to include this file:
 </p>
         <p><strong>trunk/v001/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;        &lt;sqlCheck expectedResult="1"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;
+        &lt;sqlCheck expectedResult="1"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;    &lt;include file="v001/2009-10-16-102.xml"/&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;include file="v001/2009-10-16-102.xml"/&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Run the update command:
 </p><pre xml:space="preserve">lb_update</pre>
@@ -947,18 +1204,47 @@ The specifications for this change are:
 Create the <MadCap:variable name="General.changelog" style="font-style: italic;" />:
 </p>
         <p><strong>trunk/v001/2009-10-16-105.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;addColumn tableName="departments"&gt;            &lt;column name="mgr_id" type="number(4,0)"/&gt;        &lt;/addColumn&gt;        &lt;sql&gt;update departments
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;addColumn tableName="departments"&gt;
+            &lt;column name="mgr_id" type="number(4,0)"/&gt;
+        &lt;/addColumn&gt;
+        &lt;sql&gt;update departments
              set mgr_id = (select id
                            from employees
                            where ename='King');
-        &lt;/sql&gt;        &lt;addForeignKeyConstraint baseColumnNames="mgr_id"                                 baseTableName="departments"                                 constraintName="dpt_emp_fk1"                                 referencedColumnNames="id"                                 referencedTableName="employees"/&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        &lt;/sql&gt;
+        &lt;addForeignKeyConstraint baseColumnNames="mgr_id"
+                                 baseTableName="departments"
+                                 constraintName="dpt_emp_fk1"
+                                 referencedColumnNames="id"
+                                 referencedTableName="employees"/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Update <code>master.xml</code> to include this file:
 </p>
         <p><strong>trunk/v001/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;        &lt;sqlCheck expectedResult="1"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;
+        &lt;sqlCheck expectedResult="1"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;    &lt;include file="v001/2009-10-16-102.xml"/&gt;    &lt;include file="v001/2009-10-16-105.xml"/&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;include file="v001/2009-10-16-102.xml"/&gt;
+    &lt;include file="v001/2009-10-16-105.xml"/&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Run the update command:
 </p><pre xml:space="preserve">lb_update</pre>
@@ -975,9 +1261,14 @@ This is the same as step 5. Repeat step 5 , replacing 1.x by 2.x.
 </p>
         <p>
 However, there is a difference. Customers running 1.x need to be able to upgrade to 2.x. We did not cover that aspect previously. If a 1.x customer were simply to run lb_update, then it would fail on the precondition in the master.xml:
-</p><pre xml:space="preserve">    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 2 --&gt;        &lt;sqlCheck expectedResult="2"&gt;            SELECT NVL(MAX(id),0)
+</p><pre xml:space="preserve">    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 2 --&gt;
+        &lt;sqlCheck expectedResult="2"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;</pre>
         <p>
 So how do we ensure that all the changes between "finalize 1.x" and "finalize 2.x" have been applied before applying the 2.x changes? If you look at the diagram at the beginning of this tutorial, you will see that we are talking about change 105. Change 105 was never delivered in the 1.x branch and it is not contained in the v002/master.xml.
 </p>
@@ -989,7 +1280,13 @@ The answer is, we create 2 new files as part of step 5.3:
 call Liquibase --changeLogFile=upgrade_to_major.xml update
 call Liquibase --changeLogFile=update.xml update</pre>
         <p><strong>trunk/upgrade_to_major.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;include file="v001/master.xml" /&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;include file="v001/master.xml" /&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <h2><a>Step 12: Change 114, rename column</a>
         </h2>
         <p>
@@ -999,14 +1296,34 @@ Testing on branch 2.x revealed a bug that we want fixed on branch 1.x as well. C
 Create the <MadCap:variable name="General.changelog" style="font-style: italic;" />:
 </p>
         <p><strong>trunk/v002/2009-10-18-114.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;changeSet author="jsmith" id="1"&gt;        &lt;renameColumn newColumnName="full_name" oldColumnName="ename" tableName="employees"/&gt;    &lt;/changeSet&gt;&lt;/databaseChangeLog&gt;</pre>
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;renameColumn newColumnName="full_name" oldColumnName="ename" tableName="employees"/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Update <code>master.xml</code> to include this file:
 </p>
         <p><strong>trunk/v002/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 2 --&gt;        &lt;sqlCheck expectedResult="2"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 2 --&gt;
+        &lt;sqlCheck expectedResult="2"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;    &lt;include file="v002/2009-10-18-114.xml"/&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;include file="v002/2009-10-18-114.xml"/&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <p>
 Run the update command:
 </p><pre xml:space="preserve">lb_update</pre>
@@ -1028,9 +1345,22 @@ Branch 1.x does not have a directory v002. We will create this directory to cont
 Change 114 will be referenced in <code>v001/master.xml</code> as follows:
 </p>
         <p><strong>branch_1.x/v001/master.xml</strong>
-        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;    &lt;preConditions&gt;        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;        &lt;sqlCheck expectedResult="1"&gt;            SELECT NVL(MAX(id),0)
+        </p><pre xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+    &lt;preConditions&gt;
+        &lt;!-- These changes should only be run against a schema with major version 1 --&gt;
+        &lt;sqlCheck expectedResult="1"&gt;
+            SELECT NVL(MAX(id),0)
             FROM databasechangelog
-            WHERE author='MajorVersion'        &lt;/sqlCheck&gt;    &lt;/preConditions&gt;    &lt;include file="v001/2009-10-16-102.xml"/&gt;    &lt;include file="v002/2009-10-18-114.xml"/&gt;&lt;/databaseChangeLog&gt;</pre>
+            WHERE author='MajorVersion'
+        &lt;/sqlCheck&gt;
+    &lt;/preConditions&gt;
+    &lt;include file="v001/2009-10-16-102.xml"/&gt;
+    &lt;include file="v002/2009-10-18-114.xml"/&gt;
+&lt;/databaseChangeLog&gt;</pre>
         <h2><a>Step 14: Backport change 114 to branch 2.x</a>
         </h2>
         <p>
@@ -1116,10 +1446,17 @@ Delete the view from the <code>latest/vw</code> directory.
 </p>
         <p>
 Create a changeset to delete the view, with a preCondition. The preCondition prevents an error condition if the view does not exist. This will be the case if we run a <MadCap:variable name="General.changelog" style="font-style: italic;" /> on a database before the definition of the view:
-</p><pre xml:space="preserve">    &lt;changeSet author="jsmith" id="1"&gt;        &lt;preConditions onFail="MARK_RAN"&gt;            &lt;viewExists viewName="departments_vw"&gt;        &lt;/preConditions&gt;        &lt;dropView viewName="departments_vw"/&gt;    &lt;/changeSet&gt;</pre>
+</p><pre xml:space="preserve">    &lt;changeSet author="jsmith" id="1"&gt;
+        &lt;preConditions onFail="MARK_RAN"&gt;
+            &lt;viewExists viewName="departments_vw"&gt;
+        &lt;/preConditions&gt;
+        &lt;dropView viewName="departments_vw"/&gt;
+    &lt;/changeSet&gt;</pre>
         <p>
 alternative
-</p><pre xml:space="preserve">    &lt;changeSet author="jsmith" id="1" failOnError="false"&gt;        &lt;dropView viewName="departments_vw"/&gt;    &lt;/changeSet&gt;</pre>
+</p><pre xml:space="preserve">    &lt;changeSet author="jsmith" id="1" failOnError="false"&gt;
+        &lt;dropView viewName="departments_vw"/&gt;
+    &lt;/changeSet&gt;</pre>
         <p>
 Add the changeset to the master.
 </p>
