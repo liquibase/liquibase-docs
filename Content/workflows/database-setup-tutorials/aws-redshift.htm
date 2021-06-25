@@ -1,121 +1,693 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Using Liquibase with Redshift | Liquibase Docs</title>
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with Redshift | Liquibase Docs</title>
         <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/redshift.html" />
-        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
         <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Redshift." />
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with AWS Redshift</h1>
-        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Amazon Web Services (AWS) Redshift. In this tutorial, you will generate an example project and follow the instructions to apply and learn concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with AWS Redshift.</p>
+        <p><a href="https://aws.amazon.com/redshift/">Amazon Web Services Redshift</a> is a fully managed, petabyte-scale data warehouse service in the cloud. An AWS Redshift data warehouse is a collection of computing resources called nodes. The nodes are organized into a group called a cluster. Each cluster runs an AWS  Redshift engine and contains one or more databases.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://docs.aws.amazon.com/redshift/index.html">Amazon Redshift documentation page</a>.</p>
+        <h2>Supported Versions</h2>
+        <ul>
+            <li>3.0.28 – officially supported and tested with Test Harness</li>
+        </ul>
         <h2>Prerequisites</h2>
+        <p>Before using <MadCap:variable name="General.Liquibase" /> and AWS Redshift, ensure you have completed the following:</p>
         <ul>
-            <li>If you have not installed the latest version of <MadCap:variable name="General.Liquibase" />, navigate to <a href="https://www.liquibase.org/download">https://www.liquibase.org/download</a> to install the latest <MadCap:variable name="General.Liquibase" /> version.</li>
-            <li>Ensure the <MadCap:variable name="General.Liquibase" /> install directory path is set to a location in the PATH System variable.</li>
-            <li>Navigate to <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/jdbc20-download-driver.html">AWS Redshift Driver</a> download the latest AWS Redshift jdbc jar driver file. Unzip the downloaded jar folder.</li>
-            <li>Navigate to <a href="https://github.com/liquibase/liquibase-redshift/releases">liquibase-redshift-releases</a> and download the latest released <MadCap:variable name="General.Liquibase" /> extension jar file.</li>
-            <li>Place the two jar files in the <code>liquibase/lib</code> install directory.</li>
+            <li><a href="https://docs.liquibase.com/concepts/installation/home.html">Installed and configured <MadCap:variable name="General.Liquibase" /></a>.</li>
+            <li>Created a <MadCap:variable name="General.Liquibase" /> project folder to store all <MadCap:variable name="General.Liquibase" /> files.</li>
+            <li>Created a new <code><MadCap:variable name="General.liquiPropFile" /></code> file or are using the existing <code><MadCap:variable name="General.liquiPropFile" /></code> file included in the installation package. For more information, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</li>
         </ul>
-        <h2>Tutorial</h2>
-        <p>To create a <MadCap:variable name="General.Liquibase" /> project with AWS Redshift on your machine, begin with the following steps:</p>
+        <h2>Driver Information</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and AWS Redshift, you need to have two jar files – JDBC and the <MadCap:variable name="General.Liquibase" /> Redshift extension:</p>
         <ol>
-            <li>Create a new project folder and name it <code>LiquibaseProj</code>.</li>
-            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>dbchangelog.sql</code>.</li>
-            <li>Open the <code>dbchangelog.sql</code> file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</li>
-        </ol><pre><code class="language-sql">--liquibase formatted sql</code></pre>
-        <ol MadCap:continue="true">
-            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>liquibase.properties</code>.</li>
-            <li>Edit the <code>liquibase.properties</code> file to add the following properties:</li><pre xml:space="preserve"><code class="language-html">changeLogFile: dbchangelog.sql
-url: jdbc:redshift://&lt;cluster-identifier&gt;.us-east-1.redshift.amazonaws.com:5439/databasename
-username: XXXX
-password: XXXX
-</code></pre>
+            <li>Ensure you have downloaded the <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/jdbc20-download-driver.html">Amazon Redshift JDBC driver</a>. You can download the JDBC 4.2–compatible driver (without the AWS SDK). If you use the Amazon Redshift JDBC driver for database authentication, make sure that you have AWS SDK for Java 1.11.118 or later in your Java class path. If you don't have AWS SDK for Java installed, download the ZIP file with the JDBC 4.2–compatible driver (without the AWS SDK) and driver dependent libraries for the AWS SDK.</li>
+            <li>Place the <code>redshift-jdbc&lt;version&gt;.jar</code> file in the <code>liquibase/lib</code> directory.</li>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>redshift-jdbc42-2.0.0.4.jar</code>
+            </p>
         </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code>. Ex: <code>liquibaseProLicenseKey: &lt;paste code here&gt;</code>.</p>
-        <ol MadCap:continue="true">
-            <li>Add a <MadCap:variable name="General.changeset" style="font-style: italic;" /> to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> – <MadCap:variable name="General.changeset" style="font-style: italic;" /> are uniquely identified by <code>author</code> and <code>id</code> attributes. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end.
-In the <code>dbchangelog.sql</code> file line 3 add a new “department” create table change set as follows:</li><pre><code class="language-sql">
---liquibase formatted sql
+        <ol start="3">
+            <li>Open your <code><MadCap:variable name="General.liquiPropFile" /></code> file and specify the driver value in it:</li><pre><code class="language-text">driver: com.amazon.redshift.jdbc42.Driver</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about the <code><MadCap:variable name="General.liquiPropFile" /></code> file, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</p>
+        </ol>
+        <ol start="4">
+            <li>Go to the <a href="https://github.com/liquibase/liquibase-redshift">liquibase-redshift</a> repository and download the latest released <MadCap:variable name="General.Liquibase" /> extension <code>liquibase-redshift-&lt;version&gt;.jar</code> file.</li>
+            <li>Place the <code>liquibase-redshift-&lt;version&gt;.jar</code> file in the <code>liquibase/lib</code> directory.</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you put the <code>redshift-jdbc&lt;version&gt;.jar</code> and <code>liquibase-redshift-&lt;version&gt;.jar</code> files in any other directory, specify the path to them in the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file:</p>
+            <p>	Windows example: <code>classpath:”..path_to_your\\drivers\\redshift-jdbc&lt;version&gt;.jar; ..path_to_your\\liquibase-redshift-&lt;version&gt;.jar”</code>.</p>
+            <p>Linux example: <code>classpath:”../path_to_your/drivers/redshift-jdbc&lt;version&gt;.jar; ..path_to_your/liquibase-redshift-&lt;version&gt;.jar”</code>.</p>
+        </ol>
+        <p>If you use Maven, you also need to download the AWS Redshift driver jar file and put the driver in a location that your Maven build can access. Configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre><code class="language-text">&lt;dependency&gt;
+&lt;groupId&gt;com.amazon.redshift&lt;/groupId&gt;
+&lt;artifactId&gt;redshift-jdbc42&lt;/artifactId&gt;
+&lt;version&gt;2.0.0.4&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h2>Testing Your Connection</h2>
+        <p>For <MadCap:variable name="General.Liquibase" /> and AWS Redshift to work, you need to:</p>
+        <ol>
+            <li>Ensure your AWS Redshift is configured. You can check <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/connecting-to-cluster.html">the connection to an Amazon Redshift cluster</a>.</li>
+            <li>Specify the database URL in your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file:</li><pre><code class="language-text">url: jdbc:redshift://endpoint:port/database</code></pre>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>url: jdbc:redshift://&lt;cluster-identifier&gt;.us-east-1.redshift.amazonaws.com:5439/databasename</code>
+            </p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To get your JDBC connection, see <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/configuring-connections.html#connecting-connection-string">Finding your cluster connection string</a>.</p>
+            <li>Create a text file called <MadCap:xref href="../../concepts/basic/changelog.html">[%=General.changelog%]</MadCap:xref> (<code>.xml</code>, <code>.sql</code>, <code>.json</code>, or <code>.yaml</code>) in your project directory and add a <MadCap:xref href="../../concepts/basic/changeset.html">[%=General.changeset%]</MadCap:xref>.</li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd"&gt;
+         &lt;changeSet id="1" author="Liquibase"&gt;
+         &lt;createTable tableName="test_table"&gt;
+               &lt;column name="test_id" type="int"&gt;
+               &lt;constraints primaryKey="true"/&gt;
+               &lt;/column&gt;
+               &lt;column name="test_column" type="varchar"/&gt;
+        &lt;/createTable&gt;
+      &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">--liquibase formatted sql
 
---changeset bob:1
-CREATE TABLE DEPARTMENT ("ID" INTEGER, "NAME" VARCHAR, "ACTIVE" BOOLEAN);</code></pre>
-            <li>Open the command prompt. Navigate to the <code>LiquibaseProj</code> directory.<br />Run the following command: <code>liquibase update</code></li>
-            <li>From any SQL tool User Interface, check your database changes under <strong>“public schema”</strong>.
-You should see a new <strong>department</strong> table added to the database. For example:</li>
-        </ol><pre><code class="language-sql">SELECT * FROM "public"."DEPARTMENT";</code></pre>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">NAME</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">ACTIVE</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">NULL</td>
-                </tr>
-            </tbody>
-        </table>
-        <p>Also, you should see two more tables:</p>
+--changeset liquibase:1
+CREATE TABLE test_table (test_id INT, test_column VARCHAR, PRIMARY KEY (test_id))</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">databaseChangeLog:
+- changeSet:
+	id: 1
+	author: Liquibase
+	changes:
+	- createTable:
+		columns:
+		- column:
+			name: test_column
+			type: INT
+			constraints:  
+				   primaryKey:  true  
+				   nullable:  false  
+				   tableName: test_table</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">{ 
+  "databaseChangeLog": [
+  {
+	"changeSet": {
+	  "id": "1",
+      "author": "Liquibase",
+	  "changes": [
+	    {
+		  "createTable": {
+		    "columns": [
+			{
+			  "column": 
+		      {
+				"name": "test_column",
+				"type": "INT",
+				"constraints": 
+			  {
+				"primaryKey": true,
+				"nullable": false
+				}
+				}
+			  }]
+			,
+			"tableName": "test_table"
+		  }
+		}]
+	  }
+	}]
+  }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <ol start="5">
+            <li>Run the <code>status</code> command to see whether the connection is successful. Specify the name of the <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> you created in place of <code>changelog.xml</code>. Also, to run <MadCap:variable name="General.Liquibase"></MadCap:variable> commands, you need to specify your username and password in the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file or on the command line. However, the username and password <MadCap:variable name="General.Param/Attribute"></MadCap:variable>s are not required for connections and systems which use alternate means of authentication.</li><pre><code class="language-text">liquibase --username=test --password=test --changeLogFile=changelog.xml status</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Alternatively, you can add the <code>changeLogFile</code> <MadCap:variable name="General.Param/Attribute"></MadCap:variable> to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file.</p>
+        </ol>
+        <ol start="6">
+            <li>Run your first update with the <MadCap:variable name="General.Liquibase" /> <MadCap:xref href="../../commands/community/update.html">update command</MadCap:xref>, which will make changes to your database. You can also run the <MadCap:xref href="../../commands/community/updateSQL.htm">updateSQL command</MadCap:xref> if you want to inspect the SQL before running the <code>update</code> command.</li><pre xml:space="preserve"><code class="language-text">liquibase --changeLogFile=changelog.xml updateSQL
+liquibase --changeLogFile=changelog.xml update</code></pre>
+        </ol>
+        <p>After your first update, you will see a new table along with the <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tables added to the database:</p>
         <ul>
-            <li><strong><MadCap:variable name="General.databasechangelog"></MadCap:variable></strong> tracking table – This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were deployed. This way, next time when you deploy again, the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> will be compared with the <MadCap:variable name="General.databasechangelog"></MadCap:variable> tracking table and only the new <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog"></MadCap:variable> will be deployed. You will notice that a new row was created in that table with the <MadCap:variable name="General.changeset" style="font-style: italic;"></MadCap:variable> information we have just deployed.
-For this example:</li>
+            <li>
+                <MadCap:xref href="../../concepts/basic/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref>. This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were deployed. When you deploy, the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> are compared with the <MadCap:variable name="General.databasechangelog" /> tracking table, and only the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog" /> will be deployed.</li>
+            <li>
+                <MadCap:xref href="../../concepts/basic/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>. This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.databasechangelog" /> table during deployment and ensure only one instance of <MadCap:variable name="General.Liquibase" /> is updating the database at a time, whether that is creating, updating or deleting changes.</li>
         </ul>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
-            <col class="TableStyle-TableStyles-Column-Column1">
-            </col>
+        <h2>Supported Commands and <MadCap:variable name="General.changetypes" />s</h2>
+        <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
             <thead>
                 <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">AUTHOR</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">FILENAME</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">DATEEXECUTED</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ORDEREXECUTED</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">EXECTYPE</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">MDSUM</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">…</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes" />
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Supported</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Command</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Supported</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">bob</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">dbchangelog.sql</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">date&amp;time</code>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addAutoIncrement </code>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">EXECUTED</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">checksumvalue</code>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>calculateCheckSum &lt;id&gt;</code> </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>addCheckConstraint</code>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">…</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>changelogSync</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addColumn</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>changelogSyncSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>addDefaultValue</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>changelogSyncToTag</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addForeignKeyConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>changelogSyncToTagSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>addLookupTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>clearCheckSums</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addNotNullConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dbDoc</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>addPrimaryKey</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>deactivateChangeLog</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>addUniqueConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>diff</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>alterSequence</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>diff JSON</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createFunction</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>diffChangeLog</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createIndex</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropAll</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createPackage</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>futureRollbackCountSQL &lt;value&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createPackageBody</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>future-rollback-from-tag-sql &lt;tag&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createProcedure</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>futureRollbackSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createSequence</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>generateChangeLog</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createSynonym</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>help</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>history</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>createTrigger</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>listLocks</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>createView</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>markNextChangeSetRan</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>customChange</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>markNextChangeSetRanSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>delete</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>registerChangeLog</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>disableCheckConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>releaseLocks</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>disableTrigger</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>rollback &lt;tag&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropAllForeignKeyConstraints</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>rollbackCount &lt;value&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropCheckConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>rollbackCountSQL &lt;value&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropColumn</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>rollbackOneChangeSet</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropDefaultValue</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>rollbackOneChangeSetSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropForeignKeyConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>rollbackOneUpdate</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropFunction</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>rollbackOneUpdateSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropIndex</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>rollbackSQL &lt;tag&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropNotNullConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>rollbackToDate</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropPackage</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>rollbackToDateSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropPackageBody</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>snapshot</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropPrimaryKey</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>snapshotReference</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropProcedure</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>status --verbose</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropSequence</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>syncHub</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropSynonym</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>tag &lt;tag string&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>tagExists &lt;tag string&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropTrigger</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>unexpectedChangeSets</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>dropUniqueConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>update</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>dropView</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>updateSQL</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>empty</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>updateCount &lt;value&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>enableCheckConstraint</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>updateCountSQL &lt;value&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>enableTrigger</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>updateTestingRollback</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>executeCommand</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>updateToTag &lt;tag&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>insert</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>updateToTagSQL &lt;tag&gt;</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>loadData</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>validate</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>loadUpdateData</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>markUnused</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>mergeColumns</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>modifyDataType</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>output</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>renameColumn</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>renameSequence</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>renameTable</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>renameTrigger</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>renameView</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>setColumnRemarks</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>setTableRemarks</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>sql</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>sqlFile</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>stop</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>tagDatabase</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;"><code>update</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">&#160;</td>
                 </tr>
             </tbody>
         </table>
+        <h3>Related Links</h3>
         <ul>
-            <li><strong><MadCap:variable name="General.databasechangeloglock" /></strong> – This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> table during deployment.</li>
+            <li><a href="https://docs.aws.amazon.com/redshift/latest/gsg/getting-started.html">Getting started with Amazon Redshift</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../home.htm">Workflows</MadCap:xref>
+            </li>
         </ul>
     </body>
 </html>
