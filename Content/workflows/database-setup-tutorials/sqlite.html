@@ -1,39 +1,159 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head>
-		<title>Using Liquibase with SQLite | Liquibase Docs</title>
-		<meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/sqlite.html" />
-		<meta name="description" content="This page guides you through the process of creating a new Liquibase project with SQLite." />
+    <head><title>Using Liquibase with SQLite | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/sqlite.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with SQLite." />
     </head>
     <body>
         <h1 id="sqlite-tutorial">Using <MadCap:variable name="General.Liquibase" /> with SQLite</h1>
-        <p>SQLite is a single-file database which follows the zero-configuration approach.
-It is furthermore easy to use and is thus perfect for your first experiments with <MadCap:variable name="General.Liquibase" />.</p>
-        <p>There is a jdbc driver available here: <a href="https://bitbucket.org/xerial/sqlite-jdbc/downloads/">https://bitbucket.org/xerial/sqlite-jdbc/downloads/</a></p>
-        <p>To use sqlite with <MadCap:variable name="General.Liquibase" /> you will need the following information:</p>
-        <p><strong>jars for the classpath:</strong>
-        </p>
+        <p><a href="https://sqlite.org/index.html">SQlite</a> is a relational database management system that implements a small, fast, and self-contained embedded SQL database engine.</p>
+        <h2>Supported Versions</h2>
         <ul>
-            <li>sqlitejdbc-v&lt;version&gt;.jar</li>
+            <li>3.X</li>
         </ul>
-        <p><strong>jdbc driver name:</strong>
-        </p>
+        <h2>Prerequisites</h2>
+        <p>Before using <MadCap:variable name="General.Liquibase" /> and SQLite, ensure you have completed the following:</p>
         <ul>
-            <li>org.sqlite.JDBC</li>
+            <li>Completed <MadCap:xref href="../../concepts/installation/home.html">[%=General.Liquibase%] Installation</MadCap:xref>.</li>
+            <li>Created a <MadCap:variable name="General.Liquibase" /> project folder to store all <MadCap:variable name="General.Liquibase" /> files.</li>
+            <li>Created a new <code><MadCap:variable name="General.liquiPropFile" /></code> file or are using the existing <code><MadCap:variable name="General.liquiPropFile" /></code> file included in the installation package. For more information, see <MadCap:xref href="../liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</li>
         </ul>
-        <p><strong>jdbc url:</strong>
-        </p>
+        <h2>Driver Information</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and SQLite, you must install the <a href="https://github.com/xerial/sqlite-jdbc">JDBC driver</a>:</p>
+        <ol>
+            <li><a href="https://github.com/xerial/sqlite-jdbc/releases">Download</a> the <code>sqlite-jdbc-&lt;version&gt;.jar</code> file for a version of SQLite that is supported by <MadCap:variable name="General.Liquibase" />. You can also download this jar from <a href="https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/">Maven’s central repository</a>.</li>
+            <li>Place the <code>sqlite-jdbc-&lt;version&gt;.jar</code> file in the <code>liquibase/lib directory</code>.</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you put the <code>sqlite-jdbc-&lt;version&gt;.jar</code> file in any other directory, specify the path to it in the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file: <code>classpath: ../path_to_drivers/sqlite-jdbc-&lt;version&gt;.jar</code>.</p>
+            <li>Open your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file and specify the driver value in it:</li><pre>driver: org.sqlite.JDBC</pre>
+        </ol>
+        <p>If you use Maven, add the following XML fragments to your Maven <code>pom.xml</code> file:</p><pre xml:space="preserve">&lt;dependencies&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.xerial&lt;/groupId&gt;
+    &lt;artifactId&gt;sqlite-jdbc
+    &lt;/artifactId&gt;&lt;version&gt;(version)&lt;/version&gt;
+  &lt;/dependency&gt;
+&lt;/dependencies&gt;</pre>
+        <p>Maven will use this information to download the SQLite JDBC library from Maven’s central repository into your local repository.</p>
+        <h2>Testing Your Connection</h2>
+        <p>For <MadCap:variable name="General.Liquibase" /> and SQLite to work, you need to:</p>
+        <ol>
+            <li>Ensure your SQLite database is configured. You can use <a href="https://www.sqlite.org/cli.html">sqlite3</a> commands like <code>.databases</code> and <code>.show</code> to check the status of the database.</li>
+            <li>Specify the database URL in your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file:</li><pre>url: jdbc:sqlite:example.db</pre>
+            <li>Create a<i> </i><MadCap:xref href="../../concepts/basic/changelog.html" style="font-style: italic;">[%=General.changelog%]</MadCap:xref> file called <code>dbchangelog</code> (<code>.xml</code>, <code>.sql</code>, <code>.json</code>, or <code>.yaml</code>) in your project directory and add a<i> </i><MadCap:xref href="../../concepts/basic/changeset.html" style="font-style: italic;">[%=General.changeset%]</MadCap:xref> to it.</li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML Example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd"&gt;
+    &lt;changeSet id="1" author="Liquibase"&gt;
+        &lt;createTable tableName="test_table"&gt;
+            &lt;column name="test_id" type="int"&gt;
+            &lt;constraints primaryKey="true"/&gt;
+            &lt;/column&gt;
+            &lt;column name="test_column" type="varchar(20)"/&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code>
+		</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL Example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+
+--changeset liquibase:1
+--Database: sqlite
+CREATE TABLE test_table (test_id INT, test_column VARCHAR(20), PRIMARY KEY (test_id))</code>
+		</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML Example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+- changeSet:
+	id: 1
+	author: Liquibase
+	changes:
+	- createTable:
+		columns:
+		- column:
+			name: test_column
+			type: INT
+			constraints:  
+				primaryKey:  true  
+				nullable:  false  
+				tableName: test_table</code>
+		</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON Example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+  {
+    "changeSet": {
+      "id": "1",
+      "author": "Liquibase",
+      "changes": [
+      {
+        "createTable": {
+	          "columns": [
+	          {
+	            "column": 
+	            {
+	              "name": "test_column",
+	              "type": "INT",
+	              "constraints": 
+	              {
+	                "primaryKey": true,
+	                "nullable": false
+	              }
+	            }
+	          }]
+        ,
+        "tableName": "test_table"
+        }
+      }]
+    }
+  }]
+}</code>
+		</pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <ol start="4">
+            <li>Specify your <MadCap:variable name="General.changelog" style="font-style: italic;" /> in the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file. It should look like this:</li><pre xml:space="preserve">changeLogFile: dbchangelog.xml<br />url: jdbc:sqlite:example.db<br />driver: org.sqlite.JDBC</pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">By default, SQLite databases do not require authentication, so the <code>username</code> and <code>password</code> attributes do not have to be specified. For more information, see <a href="https://www.sqlite.org/src/doc/trunk/ext/userauth/user-auth.txt">SQLite User Authentication</a>.</p>
+            <li>Run the <code>status</code> command to see whether the connection is successful. This will create a database called <code>example.db</code> in your project folder if it does not already exist.</li><pre>liquibase --changeLogFile=dbchangelog.xml status</pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you did not specify any properties in your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file, they must be passed into the command line as attributes.</p>
+            <li>You can preview any database changes you want to make using the <code>updateSQL</code> command, which will compare your <MadCap:variable name="General.changelog" style="font-style: italic;" /> to your database and display the SQL needed to add your undeployed <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. Then run your first database update with the <code>update</code> command.</li><pre>liquibase --changeLogFile=dbchangelog.xml updateSQL<br />liquibase --changeLogFile=dbchangelog.xml update</pre>
+            <p>After your first update, you will see a new table along with the <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tables added to the database:</p>
+            <ul>
+                <li>
+                    <p><b><MadCap:variable name="General.databasechangelog" /></b> table. This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were deployed. When you deploy, the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> are compared with the <MadCap:variable name="General.databasechangelog" /> tracking table, and only the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog" /> will be deployed.</p>
+                    <p><b><MadCap:variable name="General.databasechangeloglock" /></b> table. This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.databasechangelog" /> table during deployment and ensure only one instance of <MadCap:variable name="General.Liquibase" /> is updating the database at a time, whether that is creating, updating, or deleting changes.</p>
+                </li>
+            </ul>
+        </ol>
+        <h2>Related Links</h2>
         <ul>
-            <li>jdbc:sqlite:&lt;database-name&gt;</li>
+            <li><a href="https://sqlite.org/index.html">SQLite documentation</a>
+            </li>
+            <li><a href="https://docs.liquibase.com/commands/home.html">Commands</a>
+            </li>
+            <li><a href="https://docs.liquibase.com/change-types/home.html">Change Types</a>
+            </li>
         </ul>
-        <p>There is no need to create a database before you can use sqlite, as I said: it follows the zero-configuration approach.</p>
-        <p>A run of <MadCap:variable name="General.Liquibase" /> with sqlite, having the sqlite.jar and the in the current directory (and the liquibase.jar at hand as well), could look like this:</p>
-        <figure class="highlight"><pre xml:space="preserve"><code class="language-sh" data-lang="sh">    java <span class="nt">-jar</span> liquibase.jar 
-         <span class="nt">--classpath</span><span class="o">=</span>sqlitejdbc-v&lt;version&gt;.jar 
-         <span class="nt">--driver</span><span class="o">=</span>org.sqlite.JDBC 
-         <span class="nt">--url</span><span class="o">=</span><span class="s2">"jdbc:sqlite:exampledb.sqlite"</span>   
-         <span class="nt">--changeLogFile</span><span class="o">=</span>db-changelog.xml 
-         migrate</code></pre>
-        </figure>
     </body>
 </html>
