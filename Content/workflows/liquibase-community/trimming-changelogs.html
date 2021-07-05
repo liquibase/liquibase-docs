@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head>
-        <title>Trimming Changelogs | Liquibase Docs</title>
-		<meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/trimming-changelogs.html" />
+    <head><title>Trimming Changelogs | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/trimming-changelogs.html" />
         <meta name="description" content="This page explains the importance of trimming your changelogs and how to do it appropriately." />
     </head>
     <body>
@@ -11,14 +10,14 @@
         <p>The standard process for using <MadCap:variable name="General.Liquibase" /> is to append individual change sets to your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file for each database change you need to make. Over time those changes can build up to thousands of entries, many of which are now redundant (create a table and later drop it) or inefficient (create a table, then add columns individually vs. just creating the table with all the columns). What is the best way to simplify all that cruft that has built up?</p>
         <p>My first response is always “Do you really need to simplify it?” You built up that <MadCap:variable name="General.changelog" style="font-style: italic;" /> over a long period of time and you have ran it and tested it countless times. Once you start messing with the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file you are introducing risk which has a cost of its own. Does whatever performance or file size concerns you have really outweigh the risk of messing with a script that you know works?</p>
         <p>If it is worth the risk, why is it work the risk? Sometimes the problem is that your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file has just gotten so large that your editor chokes on it, or you get too many merge conflicts. The best way to handle this is to simply break up your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file into multiple files. Instead of having a single changelog.xml file with everything in it, create a master.changelog.xml file which uses the tag to reference other <MadCap:variable name="General.changelog" style="font-style: italic;" /> files.</p>
-        <figure class="highlight">
-            <pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="nt">&lt;databaseChangeLog</span>  
-            <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span>  
-            <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
-            <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog
-         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span>  
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;databaseChangeLog 
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:pro="http://www.liquibase.org/xml/ns/pro"					 
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+http://www.liquibase.org/xml/ns/pro 
+http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;
     <span class="nt">&lt;include</span>  <span class="na">file=</span><span class="s">"com/example/news/news.changelog.xml"</span><span class="nt">/&gt;</span>  
     <span class="nt">&lt;include</span>  <span class="na">file=</span><span class="s">"com/example/directory/directory.changelog.xml"</span><span class="nt">/&gt;</span>  
 <span class="nt">&lt;/databaseChangeLog&gt;</span></code>
@@ -31,12 +30,15 @@
         <p>How you modify your existing <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> will also depend on your environment and where in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> the problem <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are. If you are modifying <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that have been applied to all of your environments and are now only used on fresh database builds you can treat them differently than if they have been applied to some databases but not yet to others.</p>
         <p>To merge or modify existing <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>you will be doing a combination of editing existing <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, removing old <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, and creating new ones.</p>
         <p>Removing unneeded <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> is easy because <MadCap:variable name="General.Liquibase" /> doesn't care about <MadCap:variable name="General.databasechangelog" /> rows with no corresponding <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. Just delete out of date <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and you are done. For example, if you have a <MadCap:variable name="General.changeset" style="font-style: italic;" /> that creates the table “cart” and then another that drops it, just remove both <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> from the file. You must make sure, however, that there are no <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> between the create and the delete that make use of that table or they will fail on a fresh database build. That is an example of how you are introducing risk when changing your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file.</p>
-        <p>Suppose instead you have a “cart” table that is created in one changeSet, then a “promo_code” column is created in another and an “abandoned” flag is created in another.</p>
-        <figure class="highlight">
-            <pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="nt">&lt;databaseChangeLog</span>  <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span>  <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
-                       <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span>  
+        <p>Suppose instead you have a “cart” table that is created in one <MadCap:variable name="General.changeset" style="font-style: italic;" />, then a “promo_code” column is created in another and an “abandoned” flag is created in another.</p>
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;databaseChangeLog  
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:pro="http://www.liquibase.org/xml/ns/pro"					
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+http://www.liquibase.org/xml/ns/pro 
+http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;
     <span class="nt">&lt;changeSet</span>  <span class="na">author=</span><span class="s">"nvoxland"</span>  <span class="na">id=</span><span class="s">"1"</span><span class="nt">&gt;</span>  
         <span class="nt">&lt;createTable</span>  <span class="na">tableName=</span><span class="s">"cart"</span><span class="nt">&gt;</span>  
             <span class="nt">&lt;column</span>  <span class="na">name=</span><span class="s">"id"</span>  <span class="na">type=</span><span class="s">"int"</span><span class="nt">/&gt;</span>  
@@ -59,11 +61,14 @@
             </pre>
         </figure>
         <p>One option would be to combine everything into a new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> using the existing id=”1” and delete the other <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
-        <figure class="highlight">
-            <pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="nt">&lt;databaseChangeLog</span>  <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span>  <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
-                   <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span>  
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;databaseChangeLog 
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:pro="http://www.liquibase.org/xml/ns/pro"					
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+http://www.liquibase.org/xml/ns/pro 
+http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;
     <span class="nt">&lt;changeSet</span>  <span class="na">author=</span><span class="s">"nvoxland"</span>  <span class="na">id=</span><span class="s">"1"</span><span class="nt">&gt;</span>  
         <span class="nt">&lt;validCheckSum&gt;</span>7:f24b25ba0fea451728ffbade634f791d<span class="nt">&lt;/validCheckSum&gt;</span>  
         <span class="nt">&lt;createTable</span>  <span class="na">tableName=</span><span class="s">"cart"</span><span class="nt">&gt;</span>  
@@ -77,11 +82,15 @@
         </figure>
         <p>This will work well if all existing databases have the cart table with the promo_code and abandoned columns already added. Running <MadCap:variable name="General.Liquibase" /> against existing databases just sees that id=”1” already ran and doesn't do anything new. Running <MadCap:variable name="General.Liquibase" /> against a blank database will create the cart table with all the columns right away. Notice that we had to add the flag or existing databases will throw an error saying that id=”1” has changed since it was run. Just use the checksum in the error message in the validCheckSum tag to mark that you know it changed and the new value is OK.</p>
         <p>If you have some databases where the promo_code and/or abandoned columns have not yet been added, update the original createTable as before, but use preconditions with onFail=”MARK_RAN” to handle cases where the old <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> ran while still not adding the columns again if the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> ran.</p>
-        <figure class="highlight">
-            <pre xml:space="preserve">
-                <code class="language-xml" data-lang="xml">
-                    <span class="nt">&lt;databaseChangeLog</span>  <span class="na">xmlns=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog"</span>  <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>  
-                   <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"</span><span class="nt">&gt;</span>  
+        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">
+&lt;databaseChangeLog 
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:pro="http://www.liquibase.org/xml/ns/pro"					
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+http://www.liquibase.org/xml/ns/pro 
+http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd"&gt;					  
     <span class="nt">&lt;changeSet</span>  <span class="na">author=</span><span class="s">"nvoxland"</span>  <span class="na">id=</span><span class="s">"1"</span><span class="nt">&gt;</span>  
         <span class="nt">&lt;validCheckSum&gt;</span>7:f24b25ba0fea451728ffbade634f791d<span class="nt">&lt;/validCheckSum&gt;</span>  
         <span class="nt">&lt;createTable</span>  <span class="na">tableName=</span><span class="s">"cart"</span><span class="nt">&gt;</span>  
