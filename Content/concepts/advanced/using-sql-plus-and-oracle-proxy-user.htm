@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using SQL Plus and Oracle Proxy User | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/advanced/using-sql-plus-and-oracle-proxy-user.html" />
+        <meta name="description" content="Reference information for SQL Plus and Oracle proxy user in Liquibase Pro." />
+    </head>
+    <body>
+        <h1>Using SQL Plus and Oracle Proxy User in <MadCap:variable name="General.LBPro" /></h1>
+        <p>You can use the SQL Plus proxy user feature with <MadCap:variable name="General.LBPro" /> 4.4.1 and later versions if you have multiple users sharing the same schema and do not want to provide the schema credentials to each user. </p>
+        <p>Using a proxy user to connect to a schema, you do not need to share the password, only the username. It means that a proxy user is a user who connects to the database on behalf of another user, usually a client user. A proxy user connects with the username and password set for them without knowing the client user password.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about the Oracle proxy user setup, see <a href="https://docs.oracle.com/cd/B19306_01/java.102/b14355/proxya.htm#i1014347">Proxy Authentication</a>.</p>
+        <p>With <MadCap:variable name="General.LBPro" />, you can use the <code>runwith:sqplus</code> <MadCap:variable name="General.Param/Attribute" /> and connect to the environment that requires a proxy user. You can set URL properties which contain your proxy user configuration to deploy SQL Plus <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to a database.</p>
+        <p>To run SQL Plus via a proxy user, follow these steps:</p>
+        <ol>
+            <li>Add an SQL Plus <MadCap:variable name="General.changeset" style="font-style: italic;" /> to your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file:</li><pre xml:space="preserve"><code class="language-sql" data-lang="sql"> --liquibase formatted sql
+--changeset user:45679-runWith_sqlplus-example runwith:sqlplus
+CREATE TABLE mytable (
+id           NUMBER         NOT NULL,
+description  VARCHAR2(50)   NOT NULL
+);</code></pre>
+        </ol>
+        <ol start="2">
+            <li>Set proxy values as your username in the <code><MadCap:variable name="General.liquiPropFile" /></code> file, environment variables, or on the command line at runtime:</li>
+            <h3><code><MadCap:variable name="General.liquiPropFile" /></code> example</h3><pre xml:space="preserve"><code class="language-text" data-lang="text">url: jdbc:oracle:thin:proxy_user[client_user]/@host:port/servicename
+username: proxy_username[client_username]
+password: proxyuserpass</code></pre>
+            <h3>Environment variables example:</h3><pre xml:space="preserve"><code class="language-text" data-lang="text">LIQUIBASE_COMMAND_URL="url=jdbc:oracle:thin:proxy_user[client_user]/@host:port/servicename"
+LIQUIBASE_COMMAND_USERNAME="proxy_username[client_username]"
+LIQUIBASE_COMMAND_PASSWORD="proxyuserpass"</code></pre>
+            <h3>CLI example</h3><pre xml:space="preserve"><code class="language-text" data-lang="text">liquibase update --url jdbc:oracle:thin:proxy_user[client_user]/@host:port/servicename --username proxy_username[client_username] --password proxyuserpass --changelog-file changelog.sql</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>proxy_user</code> is the user that will initiate the connection and emulate the <code>client_user</code>. The <code>client_user</code> is the user whose privileges, schema, objects will be available for the session.</p>
+        </ol>
+        <ol start="3">
+            <li>Run the <code>update</code> command to apply changes:</li><pre xml:space="preserve"><code class="language-text" data-lang="text">liquibase update --changelog-file changelog.sql</code></pre>
+        </ol>
+        <h3>Related Links</h3>
+        <ul>
+            <li>
+                <MadCap:xref href="../../workflows/database-setup-tutorials/oracle.html">Using [%=General.Liquibase%] with Oracle</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../workflows/database-setup-tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.htm">Connecting to an Oracle Database with [%=General.Liquibase%] via Kerberos and Active Directory</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Commands</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
