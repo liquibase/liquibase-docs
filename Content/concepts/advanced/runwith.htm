@@ -64,16 +64,24 @@
 	
 	...[and so on]...	
 	END;		
-	/
-</code></pre>
+	/</code></pre>
                 <p><strong>XML <MadCap:variable name="General.changelog" style="font-style: italic;" /> with the inline SQL <MadCap:variable name="General.changeset" style="font-style: italic;" /> using the <code>runWith</code> <MadCap:variable name="General.Param/Attribute" /></strong>
-                </p><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;changeSet id="2" author="myauthorname" runWith="sqlplus"&gt; 
+                </p><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;databaseChangeLog
+       xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+	xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd
+       http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.4.xsd "&gt;
+
+&lt;changeSet id="2" author="myauthorname" runWith="sqlplus"&gt; 
 &lt;sql&gt;
 	DECLARE l_emp_name VARCHAR2(250);
 	l_emp_no NUMBER;
 	l_salary NUMBER;
 	l_manager VARCHAR2(250);
-BEGIN
+       BEGIN
 	INSERT INTO emp(emp_name,emp_no,salary,manager) VALUES('BBB',1000,25000,'AAA');
 	...[and so on]...
 	END;
@@ -82,12 +90,19 @@ BEGIN
 
 &lt;/changeSet&gt;</code></pre>
                 <p><b>XML <MadCap:variable name="General.changelog" style="font-style: italic;" /> pointing to an SQL file with raw SQL in it</b>
-                </p><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;changeSet id="2315" author="myauthorname" runWith="sqlplus"&gt;  
+                </p><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
+	xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd
+       http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.4.xsd "&gt;						
+
+&lt;changeSet id="2315" author="myauthorname" runWith="sqlplus"&gt;  
 	&lt;sqlFile
 	path="my/path/file.sql"
 ...etc etc... &gt; 
-&lt;/changeSet&gt;</code>
-</pre>
+&lt;/changeSet&gt;</code></pre>
                 <p><b>YAML <MadCap:variable name="General.changelog" style="font-style: italic;" /> pointing to an SQL file with raw SQL in it</b>
                 </p><pre xml:space="preserve"><code class="language-yaml" data-lang="yaml">databaseChangeLog:
 - changeSet:
@@ -97,23 +112,7 @@ BEGIN
 	changes:
 	- sqlFile:
 		path: person.sql
-		relativeToChangelogFile: true
-	- rollback:
-		- sqlFile:
-			path: person-rollback.sql
-			relativeToChangelogFile: true
-- changeSet:
-	id: 2-yaml
-	author: myauthorname
-	runWith: sqlplus
-	changes:
-	- sqlFile:
-		path: company.sql
-		relativeToChangelogFile: true
-	- rollback:
-		- sqlFile:
-			path: company-rollback.sql
-			relativeToChangelogFile: true</code></pre>
+		relativeToChangelogFile: true</code></pre>
                 <p><b>JSON <MadCap:variable name="General.changelog" style="font-style: italic;" /> pointing to an SQL file with raw SQL in it</b>
                 </p><pre xml:space="preserve"><code class="language-json" data-lang="json">{
 	"databaseChangeLog": [
@@ -121,46 +120,17 @@ BEGIN
 		"changeSet": {
 		  "id": "1-json",
 		  "author": "myauthorname",
-			"runWith": "sqlplus",
-			"changes": [
-			  {
+		  "runWith": "sqlplus",
+		  "changes": [
+			{
 			      "sqlFile":{
 				      "path": "person.sql",
 				      "relativeToChangelogFile": "true"
-				},
-				"rollback":{
-				    "sqlFile":{
-				         "path": "person-rollback.sql",
-				         "relativeToChangelogFile": "true"
-					}
-				  }
 				}
-			  ]
-		    }
-		  },
-	    {
-		   "changeSet": {
-		   "id": "2-json",
-		   "author": "myauthorname",
-		   "runWith": "sqlplus",
-		   "changes": [
-			  {
-			     "sqlFile":{
-					  "path": "company.sql",
-				      "relativeToChangelogFile": "true"
-				},
-				"rollback":{
-				    "sqlFile":{
-				         "path": "company-rollback.sql",
-				         "relativeToChangelogFile": "true"                        
-					}
-				  }
-				}
-		      ]
 			}
-		  }
-		]
-	  }</code></pre>
+		  ]
+	    }
+      }</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <h2>Open and custom executor extensibility</h2>
@@ -175,7 +145,7 @@ BEGIN
             <li>Do not set the <code>endDelimiter</code> property on SQL Plus <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. SQL Plus handles this natively.</li>
             <li>Do not set the <code>splitStaments=true</code> property on SQL Plus <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. SQL Plus handles statement splitting.</li>
             <li>Prevent queries from hanging indefinitely by configuring an SQL Plus timeout. In your <code>liquibase.sqlplus.config</code> file, add <code>liquibase.sqlplus.timeout=nn</code>, where <code>nn</code> is time in seconds to wait before stopping the process.</li>
-            <li>Save the output of your SQL Plus spool files to your temp directory by adding <code>liquibase.sqlplus.keep.tmp=true</code> to your <code>liquibase.sqlplus.config</code> file.</li>
+            <li>Save the output of your SQL Plus spool files to your temp directory by adding <code>liquibase.sqlplus.keep.temp=true</code> to your <code>liquibase.sqlplus.config</code> file.</li>
         </ul><pre xml:space="preserve">       </pre>
     </body>
 </html>
