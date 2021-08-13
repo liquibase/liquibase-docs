@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>How Liquibase Finds Files: Liquibase Classpath | Liquibase Docs</title>
+        <link href="https://docs.liquibase.com/concepts/basic/path-update.html" />
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/basic/how-liquibase-finds-files.html" />
+        <meta name="description" content="Reference information on how Liquibase finds files." />
+    </head>
+    <body>
+        <h1>How <MadCap:variable name="General.Liquibase" /> Finds Files: <MadCap:variable name="General.Liquibase" /> Classpath</h1>
+        <p><MadCap:variable name="General.Liquibase" /> finds the root <MadCap:variable name="General.changelog" style="font-style: italic;" /> file and any referenced files by searching through the configured classpath (also called a resource path).</p>
+        <p><MadCap:variable name="General.Liquibase" /> configures the classpath based on these factors:</p>
+        <ul>
+            <li>The path specified in the classpath setting</li>
+            <li>Default locations based on how you run <MadCap:variable name="General.Liquibase" /><ul><li>	CLI: the current working directory where <MadCap:variable name="General.Liquibase" /> commands are running</li><li>Maven: project’s classpath</li><li>Spring Boot: application’s classpath</li></ul></li>
+        </ul>
+        <p>Regardless of how you run <MadCap:variable name="General.Liquibase" />, you will have a set of directories, jar files, and zip files that <MadCap:variable name="General.Liquibase" /> checks. For example, if you specify <code>path/to/your/changelog.xml</code>, <MadCap:variable name="General.Liquibase" /> checks all configured directories in the classpath to find the requested file.</p>
+        <h2>Setting your classpath</h2>
+        <p>You can set the <MadCap:variable name="General.Liquibase" /> classpath by choosing one of the following ways:</p>
+        <h3><code>classpath</code> in the <code><MadCap:variable name="General.liquiPropFile" /></code> file</h3>
+        <p>Add the following to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file:</p><pre xml:space="preserve"><code class="language-text">liquibase.classpath: path/to/your/resource/root</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use <MadCap:variable name="General.Liquibase" /> versions prior to 4.4, follow this format: <code>classpath: path/to/your/resource/root</code>.</p>
+        <h3><code>classpath</code> as a CLI parameter</h3>
+        <p>You can use <code>classpath</code> as a global parameter in your command line with a <MadCap:variable name="General.Liquibase" /> command, such as <code>update</code>:</p><pre xml:space="preserve"><code class="language-text">liquibase --classpath=path/to/your/resource/root update</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about the CLI syntax, see the <MadCap:xref href="../../tools-integrations/cli/home.htm">Command Line Interface</MadCap:xref> documentation.</p>
+        <h3><code>classpath</code> as an environment variable</h3>
+        <p>If you use <MadCap:variable name="General.LBPro" />, you can set <code>classpath</code> as an environment variable. The syntax for Mac/Linux:</p><pre xml:space="preserve"><code class="language-text">LIQUIBASE_CLASSPATH=path/to/your/resource/root</code></pre>
+        <p>The syntax for Windows, which requires the <code>set</code> command:</p><pre xml:space="preserve"><code class="language-text">set LIQUIBASE_CLASSPATH=path/to/your/resource/root</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The CLI commands shown above only apply to the current shell. If you need to pass an environment variable to a child process without affecting the parent process, you can use the <code>export </code>command on Mac/Linux or the <code>setx</code> command on Windows.</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you use Maven, Ant, Spring Boot, or other integrations, you can set your <code>classpath</code> in the default files, such as <code>pom.xml</code>, <code>application.yml</code>, and others. Check the <MadCap:xref href="../../tools-integrations/home.htm">Tools &amp; Integrations</MadCap:xref> documentation for more.</p>
+        <h2>How <MadCap:variable name="General.Liquibase" /> classpath worked before version 4.0</h2>
+        <p>Before version 4.0, one of the default locations <MadCap:variable name="General.Liquibase" /> added to the classpath was the root directory in your filesystem (/). The change caused issues because of a machine-dependent <MadCap:variable name="General.changelog" style="font-style: italic;" /> path, such as <code>/home/my-user/projects/liquibase/changelog.xml</code>, found under the <code>/ </code>directory. This way, <MadCap:variable name="General.Liquibase" /> uses the given path as part of the <MadCap:variable name="General.changeset" style="font-style: italic;" /> identifier stored in the <MadCap:variable name="General.databasechangelog" /> table, and when you run <MadCap:variable name="General.Liquibase" /> from <code>/home/other-user/projects/liquibase/changelog.xml</code>, <MadCap:variable name="General.Liquibase" /> sees it as a different <MadCap:variable name="General.changelog" style="font-style: italic;" /> and tries to rerun all the previously run <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
+        <p>To prevent identification issues from happening, a <code>/</code> was removed as a default part of the classpath.</p>
+        <h2>How <MadCap:variable name="General.Liquibase" /> classpath works in 4.0 and later versions</h2>
+        <p>Starting with <MadCap:variable name="General.Liquibase" /> 4.0, the root directory (/) is no longer a default part of the classpath because of the issue mentioned in the previous section.</p>
+        <p>To migrate from your existing classpath format, including the root directory (/), to version 4.0+, you can do any of the following:</p>
+        <ul>
+            <li>Configure your classpath to have a <code>/</code> as an additional location. The configuration brings back an old behavior with no file changes.</li>
+            <li>Add the <code>logicalFilePath</code> <MadCap:variable name="General.Param/Attribute" /> to the root element of your <MadCap:variable name="General.changelog" style="font-style: italic;" /> files. When you set the <code>logicalFilePath</code> value to be an old classpath version, <MadCap:variable name="General.Liquibase" /> uses it for the comparison file name, which will match what is in the database. If you add the <code>logicalFilePath</code>, it will bring back the old behavior with file changes, and you will not have any runtime configuration changes.</li>
+            <li>Coordinate updates to the <MadCap:variable name="General.databasechangelog" /> table so that the filepath value gets changed to be a new path. You can do it with a single SQL statement, but the exact statement will depend on the database you use. See a PostgreSQL example:</li>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>update databasechangelog set filepath=substring(filepath, length('/src/my-project')</code>
+            </p>
+        </ul>
+        <p>You need to figure out the SQL statement and time when you run that statement because any passed existing references will start failing once you make the change, and any passed new references will fail until you do make the change.</p>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Commands</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
