@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>changelog-lock-poll-rate parameter | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/advanced/changelog-lock-poll-rate.html" />
+        <meta name="description" content="Reference information and use cases for the changelog-lock-poll-rate parameter. The changelog-lock-poll-rate global parameter is an integer that sets the number of seconds Liquibase waits to check if a changelog lock has been released." />
+    </head>
+    <body>
+        <h1><code>changelog-lock-poll-rate</code> parameter</h1>
+        <p>The <code>changelog-lock-poll-rate</code> global parameter is an integer that sets the number of seconds <MadCap:variable name="General.Liquibase" /> waits to check if a <MadCap:xref href="../basic/changelog.html" style="font-style: italic;">[%=General.changelog%]</MadCap:xref> lock has been released. The default value is <code>10</code>.</p>
+        <h2><MadCap:variable name="General.databasechangeloglock" /> table</h2>
+        <p>The <MadCap:xref href="../basic/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref> only allows a single instance of <MadCap:variable name="General.Liquibase" /> to run at a time. This prevents conflicts between multiple developers working at the same time or multiple servers in a cluster that auto-run <MadCap:variable name="General.Liquibase" /> on startup.</p>
+        <p><MadCap:variable name="General.databasechangeloglock" /> has a column named <code>LOCKED</code> that is set to <code>1</code> while <MadCap:variable name="General.Liquibase" /> is running and <code>0</code> otherwise. If you try to run <MadCap:variable name="General.Liquibase" /> while the lock record is active, the following message is printed to <code>STDOUT</code>:</p><pre xml:space="preserve"><code class="language-text">Waiting for changelog lock....</code></pre>
+        <p>This message repeats until <code>LOCKED</code> is set to <code>0</code>. The number of seconds <MadCap:variable name="General.Liquibase" /> waits before checking the lock status at each interval is determined by the value of <code>changelog-lock-poll-rate</code>.</p>
+        <h2>Uses</h2>
+        <p>If you need to run multiple database updates at once and want to minimize the amount of unused time between deployments, you can lower the value of <code>changelog-lock-poll-rate</code>. This way, <MadCap:variable name="General.Liquibase" /> will check more frequently whether the <MadCap:variable name="General.changelog" style="font-style: italic;" /> lock has been released.</p>
+        <p>If you need to limit system resources, or if you know that the <MadCap:variable name="General.changelog" style="font-style: italic;" /> lock will be active for a long time, you can raise the value of <code>changelog-lock-poll-rate</code>.</p>
+        <h2>Setting the <code>changelog-lock-poll-rate</code> parameter</h2>
+        <p>You can set <code>changelog-lock-poll-rate</code> in four ways:</p>
+        <ul>
+            <li>As a JVM system property</li>
+            <li>In your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file</li>
+            <li>As a global parameter in the CLI</li>
+            <li>As an environment variable (<MadCap:variable name="General.LBPro" />)</li>
+        </ul>
+        <h3>Java system property</h3>
+        <p>You can set <code>changelog-lock-poll-rate</code> as a Java system property by using the <MadCap:xref href="../basic/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref> in your command line. The syntax on Mac/Linux is as follows:</p><pre xml:space="preserve"><code class="language-text">JAVA_OPTS=-Dliquibase.changeLogLockPollRate=&lt;int&gt; &amp;&amp; liquibase update --changelog-file=dbchangelog.xml</code></pre>
+        <p>The syntax on Windows requires the <code>set</code> command:</p><pre xml:space="preserve"><code class="language-text">set JAVA_OPTS=-Dliquibase.changeLogLockPollRate=&lt;int&gt; &amp;&amp; liquibase update --changelog-file=dbchangelog.xml</code></pre>
+        <h3><code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> parameter</h3>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.1+, you can set <code>changelog-lock-poll-rate</code> by adding the following to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file:</p><pre xml:space="preserve"><code class="language-text">liquibase.changeLogLockPollRate: &lt;int&gt;</code></pre>
+        <h3>CLI global parameter</h3>
+        <p>You can use <code>changelog-lock-poll-rate</code> as a global parameter in your command line with a single <MadCap:variable name="General.Liquibase" /> command, such as <code>update</code>:</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-lock-poll-rate=&lt;int&gt; update --changelog-file=dbchangelog.xml</code></pre>
+        <h3>Environment variable (<MadCap:variable name="General.LBPro" />)</h3>
+        <p>If you use <MadCap:variable name="General.LBPro" />, you can set <code>changelog-lock-poll-rate</code> as an environment variable. The syntax on Mac/Linux is as follows:</p><pre xml:space="preserve"><code class="language-text">LIQUIBASE_CHANGELOG_LOCK_POLL_RATE=&lt;int&gt;</code></pre>
+        <p>The syntax on Windows requires the <code>set</code> command:</p><pre xml:space="preserve"><code class="language-text">set LIQUIBASE_CHANGELOG_LOCK_POLL_RATE=&lt;int&gt;</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The commands shown above only apply to the current shell. If you need to pass an environment variable to a child process without affecting the parent process, you can use the <code>export</code> command on Mac/Linux or the <code>setx</code> command on Windows.</p>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../basic/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="changelog-lock-wait-time-in-minutes-parameter.htm">changelog-lock-wait-time-in-minutes parameter</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
