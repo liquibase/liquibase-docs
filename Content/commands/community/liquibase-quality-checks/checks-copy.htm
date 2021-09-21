@@ -9,7 +9,7 @@
         <h1><code>checks copy</code> command</h1>
         <p>The <code>copy</code> subcommand copies a customizable check so that you can run the same check multiple times with different parameters.</p>
         <h2>Uses</h2>
-        <p>You can typically use the <code>checks copy</code> command to rerun checks with modified values in the same execution or when you need it.</p>
+        <p>If you want to run the same check with different values, use <code>checks copy</code> to make a new version with new values. If enabled, both checks will be run in the same execution.</p>
         <p>For example, you can make two copies of the check that scans SQL:</p>
         <ul>
             <li>SQL should not contain <code>COPY DATABASE</code></li>
@@ -22,6 +22,7 @@
         <ol>
             <li>
                 <p>Run the command specifying your values:</p><pre xml:space="preserve"><code class="language-text">liquibase checks copy --check-name=IndexName --checks-settings-file=ProjectXChecksConfig.conf</code></pre>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you have a checks settings file customized for a specific environment or project, you need to pass that using the <code>--checks-settings-file</code> parameter. If you do not include this parameter, <MadCap:variable name="General.Liquibase" /> uses the default settings file  – <code>liquibase.checks-settings.conf</code>.</p>
             </li>
             <li>Enter the name of the check copy using alphanumeric characters. Also, the name of the copy should differ from the original name.</li>
         </ol>
@@ -46,10 +47,6 @@
                         <p>CLI:</p>
                         <p><code>--checks-settings-file</code>
                         </p>
-                        <p>Property:</p>
-                        <p><code>liquibase.command.checksSettingsFile</code> or <code>liquibase.command.checks.&lt;subcommand&gt;.checksSettingsFile</code></p>
-                        <p>Environment Variable:</p>
-                        <p><code>LIQUIBASE_COMMAND_CHECKS_SETTINGS_FILE</code> or <code>LIQUIBASE_COMMAND_CHECKS_&lt;subcommand&gt;_CHECKS_SETTINGS_FILE</code></p>
                     </td>
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body1">
                         <p>The parameter which triggers the needed checks settings file to work with subcommands.</p>
@@ -92,42 +89,110 @@
         </table>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot><code>checks copy</code> example output</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p><code>checks copy</code> example output:</p><pre xml:space="preserve"><code class="language-text">Creating a copy of the 'Index Naming Convention Check'
-Give your check a shortname for easier identification (default: IndexName1)&gt; IndexNameUpperCase
-New check 'IndexNameUpperCase' created from 'IndexName'
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">####################################################
+##   _     _             _ _                      ##
+##  | |   (_)           (_) |                     ##
+##  | |    _  __ _ _   _ _| |__   __ _ ___  ___   ##
+##  | |   | |/ _` | | | | | '_ \ / _` / __|/ _ \  ##
+##  | |___| | (_| | |_| | | |_) | (_| \__ \  __/  ##
+##  \_____/_|\__, |\__,_|_|_.__/ \__,_|___/\___|  ##
+##              | |                               ##
+##              |_|                               ##
+##                                                ##
+##  Get documentation at docs.liquibase.com       ##
+##  Get certified courses at learn.liquibase.com  ##
+##  Free schema change activity reports at        ##
+##      https://hub.liquibase.com                 ##
+##                                                ##
+####################################################
+Starting Liquibase at 09:31:18 (version 4.5.0-DAT-6000-SNAPSHOT #74 built at 2021-09-20 19:47+0000)
+Liquibase Version: 4.5.0-DAT-6000-SNAPSHOT
+Liquibase Pro 4.5.0-DAT-6000-SNAPSHOT by Datical licensed to Liquibase Pro Customer until Tue Oct 26 19:00:00 CDT 2021
 
-The 'Index Naming Convention' check has the following customization options:
+Give your check a short name for easier identification (alpha-numeric characters only) [TableColumnLimit1]:
 
-  position -  The location to look for the provided value.
-    Options
-      startsWith  - value provided should be found at the begining of the name
-      endsWith    - value provided should be found at the end of the name
-      anywhere    - value provided can be anywhere in the name
-      regexp      - vale provided is a regexp that should be matched
-  value   - The substring or regular expression to match in the index name
+New check 'TableColumnLimit1' created from 'TableColumnLimit'
 
-Set 'position' (current: startsWith) &gt; regexp
-Set 'value' (current: 'IDX_') &gt; '[A-Z]+'
-
-Customization complete.  Review the table below to confirm your changes.
-+-----------------------------------+---------------------+-------------------------------------------+-----------+-----------------------+
-* Check Name                        * Short Name          *                                           * Enabled?  * Customization         *
-+-----------------------------------+---------------------+-------------------------------------------+-----------+-----------------------+
-* Tables Should Have a Primary Key  * TblPkCheck          * Check that all tables have a primary key  * Enabled   * &lt;none&gt;                *
-+-----------------------------------+---------------------+-------------------------------------------+-----------+-----------------------+
-* Default Value Not recommended     * NoDefaultVal        * When adding a column to a table specifying* Enabled   * &lt;none&gt;                *
-*    for New Columns                *                     *   a default value can slow down updates   *           *                       *
-+-----------------------------------+---------------------+-------------------------------------------+-----------+-----------------------+
-* Index Naming Convention           * IndexName           * Confirm index names adhere to convention  * Enabled   * position = endsWith   *
-*                                   *                     *                                           *           * value = '_IDX'        *
-+-----------------------------------+---------------------+-------------------------------------------+-----------+-----------------------+
-* Index Naming Convention           * IndexNameUpperCase  * Confirm index names adhere to convention  * Enabled   * position = regexp     *
-*                                   *                     *                                           *           * value = '[A-Z]+'      *
-+-----------------------------------+---------------------+-------------------------------------------+-----------+-----------------------+
-
+Set 'MAX_COLUMNS' [50]:
+20
+Customization complete. Review the table below to confirm your changes.
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| #   | Check Name                     | Short Name                 | Description                    | Enabled | Customization                  |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 10  | Warn on Detection of 'GRANT'   | SqlGrantWarn               | This check warns a user when   | true    | &lt;None&gt;                         |
+|     | Statements                     |                            | generated or raw SQL contains  |         |                                |
+|     |                                |                            | 'GRANT' statements so that     |         |                                |
+|     |                                |                            | they can ensure that the       |         |                                |
+|     |                                |                            | privilege being granted won't  |         |                                |
+|     |                                |                            | lead to security issues.       |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 20  | Warn on Detection of 'REVOKE'  | SqlRevokeWarn              | This check warns a user when   | true    | &lt;None&gt;                         |
+|     | Statements                     |                            | generated or raw SQL contains  |         |                                |
+|     |                                |                            | 'REVOKE' statements so that    |         |                                |
+|     |                                |                            | they can ensure that the       |         |                                |
+|     |                                |                            | privilege being revoked won't  |         |                                |
+|     |                                |                            | lead to data access and        |         |                                |
+|     |                                |                            | dependency issues.             |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 30  | Warn when 'DROP TABLE'         | ChangeDropTableWarn        | This check warns a user when a | true    | &lt;None&gt;                         |
+|     | detected                       |                            | table is being dropped so that |         |                                |
+|     |                                |                            | they can ensure that dropping  |         |                                |
+|     |                                |                            | the table won't lead to        |         |                                |
+|     |                                |                            | unintentional loss of data.    |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 40  | Warn when 'DROP COLUMN'        | ChangeDropColumnWarn       | This check warns a user when a | true    | &lt;None&gt;                         |
+|     | detected                       |                            | column is being dropped so     |         |                                |
+|     |                                |                            | that they can ensure that      |         |                                |
+|     |                                |                            | dropping the column won't lead |         |                                |
+|     |                                |                            | to unintentional loss of data. |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 50  | Warn when 'MODIFY &lt;column&gt;'    | ModifyDataTypeWarn         | This check warns a user when a | true    | &lt;None&gt;                         |
+|     | detected                       |                            | change will result in          |         |                                |
+|     |                                |                            | modification of a data type so |         |                                |
+|     |                                |                            | they can ensure that modifying |         |                                |
+|     |                                |                            | the data type won't lead to    |         |                                |
+|     |                                |                            | unintentional loss of data     |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 60  | Check for specific patterns in | SqlUserDefinedPatternCheck | This check scans raw SQL for   | false   | SEARCH_STRING = null           |
+|     | sql                            |                            | the presence of specific       |         | MESSAGE = A match for regular  |
+|     |                                |                            | patterns and warns the user    |         | expression &lt;SEARCH_STRING&gt; was|
+|     |                                |                            | when they are found.           |         | detected in Changeset          |
+|     |                                |                            |                                |         | &lt;CHANGESET&gt;.             |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 70  | Check Table Column Count       | TableColumnLimit           | Ensures that no table has more | true    | MAX_COLUMNS = 50               |
+|     |                                |                            | than a threshold number of     |         |                                |
+|     |                                |                            | columns.                       |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 70  | Check Table Column Count       | TableColumnLimit1          | Ensures that no table has more | true    | MAX_COLUMNS = 20               |
+|     |                                |                            | than a threshold number of     |         |                                |
+|     |                                |                            | columns.                       |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 170 | Changesets Must Have a Label   | ChangesetLabelCheck        | This check enforces the        | true    | &lt;None&gt;                         |
+|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |
+|     |                                |                            | labels be assigned to each     |         |                                |
+|     |                                |                            | changeset to provide better    |         |                                |
+|     |                                |                            | deployment control and to      |         |                                |
+|     |                                |                            | enhance traceability of        |         |                                |
+|     |                                |                            | efforts across changesets.     |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 173 | Changesets Must Have a Context | ChangesetContextCheck      | This check enforces the        | true    | &lt;None&gt;                         |
+|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |
+|     |                                |                            | contexts be assigned to each   |         |                                |
+|     |                                |                            | changeset to provide better    |         |                                |
+|     |                                |                            | deployment control and to      |         |                                |
+|     |                                |                            | enhance traceability of        |         |                                |
+|     |                                |                            | efforts across changesets.     |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
+| 176 | Changesets Must Have a Comment | ChangesetCommentCheck      | This check enforces the        | true    | &lt;None&gt;                         |
+|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |
+|     |                                |                            | comments be added to each      |         |                                |
+|     |                                |                            | changeset to document the      |         |                                |
+|     |                                |                            | purpose of a changeset for     |         |                                |
+|     |                                |                            | other/future consumers of this |         |                                |
+|     |                                |                            | changelog                      |         |                                |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+
 Liquibase command 'checks copy' was executed successfully.</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
