@@ -17,14 +17,14 @@
                 <p>Create a master <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, if you do not have one already. </p>
             </li>
         </ol>
-        <p>The master <MadCap:variable name="General.changelog" style="font-style: italic;" /> file works as a configuration file that will hold all the references to all your other <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>. Your master <MadCap:variable name="General.changelog" style="font-style: italic;" /> file must be in XML, YAML, or JSON formats only.</p>
+        <p>The master <MadCap:variable name="General.changelog" style="font-style: italic;" /> file works as a configuration file that will hold all the references to all your other <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>. Your master <MadCap:variable name="General.changelog" style="font-style: italic;" /> file must be in an XML, YAML, or JSON format.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">At this time, the <code>&lt;include&gt;</code> tag cannot be used in an SQL formatted master <MadCap:variable name="General.changelog" style="font-style: italic;" />. </p>
         <ol MadCap:continue="true">
             <li>
                 <p>Add the <code>&lt;include&gt;</code> tag and file references to your master <MadCap:variable name="General.changelog" style="font-style: italic;" />.</p>
             </li>
         </ol>
-        <p>In this example, we are using an XML master <MadCap:variable name="General.changelog" /> with the <code>&lt;include&gt;</code> tag referencing two SQL <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>:</p>
+        <p>In this example, we are using an XML master <MadCap:variable name="General.changelog" style="font-style: italic;" /> with the <code>&lt;include&gt;</code> tag referencing two SQL <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>:</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Your reference <MadCap:variable name="General.changelog" style="font-style: italic;" /> can be SQL, XML, YAML, or JSON file types.</p><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;databaseChangeLog
 	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -38,19 +38,15 @@
 	&lt;include file="com/example/directory/directory.changelog.sql"/&gt;
 &lt;/databaseChangeLog&gt;</code></pre>
         <h2>How the <code>&lt;include&gt;</code> tag runs in a <MadCap:variable name="General.changelog" style="font-style: italic;" /></h2>
-        <p>All included <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are run in the order they are found. So make sure that the included <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are completely independent or that any required <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are run first. </p>
-        <p>In the master <MadCap:variable name="General.changelog" style="font-style: italic;" /> example above, the root <MadCap:variable name="General.changelog" style="font-style: italic;" /> includes first the changes in <code>com/example/news/news.changelog.sql</code> then the changes in <code>com/example/directory/directory.changelog.sql</code>.</p>
-        <p>
-            <MadCap:xref href="preconditions.html">Preconditions</MadCap:xref> should be defined in your reference <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>, and will be evaluated by <MadCap:variable name="General.Liquibase" /> before any <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are ran. </p>
+        <p><MadCap:variable name="General.Liquibase" /> runs all included <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> in the order they are found. Make sure that the included <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are completely independent or that any required <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> are run first. </p>
+        <p>In the master <MadCap:variable name="General.changelog" style="font-style: italic;" /> example above, the root <MadCap:variable name="General.changelog" style="font-style: italic;" /> includes first the changes in <code>com/example/news/news.changelog.sql</code> and then the changes in <code>com/example/directory/directory.changelog.sql</code>.</p>
+        <p>You should define <MadCap:xref href="preconditions.html">Preconditions</MadCap:xref> in your reference <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>. <MadCap:variable name="General.Liquibase" /> will evaluate them before running any <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
         <h2>About double inclusion of <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i></h2>
         <p><MadCap:variable name="General.Liquibase" /> does not check for the double inclusion of <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> in your master file. However, if you include a <MadCap:variable name="General.changelog" style="font-style: italic;" /> twice, <MadCap:variable name="General.Liquibase" /> recognizes that the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> have already been run and will not run them again, even if you use a <code>&lt;runAlways&gt;</code> tag.</p>
         <h2>About infinite loops in <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i></h2>
         <p><MadCap:variable name="General.Liquibase" /> does not check for looping <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> in your master file. However, if you create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> loop like the following, you will get an infinite loop which will prevent the operation from completing:</p>
         <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>root.changelog.xml</code> includes <code>news.changelog.xml</code> which includes <code>root.changelog.xml</code>.</p>
-        <p>Make sure to avoid infinite loops when referencing<i> </i><MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>.</p>
-        <p>If you create an infinite loop, <MadCap:variable name="General.Liquibase"></MadCap:variable> will display the following error, and will continue to loop until the process runs out of memory: </p>
-        <p><code>Unexpected error running <MadCap:variable name="General.Liquibase" />: Unknown reason</code>
-        </p>
+        <p>Make sure to avoid infinite loops when referencing <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i>. If you create an infinite loop, <MadCap:variable name="General.Liquibase"></MadCap:variable> will display the following error, and will continue to loop until the process runs out of memory:</p><pre><code class="language-text">Unexpected error running <MadCap:variable name="General.Liquibase" />: Unknown reason</code></pre>
         <h2>Available attributes</h2>
         <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
@@ -80,7 +76,7 @@
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>context</code>
                     </td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
-                        <p>Appends a context (using an AND statement) to all contained <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
+                        <p>Appends a context (using an <code>AND</code> statement) to all contained <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
                         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Contexts only work with the <code>&lt;include&gt;</code> tag when referencing non-SQL files.</p>
                         <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>&lt;include file="dbchangelog_roll-forward.xml" context="DEV"/&gt;</code>
                         </p>
