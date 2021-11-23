@@ -1,4 +1,4 @@
-Get-ChildItem "C:\Users\nmelny\Documents\My Projects\LiquibasePro\Output\nmelny\HTML5" *.htm -recurse |
+Get-ChildItem "C:\Users\nmelny\OneDrive - SoftServe, Inc\Documents\My Projects\LiquibasePro\Output\nmelny\HTML5" *.htm -recurse |
     Foreach-Object {
         # Note:
         #  * the use of -Encoding Utf8 to first try to read the file as UTF-8.
