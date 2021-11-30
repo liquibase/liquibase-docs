@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Generic Object Quality Check | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/commands/community/quality-checks/generic-object.html" />
+        <meta name="description" content="Reference information and use cases for the generic object quality check. The generic object quality check lets you verify whether multiple objects in your database adhere to naming conventions you specify." />
+    </head>
+    <body>
+        <h1>Generic Object Quality Check</h1>
+        <p>The generic object quality check lets you verify whether objects in your database adhere to naming conventions you specify. You can use it to test multiple types of objects at the same time, rather than creating individual checks for each one.</p>
+        <p>The name of the generic object check depends on what kind of search you want to make:</p>
+        <ul>
+            <li><code>--check-name=ObjectNameMustMatch</code> specifies a positive search</li>
+            <li><code>--check-name=ObjectNameMustNotMatch</code> specifies a negative search</li>
+        </ul>
+        <p><MadCap:variable name="General.Liquibase" /> supports both generic checks on the following objects:</p>
+        <ul>
+            <li><code>TABLE</code>
+            </li>
+            <li><code>COLUMN</code>
+            </li>
+            <li><code>SEQUENCE</code>
+            </li>
+        </ul>
+        <h2>Using the generic object check</h2>
+        <p>You can create a new generic object check with the following command:</p><pre>liquibase checks copy --check-name=[ObjectNameMustMatch|ObjectNameMustNotMatch]</pre>
+        <p><MadCap:variable name="General.Liquibase" /> then asks how you want to configure the check attributes. Here is an example of the configuration prompts in the CLI:</p><pre xml:space="preserve"><code class="language-text">Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [ObjectNameMustMatch1]:
+New check 'ObjectNameMustMatch1' created from 'ObjectNameMustMatch'
+Set the Severity to return a code of 0-4 when triggered. (options: 'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4 )? [INFO]:
+Set 'OPERATOR' (options: STARTS_WITH, ENDS_WITH, CONTAINS, REGEXP)  [STARTS_WITH]:
+Set 'SEARCH_STRING' (options: a string, or a valid regular expression) : helloworld
+Set 'OBJECT_TYPES' to check, separated by commas (options: TABLE, COLUMN, SEQUENCE) : table,column
+Set 'CASE_SENSITIVE' (options: true, false)  [true]:</code></pre>
+        <p>You can edit your check later with the <code>liquibase checks customize</code> command. To validate your <MadCap:variable name="General.changelog" style="font-style: italic;" /> with the generic object check, run the following command:</p><pre xml:space="preserve"><code class="language-text">liquibase checks run</code></pre>
+        <h2>Generic object check attributes</h2>
+        <table style="width: 100%;mc-table-style: url('../../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Parameter</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Type</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Description</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Options/Validation</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Default</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>Operator</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">String/enum</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">The location to look for the provided <code>SearchString</code> value</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><b>Options:</b>
+                        </p>
+                        <p><code>startsWith</code>: <code>SearchString</code> provided is at the beginning of the label</p>
+                        <p><code>endsWith</code>: <code>SearchString</code> provided is at the end of the label</p>
+                        <p><code>contains</code>: <code>SearchString</code> provided can be anywhere in the label</p>
+                        <p><code>regexp</code>: <code>SearchString</code> provided is a regular expression</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>startsWith</code>
+                    </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>SearchString</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">String</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">The substring or regular expression to match. Cannot be empty</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p><b>Validation:</b>
+                        </p>
+                        <p>When <code>operator=REGEXP</code>, <code>SearchString</code> must be a valid regular expression. Otherwise, all characters are allowed</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">None</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>CaseSensitive</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">String</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">Set how the <code>SearchString</code> is processed</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">
+                        <p><b>Options:</b>
+                        </p>
+                        <p><code>true</code>: <code>SearchString</code> is case-sensitive</p>
+                        <p><code>false</code>: <code>SearchString</code> is not case-sensitive</p>
+                        <p><b>Validation:</b>
+                        </p>
+                        <p>When <code>operator=REGEXP</code>, <code>CaseSensitive</code> prompt is not shown</p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1"><code>true</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Generic check example output</h2><pre><code class="language-text">+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+| #   | Check Name                     | Short Name                 | Description                    | Enabled | Customization                  | Severity |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+| 80  | Object name pattern match      | ObjectNameMustMatch1       | This check confirms the listed | true    | OPERATOR = STARTS_WITH         | 0        |
+|     |                                |                            | object names conform to the    |         | SEARCH_STRING = helloworld     |          |
+|     |                                |                            | supplied pattern               |         | OBJECT_TYPES = TABLE,COLUMN    |          |
+|     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+</code></pre>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../../../concepts/advanced/quality-checks.htm">Quality Checks</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../concepts/advanced/getting-started-with-the-checks-command.htm">Getting Started with the checks Command</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
