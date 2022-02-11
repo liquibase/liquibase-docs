@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using Liquibase with Interbase | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/interbase.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Interbase." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with InterBase</h1>
+        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with InterBase. In this tutorial, you will learn how to install the required database drivers and configure the <code><MadCap:variable name="General.liquiPropFile" /></code> file to establish a database connection to InterBase.</p>
+        <p>InterBase is not one of the supported databases of <MadCap:variable name="General.Liquibase" />. However, <MadCap:variable name="General.Liquibase" /> provides an extension for the basic database operations, including:</p>
+        <ul>
+            <li><code>AddColumn</code>
+            </li>
+            <li><code>CreateTable</code>
+            </li>
+            <li><code>CreateView</code>
+            </li>
+            <li><code>DropColumn</code>
+            </li>
+            <li><code>DropPrimaryKey</code>
+            </li>
+            <li><code>GetViewDefinition</code> (internal)</li>
+            <li><code>ModifyDataType</code>
+            </li>
+            <li><code>RenameColumn</code>
+            </li>
+        </ul>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li> Ensure that you have <a href="../liquibase-windows.htm">Installed [%=General.Liquibase%]</a>.</li>
+            <li>Ensure that the <MadCap:variable name="General.Liquibase" /> executable location is in the <code>PATH</code> environment variable.</li>
+            <li>Copy the JDBC driver for InterBase into the <code>liquibase/lib</code> directory so that it will automatically be located when executing <MadCap:variable name="General.Liquibase" /> commands. You can also place it in any other known directory so you can locate it easily. The driver is automatically installed as a part of InterBase.</li>
+            <li> <a href="https://github.com/Gtunali/Liqubase-interbase/blob/master/jar/liquibase-interbase-1.2.0.jar">Download an InterBase DB extension for <MadCap:variable name="General.Liquibase" /></a>.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Place the extension jar file in the <code>liquibase/lib</code> install directory. <br />Also, if you use Maven, reference the dependency extension <code>.jar</code> file locally. For more information, see <MadCap:xref href="../../tools-integrations/maven/maven-pom-file.htm">Configuring [%=General.Liquibase%] [%=General.Param/Attr/Uppercased%]s in your Maven POM File</MadCap:xref>.</p>
+        <h2>Tutorial</h2>
+        <p style="font-weight: bold;">To create a <MadCap:variable name="General.Liquibase" /> project with InterBase, perform the following steps:</p>
+        <ol>
+            <li>Create a new project folder and name it <code>LiquibaseInterBase</code>.</li>
+            <li>In your <code>LiquibaseInterBase</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile" /></code>.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about the <code><MadCap:variable name="General.liquiPropFile" /></code> file, see <a href="https://docs.liquibase.com/workflows/liquibase-community/creating-config-properties.html"><MadCap:xref href="../../workflows/liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref></a>.</p>
+        <ol start="3">
+            <li>Edit the <code><MadCap:variable name="General.liquiPropFile" /></code> file to add the following properties:</li>
+        </ol><pre><code class="language-text">changeLogFile: dbchangelog.xml
+url: jdbc:interbase://localhost:3050/interbase/testdb.ib
+username: user1
+password: password
+driver: interbase.interclient.Driver
+classpath: ../../Liquibase_Drivers/interclient.jar</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Specifying your password, take into account that <MadCap:variable name="General.Liquibase" /> supports only the following special characters: <code>~ # $ % * ( ) - _ + [ ] { } . ?</code>. Unsupported special characters are as follows: <code>@ &amp; / : &lt; &gt; " ' ` | ^ ! = , \ &lt;spaces&gt;</code>.</p>
+        <p>Use the following format for the <code>url</code> property:</p><pre><code class="language-text">jdbc:interbase://&lt;server&gt;/&lt;full_db_path&gt;</code></pre>
+        <ul>
+            <li> If you placed your jar file in the <code>liquibase/lib</code> install directory, there is no need to specify the <code>classpath</code> property in the <code><MadCap:variable name="General.liquiPropFile" /></code> file. Otherwise, put the path to your driver as it is shown in the preceding example.</li>
+            <li> If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile" /></code> file:</li>
+        </ul><pre><code class="language-text">liquibaseProLicenseKey: &lt;paste license key&gt;</code></pre>
+        <ol start="4">
+            <li>Create a <MadCap:xref href="../../concepts/changelogs/working-with-changelogs.html" style="font-style: italic">[%=General.changelog%]</MadCap:xref> file. The <MadCap:variable name="General.changelog" style="font-style: italic;" /> files contain a sequence of <i><MadCap:variable name="General.changeset" />s</i>, each of which makes small changes to the structure of your database. <MadCap:variable name="General.Liquibase" /> provides a <MadCap:variable name="General.changelog" style="font-style: italic;" /> template located at <code>$LIQUIBASE_HOME/examples/xml/blank.changelog.xml</code>. Copy the  <code>blank.changelog.xml</code> file to your <code>LiquibaseInterBase</code> folder and rename it to <code>dbchangelog.xml</code>. Each version of <MadCap:variable name="General.Liquibase" /> will have an updated XML schema, so use the one that matches the version of <MadCap:variable name="General.Liquibase" /> you have installed. The contents of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be similar to the following:</li>
+        </ol><pre><code class="language-xml">&lt;?xml version="1.0"  encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+	 xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xmlns:pro="http://www.liquibase.org/xml/ns/pro"				
+	 xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+	 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
+	 http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;	
+&lt;/databaseChangeLog&gt;</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The preceding <MadCap:variable name="General.changelog" style="font-style: italic;" /> is XML format. The corresponding SQL <MadCap:variable name="General.changelog" style="font-style: italic;" /> statement looks like the following:</p><pre><code class="language-sql">--liquibase formatted sql</code></pre>
+        <ol start="5">
+            <li>Verify the project configuration. Run the <code>status</code> command to verify that the configuration is complete. Open a command prompt and navigate to the project folder <code>LiquibaseInterBase</code>. Run the command as follows:</li>
+        </ol><pre><code class="language-text">liquibase status</code></pre>
+        <ol start="6">
+            <li>Verify that the <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tables were created. From a database UI Tool, check your new <MadCap:variable name="General.Liquibase" /> tables.</li>
+        </ol>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/TrackingTablesDatabaseSetup.flsnp" />
+        <h2>Congratulations!</h2>
+        <p>You have successfully configured your project and can begin creating <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to migrate changes to your database. For more information on how to create <i><MadCap:variable name="General.changeset" />s</i>, see <a href="https://docs.liquibase.com/concepts/basic/changeset.html"><MadCap:xref href="../../concepts/changelogs/changelog-formats.html" style="font-style: italic">[%=General.changeset%]</MadCap:xref></a>.</p>
+        <h2>See also</h2>
+        <ul>
+            <li><a href="http://docwiki.embarcadero.com/InterBase/2020/en/Main_Page">InterBase documentation</a>
+            </li>
+            <li><a href="https://docs.liquibase.com/concepts/home.html"><MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref></a>
+            </li>
+            <li><a href="https://docs.liquibase.com/commands/home.html"><MadCap:xref href="../../commands/home.htm">Liquibase Commands</MadCap:xref></a>
+            </li>
+        </ul>
+    </body>
+</html>

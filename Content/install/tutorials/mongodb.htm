@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using Liquibase with MongoDB | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/mongodb.html" />
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with MongoDB." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with MongoDB</h1>
+        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with MongoDB. In this tutorial, you will generate an example project and follow the instructions to apply and learn concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with MongoDB.</p>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>Ensure that you have <a href="../liquibase-windows.htm">Installed [%=General.Liquibase%]</a>.</li>
+            <li>Ensure the <MadCap:variable name="General.Liquibase" /> install directory path is set to a location in the <code>PATH</code> environment variable.</li>
+            <li>Download the <a href="https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver">MongoDB JDBC jar file</a>.</li>
+            <li>Download the latest released <a href="https://github.com/liquibase/liquibase-mongodb/releases/"><MadCap:variable name="General.Liquibase" /> extension jar file for MongoDB</a>.</li>
+            <li>Place the two jar files in the <code>liquibase/lib</code> install directory.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Maven, you also need to download the <code> .jar</code> file from the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-mongodb">Maven repository</a>. Additionally, specify the <MadCap:variable name="General.Liquibase" /> extension in your <code>pom.xml</code> file by referring to <MadCap:xref href="../../tools-integrations/maven/maven-pom-file.htm">Configuring [%=General.Liquibase%] [%=General.Param/Attr/Uppercased%]s in your Maven POM File</MadCap:xref> and make sure that the <MadCap:variable name="General.Liquibase" /> plugin and the extension have the same version.</p>
+        <h2>Tutorial</h2>
+        <p>To create a <MadCap:variable name="General.Liquibase" /> project with MongoDB on your machine, begin with the following steps:</p>
+        <ol>
+            <li>Create a new project folder and name it <code>LiquibaseProj</code>.</li>
+            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>dbchangelog.xml</code>.</li>
+            <li>Open the <code>dbchangelog.xml</code> file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</li>
+        </ol><pre><code class="language-xml">&lt;?xml version="1.0"  encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"			
+	xmlns:pro="http://www.liquibase.org/xml/ns/pro"				
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+	http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd
+	http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd			
+    http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.0.xsd"&gt;	
+&lt;/databaseChangeLog&gt;</code></pre>
+        <ol MadCap:continue="true">
+            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code>.</li>
+            <li>Edit the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code>  file to add the following properties:</li><pre xml:space="preserve"><code class="language-html">changeLogFile: dbchangelog.xml
+url: mongodb://hostname:27017/myDatabase
+username: username
+password: password</code></pre>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you are unsure about how to configure the <code>url</code> property, refer to <a href="https://docs.mongodb.com/manual/reference/connection-string/">Connection String URI Format</a>. Also, while <MadCap:variable name="General.Liquibase" /> allows for user authentication information (username and password) to be stored in the <code><MadCap:variable name="General.liquiPropFile" /></code> file, it is recommended that user credentials are stored in a secure credential repository or entered in the CLI when running a command.</p>
+        <ol MadCap:continue="true">
+            <li>Add a <MadCap:variable name="General.changeset" style="font-style: italic;" /> to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> – <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are uniquely identified by <code>author</code> and <code>id</code> <MadCap:variable name="General.Param/Attribute" />s. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end.
+In the <code>dbchangelog.xml</code> file, add a new collection <code>myCollection</code> <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> as follows:</li><pre><code class="language-json">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+xmlns:pro="http://www.liquibase.org/xml/ns/pro"					
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd
+http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.0.xsd"&gt;
+
+&lt;changeSet id="1" author="bob"&gt;
+	&lt;ext:createCollection collectionName="myCollection"&gt;
+		&lt;ext:options&gt;
+		{
+		validator: {
+			$jsonSchema: {
+				bsonType: "object",
+				required: ["name", "address"],
+				properties: {
+					name: {
+					bsonType: "string",
+					description: "The Name"
+					},
+			address: {
+				bsonType: "string",
+				description: "The Address"
+						}
+					}
+				}
+			},
+			validationAction: "warn",
+			validationLevel: "strict"
+			}
+			&lt;/ext:options&gt;
+		&lt;/ext:createCollection&gt;
+	&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            <li>Open the command prompt. Navigate to the <code>LiquibaseProj</code> directory.<br />Run the following command: <code>liquibase update</code></li>
+            <li>From MongoDB Compass Community Tool User Interface, check your database changes under <code>myDatabase</code>.
+You should see a new <code>myCollection</code> collection added to the database. For example:</li>
+        </ol><pre xml:space="preserve"><code class="language-sql">use myDatabase</code></pre><pre xml:space="preserve"><code class="language-sql">db.myCollection.find()</code></pre>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">NAME</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">NULL</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Also, you should see two more collections:</p>
+        <ul>
+            <li><strong><MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref></strong> – This collection keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were deployed. This way, next time when you deploy again, the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be compared with the <MadCap:variable name="General.databasechangelog" /> tracking collection and only the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog" /> will be deployed. You will notice that a new data set was created in that table with the <MadCap:variable name="General.changeset" style="font-style: italic;" /> information we have just deployed.
+For this example:</li>
+        </ul><pre xml:space="preserve"><code class="language-sql">db.databaseChangeLog.find()</code></pre>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">AUTHOR</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">FILENAME</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">DATEEXECUTED</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ORDEREXECUTED</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">EXECTYPE</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">MDSUM</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">…</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">bob</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">dbchangelog.sql</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">date&amp;time</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">EXECUTED</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">checksumvalue</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">…</td>
+                </tr>
+            </tbody>
+        </table>
+        <ul>
+            <li><strong><MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref></strong> – This collection is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> collection during deployment.</li>
+        </ul>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>MongoDB Commands Examples</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/reference/method/db.createCollection/#db.createCollection">createCollection</a> creates a collection with the validator.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="1" author="liquibase"&gt;
+    &lt;ext:createCollection collectionName="myCollection"&gt;
+        &lt;ext:options&gt;
+        {
+        validator: {
+            $jsonSchema: {
+                bsonType: "object",
+                required: ["name", "address"],
+		 		properties: {
+	                name: {
+		    	    bsonType: "string",
+		    	    description: "The Name"
+		    		},
+  	    	address: {
+			bsonType: "string",
+			description: "The Address"
+				}
+		      }
+		    }
+		  },
+		  validationAction: "warn",
+		  validationLevel: "strict"
+		  }
+		  &lt;/ext:options&gt;
+	     &lt;/ext:createCollection&gt;
+	&lt;/changeSet&gt;
+</code></pre>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/reference/method/db.collection.drop/#db-collection-drop">dropCollection</a> removes a collection or view from the database.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="1" author="liquibase"&gt;
+    &lt;ext:dropCollection collectionName="myCollection"&gt;
+&lt;/changeSet&gt;
+</code></pre>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex">createIndex</a> creates an index for a collection.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="1" author="liquibase"&gt;
+     &lt;ext:createIndex collectionName="createIndexTest"&gt;
+          &lt;ext:keys&gt;
+               { clientId: 1, type: 1}
+	      &lt;/ext:keys&gt;
+	      &lt;ext:options&gt;
+	           {unique: true, name: "ui_tppClientId"}
+          &lt;/ext:options&gt;
+     &lt;/ext:createIndex&gt;
+
+     &lt;ext:createIndex collectionName="createIndexNoOptionsTest"&gt;
+          &lt;ext:keys&gt;
+               { clientId: 1, type: 1}
+          &lt;/ext:keys&gt;
+        &lt;/ext:createIndex&gt;
+    &lt;/changeSet&gt;</code></pre>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/reference/method/db.collection.dropIndex/#db.collection.dropIndex">dropIndex</a> drops an index for a collection by keys.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="1" author="liquibase"&gt;
+     &lt;ext:dropIndex collectionName="createIndexTest"&gt;
+         &lt;ext:keys&gt;
+             { clientId: 1, type: 1}
+	     &lt;/ext:keys&gt;
+	     &lt;ext:options&gt;
+	         {unique: true, name: "ui_tppClientId"}
+	     &lt;/ext:options&gt;
+     &lt;/ext:dropIndex&gt;
+
+     &lt;ext:dropIndex collectionName="createIndexNoOptionsTest"&gt;
+	     &lt;ext:keys&gt;
+	         { clientId: 1, type: 1}
+	     &lt;/ext:keys&gt;
+       &lt;/ext:dropIndex&gt;
+    &lt;/changeSet&gt;</code></pre>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/reference/method/db.collection.insertMany/#db.collection.insertMany">insertMany</a> inserts multiple documents into a collection.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="1" author="liquibase"&gt;
+     &lt;ext:insertMany collectionName="insertManyTest1"&gt;
+         &lt;ext:documents&gt;
+	  			[
+	  			{ id: 2 },
+	  			{ id: 3,
+	    	  	  address: { nr: 1, ap: 5}
+	  			}
+	  			]
+         &lt;/ext:documents&gt;
+  	   &lt;/ext:insertMany&gt;
+	&lt;/changeSet&gt;</code></pre>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/tutorial/insert-documents/#insert-a-single-document">insertOne</a> inserts a single document into a collection.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="1" author="liquibase"&gt;
+     &lt;ext:insertOne collectionName="insertOneTest1"&gt;
+         &lt;ext:document&gt;
+	  			{
+	  			id: 111
+	  			}
+	  	&lt;/ext:document&gt;
+     &lt;/ext:insertOne&gt;
+ &lt;/changeSet&gt;
+
+&lt;changeSet id="2" author="liquibase"&gt;
+    &lt;ext:insertOne collectionName="insertOneTest2"&gt;
+        &lt;ext:document&gt;
+        	    {
+        	    id: 2
+                }
+        &lt;/ext:document&gt;
+    &lt;/ext:insertOne&gt;
+
+    &lt;ext:insertOne collectionName="insertOneTest3"&gt;
+        &lt;ext:document&gt;
+            	{ 
+            	id: 3
+            	}
+        &lt;/ext:document&gt;
+    &lt;/ext:insertOne&gt;
+&lt;/changeSet&gt;
+
+&lt;changeSet id="3" author="liquibase"&gt;
+    &lt;ext:insertOne collectionName="insertOneTest2"&gt;
+        &lt;ext:document&gt;
+	 			{
+	 			id: 21323123
+	 			}
+	 	&lt;/ext:document&gt;
+    &lt;/ext:insertOne&gt;
+    
+    &lt;ext:insertOne collectionName="insertOneTest3"&gt;
+        &lt;ext:document&gt;
+	 			{
+	 			id: 321321313
+	 			}
+	    &lt;/ext:document&gt;
+    &lt;/ext:insertOne&gt;
+&lt;/changeSet&gt;</code></pre>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/reference/method/db.runCommand/#db-runcommand">runCommand</a> provides a helper to run specified database commands. This is the preferred method to issue database commands as it provides a consistent interface between the shell and drivers.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="1" author="liquibase"&gt;
+    &lt;ext:runCommand&gt;
+        &lt;ext:command&gt;
+	           { buildInfo: 1 }
+        &lt;/ext:command&gt;
+    &lt;/ext:runCommand&gt;
+&lt;/changeSet&gt;
+
+&lt;changeSet id="2" author="liquibase"&gt;
+    &lt;ext:adminCommand&gt;
+        &lt;ext:command&gt;
+               { buildInfo: 1 }
+        &lt;/ext:command&gt;
+   &lt;/ext:adminCommand&gt;
+&lt;/changeSet&gt;</code></pre>
+                <ul>
+                    <li><a href="https://docs.mongodb.com/manual/reference/method/db.adminCommand/#db.adminCommand">adminCommand</a> provides a helper to run specified database commands against the admin database.</li>
+                </ul><pre xml:space="preserve"><code class="language-json">&lt;changeSet id="2" author="liquibase"&gt;
+     &lt;ext:adminCommand&gt;
+         &lt;ext:command&gt;
+                { buildInfo: 1 }
+         &lt;/ext:command&gt;
+    &lt;/ext:adminCommand&gt;
+&lt;/changeSet&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>See Also</h2>
+        <ul>
+            <li style="font-weight: bold;"><a href="https://github.com/liquibase/liquibase-mongodb"><MadCap:variable name="General.Liquibase" /> MongoDB Extension</a>
+            </li>
+            <li style="font-weight: bold;"><a href="https://github.com/liquibase/liquibase-mongodb/tree/main/src/test/resources/liquibase/ext"><MadCap:variable name="General.Liquibase" /> MongoDB Extension Examples</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../workflows/liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>

@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using Liquibase with Firebird | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/firebird.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with an Firebird database." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with Firebird</h1>
+        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Firebird. In this tutorial, you will learn how to install the required database drivers and configure the <code><MadCap:variable name="General.liquiPropFile" /></code> file to establish a database connection to Firebird.</p>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>Ensure that you have <a href="../liquibase-windows.htm">Installed [%=General.Liquibase%]</a>.</li>
+            <li>Ensure that the <MadCap:variable name="General.Liquibase" /> executable location is in the <code>PATH</code> environment variable.</li>
+            <li>Ensure that you have installed the correct <a href="https://github.com/FirebirdSQL/jaybird/releases/download/v3.0.6/Jaybird-3.0.6-JDK_1.8.zip">JDBC driver .jar file</a>.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> comes with a pre-installed driver for Firebird in the <code>liquibase/lib</code> directory. For more information, see <MadCap:xref href="../../workflows/liquibase-community/adding-and-updating-liquibase-drivers.htm">Adding and Updating [%=General.Liquibase%] Drivers</MadCap:xref>.</p>
+        <h2>Tutorial</h2>
+        <p>To create a <MadCap:variable name="General.Liquibase" /> project with Firebird, perform the following steps:</p>
+        <ol>
+            <li>Create a new project folder and name it <code>LiquibaseFirebird</code>.</li>
+            <li>In your <code>LiquibaseFirebird</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile" /></code>.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information about the <code><MadCap:variable name="General.liquiPropFile" /></code> file, see <MadCap:xref href="../../workflows/liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</p>
+        <ol MadCap:continue="true">
+            <li>Edit the <code><MadCap:variable name="General.liquiPropFile" /></code> file to add the following properties:</li>
+        </ol><pre><code class="language-text">changeLogFile: dbchangelog.xml
+url: jdbc:firebirdsql://localhost:3050//firebird/data/testdb
+username: user1
+password: password
+driver: org.firebirdsql.jdbc.FBDriver
+classpath: ../../Liquibase/lib/jaybird-full-3.0.6.jar</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Specifying your password, take into account that <MadCap:variable name="General.Liquibase" /> supports only the following special characters: <code>~ # $ % * ( ) - _ + [ ] { } . ?</code>. Unsupported special characters are as follows: <code>@ &amp; / : &lt; &gt; " ' ` | ^ ! = , \ &lt;spaces&gt;</code>.</p>
+        <p>Use the following format for the <code>url</code> property:</p><pre><code class="language-text">jdbc:firebirdsql://&lt;IP/host&gt;:&lt;port&gt;//&lt;server/path/to/database&gt;</code></pre>
+        <ul>
+            <li>If you placed your JDBC driver file in the <code>liquibase/lib</code> install directory, there is no need to specify the <code>classpath</code> property in the <code><MadCap:variable name="General.liquiPropFile" /></code> file. Otherwise, put the path to your drivers as it is shown in the preceding example.</li>
+            <li>If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile" /></code> file:</li>
+        </ul><pre><code class="language-text">liquibaseProLicenseKey: &lt;paste license key&gt;</code></pre>
+        <ol start="4">
+            <li>Create a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file. The <MadCap:variable name="General.changelog" style="font-style: italic;" /> files contain a sequence of <i><MadCap:variable name="General.changeset" />s</i>, each of which makes small changes to the structure of your database. For more information, see <MadCap:xref href="../../concepts/changelogs/working-with-changelogs.html" style="font-style: italic;">[%=General.changelog%]</MadCap:xref>. <MadCap:variable name="General.Liquibase" /> provides a <MadCap:variable name="General.changelog" style="font-style: italic;" /> template located at <code>$LIQUIBASE_HOME/examples/xml/blank.changelog.xml</code>. Copy the  <code>blank.changelog.xml</code> file to your <code>LiquibaseFirebird</code> folder and rename it to <code>dbchangelog.xml</code>. Each version of <MadCap:variable name="General.Liquibase" /> will have an updated XML schema, so use the one that matches the version of <MadCap:variable name="General.Liquibase" /> you have installed. The contents of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be similar to the following:</li>
+        </ol>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/ChangelogExamples.flsnp" />
+        <ol MadCap:continue="true">
+            <li>Verify the project configuration. Run the <code>status</code> command to verify that the configuration is complete. Open a command prompt and navigate to the project folder <code>LiquibaseFirebird</code>. Run the command as follows:</li>
+        </ol><pre><code class="language-text">liquibase status</code></pre>
+        <ol start="6">
+            <li>Verify that the <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tables were created. From a database UI Tool, check your new <MadCap:variable name="General.Liquibase" /> tables.</li>
+        </ol>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/TrackingTablesDatabaseSetup.flsnp" />
+        <h2>Congratulations!</h2>
+        <p>You have successfully configured your project and can begin creating <i><MadCap:variable name="General.changeset" />s</i> to migrate changes to your database. For more information on how to create <i><MadCap:variable name="General.changeset" />s</i>, see <MadCap:xref href="../../concepts/changelogs/changelog-formats.html" style="font-style: italic;">[%=General.changeset%]</MadCap:xref>.</p>
+        <h2>Troubleshooting issues with the <code>update</code> command</h2>
+        <p>If you run the <code>update</code> command to deploy your <i><MadCap:variable name="General.changeset" />s</i> and receive the error message related to the <MadCap:variable name="General.databasechangeloglock" /> table issue, manually create the <MadCap:variable name="General.databasechangeloglock" /> table using <code>SMALLINT</code> type instead of <code>BOOLEAN</code>:</p><pre><code class="language-sql">CREATE TABLE DATABASECHANGELOGLOCK (ID VARCHAR(255) NOT NULL, LOCKED SMALLINT NOT NULL, LOCKGRANTED TIMESTAMP, LOCKEDBY VARCHAR(255));</code></pre>
+        <h2>See also</h2>
+        <ul>
+            <li><a href="https://firebirdsql.org/en/reference-manuals/">Firebird documentation</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Liquibase Commands</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>

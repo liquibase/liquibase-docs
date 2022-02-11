@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using Liquibase with Vertica | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/vertica.html" />
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Vertica." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with Vertica</h1>
+        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Vertica. In this tutorial, you will generate an example project and follow the instructions to apply and learn concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with Vertica.</p>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>Ensure you have <a href="../liquibase-windows.htm">Installed [%=General.Liquibase%]</a>.</li>
+            <li>Ensure the <MadCap:variable name="General.Liquibase" /> install directory path is set to a location in the <code>PATH</code> environment variable.</li>
+            <li>Download the <a href="https://www.vertica.com/download/vertica/client-drivers/">Vertica JDBC jar driver file</a>.</li>
+            <li>Download the latest <a href="https://github.com/liquibase/liquibase-vertica/releases"><MadCap:variable name="General.Liquibase" /> extension jar file for Vertica</a>.</li>
+            <li>Place the two jar files in the <code>liquibase/lib</code> install directory.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Maven, you also need to download the  <code>.jar</code> file from the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-verticaDatabase">Maven repository</a>. Additionally, specify the <MadCap:variable name="General.Liquibase" /> extension in your <code>pom.xml</code> file by referring to <MadCap:xref href="../../tools-integrations/maven/maven-pom-file.htm">Configuring [%=General.Liquibase%] [%=General.Param/Attr/Uppercased%]s in your Maven POM File</MadCap:xref> and make sure that the <MadCap:variable name="General.Liquibase" /> plugin and the extension have the same version.</p>
+        <h2>Tutorial</h2>
+        <p>To create a <MadCap:variable name="General.Liquibase" /> project with Vertica on your machine, begin with the following steps:</p>
+        <ol>
+            <li>Create a new project folder and name it <code>LiquibaseProj</code>.</li>
+            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>dbchangelog.sql</code>.</li>
+            <li>Open the d<code>bchangelog.sql</code> file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</li>
+        </ol><pre><code class="language-sql">--liquibase formatted sql</code></pre>
+        <ol MadCap:continue="true">
+            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>liquibase.properties</code>.</li>
+            <li>Edit the <code>liquibase.properties</code> file to add the following properties:</li><pre><code class="language-html">changeLogFile: dbchangelog.sql
+url: jdbc:vertica://localhost:5433/docker
+username: dbadmin
+driver: com.vertica.jdbc.Driver
+password: password</code></pre>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to your project, add the following property to your <MadCap:variable name="General.liquiPropFile" />. Ex: <code>liquibaseProLicenseKey: &lt;paste code here&gt;</code>.</p>
+        <ol MadCap:continue="true">
+            <li>Add a <MadCap:variable name="General.changeset" style="font-style: italic;" /> to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> – <MadCap:variable name="General.changeset" style="font-style: italic;" /> are uniquely identified by <code>author</code> and <code>id</code> attributes. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end.
+In the <code>dbchangelog.sql</code> file line 3 add a new “department” create table change set as follows:</li><pre><code class="language-sql">
+--liquibase formatted sql
+
+--changeset bob:1
+CREATE TABLE "DEPARTMENT" ("ID" INTEGER, "NAME" CHAR(20), "ACTIVE" BOOLEAN);</code></pre>
+            <li>Open the command prompt. Navigate to the <code>LiquibaseProj</code> directory.<br />Run the following command: <code>liquibase update</code></li>
+            <li>From SQL Developer Tool User Interface, check your database changes under “<strong>public schema</strong>”.
+You should see a new “<strong>department</strong>” table added to the database. For example:</li>
+        </ol><pre><code class="language-sql">SELECT * FROM "public"."DEPARTMENT";</code></pre>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">NAME</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">ACTIVE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">NULL</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">NULL</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/TrackingTablesDatabaseSetup.flsnp" />
+    </body>
+</html>

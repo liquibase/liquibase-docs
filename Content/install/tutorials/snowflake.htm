@@ -1,0 +1,760 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with Snowflake | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/snowflake.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Snowflake." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with Snowflake</h1>
+        <p><a href="https://www.snowflake.com/">Snowflake</a> enables data storage, processing, and analytic solutions and runs on the cloud infrastructure. Snowflake is a software-as-a-service (SaaS) offering:</p>
+        <ul>
+            <li>There is no hardware (virtual or physical) to select, install, configure, or manage.</li>
+            <li>There is virtually no software to install, configure, or manage.</li>
+            <li>Ongoing maintenance, management, upgrades, and tuning are handled by Snowflake.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://docs.snowflake.com/en/user-guide-intro.html">Snowflake documentation page</a>.</p>
+        <h2>Supported Versions</h2>
+        <ul>
+            <li>	5.24.0</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The supported version is the version that was tested with <MadCap:variable name="General.Liquibase" /> Test Harness.</p>
+        <h2>Prerequisites</h2>
+        <p>Before using <MadCap:variable name="General.Liquibase" /> and Snowflake, ensure you have done the following:</p>
+        <ul>
+            <li><a href="../liquibase-windows.htm">Installed [%=General.Liquibase%]</a>.</li>
+            <li>Created a <MadCap:variable name="General.Liquibase" /> project folder to store all <MadCap:variable name="General.Liquibase" /> files.</li>
+            <li>Created a new <code><MadCap:variable name="General.liquiPropFile" /></code> file or are using the existing <code><MadCap:variable name="General.liquiPropFile" /></code> file included in the installation package. For more information, see <MadCap:xref href="../../workflows/liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</li>
+        </ul>
+        <h2>Driver Information</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Snowflake, you need to have two jar files – the JDBC and the <MadCap:variable name="General.Liquibase" /> Snowflake extension:</p>
+        <ol>
+            <li>Ensure you have downloaded the <a href="https://docs.snowflake.com/en/user-guide/jdbc-download.html">Snowflake JDBC driver jar</a> file to connect to the Snowflake database. To download the Snowflake driver jar file, go to the <a href="https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/">Maven Central Repository</a> and select the version you need.</li>
+            <li>Place the <code>snowflake-jdbc-&lt;version&gt;.jar</code> file in the <code>liquibase/lib</code> directory.</li>
+            <li>Open the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file and specify the driver value in it:</li><pre><code class="language-text">driver: net.snowflake.client.jdbc.SnowflakeDriver</code></pre>
+            <li>Go to the <a href="https://github.com/liquibase/liquibase-snowflake">liquibase-snowflake</a> repository and <a href="https://github.com/liquibase/liquibase-snowflake/releases">download the latest released <MadCap:variable name="General.Liquibase" /> extension</a> <code>liquibase-snowflake-&lt;version&gt;.jar</code> file.</li>
+            <li>Place the <code>liquibase-snowflake-&lt;version&gt;.jar</code> file in the <code>liquibase/lib</code> directory.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	If you put the <code>snowflake-jdbc-&lt;version&gt;.jar</code> and <code>liquibase-snowflake-&lt;version&gt;.jar</code> files in any other directory, specify the path to them in the <code><MadCap:variable name="General.liquiPropFile" /></code> file: <code>classpath:../path_to_drivers/snowflake-jdbc-&lt;version&gt;.jar; liquibase-snowflake-&lt;version&gt;.jar</code>. For more information, see <MadCap:xref href="../../workflows/liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</p>
+        <ol start="6">
+            <li>Install the <a href="https://docs.snowflake.com/en/user-guide/java-install.html#installing-the-jce-unlimited-strength-jurisdiction-policy-files-for-oracle-java">JCE Unlimited Strength Jurisdiction Policy Files for Oracle Java</a> if you use Oracle Java and need to encrypt stage files using 256-bit keys. After you download the zip file, which contains a <code>README.txt</code> file and two <code>.jar</code> files, put the two <code>.jar</code> files in the <code>jre/lib/security</code> subdirectory of your Java installation.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	The JDBC driver uses the AES specification to encrypt files uploaded to Snowflake stages. The JDBC driver automatically encrypts staged files using 128-bit keys. However, to use 256-bit keys instead of the default 128-bit keys for encryption of staged files, follow the <a href="https://docs.snowflake.com/en/user-guide/java-install.html">Java Requirements for JDBC Driver</a> documentation.</p>
+        <p>If you use Maven, you also need to <a href="https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/">download the Snowflake driver jar file</a> and put the driver in a location that your Maven build can access. Configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre><code class="language-text">&lt;dependency&gt;
+&lt;groupId&gt;net.snowflake&lt;/groupId&gt;
+&lt;artifactId&gt;snowflake-jdbc&lt;/artifactId&gt;
+&lt;version&gt;4.0.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <p>Additionally, you need to specify the <MadCap:variable name="General.Liquibase" /> Snowflake extension in your <code>pom.xml</code> file as explained in <MadCap:xref href="../../tools-integrations/maven/maven-pom-file.htm">Configuring [%=General.Liquibase%] [%=General.Param/Attr/Uppercased%]s in your Maven POM File</MadCap:xref>. Make sure that the <MadCap:variable name="General.Liquibase" /> plugin and the extension have the same version.</p><pre><code class="language-text">&lt;dependency&gt;
+&lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+&lt;artifactId&gt;liquibase-snowflake&lt;/artifactId&gt;
+&lt;version&gt;4.4.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h2>Testing Your Connection</h2>
+        <p>For <MadCap:variable name="General.Liquibase" /> and Snowflake to work, you need to:</p>
+        <ol>
+            <li>Ensure your Snowflake database is configured. To validate that Snowflake is available, you can use the <a href="https://docs.snowflake.com/en/user-guide/snowsql-use.html">SnowSQL CLI tool</a> and run <code>connect</code>. You can also log into the Snowflake console in your browser to validate that the instance is running. The browser link is different for each Snowflake instance, but the format is the following: <code>https://&lt;cloudHostName&gt;.snowflakecomputing.com</code>. You will receive an email with the link when the database is ready for use.</li>
+            <li>Specify the database URL in your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file:</li><pre><code class="language-text">url: jdbc:snowflake://&lt;account_ID&gt;.snowflakecomputing.com/?&lt;connection_params&gt;</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The account ID is the host name for your Snowflake instance. Snowflake sends an email with the URL to the host. The JDBC driver only needs the hostname, not the full URL: <code>tn12345.us-east-1.snowflakecomputing.com</code>.</p>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">Depending on the cloud provider you select during the database creation, your domain name will be different. The example is for an AWS cloud instance: <code>jdbc:snowflake://tn12345.us-east-1.snowflakecomputing.com/?db=lbcat&amp;schema=public</code>.</p>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">	If you already have a <MadCap:variable name="General.LBPro"></MadCap:variable> key and want to apply it to your project, add the following property to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file: <code>liquibaseProLicenseKey: &lt;paste license key&gt;</code>.</p>
+        </ol>
+        <ol start="3">
+            <li>Create a text file called <MadCap:xref href="../../concepts/changelogs/working-with-changelogs.html" style="font-style: italic">[%=General.changelog%]</MadCap:xref> (<code>.xml</code>, <code>.sql</code>, <code>.json</code>, or <code>.yaml</code>) in your project directory and add a <MadCap:xref href="../../concepts/changelogs/changelog-formats.html" style="font-style: italic">[%=General.changeset%]</MadCap:xref>.</li>
+        </ol>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/ChangelogExamples.flsnp" />
+        <ol start="4">
+            <li>Run the <code>status</code> command to see whether the connection is successful. Specify the name of the <MadCap:variable name="General.changelog" style="font-style: italic;"></MadCap:variable> you created in place of <code>changelog.xml</code>. Also, to run <MadCap:variable name="General.Liquibase"></MadCap:variable> commands, you need to specify your username and password in the <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file or on the command line. However, the username and password <MadCap:variable name="General.Param/Attribute"></MadCap:variable>s are not required for connections and systems which use alternate means of authentication.</li><pre><code class="language-text">liquibase --username=test --password=test --changeLogFile=changelog.xml status</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Alternatively, you can add the <code>changeLogFile</code> <MadCap:variable name="General.Param/Attribute"></MadCap:variable> to your <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file.</p>
+        </ol>
+        <ol start="5">
+            <li>Run your first update with the <MadCap:variable name="General.Liquibase"></MadCap:variable> <MadCap:xref href="../../commands/update.html">update</MadCap:xref> command, which will make changes to your database. You can also run the <MadCap:xref href="../../commands/updateSQL.htm">updateSQL</MadCap:xref> command if you want to inspect the SQL before running the <code>update</code> command.</li><pre xml:space="preserve"><code class="language-text">liquibase --changeLogFile=changelog.xml updateSQL
+liquibase --changeLogFile=changelog.xml update</code></pre>
+        </ol>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/TrackingTablesDatabaseSetup.flsnp" />
+        <h2>Supported Commands and <MadCap:variable name="General.changetypes" />s</h2>
+        <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes"></MadCap:variable>
+                    </th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Supported</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Command</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Supported</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-auto-increment.html">addAutoIncrement</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/calculateCheckSum.html">calculateCheckSum</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-check-constraint.html">addCheckConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported (the object  does not exist on the Snowflake database)</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/changelogSync.htm">changelogSync</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-column.html">addColumn</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/changelogSyncSQL.htm">changelogSyncSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-default-value.html">addDefaultValue</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/changelogSyncToTag.htm">changelogSyncToTag</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-foreign-key-constraint.html">addForeignKeyConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/changelogSyncToTagSQL.htm">changelogSyncToTagSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-lookup-table.html">addLookupTable</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/clearCheckSums.htm">clearCheckSums</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-not-null-constraint.html">addNotNullConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/dbDoc.html">dbDoc</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-primary-key.html">addPrimaryKey</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/deactivateChangeLog.htm">deactivateChangeLog</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/add-unique-constraint.html">addUniqueConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/diff.htm">diff</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/alter-sequence.html">alterSequence</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/diff-json.htm">diff JSON</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-function.html">createFunction</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/diffChangeLog.html">diffChangeLog</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-index.html">createIndex</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/dropall.htm">dropAll</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-package.html">createPackage</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/futureRollbackCountSQL.htm">futureRollbackCountSQL &lt;value&gt;</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-package-body.html">createPackageBody</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/future-rollback-from-tag-sql.htm">future-rollback-from-tag-sql</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-procedure.html">createProcedure</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/futureRollbackSQL.htm">futureRollbackSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-sequence.html">createSequence</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/generateChangeLog.html">generateChangeLog</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-synonym.html">createSynonym</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>help</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-table.html">createTable</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/history.html">history</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-trigger.html">createTrigger</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/listLocks.htm">listLocks</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/create-view.html">createView</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/markNextChangeSetRan.html">markNextChangeSetRan</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/custom-change.html">customChange</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/markNextChangeSetRanSQL.html">markNextChangeSetRanSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/delete.html">delete</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/registerChangeLog.htm">registerChangeLog</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/disable-check-constraint.html">disableCheckConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/releaseLocks.htm">releaseLocks</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/disable-trigger.html">disableTrigger</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackByTag.htm">rollback</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-all-foreign-key-constraints.html">dropAllForeignKeyConstraints</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackCount.htm">rollbackCount</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-check-constraint.html">dropCheckConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported (the object  does not exist on the Snowflake database)</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackCountSQL.htm">rollbackCountSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-column.html">dropColumn</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackonechangeset.html">rollbackOneChangeSet</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-default-value.html">dropDefaultValue</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackonechangesetsql.html">rollbackOneChangeSetSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-foreign-key-constraint.html">dropForeignKeyConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackoneupdate.html">rollbackOneUpdate</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-function.html">dropFunction</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackoneupdatesql.html">rollbackOneUpdateSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-index.html">dropIndex</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackSQLtag.htm">rollbackSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-not-null-constraint.html">dropNotNullConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackToDate.htm">rollbackToDate</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-package.html">dropPackage</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/rollbackToDateSQL.htm">rollbackToDateSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-package-body.html">dropPackageBody</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/snapshot.html">snapshot</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-primary-key.html">dropPrimaryKey</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/snapshotReference.html">snapshotReference</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-procedure.html">dropProcedure</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/status-verbose.htm">status --verbose</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-sequence.html">dropSequence</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/syncHub.htm">syncHub</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-synonym.html">dropSynonym</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/tag.html">tag</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-table.html">dropTable</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/tagExists.html">tagExists</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-trigger.html">dropTrigger</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/unexpectedChangeSets.html">unexpectedChangeSets</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-unique-constraint.html">dropUniqueConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/update.html">update</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/drop-view.html">dropView</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/updateSQL.htm">updateSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/empty.html">empty</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/updateCount.htm">updateCount</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/enable-check-constraint.html">enableCheckConstraint</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/updateCountSQL.html">updateCountSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/enable-trigger.html">enableTrigger</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/updateTestingRollback.htm">updateTestingRollback</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/execute-command.html">executeCommand</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/updateToTag.html">updateToTag</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/insert.html">insert</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../commands/updateToTagSQL.html">updateToTagSQL</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/load-data.html">loadData</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <MadCap:xref href="../../commands/validate.htm">validate</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Supported</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/load-update-data.html">loadUpdateData</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/mark-unused.html">markUnused</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/merge-columns.html">mergeColumns</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/modify-data-type.html">modifyDataType</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/output.html">output</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/rename-column.html">renameColumn</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/rename-sequence.html">renameSequence</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/rename-table.html">renameTable</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/rename-trigger.html">renameTrigger</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Not Supported
+(the object  does not exist on the Snowflake database)
+</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/rename-view.html">renameView</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/set-column-remarks.html">setColumnRemarks</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/set-table-remarks.html">setTableRemarks</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/sql.html">sql</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/sql-file.html">sqlFile</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/stop.html">stop</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/tag-database.html">tagDatabase</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">&#160;</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">
+                        <MadCap:xref href="../../change-types/update.html">update</MadCap:xref>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">Supported</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">&#160;</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">&#160;</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Related Links</h3>
+        <ul>
+            <li><a href="https://docs.snowflake.com/en/user-guide-getting-started.html">Snowflake Getting Started</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Liquibase Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../workflows/home.htm">Workflows</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
