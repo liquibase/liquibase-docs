@@ -9,20 +9,10 @@
         <p>For people who have used <MadCap:variable name="General.Liquibase" /> for a long time, a common question they have is how to clear out a <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that has gotten unwieldy.</p>
         <p>The standard process for using <MadCap:variable name="General.Liquibase" /> is to append individual change sets to your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file for each database change you need to make. Over time, those changes can build up to thousands of entries, many of which are now redundant (create a table and later drop it) or inefficient (create a table, then add columns individually vs. just creating the table with all the columns). What is the best way to simplify all that cruft that has built up?</p>
         <p>My first response is always, "Do you really need to simplify it?" You built up that <MadCap:variable name="General.changelog" style="font-style: italic;" /> over a long period of time and you have ran it and tested it countless times. Once you start messing with the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file you are introducing risk which has a cost of its own. Does whatever performance or file size concerns you have really outweigh the risk of messing with a script that you know works?</p>
-        <p>If it is worth the risk, why is it work the risk? Sometimes the problem is that your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file has just gotten so large that your editor chokes on it, or you get too many merge conflicts. The best way to handle this is to simply break up your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file into multiple files. Instead of having a single <code>changelog.xml</code> file with everything in it, create a <code>main.changelog.xml</code> file which uses the tag to reference other <MadCap:variable name="General.changelog" style="font-style: italic;" /> files.</p>
-        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;databaseChangeLog 
-xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:pro="http://www.liquibase.org/xml/ns/pro"					 
-xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
-http://www.liquibase.org/xml/ns/pro 
-http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;
+        <p>If it is worth the risk, why is it work the risk? Sometimes the problem is that your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file has just gotten so large that your editor chokes on it, or you get too many merge conflicts. The best way to handle this is to simply break up your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file into multiple files. Instead of having a single <code>changelog.xml</code> file with everything in it, create a <code>main.changelog.xml</code> file which uses the tag to reference other <MadCap:variable name="General.changelog" style="font-style: italic;" /> files.</p><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp" />
     &lt;include  file="com/example/news/news.changelog.xml"/&gt;  
     &lt;include  file="com/example/directory/directory.changelog.xml"/&gt;  
-&lt;/databaseChangeLog&gt;</code>
-            </pre>
-        </figure>
+&lt;/databaseChangeLog&gt;</code></pre>
         <p>When you run <code class="highlighter-rouge">liquibase update</code> against the <code>main.changelog.xml</code> file, <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in <code>com/example/news/news.changelog.xml</code> will run and then the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in <code>com/example/directory/directory.changelog.xml</code> will run. You can break up <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in whatever manner works best for you. Some break them up by feature, some break them up by release. Find what works best for you.</p>
         <p>Other times, the problem is that <code class="highlighter-rouge">liquibase update</code> is taking too long. <MadCap:variable name="General.Liquibase" /> tries to be as efficient as possible when comparing the contents of the <MadCap:variable name="General.databasechangelog" /> table with the current <MadCap:variable name="General.changelog" style="font-style: italic;" /> file and even if there are thousands of already ran <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, an <code>update</code> command should take just seconds to run. If you are finding that <code>update</code> is taking longer than it should, watch the <MadCap:variable name="General.Liquibase" /> log to determine why. Perhaps there is an old <code>runAlways="true"</code> <MadCap:variable name="General.changeset" /> that no longer needs to run or there are preconditions which are no longer needed. Running <MadCap:variable name="General.Liquibase" /> with <code>--logLevel=INFO</code> or even <code>--logLevel=DEBUG</code> can give additional output which can help you determine which <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are slow. Once you know what is slowing down your update, try to alter just those <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> rather than throwing out the whole <MadCap:variable name="General.changelog" style="font-style: italic;" /> and starting from scratch. You will still want to retest your <MadCap:variable name="General.changelog" style="font-style: italic;" /> in-depth, but it is a far less risky change.</p>
         <p>For other people, they find that <code class="highlighter-rouge">liquibase update</code> works well for incremental updates, but creating a database from scratch takes far too long. Again, I would ask, "Is that really a problem?" Are you re-creating databases often enough that the risk of a change to the creation script makes sense? If you are, your first step should be to look for problem <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> as described above. Databases are fast, especially when they are empty. Even if you create a table only to drop it again that is usually just a few milliseconds of overhead and not worth optimizing. The biggest performance bottlenecks in creating a database are usually indexes, so start with them. If you are creating and updating indexes frequently in your creation process, you may be able to combine those <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> into something more efficient.</p>
@@ -30,15 +20,7 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;
         <p>How you modify your existing <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> will also depend on your environment and where in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> the problem <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are. If you are modifying <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that have been applied to all of your environments and are now only used on fresh database builds you can treat them differently than if they have been applied to some databases but not yet to others.</p>
         <p>To merge or modify existing <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>you will be doing a combination of editing existing <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, removing old <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, and creating new ones.</p>
         <p>Removing unneeded <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> is easy because <MadCap:variable name="General.Liquibase" /> doesn't care about <MadCap:variable name="General.databasechangelog" /> rows with no corresponding <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. Just delete out of date <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> and you are done. For example, if you have a <MadCap:variable name="General.changeset" style="font-style: italic;" /> that creates the table <code>cart</code> and then another that drops it, just remove both <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> from the file. You must make sure, however, that there are no <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> between the create and the delete that make use of that table or they will fail on a fresh database build. That is an example of how you are introducing risk when changing your <MadCap:variable name="General.changelog" style="font-style: italic;" /> file.</p>
-        <p>Suppose instead you have a <code>cart</code> table that is created in one <MadCap:variable name="General.changeset" style="font-style: italic;" />, then a <code>promo_code</code> column is created in another and an <code>abandoned</code> flag is created in another.</p>
-        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;databaseChangeLog  
-xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:pro="http://www.liquibase.org/xml/ns/pro"					
-xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
-http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
-http://www.liquibase.org/xml/ns/pro 
-http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;
+        <p>Suppose instead you have a <code>cart</code> table that is created in one <MadCap:variable name="General.changeset" style="font-style: italic;" />, then a <code>promo_code</code> column is created in another and an <code>abandoned</code> flag is created in another.</p><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp" />
     &lt;changeSet  author="nvoxland"  id="1"&gt;  
         &lt;createTable  tableName="cart"&gt;  
             &lt;column  name="id"  type="int"/&gt;  
@@ -57,18 +39,8 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;
         &lt;/addColumn&gt;  
     &lt;/changeSet&gt;  
 
-&lt;/databaseChangeLog&gt;</code>
-            </pre>
-        </figure>
-        <p>One option would be to combine everything into a new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> using the existing <code>id="1"</code> and delete the other <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p>
-        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;databaseChangeLog 
-xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:pro="http://www.liquibase.org/xml/ns/pro"					
-xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
-http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
-http://www.liquibase.org/xml/ns/pro 
-http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+        <p>One option would be to combine everything into a new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> using the existing <code>id="1"</code> and delete the other <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>.</p><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp" />
     &lt;changeSet  author="nvoxland"  id="1"&gt;  
         &lt;validCheckSum&gt;7:f24b25ba0fea451728ffbade634f791d&lt;/validCheckSum&gt;  
         &lt;createTable  tableName="cart"&gt;  
@@ -77,20 +49,9 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;
             &lt;column  name="abandoned"  type="boolean"/&gt;  
         &lt;/createTable&gt;  
     &lt;/changeSet&gt;  
-&lt;/databaseChangeLog&gt;</code>
-            </pre>
-        </figure>
+&lt;/databaseChangeLog&gt;</code></pre>
         <p>This will work well if all existing databases have the cart table with the <code>promo_code</code> and abandoned columns already added. Running <MadCap:variable name="General.Liquibase" /> against existing databases just sees that <code>id="1"</code> already ran and doesn't do anything new. Running <MadCap:variable name="General.Liquibase" /> against a blank database will create the cart table with all the columns right away. Notice that we had to add the flag or existing databases will throw an error saying that <code>id="1"</code> has changed since it was run. Just use the checksum in the error message in the <code>validCheckSum</code> tag to mark that you know it changed and the new value is OK.</p>
-        <p>If you have some databases where the <code>promo_code</code> and/or abandoned columns have not yet been added, update the original <code>createTable</code> as before, but use preconditions with <code>onFail="MARK_RAN"</code> to handle cases where the old <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> ran while still not adding the columns again if the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> ran.</p>
-        <figure class="highlight"><pre xml:space="preserve"><code class="language-xml" data-lang="xml">
-&lt;databaseChangeLog 
-xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:pro="http://www.liquibase.org/xml/ns/pro"					
-xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
-http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
-http://www.liquibase.org/xml/ns/pro 
-http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;					  
+        <p>If you have some databases where the <code>promo_code</code> and/or abandoned columns have not yet been added, update the original <code>createTable</code> as before, but use preconditions with <code>onFail="MARK_RAN"</code> to handle cases where the old <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> ran while still not adding the columns again if the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> ran.</p><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp" />				  
     &lt;changeSet  author="nvoxland"  id="1"&gt;  
         &lt;validCheckSum&gt;7:f24b25ba0fea451728ffbade634f791d&lt;/validCheckSum&gt;  
         &lt;createTable  tableName="cart"&gt;  
@@ -118,9 +79,7 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd"&gt;
         &lt;/addColumn&gt;  
     &lt;/changeSet&gt;  
 
-&lt;/databaseChangeLog&gt;</code>
-            </pre>
-        </figure>
+&lt;/databaseChangeLog&gt;</code></pre>
         <p>Now, on existing databases that have all three <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> already ran, <MadCap:variable name="General.Liquibase" /> will just continue on as before. For existing databases that have the old cart definition, it will see that the columns don't exist for <code>id="2"</code> and <code>id="3"</code> and execute then as usual. For blank databases, it will create the table with the <code>promo_code</code> and abandoned columns and then in <code>id="2"</code> and <code>id="3"</code> it will see that they are already there and mark that they have ran without re-adding the columns. A word of warning, however: using preconditions will add a performance overhead to your update executions and are ignored in <code>updateSQL</code> mode because <MadCap:variable name="General.Liquibase" /> cannot know how applicable they are when <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> have not actually executed. For that reason it is best to avoid them if possible, but definitely use them when needed. Preconditions also add complexity to your <MadCap:variable name="General.changelog" style="font-style: italic;" /> which will require additional testing so keep that in mind when deciding whether to modify your <MadCap:variable name="General.changelog" style="font-style: italic;" /> logic. Sometimes it is easiest and safest to wait until all your databases have the columns and then modify the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to avoid the preconditions.</p>
         <p>The <code>cart</code>/<code>promo_code</code>/<code>abandoned</code> example shows some basic patterns you can use when modifying existing <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>. Similar patters can be used to optimize whatever your bottlenecks are. Just remember when you change one <MadCap:variable name="General.changeset" style="font-style: italic;" />, it can affect other <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> below which may need to be modified as well. This can easily spider out of control so be mindful of what you are doing.</p>
         <p>If you end up finding that it will work best to completely restart your <MadCap:variable name="General.changelog" style="font-style: italic;" />, see <MadCap:xref href="existing-project.html">Adding [%=General.Liquibase%] on an existing project</MadCap:xref> which describes how to add <MadCap:variable name="General.Liquibase" /> to an existing project (even if that project was previously managed by <MadCap:variable name="General.Liquibase" />).</p>
