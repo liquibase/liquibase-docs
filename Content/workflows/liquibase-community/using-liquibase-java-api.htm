@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using the Liquibase Java API | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/using-liquibase-java-api.html" />
+        <meta name="description" content="The page explains how to use the Liquibase Java API with your application." />
+    </head>
+    <body>
+        <h1>Using the <MadCap:variable name="General.Liquibase" /> Java API</h1>
+        <p><MadCap:variable name="General.Liquibase" /> has an option to be set and run  automatically on startup:</p>
+        <ul>
+            <li>For web applications that use continuous delivery and have an automated release process from code check-in  through live production which gets executed multiple times per day
+            </li>
+            <li>In packaged applications that are shipped to make the database management portion transparent
+            </li>
+        </ul>
+        <p>Once <MadCap:variable name="General.Liquibase" /> is set to run automatically on startup, your database state always matches what your code expects, and you have no manual steps to forget. This method works best in environments where you have less control over the deployment process or want a simpler deployment process.</p>
+        <p><MadCap:variable name="General.Liquibase" /> uses a <MadCap:variable name="General.databasechangeloglock" /> table to ensure that only one instance of Liquibase runs at a time in case you have multiple servers pointing to the same database. Even if you have a cluster of servers all coming online at the same time and all automatically running <MadCap:variable name="General.Liquibase" />, the <MadCap:variable name="General.databasechangeloglock" /> table will ensure that they will not update the database concurrently and cause problems.</p>
+        <p><MadCap:variable name="General.Liquibase" /> ships with two hooks to automatically update your database on startup: Servlet Listener and Spring Bean. However, you can also call the <MadCap:variable name="General.Liquibase" /> Java API directly.</p>
+        <p>The most straightforward way of directly running <MadCap:variable name="General.Liquibase" /> looks as follows:</p>
+        <ol>
+            <li>
+                <p>Import the <MadCap:variable name="General.Liquibase" /> API.</p>
+            </li>
+            <p>The <MadCap:variable name="General.Liquibase" /> API  is packaged in the <code>liquibase-core.jar</code> file that you need to include in your classpath. Download the <code>liquibase-core.jar</code> file at the <a href="https://mvnrepository.com/artifact/org.liquibase/liquibase-core">Maven Repository for <MadCap:variable name="General.Liquibase" /></a> page and add it to your project. The Maven page presents different versions with the examples for various build systems.</p>
+        </ol>
+        <ol start="2">
+            <li>Create a text file in your application directory and name it <code>changelog.sql</code>. <MadCap:variable name="General.Liquibase" /> also supports the <code>.xml</code>, <code>.yaml</code>, or <code>.json</code> <MadCap:variable name="General.changelog" /> formats.
+            </li>
+            <p><MadCap:variable name="General.Liquibase" /> uses a <MadCap:variable name="General.changelog" /> file to sequentially list all changes made to your database. It   looks for <MadCap:variable name="General.changelog" /> files in your application’s classpath. Thus, put your <MadCap:variable name="General.changelog" /> file in a location that will be compiled into your application. For example, if you use a standard Maven project, create a file in <code>src/main/resources</code>.</p>
+        </ol>
+        <ol start="3">
+            <li>Add <MadCap:variable name="General.changeset"></MadCap:variable>s to your <MadCap:variable name="General.changelog"></MadCap:variable> file. Use the following examples depending on the format of the <MadCap:variable name="General.changelog"></MadCap:variable> you created:
+            </li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp"></MadCap:snippetText>
+    &lt;changeSet id="1" author="Liquibase"&gt;
+    &lt;createTable tableName="test_table"&gt;
+           &lt;column name="test_id" type="int"&gt;
+                 &lt;constraints primaryKey="true"/&gt;
+           &lt;/column&gt;
+           &lt;column name="test_column" type="varchar"/&gt;
+    &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">-- liquibase formatted sql
+
+-- changeset liquibase:1
+CREATE TABLE test_table (test_id INT, test_column VARCHAR, PRIMARY KEY (test_id))</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+   - changeSet:
+       id: 1
+       author: Liquibase
+       changes:
+       - createTable:
+           columns:
+           - column:
+               name: test_column
+               type: INT
+               constraints:  
+                   primaryKey:  true  
+                   nullable:  false  
+                   tableName: test_table</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-json">{ 
+  "databaseChangeLog": [
+  {
+	"changeSet": {
+	  "id": "1",
+      "author": "Liquibase",
+	  "changes": [
+	    {
+		  "createTable": {
+		    "columns": [
+			{
+			  "column": 
+		      {
+				"name": "test_column",
+				"type": "INT",
+				"constraints": 
+			  {
+				"primaryKey": true,
+				"nullable": false
+				}
+				}
+			  }]
+			,
+			"tableName": "test_table"
+		  }
+		}]
+	  }
+	}]
+  }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <ol start="4">
+            <li>Use the <MadCap:variable name="General.Liquibase" /> API.
+            </li>
+        </ol>
+        <ul>
+            <li>Configure and manage global configuration settings. The <MadCap:variable name="General.Liquibase" /> API  includes a <code>liquibase.Scope</code> object, which allows you to control the scope for all settings. The <code>Scope.child()</code> function takes the settings that apply within the given function, and when that function exits, the configured settings are dropped out of scope.
+            </li><pre xml:space="preserve"><code class="language-text">Map&lt;String, Object&gt; config = new HashMap&lt;&gt;();
+//add values to the config
+Scope.child(config, () -&gt; {
+    //Liquibase calls will go here
+});</code></pre>
+            <p>For example, you can configure the <a href="https://docs.liquibase.com/workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.html"><MadCap:variable name="General.LBPro" /> key</a> as follows:</p><pre xml:space="preserve"><code class="language-text">Map&lt;String, Object&gt; config = new HashMap&lt;&gt;();
+config.put("liquibase.pro.licenseKey", "YOUR_PRO_KEY");
+
+Scope.child(config, () -&gt; {
+//Liquibase calls will go here
+});</code></pre>
+            <p>Everything running within the  <code>Scope.child(config, () -&gt; { //Liquibase calls will go here });</code> <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">Lambda function</a> will use the configured <MadCap:variable name="General.LBPro" /> key.</p>
+        </ul>
+        <ul>
+            <li>
+                <p>Configure the <code>liquibase.Liquibase</code> <a href="https://www.baeldung.com/java-facade-pattern">façade</a>  using the Lambda function and creating the <code>liquibase</code> object that takes the reference to your <MadCap:variable name="General.changelog" /> file, a <a href="https://www.liquibase.org/javadoc/liquibase/resource/ResourceAccessor.html">liquibase.resource.ResourceAccessor</a> implementation, and a <code>liquibase.database.Datababase</code> object:</p>
+            </li><pre xml:space="preserve"><code class="language-text">Map&lt;String, Object&gt; config = new HashMap&lt;&gt;();
+config.put("liquibase.pro.licenseKey", "YOUR_PRO_KEY");
+
+Scope.child(config, () -&gt; {
+  Connection connection = openConnection(); //your openConnection logic 
+  
+  Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
+  
+  Liquibase liquibase = new liquibase.Liquibase("path/to/changelog.sql", new ClassLoaderResourceAccessor(), database);
+
+  //Liquibase calls will go here
+});</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Replace the <code>openConnection()</code> method with the method your application takes to get a connection to your database. The information can often be pulled from a connection pool.</p>
+        </ul>
+        <ul>
+            <li>Once you have your <code>liquibase</code> object created, call the <a href="https://www.investopedia.com/terms/b/businesslogic.asp">business logic</a> methods on it. For example:
+            </li><pre xml:space="preserve"><code class="language-text">Map&lt;String, Object&gt; config = new HashMap&lt;&gt;();
+config.put("liquibase.pro.licenseKey", "YOUR_PRO_KEY");
+
+Scope.child(config, () -&gt; {
+ 
+  Connection connection = openConnection(); //your openConnection logic 
+
+  Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
+
+  Liquibase liquibase = new liquibase.Liquibase("path/to/changelog.sql", new ClassLoaderResourceAccessor(), database);
+
+  liquibase.update(new Contexts(), new LabelExpression());
+});</code></pre>
+            <p>The command will perform an <code>update</code> operation with the <MadCap:variable name="General.changelog" /> and database  passed to the <MadCap:variable name="General.Liquibase" /> constructor. Instead of the <code>update</code> operation, you can call any other functions on the <MadCap:variable name="General.Liquibase" /> object, such as <code>rollback()</code>, <code>reportStatus()</code>, and others.</p>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The <code>liquibase.update()</code> function requires the contexts and labels objects to be specified. The example uses an empty context and label setup, so the actual execution will not take any labels or contexts into account.</p>
+        </ul>
+        <p>For more detailed information, check the <a href="https://www.liquibase.org/javadoc/liquibase/Liquibase.html">Liquibase API</a> documentation.</p>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../../commands/working-with-command-parameters.htm">Working with Command Parameters</MadCap:xref><![CDATA[
+            ]]></li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">[%=General.Liquibase%] Commands</MadCap:xref><![CDATA[
+            ]]></li>
+            <li>
+                <MadCap:xref href="../../install/home.htm">Installing [%=General.Liquibase%]</MadCap:xref><![CDATA[
+            ]]></li>
+        </ul>
+    </body>
+</html>

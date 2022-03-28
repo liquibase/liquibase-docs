@@ -2,220 +2,242 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title>Using Liquibase with Spring Boot and Maven</title>
         <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/springboot/using-springboot-with-maven.html" />
-        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
         <meta name="description" content="This page is a step by step guide on how to use Liquibase with Spring Boot and Maven." />
     </head>
     <body>
-        <h1 id="using-liquibase-with-spring-boot-and-maven-tutorial">Using <MadCap:variable name="General.Liquibase" /> with Spring Boot and Maven</h1>
-        <p>When developing software, it is common to create a database schema during production. <MadCap:variable name="General.Liquibase" /> is a great migration tool that helps with creating the database schema, then running deployment and some testing to the database to ensure that the changes will work in production. The purpose of this tutorial is to guide you through the process of using <MadCap:variable name="General.Liquibase" /> migration tool for a Java Spring Boot application with Maven.
-</p>
-        <h2 id="spring">Spring</h2>
-        <p><MadCap:variable name="General.Liquibase" /> can be run in a <a href="https://spring.io/projects/spring-boot" target="_blank">Spring</a> environment by declaring a <code>liquibase.spring.SpringLiquibase</code> bean.</p>
-        <h3 id="example">Example</h3><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;bean  id="liquibase"  class="liquibase.integration.spring.SpringLiquibase"&gt;
-      &lt;property  name="dataSource"  ref="myDataSource"  /&gt;
-      &lt;property  name="changeLog"  value="classpath:db-changelog.xml"  /&gt; 
-
-      &lt;!--
-      contexts specifies the runtime contexts to use.
-      --&gt; 
-      &lt;property  name="contexts"  value="test, production"  /&gt;
-&lt;/bean&gt;</code></pre>
-        <h2 id="overview">Overview</h2>
-        <h3 id="what-is-liquibase">What is <MadCap:variable name="General.Liquibase" />?</h3>
-        <p><a href="https://www.liquibase.org/" target="_blank"><MadCap:variable name="General.Liquibase" /></a> provides a great starting point for teams addressing the challenges that come with managing database schema changes.</p>
-        <p>It has the ability to manage revisions of your database schema scripts. It works across various types of databases and supports various file formats for defining the DB structure. <MadCap:variable name="General.Liquibase" /> has the ability to roll changes back and forward from a specific point - saving you from the need to know what was the last change or script you ran on a specific DB instance.</p>
-        <h3 id="what-is-spring-boot">What is Spring Boot?</h3>
-        <p><a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a> is an open source Java-based framework used to create micro service. It is used to build stand-alone and production-ready Spring applications.</p>
-        <h3 id="what-is-maven">What is Maven?</h3>
-        <p><a href="https://maven.apache.org/" target="_blank">Apache Maven</a> is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information.</p>
-        <p>The Spring Boot Maven plugin has two main features:</p>
-        <ul>
-            <li>It collects all the jar files in the classpath and builds a single<code> uber-jar</code>. This helps to execute your service in more convenient way.</li>
-            <li>It searches for the <code>public static void main()</code> method to flag any classes with that method signature as a runnable class.</li>
-        </ul>
-        <h2 id="prerequisites">Prerequisites</h2>
+        <h1 id="using-liquibase-with-spring-boot-and-maven-tutorial">Using <MadCap:variable name="General.Liquibase" /> with Spring Boot and Maven Project</h1>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">To use the <code>liquibase-maven-plugin</code> and Spring Boot, see <MadCap:xref href="../maven/workflows/using-liquibase-maven-plugin-and-springboot.htm">Using [%=General.Liquibase%] Maven Plugin with Spring Boot</MadCap:xref>.</p>
+        <p>Use <MadCap:variable name="General.Liquibase" /> with <a href="https://spring.io/projects/spring-boot#overview">Spring Boot</a> to create and configure standalone Spring applications and automate your database updates. Spring Boot with build systems like  Maven allows you to create Java applications started by running <code>java -jar</code> or <code>war</code> deployments.</p>
+        <p>The <MadCap:variable name="General.Liquibase" /> Spring Boot integration ensures the application database is updated along with the application code by using Spring Boot auto-configuration and features.</p>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Spring Boot:</p>
         <ol>
-            <li>Go to <a href="https://www.liquibase.org/download">https://www.liquibase.org/download</a> to install the latest version of <MadCap:variable name="General.Liquibase" />. <MadCap:variable name="General.Liquibase" /> requires Java 8+. If you use the installer, it already includes Java.</li>
-            <li>Go to <a href="https://maven.apache.org/install.html">https://maven.apache.org/install.html</a> to install Maven.</li>
-        </ol>
-        <h2 id="tutorial">Tutorial</h2>
-        <p>To create a <MadCap:variable name="General.Liquibase" /> project with Spring Boot and Maven, perform the following steps:</p>
-        <ol>
-            <li>Create a new project folder and name it <code>LiquibaseProj</code>.</li>
-            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile" /></code>.</li>
-            <li>Edit the <code><MadCap:variable name="General.liquiPropFile" /></code> file to add the following properties:</li>
-        </ol><pre><code class="language-text">changeLogFile: dbchangelog.xml
-url: jdbc:h2:mem:my_db;MODE=Mysql;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_UPPER=false;INIT=CREATE SCHEMA IF NOT EXISTS my_db\\;SET SCHEMA my_db
-classpath: ../../Liquibase_Drivers/postgresql-42.2.8.jar</code></pre>
-        <p>The <code>changeLogFile</code> property points to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file that we will create later in this tutorial. Since the <MadCap:variable name="General.changelog" style="font-style: italic;" /> is in the home directory, there is no need to specify a path to it. If the <MadCap:variable name="General.changelog" style="font-style: italic;" /> is located somewhere else, then add a relative path.</p>
-        <p>Windows example: <code>changeLogFile: ..\\&lt;path to changelog&gt;\\changelogs\\dbchangelog.xml</code></p>
-        <p>Linux example: <code>../&lt;path to changelog&gt;/changelogs/dbchangelog.xml</code></p>
-        <p>The <code>url</code> property is your database url. In this example, we use an in-memory h2 database.
-If there is a user and password associated with the database, then add the <code>username</code> and <code>password</code> properties to the properties file as well.</p>
-        <p>If you already have a <MadCap:variable name="General.LBPro" /> key and want to apply it to
-your project, add the following property to your <MadCap:variable name="General.liquiPropFile" /> file:</p><pre><code class="language-text">liquibaseProLicenseKey: &lt;paste license key&gt;</code></pre>
-        <ol MadCap:continue="true">
-            <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code>dbchangelog.xml</code>. The <MadCap:variable name="General.changelog" style="font-style: italic;" /> files contain a sequence of <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i>, each of which makes small changes to the structure of your database.</li>
-        </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Instead of creating an empty <MadCap:variable name="General.changelog" style="font-style: italic;" /> file, you can use an existing database to generate a <MadCap:variable name="General.changelog" style="font-style: italic;" />. In this tutorial, you will manually add a single change. To add this change, open the <code>dbchangelog.xml</code> file and update the <MadCap:variable name="General.changelog" style="font-style: italic;" /> file with the following code snippet:</p><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
-<MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp" />			  
-&lt;/databaseChangeLog&gt;</code></pre>
-        <ol start="5">
-            <li>Add a <MadCap:variable name="General.changeset" style="font-style: italic;" /> to the <MadCap:variable name="General.changelog" style="font-style: italic;" />. The <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> are uniquely identified by <code>author</code> and <code>id</code> attributes. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" style="font-style: italic;" /> in a transaction that is committed at the end. In the <code>dbchangelog.xml</code> file, add a new “department” create table <MadCap:variable name="General.changeset" style="font-style: italic;" /> as follows:</li>
-        </ol><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;  
-<MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp" />
-    &lt;changeSet  id="1"  author="bob"&gt;
-        &lt;createTable  tableName="department"&gt;
-            &lt;column  name="id"  type="int"&gt;
-                &lt;constraints  primaryKey="true"  nullable="false"/&gt;
-            &lt;/column&gt;
-            &lt;column  name="name"  type="varchar(50)"&gt;
-                &lt;constraints  nullable="false"/&gt;
-            &lt;/column&gt;
-		&lt;column  name="active"  type="boolean"  defaultValueBoolean="true"/&gt;
-        &lt;/createTable&gt;
-   &lt;/changeSet&gt;
-&lt;/databaseChangeLog&gt;</code></pre>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The preceding <MadCap:variable name="General.changeset" style="font-style: italic;" /> is XML format. The corresponding SQL statement looks like the following:</p><pre xml:space="preserve"><code class="language-sql" data-lang="sql">CREATE  TABLE  "department"
-(  	"id"  number(*,0),
-	"name"  VARCHAR2(50  BYTE),
-	"active"  NUMBER(1,0)  DEFAULT  1
-);</code></pre>
-        <ol start="6">
-            <li>In your <code>LiquibaseProj</code> folder create a text document named <code>pom.xml</code>.</li>
-            <li>Open the <code>pom.xml</code> file and update it with the following code snippet:</li>
-        </ol><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-    &lt;project  xmlns="http://maven.apache.org/POM/4.0.0"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
-      &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-      &lt;parent&gt;
-        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
-        &lt;version&gt;2.1.9.RELEASE&lt;/version&gt;
-        &lt;relativePath/&gt;  &lt;!-- lookup parent from repository --&gt;
-      &lt;/parent&gt;
-      &lt;groupId&gt;com.liquibase-support.app&lt;/groupId&gt;
-      &lt;artifactId&gt;Liquibase-app-1&lt;/artifactId&gt;
-      &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
-      &lt;name&gt;Liquibase-app&lt;/name&gt;
-      &lt;description&gt;Demo project for Spring Boot&lt;/description&gt;
-      &lt;properties&gt; 
-        &lt;java.version&gt;8&lt;/java.version&gt;
-        &lt;liquibase.propertyFile&gt;${project.basedir}/liquibase.properties&lt;/liquibase.propertyFile&gt;
-      &lt;/properties&gt;
-      &lt;dependencies&gt;
-        &lt;dependency&gt;
-          &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-          &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-        &lt;/dependency&gt;
-        &lt;dependency&gt;
-          &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-          &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
-          &lt;scope&gt;test&lt;/scope&gt;
-        &lt;/dependency&gt;
-      &lt;/dependencies&gt;
-      &lt;build&gt;
-        &lt;pluginManagement&gt;
-          &lt;plugins&gt;
-            &lt;plugin&gt;
-              &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
-              &lt;artifactId&gt;liquibase-maven-plugin&lt;/artifactId&gt;
-              &lt;version&gt;3.8.0&lt;/version&gt;
-              &lt;configuration&gt;
-                &lt;propertyFile&gt;${liquibase.propertyFile}&lt;/propertyFile&gt;
-              &lt;/configuration&gt;
-              &lt;dependencies&gt;
-                 &lt;dependency&gt;
-                  &lt;groupId&gt;com.h2database&lt;/groupId&gt;
-                  &lt;artifactId&gt;h2&lt;/artifactId&gt;
-                  &lt;version&gt;1.4.200&lt;/version&gt;
-                &lt;/dependency&gt;
-                &lt;dependency&gt;
-                  &lt;groupId&gt;org.hibernate&lt;/groupId&gt;
-                   &lt;artifactId&gt;hibernate-core&lt;/artifactId&gt;
-                   &lt;version&gt;5.4.6.Final&lt;/version&gt;
-                &lt;/dependency&gt;
-                &lt;dependency&gt;
-                  &lt;groupId&gt;javax.xml.bind&lt;/groupId&gt;
-                  &lt;artifactId&gt;jaxb-api&lt;/artifactId&gt;
-                  &lt;version&gt;2.4.0-b180830.0359&lt;/version&gt;
-                &lt;/dependency&gt;
-              &lt;/dependencies&gt;
-            &lt;/plugin&gt;
-            &lt;plugin&gt;
-                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
-            &lt;/plugin&gt;
-          &lt;/plugins&gt;
-        &lt;/pluginManagement&gt;
-      &lt;/build&gt;
-    &lt;/project&gt;</code></pre>
-        <ol MadCap:continue="true">
-            <li>Download and unzip the <a href="../../Z_Resources/Files/src.zip"><code>src.zip</code></a> to your <code>LiquibaseProj</code> directory. The <code>src.zip</code> file contains java scripts to run a Spring application.</li>
-        </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">In the src directory, you will see the path to your application code: <code>src/main/java/com/application.java</code> and the path to some unit tests: <code>src/test/java/com/applicationTests.java</code>.</p>
-        <ol start="9">
-            <li>Open the command prompt and navigate to the <code>LiquibaseProj</code> directory.</li>
-        </ol>
-        <ol start="10">
-            <li>Run the following command to compile and test your Spring Boot application code:</li>
-        </ol><pre><code class="language-text">mvn package</code></pre>
-        <ol start="11">
-            <li> Run the following command to deploy your changes:
+            <li><a href="https://maven.apache.org/download.cgi">Install Maven</a> and <a href="https://maven.apache.org/install.html">add it to your path</a>.
             </li>
-        </ol><pre><code class="language-text">mvn liquibase:update</code></pre>
-        <ol start="12">
-            <li> In the console output, you will see the following SQL execution:</li>
-        </ol><pre><code class="language-sql">CREATE TABLE department (id INT NOT NULL, name VARCHAR(50) NOT NULL, active BOOLEAN DEFAULT TRUE, CONSTRAINT PK_DEPARTMENT PRIMARY KEY (id))
-Table department created.</code></pre>
-        <p>Also, you will see two more tables:</p>
+            <li>Ensure you have <a href="https://www.oracle.com/java/technologies/java-se-glance.html">Java Development Kit</a> (JDK 8, 11, or 16).
+            </li>
+            <li>Create a project by using the Spring Boot application:
+            </li>
+        </ol>
         <ul>
-            <li> <MadCap:variable name="General.databasechangelog" style="font-weight: bold;" /> tracking table. This table keeps a record of all the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were deployed. This way, next time when you deploy again, the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> in the <MadCap:variable name="General.changelog" style="font-style: italic;" /> will be compared with the <MadCap:variable name="General.databasechangelog" /> tracking table, and only the new <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> that were not found in the <MadCap:variable name="General.databasechangelog" /> will be deployed. You will see that a new row was created in that table with the <MadCap:variable name="General.changeset" style="font-style: italic;" /> information we have just deployed.
-For example:</li>
+            <li>If you have an existing Spring Boot project, add the <code>liquibase-core</code> dependency to your project <code>pom.xml</code>.
+            </li>
+            <li>To manually create a new Spring Boot project, follow the <a href="https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/html/getting-started.html#getting-started.installing">Spring Boot Getting Started</a> documentation.
+            </li>
+            <li>To create a basic Spring Boot project, use a web-based service called <a href="https://start.spring.io/">Spring Initializr</a>.
+            </li>
+            <p>Enter the following information in Spring Initializr:</p>
         </ul>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ID</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">AUTHOR</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">FILENAME</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">DATEEXECUTED</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">ORDEREXECUTED</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">EXECTYPE</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">MDSUM</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">…</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">bob</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">dbchangelog.xml</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">date&amp;time</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">1</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">EXECUTED</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code class="highlighter-rouge">checksumvalue</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">…</td>
-                </tr>
-            </tbody>
-        </table>
         <ul>
-            <li><MadCap:variable name="General.databasechangeloglock" style="font-weight: bold;" />. This table is used internally by <MadCap:variable name="General.Liquibase" /> to manage access to the <MadCap:variable name="General.changelog" style="font-style: italic;" /> table during deployment.</li>
+            <ul>
+                <li>Project: Maven</li>
+                <li>Language: Java
+            </li>
+                <li>Spring Boot: the version you need
+            </li>
+                <li>Project Metadata:
+            <ul><li>Group: com.example.liquibase
+            </li><li>Artifact: springbootProject
+            </li><li>Name: springbootProject
+            </li><li>Description: Liquibase Project for Spring Boot
+            </li><li>Package name: com.example.liquibase.springbootProject
+            </li><li>Packaging: Jar
+            </li><li>Java: 8, 11, or 16
+            </li></ul></li>
+                <li>Dependencies: Spring Data JPA and <MadCap:variable name="General.Liquibase" /> Migration. The service lets you add your database driver dependency and any developer tool.
+            </li>
+            </ul>
         </ul>
-        <h2 id="conclusion">See also</h2>
-        <p><a href="https://docs.liquibase.com/tools-integrations/maven/home.html">Maven documentation</a>
-        </p>
-        <p><a href="https://spring.io/projects/spring-boot#learn">Spring Boot documentation</a>
-        </p>
+        <ol start="4">
+            <li>Select <b>GENERATE</b> to download your project template as a <code>.zip</code> file.
+            </li>
+            <li>Extract the files and open <code>pom.xml</code> in your IDE or text editor. By default, the <MadCap:variable name="General.Liquibase" /> dependency will find the latest <code>liquibase-core</code> version. You can edit the <MadCap:variable name="General.Liquibase" /> dependency to include the exact version of <MadCap:variable name="General.Liquibase" /> you want to use.
+            </li>
+            <li>Follow the instructions depending on your project.
+            </li>
+        </ol>
+        <h2>Running <MadCap:variable name="General.Liquibase" /> with Spring Boot and the Maven project</h2>
+        <ol>
+            <li>
+                <p>Open the existing Spring Boot <code>application.properties</code> file. To find the file, navigate to <code>src/main/resources/application.properties</code>.</p>
+            </li>
+            <li>
+                <p>Add the following properties to run <MadCap:variable name="General.Liquibase" /> migrations. Update the values depending on your database requirements:</p>
+            </li><pre xml:space="preserve"><code class="language-text">spring.datasource.url=jdbc:postgresql://localhost:5432/yourdatabase
+spring.datasource.username=example
+spring.datasource.password=example</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To find the URL format for your database, see <MadCap:xref href="../../install/supported-databases.htm">Supported Databases</MadCap:xref>. </p>
+        </ol>
+        <ol start="3">
+            <li>Create a new text file called <code>pom.xml</code> or use the <code>pom.xml</code> file created for your project by the Spring Initializr. </li>
+            <li>Specify <MadCap:variable name="General.Param/Attribute" />s in your <code>pom.xml</code> based on the example:</li>
+        </ol><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+https://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+&lt;parent&gt;
+         &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+         &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+         &lt;version&gt;2.5.3&lt;/version&gt;
+         &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+&lt;/parent&gt;
+&lt;groupId&gt;com.example.liquibase&lt;/groupId&gt;
+&lt;artifactId&gt;springbootProject&lt;/artifactId&gt;
+&lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+&lt;name&gt;springbootProject&lt;/name&gt;
+&lt;description&gt;Liquibase Project for Spring Boot&lt;/description&gt;
+&lt;properties&gt;
+        &lt;java.version&gt;1.8&lt;/java.version&gt;
+&lt;/properties&gt;
+&lt;dependencies&gt;
+       &lt;dependency&gt;
+                 &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                 &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+       &lt;dependency&gt;
+                 &lt;groupId&gt;org.liquibase&lt;/groupId&gt; 
+                 &lt;artifactId&gt;liquibase-core&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+       &lt;dependency&gt;
+                 &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                 &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+                 &lt;scope&gt;test&lt;/scope&gt;
+       &lt;/dependency&gt;
+
+&lt;!-- https://mvnrepository.com/artifact/org.postgresql/postgresql --&gt;
+       &lt;dependency&gt;
+                 &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+                 &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+                 &lt;version&gt;42.2.5&lt;/version&gt;
+       &lt;/dependency&gt;
+&lt;/dependencies&gt;
+ 
+&lt;build&gt;
+     &lt;plugins&gt; 
+             &lt;plugin&gt;
+                  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                  &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+             &lt;/plugin&gt;
+     &lt;/plugins&gt;
+&lt;/build&gt;
+
+&lt;/project&gt;</code></pre>
+        <ol start="5">
+            <li>Create a text file called <code>changelog.sql</code> or use the <MadCap:variable name="General.changelog"></MadCap:variable> file from the <code>examples</code> directory. <MadCap:variable name="General.Liquibase"></MadCap:variable> also supports the <code>.xml</code>, <code>.yaml</code>, or <code>.json</code> <MadCap:variable name="General.changelog"></MadCap:variable> formats.
+            </li>
+            <li>Specify the <MadCap:variable name="General.changelog" /> file in the <code>application.properties</code> file as follows:
+            </li><pre xml:space="preserve"><code class="language-xml">spring.liquibase.change-log=classpath:db/changelog/changelog.sql</code></pre>
+            <p>Alternatively, specify the <MadCap:variable name="General.changelog" /> file in the <code>pom.xml</code> or <code><MadCap:variable name="General.liquiPropFile" /></code> file:</p>
+            <p><code>pom.xml</code>: <code>&lt;changeLogFile&gt;your/path/to/changelog.sql&lt;/changeLogFile&gt;</code></p>
+            <p><code><MadCap:variable name="General.liquiPropFile" /></code>:</p>
+            <ul>
+                <li>Windows example: <code>changeLogFile: ..\path\to\changelog.sql</code></li>
+                <li>Linux example: <code>changeLogFile: ../path/to/changelog.sql</code></li>
+            </ul>
+        </ol>
+        <ol start="7">
+            <li>
+                <p>	Add <MadCap:variable name="General.changeset" />s to your <MadCap:variable name="General.changelog" /> file. Use the following examples depending on the format of the <MadCap:variable name="General.changelog" /> you created:</p>
+            </li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp"></MadCap:snippetText>
+    &lt;changeSet id="1" author="Liquibase"&gt;
+    &lt;createTable tableName="test_table"&gt;
+           &lt;column name="test_id" type="int"&gt;
+                 &lt;constraints primaryKey="true"/&gt;
+           &lt;/column&gt;
+           &lt;column name="test_column" type="varchar"/&gt;
+    &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">-- liquibase formatted sql
+
+-- changeset liquibase:1
+CREATE TABLE test_table (test_id INT, test_column VARCHAR, PRIMARY KEY (test_id))</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+   - changeSet:
+       id: 1
+       author: Liquibase
+       changes:
+       - createTable:
+           columns:
+           - column:
+               name: test_column
+               type: INT
+               constraints:  
+                   primaryKey:  true  
+                   nullable:  false  
+                   tableName: test_table</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-json">{ 
+  "databaseChangeLog": [
+  {
+	"changeSet": {
+	  "id": "1",
+      "author": "Liquibase",
+	  "changes": [
+	    {
+		  "createTable": {
+		    "columns": [
+			{
+			  "column": 
+		      {
+				"name": "test_column",
+				"type": "INT",
+				"constraints": 
+			  {
+				"primaryKey": true,
+				"nullable": false
+				}
+				}
+			  }]
+			,
+			"tableName": "test_table"
+		  }
+		}]
+	  }
+	}]
+  }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <ol start="8">
+            <li>
+                <p>Run your first migration with the following command:</p>
+            </li><pre><code class="language-text">mvn compile package</code></pre>
+            <p>The command creates the Spring Boot application jar file in the target directory. If the metadata specified in Spring Initializr was used in the Spring Boot project setup, you can directly execute the <code>jar</code> file by running:</p><pre><code class="language-text">java -jar springbootProject-0.0.1-SNAPSHOT.jar</code></pre>
+        </ol>
+        <p>To roll back any changes, create the <code>liquibase.rollback-file</code> file in Spring Boot and generate a rollback script for changes associated with <MadCap:variable name="General.changeset" />s:
+            </p><pre><code class="language-text">-- rollback drop table test_table;</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can also use <a href="https://docs.liquibase.com/change-types/tag-database.html">tags</a> for the rollback.</p>
+        <h2 id="conclusion">Related links</h2>
+        <ul>
+            <li><a href="https://docs.liquibase.com/tools-integrations/maven/home.html">Maven documentation</a>
+            </li>
+            <li><a href="https://spring.io/projects/spring-boot#learn">Spring Boot documentation</a>
+            </li>
+        </ul>
     </body>
 </html>

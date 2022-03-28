@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Getting Started with Liquibase and Gradle | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/maven/getting-started-liquibase-gradle.html" />
+        <meta name="description" content="Start using Liquibase and Gradle in a few steps." />
+    </head>
+    <body>
+        <h1>Getting Started with <MadCap:variable name="General.Liquibase" /> and Gradle</h1>
+        <p>Using the <a href="https://github.com/liquibase/liquibase-gradle-plugin">Liquibase Gradle plugin</a> helps to manage database scripts, build and automate your software processes. When Gradle applies the plugin to the target, it creates a Gradle task for each command supported by <MadCap:variable name="General.Liquibase" />. To see the list of those tasks, run the <code>gradle tasks</code> command.</p>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Gradle:</p>
+        <ol>
+            <li>Create a text file called <code>build.gradle</code> in your project folder or use the existing <code>build.gradle</code> file.
+            </li>
+            <li>Add the following section to your <code>build.gradle</code> file to include the <code>liquibase</code> plugin into Gradle builds:
+            </li><pre xml:space="preserve"><code class="language-text">plugins {
+  id 'org.liquibase.gradle' version '2.0.4'
+}</code></pre>
+            <p>The following <a href="https://docs.gradle.org/current/userguide/plugins.html#sec:old_plugin_application">legacy plugin application</a> is also available to use:</p><pre xml:space="preserve"><code class="language-text">buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.liquibase:liquibase-gradle-plugin:2.0.4"
+    }
+}
+apply plugin: 'org.liquibase.gradle'</code></pre>
+        </ol>
+        <ol start="3">
+            <li>Add the <code>dependencies</code> section to include files on which <MadCap:variable name="General.Liquibase" /> will depend to run commands. The plugin needs to find <MadCap:variable name="General.Liquibase" /> when it runs a task, and <MadCap:variable name="General.Liquibase" /> needs to find database drivers, <MadCap:variable name="General.changelog" /> parsers, and other files on the classpath. When adding <code>liquibaseRuntime</code> dependencies to the <code>dependencies</code> section in the <code>build.gradle</code> file, include the <MadCap:variable name="General.Liquibase" /> value along with your database driver:
+            </li><pre xml:space="preserve"><code class="language-text">dependencies {
+  liquibaseRuntime 'org.liquibase:liquibase-core:4.2.2'
+  liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:2.1.1'
+  liquibaseRuntime 'mysql:mysql-connector-java:5.1.34'
+}
+apply plugin: "org.liquibase.gradle"</code></pre>
+            <p>Replace <code>org.liquibase:liquibase-core:4.2.2</code> and <code>mysql:mysql-connector-java:5.1.34</code> with your values. If you use Groovy scripts for database changes, the example code includes the <a href="https://github.com/liquibase/liquibase-groovy-dsl">Liquibase Groovy DSL</a> dependency, which parses <MadCap:variable name="General.changelog" />s written in a Groovy DSL. You do not need to add <code>org.liquibase:liquibase-groovy-dsl:2.1.1</code> if you do not use the Groovy <MadCap:variable name="General.changelog" /> format. For more information, see Step 4. </p>
+        </ol>
+        <ol start="4">
+            <li>Create a text file in your application directory and name it <code>changelog.sql</code>. <MadCap:variable name="General.Liquibase" /> also supports the <code>.xml</code>, <code>.yaml</code>, or <code>.json</code> <MadCap:variable name="General.changelog" /> formats.
+Another way to use <MadCap:variable name="General.Liquibase" /> and Gradle is with the <code>changelog.groovy</code> file.            </li>
+            <li>Add <MadCap:variable name="General.changeset"></MadCap:variable>s to your <MadCap:variable name="General.changelog"></MadCap:variable> file. Use the following examples depending on the format of the <MadCap:variable name="General.changelog"></MadCap:variable> you created:
+            </li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../../Z_Resources/Snippets/xsd-xml-changelog.flsnp"></MadCap:snippetText>
+    &lt;changeSet id="1" author="Liquibase"&gt;
+    &lt;createTable tableName="test_table"&gt;
+           &lt;column name="test_id" type="int"&gt;
+                 &lt;constraints primaryKey="true"/&gt;
+           &lt;/column&gt;
+           &lt;column name="test_column" type="varchar"/&gt;
+    &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">-- liquibase formatted sql
+
+-- changeset liquibase:1
+CREATE TABLE test_table (test_id INT, test_column VARCHAR, PRIMARY KEY (test_id))</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+   - changeSet:
+       id: 1
+       author: Liquibase
+       changes:
+       - createTable:
+           columns:
+           - column:
+               name: test_column
+               type: INT
+               constraints:  
+                   primaryKey:  true  
+                   nullable:  false  
+                   tableName: test_table</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-json">{ 
+  "databaseChangeLog": [
+  {
+	"changeSet": {
+	  "id": "1",
+      "author": "Liquibase",
+	  "changes": [
+	    {
+		  "createTable": {
+		    "columns": [
+			{
+			  "column": 
+		      {
+				"name": "test_column",
+				"type": "INT",
+				"constraints": 
+			  {
+				"primaryKey": true,
+				"nullable": false
+				}
+				}
+			  }]
+			,
+			"tableName": "test_table"
+		  }
+		}]
+	  }
+	}]
+  }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Groovy example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">databaseChangeLog = {
+changeSet(id: '1', author: 'liquibase') {
+    createTable(tableName: 'test_table') {
+      column(name:'test_id', type="int") {
+      constraints(primaryKey: true)
+    }
+      column(name:'test_column', type="varchar")
+    }
+  }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <ol start="6">
+            <li>Set the following <MadCap:variable name="General.Liquibase" /> properties in your <code>build.gradle</code> file:
+            </li><pre xml:space="preserve"><code class="language-text">liquibase {
+  activities {
+    main {
+          changeLogFile "../changelog.sql"
+          url "mysql://localhost:3306/testdatabase"
+          username "username"
+          password "password"
+    }
+  }
+}</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Replace the values from the example with your values.</p>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you want to store other <MadCap:variable name="General.Liquibase" /> properties in a file instead of passing them at runtime, you can continue specifying the properties in the <code>build.gradle</code> file or create a new text file called <code><MadCap:variable name="General.liquiPropFile" /></code> and set them there. If you create the <code><MadCap:variable name="General.liquiPropFile" /></code> file, specify <code>propsFile "../liquibase.properties"</code> in the main section of the <code>build.gradle</code> file. For more information, see <MadCap:xref href="../../workflows/liquibase-community/creating-config-properties.html">Creating and configuring a [%=General.liquiPropFile%] file</MadCap:xref>.</p>
+        </ol>
+        <ol start="7">
+            <li>Do your first update by adding the task section to the <code>build.gradle</code> file:
+            </li><pre xml:space="preserve"><code class="language-text">task('deploy changeLog') {
+  doFirst(){
+    liquibase {
+      activities {
+        main {
+                changeLogFile System.properties.liquibaseChangeLogFile
+                contexts System.properties.liquibaseContexts
+             }
+          }
+       }
+    }
+ }
+update.dependsOn(deploy)</code></pre>
+        </ol>
+        <ol start="8">
+            <li>Run the <code>gradle build</code> command, and then run the following:
+            </li><pre xml:space="preserve"><code class="language-text">gradle update</code></pre>
+            <p>After your first update, you will see a new table along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref> added to the database.</p>
+        </ol>
+        <ol start="9">
+            <li>[Optional] Do your first rollback by using the <code>rollbackCount</code> command:
+            </li><pre xml:space="preserve"><code class="language-text">gradle build
+gradle rollbackCount -PliquibaseCommandValue=1</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can also specify the command value in the <code>build.gradle</code> file or use other <code>rollback</code> commands: <MadCap:xref href="../../commands/rollbackByTag.htm">rollback</MadCap:xref>, <MadCap:xref href="../../commands/rollbackToDate.htm">rollbackToDate</MadCap:xref>, <MadCap:xref href="../../commands/rollbackonechangeset.html">rollbackOneChangeSet</MadCap:xref>, <MadCap:xref href="../../commands/rollbackoneupdate.html">rollbackOneUpdate</MadCap:xref>.</p>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Automatic rollback is not supported for formatted SQL <MadCap:variable name="General.changeset" />s. You need to add custom rollback statements to formatted SQL <MadCap:variable name="General.changeset" />s if you want to use rollback commands:</p><pre xml:space="preserve"><code class="language-text">-- changeset liquibase:1
+create table test_table ( id int primary key, name varchar(255) );
+-- rollback drop table test_table;</code></pre>
+        </ol>
+        <ol start="10">
+            <li>Check the changes by inspecting your database or running the <MadCap:xref href="../../commands/status-verbose.htm">status --verbose</MadCap:xref> command.
+            </li>
+        </ol>
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://gradle.org/">Gradle</a>
+            </li>
+            <li><a href="https://github.com/liquibase/liquibase-gradle-plugin"><MadCap:variable name="General.Liquibase" /> Gradle repository</a>
+            </li>
+            <li><a href="https://github.com/liquibase/liquibase-groovy-dsl"><MadCap:variable name="General.Liquibase" /> Groovy DSL</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/introduction-to-liquibase.htm">Introduction to [%=General.Liquibase%]</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
