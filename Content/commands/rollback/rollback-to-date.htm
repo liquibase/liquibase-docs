@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>rollback-to-date | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/commands/rollback-to-date.html" />
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
+        <meta name="description" content="Reference information and use cases for the rollback-to-date command. The rollback-to-date command reverts your database to the state it was in at the date and time you specify." />
+    </head>
+    <body>
+        <h1><code>rollback-to-date</code>
+        </h1>
+        <p>The <code>rollback-to-date</code> command reverts your database to the state it was in at the date and time you specify.</p>
+        <h2>Uses</h2>
+        <p>The <code>rollback-to-date</code> command is mainly used when you want to revert all changes made to your database from today's date to the date and time you specify. The <code>rollback-to-date</code> command reverts those <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to their previous state and allows you to target the date and time without impacting changes or deployments that came before the date and time you specified.</p>
+        <p>The image below shows four deployments performed at a different times: March, April, May, and February. Let's imagine that your current month is May and you want to roll back your database to March.</p>
+        <p>As you can see, the <code>rollback-to-date</code> command allows you to target deployment 2 performed on March 07, 2020 10:15 AM and revert all changes associated with deployments 4 through 2, to March without impacting the previous deployments—deployment 2 and 1.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">There are several ways to revert your changes with the <code>rollback-to-date</code> command. You can use <code>YYYY-MM-DD HH:MM:SS</code> or <code>YYYY-MM-DD'T'HH:MM:SS</code> formats to specify both date and time. Also, you can specify date or time only.</p>
+        <p style="text-align: center;">
+            <img src="../../Z_Resources/Images/Screenshots/commands/rollback-to-date.png" />
+        </p>
+        <h2>The impacts of <code>rollback-to-date</code></h2>
+        <p>The use of <code>rollback-to-date</code> comes with risk of removing all changes from today's date to the date you specified. Also, there is an additional impact to the <MadCap:variable name="General.databasechangelog" /> table. When any change is rolled back, the row associated with that change is deleted from the <MadCap:variable name="General.databasechangelog" /> table. For this reason, please look for unintended consequences before using this command.</p>
+        <p>It is a best practice is to run the <code>rollback-to-date-sql</code> helper command because it allows you to inspect the <code>rollback-to-date</code> SQL and search for any potential mistakes before you execute the <code>rollback-to-date</code> command.</p>
+        <h2>Running the <code>rollback-to-date</code> command</h2>
+        <p>Before running the <code>rollback-to-date</code> command,  run the <MadCap:xref href="../status/history.html">history</MadCap:xref> command to see the dates of all your previous changes.</p>
+        <p>To run the  <code>rollback-to-date</code>  command, you can specify the driver, classpath, and URL in your <code><MadCap:variable name="General.liquiPropFile" /></code> file. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Specifying Properties in a Connection Profile</MadCap:xref>. You can also specify these properties in your command line.</p>
+        <p>Then run the <code>rollback-to-date</code> command:</p><pre><code class="language-text">liquibase --changeLogFile=sample.changelog.xml rollback-to-date 2020-05-07</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the name of the <MadCap:variable name="General.changelog" style="font-style: italic;" /> and date that you want to use in place of <code> sample.changelog.xml</code> and <code>2020-05-07</code>.</p>
+        <h2><code>rollback-to-date</code> global <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <table style="width: 100%; mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css'); margin-left: auto; margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Definition</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>--changeLogFile</code> *</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">The root <MadCap:variable name="General.changelog" style="font-style: italic;" /></td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-weight: bold;font-family: Arial;">Required</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>--url</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">The JDBC database connection URL</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-weight: bold;font-family: Arial;">Required</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>--username</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">The database username</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-weight: bold;font-family: Arial;">Required</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>--password</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">The database password</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2" style="font-weight: bold;font-family: Arial;">Required</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>*	 <MadCap:variable name="General.Liquibase" /> will check nested <MadCap:variable name="General.changelog" style="font-style: italic;" /><i>s</i> for definitions of the <MadCap:variable name="General.changeset" style="font-style: italic;" /><i>s</i> to rollback.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-username-password.flsnp" />
+        <h2><code>rollback-to-date</code> command <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <table style="width: 100%;margin-left: auto;margin-right: auto;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <col class="TableStyle-TableStyles-Column-Column1" />
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Attribute</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Definition</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>--date/time</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">The date and time your database rolls back to. 
+The date format is <code>YYYY-MM-DD HH:MM:SS</code> or <code>YYYY-MM-DD'T'HH:MM:SS</code>, however, it is possible to indicate the date or time only.
+</td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1"><b style="font-family: Arial;">Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-text">Liquibase Pro 3.8.10-DAT-4254-SNAPSHOT by Datical licensed to Liquibase Pro Customer until Tue Nov 03 19:00:00 CST 2020
+Rolling Back Changeset:postgres_lbpro_master_changelog.xml::3::createTableforCC-proschema::Liquibase Pro User
+Rolling Back Changeset:postgres_lbpro_master_changelog.xml::2::createTableforView-proschema::Liquibase Pro User
+Rolling Back Changeset:postgres_lbpro_master_changelog.xml::1::createTableforSynonym-proschema::Liquibase Pro User
+Rolling Back Changeset:changelogLevel.xml::2::logicalFilePath::changelog::Erzsebet (generated)
+Rolling Back Changeset:third_changelog.xml::1::logicalFilePath::changeset::Erzsebet (generated)
+Liquibase: Rollback has been successful.</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>
