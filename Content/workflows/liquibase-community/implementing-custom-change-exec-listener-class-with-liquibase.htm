@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Implementing a Custom ChangeExecListener Class with Liquibase | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/implementing-custom-change-exec-listener-class-with-liquibase.html" />
+        <meta name="description" content="This page explains how to implement a custom ChangeExecListener class with Liquibase." />
+    </head>
+    <body>
+        <h1>Implementing a Custom ChangeExecListener Class with <MadCap:variable name="General.Liquibase" /></h1>
+        <p><a href="https://www.liquibase.org/javadoc/liquibase/changelog/visitor/ChangeExecListener.html">ChangeExecListener</a> is a Java listener interface <MadCap:variable name="General.Liquibase" /> calls when you use a <code>rollback</code> or <code>update</code> command to modify your database.</p>
+        <p>When <MadCap:variable name="General.Liquibase" /> calls <code>ChangeExecListener</code> with one of these commands, it also runs several corresponding methods the class implements. For example, when you use <code>rollback</code> to revert a change in your database, <MadCap:variable name="General.Liquibase" /> calls the <code>rolledBack</code> method.</p>
+        <p>You can use the default implementation of <code>ChangeExecListener</code> in <MadCap:variable name="General.Liquibase" /> or write your own Java class to override the default.</p>
+        <h2>Commands</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../../commands/rollback/rollback-by-tag.htm">rollback</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/rollback/rollback-count.htm">rollback-count</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/rollback/rollback-count-sql.htm">rollback-count-sql</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/rollback/rollback-sql.htm">rollback-sql</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/rollback/rollback-to-date.htm">rollback-to-date</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/rollback/rollback-to-date-sql.htm">rollback-to-date-sql</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/update/update-count.htm">update-count</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/update/update-count-sql.html">update-count-sql</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/update/update-testing-rollback.htm">update-testing-rollback</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/update/update-to-tag.html">update-to-tag</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/update/update-to-tag-sql.html">update-to-tag-sql</MadCap:xref>
+            </li>
+        </ul>
+        <h2>Uses</h2>
+        <p>You can use a custom <code>ChangeExecListener</code> class to:</p>
+        <ul>
+            <li>Provide richer logging to external tools you use with <MadCap:variable name="General.Liquibase" />.</li>
+            <li>Verify what <MadCap:variable name="General.Liquibase" /> runs or rolls back based on your custom <a href="https://www.investopedia.com/terms/b/businesslogic.asp">business logic</a>.</li>
+            <li>Improve the user interface "status reports" of custom <MadCap:variable name="General.Liquibase" /> integrations.</li>
+            <li>Make audits of your database or notify you when <MadCap:variable name="General.Liquibase" /> makes an important change.</li>
+            <li>Record database statistics like the duration of commands you run, which SQL statements you used, and which rows of a table your change affected.</li>
+            <li>Write <MadCap:xref href="../../concepts/changelogs/preconditions.html">Preconditions</MadCap:xref> to an output file as they are executed.</li>
+        </ul>
+        <h2>Creating a custom <code>ChangeExecListener</code> class</h2>
+        <ol>
+            <li>Create a Java class that extends <a href="https://www.liquibase.org/javadoc/liquibase/changelog/visitor/AbstractChangeExecListener.html">AbstractChangeExecListener</a>. This is an <a href="https://docs.oracle.com/javase/tutorial/java/IandI/abstract.html">abstract class</a> that extends <code>ChangeExecListener</code>, so they have the same methods. However, because it's abstract, you only have to override the methods you care about. By contrast, if you extend <code>ChangeExecListener</code> directly, you must write definitions for every method, even if you don't want to change their functionality.</li>
+            <li>After you write your class, <a href="https://docs.oracle.com/javase/tutorial/deployment/jar/build.html">compile it into a JAR file</a> in your command line:<pre><code class="language-text">jar cf CustomChangeExecListener.jar CustomChangeExecListener.class</code></pre></li>
+            <li>Move your JAR file to the <code>liquibase/lib</code> directory, or add it to the classpath. For more information, see <MadCap:xref href="../../concepts/changelogs/how-liquibase-finds-files.htm">How [%=General.Liquibase%] Finds Files: [%=General.Liquibase%] Classpath</MadCap:xref>.</li>
+            <li>  Call on your <code>CustomChangeExecListener</code> class in <MadCap:variable name="General.Liquibase" /> by using the <code>change-exec-listener-class</code> parameter.</li>
+        </ol>
+        <h2>Setting the <code>change-exec-listener-class</code> and <code>change-exec-listener-properties-file</code> parameters</h2>
+        <p>You can configure your ChangeExecListener by using the following command parameters of <code>rollback</code> and <code>update</code> commands:</p>
+        <ul>
+            <li><code>change-exec-listener-class</code> is a string that determines what class <MadCap:variable name="General.Liquibase" /> uses for <code>ChangeExecListener</code>.</li>
+            <li><code>change-exec-listener-properties-file</code> is a string that determines the path to the properties file <MadCap:variable name="General.Liquibase" /> uses for <code>ChangeExecListener</code>.</li>
+        </ul>
+        <p>You can set these parameters in four ways:</p>
+        <ul>
+            <li>In the <MadCap:variable name="General.Liquibase" /> properties file</li>
+            <li>As command parameters in the CLI</li>
+            <li>As JVM system properties</li>
+            <li>As environment variables (<MadCap:variable name="General.LBPro" />)</li>
+        </ul>
+        <h3><MadCap:variable name="General.Liquibase" /> properties file</h3>
+        <p>In Liquibase 4.1+, add the following to the <MadCap:variable name="General.Liquibase" /> properties file:</p><pre xml:space="preserve"><code class="language-text">liquibase.command.changeExecListenerClass: YOUR_CLASS
+liquibase.command.changeExecListenerPropertiesFile: YOUR_FILE</code></pre>
+        <h3>CLI command parameters</h3>
+        <p>In your command line, use a command parameter with a single <MadCap:variable name="General.Liquibase" /> command:</p><pre xml:space="preserve"><code class="language-text">liquibase update --change-exec-listener-class=YOUR_CLASS --change-exec-listener-properties-file=YOUR_FILE --changelog-file=dbchangelog.xml</code></pre>
+        <h3>Java&#160;system property</h3>
+        <p>In your command line, use the <MadCap:xref href="../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref> to set a JVM system property:</p>
+        <p>Mac/Linux syntax:</p><pre xml:space="preserve"><code class="language-text">JAVA_OPTS=-Dliquibase.command.changeExecListenerClass=YOUR_CLASS -Dliquibase.command.changeExecListenerPropertiesFile=YOUR_FILE &amp;&amp; liquibase update --changelog-file=dbchangelog.xml</code></pre>
+        <p>Windows syntax:</p><pre xml:space="preserve"><code class="language-text">set JAVA_OPTS=-Dliquibase.command.changeExecListenerClass=YOUR_CLASS -Dliquibase.command&gt;changeExecListenerPropertiesFile=YOUR_FILE &amp;&amp; liquibase update --changelog-file=dbchangelog.xml</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To use a <MadCap:variable name="General.Liquibase" /> command alongside <code>JAVA_OPTS</code>, add <code>&amp;&amp;&#160;liquibase &lt;command&gt;</code> to the end of your input.</p>
+        <h3>Environment variable (<MadCap:variable name="General.LBPro" />)</h3>
+        <p>In <MadCap:variable name="General.LBPro" />, set an environment variable:</p>
+        <p>Mac/Linux syntax:</p><pre xml:space="preserve"><code class="language-text">LIQUIBASE_COMMAND_CHANGE_EXEC_LISTENER_CLASS=YOUR_CLASS
+LIQUIBASE_COMMAND_CHANGE_EXEC_LISTENER_PROPERTIES_FILE=YOUR_FILE</code></pre>
+        <p>Windows syntax:</p><pre xml:space="preserve"><code class="language-text">set LIQUIBASE_COMMAND_CHANGE_EXEC_LISTENER_CLASS=YOUR_CLASS
+set LIQUIBASE_COMMAND_CHANGE_EXEC_LISTENER_PROPERTIES_FILE=YOUR_FILE</code></pre>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/parameter-envar-persistence.flsnp" />
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://docs.oracle.com/javase/tutorial/uiswing/events/intro.html">Oracle:&#160;Introduction to Event Listeners</a>
+            </li>
+        </ul>
+    </body>
+</html>
