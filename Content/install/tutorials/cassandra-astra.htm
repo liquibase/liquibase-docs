@@ -18,6 +18,12 @@
             <li>Log into your DataStax Astra account from the following URL <a href="https://astra.datastax.com/">https://astra.datastax.com/</a>. From Dashboard click <b>connect</b> on the desired <b>Database &gt; Under "Connect using an API, choose "Java" &gt; download</b> the <b>Connect Bundle</b> by clicking the link in step 1 under <b>Prerequisites</b>.</li>
             <li>Once the <code>secure-connect-&lt;dbname&gt;.zip</code> is fully downloaded, place it somewhere in a secure place in your file system.</li>
             <li>Unzip the <code>secure-connect-&lt;dbname&gt;.zip</code> file. Open the <code>config.json</code> file in a text editor and leave it open.  We will use that information in this file later to configure our <MadCap:variable name="General.Liquibase" /> project.</li>
+            <li>Clone this <a href="https://github.com/datastax/cql-proxy">repository</a> to set up CQL-Proxy which is a sidecar that enables unsupported CQL drivers to work with <a href="https://astra.datastax.com/">DataStax Astra.</a></li>
+            <ul style="padding-left:20px">
+                <li>You need your <b>Astra Token</b> and <b>Astra Database ID</b> to use CQL-Proxy</li>
+                <li>Follow the steps in the repo to spin up CQL-Proxy using Terminal/Command Line. Once successfully running, you should see the following output:</li>
+            </ul>
+            <code>{"level":"info","ts":1651012815.176512,"caller":"proxy/proxy.go:222","msg":"proxy is listening","address":"[::]:9042"}</code>
         </ul>
         <h2>Tutorial</h2>
         <p>To create a <MadCap:variable name="General.Liquibase" /> project with Cassandra on DataStax Astra on your machine, begin with the following steps:</p>
@@ -29,18 +35,18 @@
         <ol MadCap:continue="true">
             <li>In your <code>LiquibaseProj</code> folder, create a new text file and name it <code><MadCap:variable name="General.liquiPropFile" /></code>.</li>
             <li>Add the following properties to the newly created <MadCap:variable name="General.Liquibase" /> properties file:</li><pre xml:space="preserve"><code class="language-html">changelog-file: dbchangelog.sql
-url: jdbc:cassandra://host:port;DefaultKeyspace=keyspace;AuthMech=2;UID=username;PWD=password;SecureConnectionBundlePath=path/to/secure-connect-database_name.zip;TunableConsistency=6
-username: username
-password: password
-driver: com.simba.cassandra.jdbc42.Driver
-defaultSchemaName: keyspace
+                changelog-file: dbchangelog.sql
+                url: jdbc:cassandra://localhost:9042/test;DefaultKeyspace=test;TunableConsistency=6
+                driver: com.simba.cassandra.jdbc42.Driver
+                defaultSchemaName: test
+                liquibase.hub.mode=off                
 </code></pre>
         </ol>
-        <p>In the <MadCap:variable name="General.Liquibase" /> properties file, replace <b>host</b>, <b>keyspace</b>, and <b>port</b> with the values from the <code>config.json</code> file.  Replace <b>UID</b>, <b>PWD</b>, <b>username</b>, and <b>password</b> with your real username and password.  Finally, replace <code>path/to/secure-connect-database_name.zip</code> with the path to your secure connect zip file (double slashes for Windows).</p>
+        <p>In the <MadCap:variable name="General.Liquibase" /> liquibase.properties file, replace <b>test</b> with your own keyspace name</p>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
         <ol MadCap:continue="true">
             <li>Add a <MadCap:variable name="General.changeset" /> to the <MadCap:variable name="General.changelog" /> – <MadCap:variable name="General.changeset" /> are uniquely identified by <code>author</code> and <code>id</code> attributes. <MadCap:variable name="General.Liquibase" /> attempts to execute each <MadCap:variable name="General.changeset" /> in a transaction that is committed at the end.
-In the <code>dbchangelog.sql</code> file line 3 add a new <b>department</b> create table <MadCap:variable name="General.changeset" /> as follows:</li><pre><code class="language-sql">--liquibase formatted sql
+In the <code>dbchangelog.sql</code> file, add a new changeset with a <code>create table</code> statement. We will create a new table <b>department</b> using a <MadCap:variable name="General.changeset" /> as follows:</li><pre><code class="language-sql">--liquibase formatted sql
 
 --changeset bob:1
 CREATE TABLE keyspace.DEPARTMENT (id int, NAME text, ACTIVE BOOLEAN);</code></pre>
