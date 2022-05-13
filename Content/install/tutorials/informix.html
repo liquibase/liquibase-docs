@@ -6,32 +6,25 @@
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with Informix</h1>
-        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project with Informix. In this tutorial, you will learn how to generate an example project and follow the instructions to apply concepts associated with creating new <MadCap:variable name="General.Liquibase" /> projects with Informix.</p>
+        <p>IBM Informix is an embeddable relational database management system that specializes in online transaction processing and data warehouse workflows. For more information, see <a href="https://www.ibm.com/docs/en/informix-servers">IBM&#160;Informix Servers Documentation</a>.</p>
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-prerequisites.flsnp" />
         <ul>
             <li>Created an Informix database in the ANSI mode to enable implicit transactions by using the following statement:</li><pre><code class="language-text">CREATE DATABASE ansiDatabase WITH LOG MODE ANSI;</code></pre>
             <p>For more information, see <a href="https://www.ibm.com/support/knowledgecenter/en/SSGU8G_12.1.0/com.ibm.sqls.doc/ids_sqs_0369.htm">CREATE DATABASE statement: Logging Options</a>.</p>
-            <li>Download the <a href="https://mvnrepository.com/artifact/com.ibm.informix/jdbc">JDBC jar driver file</a>.</li>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Place your JDBC&#160;jar file in the <code>liquibase/lib</code> install directory or in any other known directory so you can locate it easily.</p>
         </ul>
-        <h2>Tutorial</h2>
-        <p><strong>To create a <MadCap:variable name="General.Liquibase" /> project with Informix, perform the following steps:</strong>
-        </p>
+        <h2>Install Drivers</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Informix, you must download the <a href="https://mvnrepository.com/artifact/com.ibm.informix/jdbc">JDBC driver JAR file</a>.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorials.Not pre-installed&quot;]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;com.ibm.informix&lt;/groupId&gt;
+    &lt;artifactId&gt;jdbc&lt;/artifactId&gt;
+    &lt;version&gt;4.50.8&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h2>Test Your Connection</h2>
+        <p>For <MadCap:variable name="General.Liquibase" /> and Informix to work, you need to:</p>
         <ol>
-            <li>Add the following properties to the newly created <MadCap:variable name="General.Liquibase" /> properties file:</li><pre><code class="language-text">changelog-file: dbchangelog.xml
-url: jdbc:informix-sqli://localhost:9088/dbname:INFORMIXSERVER=dbserver
-username: user1
-password: password
-driver: com.informix.jdbc.IfxDriver
-classpath: ../../Liquibase_Drivers/jdbc-4.50.4.1.jar</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Specifying your password, take into account that <MadCap:variable name="General.Liquibase" /> supports only the following special characters: <code>~ # $ % * ( ) - _ + [ ] { } . ?</code>. Unsupported special characters are as follows: <code>@ &amp; / : &lt; &gt; " ' ` | ^ ! = , \ &lt;spaces&gt;</code>.</p>
-            <p>If you placed the jar file in the <code>liquibase/lib</code> install directory, do not specify the <code>classpath</code> property in the <MadCap:variable name="General.Liquibase" /> properties file. Otherwise, specify the path to the driver as shown in the preceding example.</p>
-            <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
-            <li>In your project folder, create a new text file and name it <code>dbchangelog.xml</code>. The <MadCap:variable name="General.changelog" /> files contain a sequence of <MadCap:variable name="General.changeset" />s, each of which makes small changes to the structure of your database.</li>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Instead of creating an empty <MadCap:variable name="General.changelog" /> file, you can use an existing database to generate a <MadCap:variable name="General.changelog" />. In this tutorial, you will manually add a single change. To add this change, open the XML file and update the <MadCap:variable name="General.changelog" /> file with the following code snippet:</p><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-<MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
-  &lt;/databaseChangeLog&gt;</code></pre>
+            <li>Ensure your Informix database is configured. See <a href="https://www.ibm.com/docs/en/informix-servers/14.10?topic=server-installing">Informix Installation</a> for more information.</li>
+            <li>Specify the database URL&#160;in the <MadCap:variable name="General.Liquibase" /> properties file:</li><pre><code class="language-text">url: jdbc:informix-sqli://localhost:9088/dbname:INFORMIXSERVER=dbserver</code></pre>
             <li>
                 <MadCap:snippetText src="../../Z_Resources/Snippets/misc/database-changelog.flsnp" />
             </li>
@@ -39,8 +32,7 @@ classpath: ../../Liquibase_Drivers/jdbc-4.50.4.1.jar</code></pre>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/code/database-changelog-examples.flsnp" />
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-test-connection.flsnp" />
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-tracking-tables.flsnp" />
-        <h2>Troubleshooting issues with the formatted SQL procedure</h2>
-        <p>When you add a <MadCap:variable name="General.changeset" /> with the procedure but receive an error message during the runtime, add the <code>splitStatements</code> attribute set to <code>false</code> to your <MadCap:variable name="General.changeset" /> as follows:</p><pre><code class="language-sql">--changeset bob:5 splitStatements:false
+        <p>If you add a <MadCap:variable name="General.changeset" /> with the procedure but receive an error message during the runtime, add the <code>splitStatements</code> attribute set to <code>false</code> to your <MadCap:variable name="General.changeset" /> as follows:</p><pre><code class="language-sql">--changeset bob:5 splitStatements:false
 CREATE PROCEDURE raise_prices ( per_cent INT)
         UPDATE stock SET unit_price = unit_price + (unit_price * (per_cent/100) );
 END PROCEDURE;</code></pre>
