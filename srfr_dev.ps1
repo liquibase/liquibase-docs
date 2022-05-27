@@ -1,4 +1,4 @@
-Get-ChildItem "C:\Users\Administrator\Documents\MadCap Flare Projects\LiquibasePro\Output\Administrator\HTML5" *.htm -recurse |
+Get-ChildItem "C:\Users\%USERNAME%\Documents\My Projects\LiquibasePro\Output\%USERNAME%\HTML5" *.htm -recurse |
     Foreach-Object {
         # Note:
         #  * the use of -Encoding Utf8 to first try to read the file as UTF-8.
