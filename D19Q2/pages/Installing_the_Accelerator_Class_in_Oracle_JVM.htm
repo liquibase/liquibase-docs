@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+        <title>
+        </title>
+    </head>
+    <body>
+        <h1>Installing the Accelerator Class in Oracle JVM</h1>
+        <p>
+            <span style="color: rgb(51,51,51);">You need to remove and reinstall the Oracle JVM for all databases where you want to use the Datical Accelerator. Typically this will be on the database where you run Convert SQL scripts.</span>
+            <br />
+<span style="color: rgb(51,51,51);">For more detailed information, see the following resources:</span></p>
+<ul>
+	<li><a class="external-link" href="http://stackoverflow.com/questions/11788194/how-to-install-jvm-in-oracle" rel="nofollow">http://stackoverflow.com/questions/11788194/how-to-install-jvm-in-oracle</a></li>
+	<li><span style="color: rgb(26,26,26);">Knowledge Mgmt Note ID 757771.1 How to Reload the JVM in 10.1.0.X and 10.2.0.X in</span><![CDATA[ ]]> <![CDATA[ ]]><a class="external-link" href="http://support.oracle.com/" rel="nofollow"><span style="color: rgb(11,96,192);">Oracle Support</span></a><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(26,26,26);">(formerly metalink ). More detailed instructions and video are available there. This note also consists of several other Notes that resolve different issues.</span></li>
+</ul>
+
+
+<p><br class="atl-forced-newline" /></p>
+<h1 id="InstallingtheAcceleratorClassinOracleJVM-TestingthatOracleJVMisInstalled">Testing that Oracle JVM is Installed</h1>
+<p><span style="color: rgb(51,51,51);">Run the following statement:</span><br />
+select * from dba_registry where COMP_ID='JAVAVM';
+<br class="atl-forced-newline" />
+<span style="color: rgb(51,51,51);">If there are no results, then the Oracle JVM is not installed. Go to the installation step.</span></p>
+<h1 id="InstallingtheAcceleratorClassinOracleJVM-RemovingtheExistingOracleJVM">Removing the Existing Oracle JVM</h1>
+<p><br class="atl-forced-newline" /></p>
+<ol>
+	<li><span style="color: rgb(51,51,51);">As <strong>sys</strong> user, run the following:</span></li>
+</ol>
+
+
+<p>startup mount;<br />
+alter system set "_system_trig_enabled" = false scope=memory;<br />
+alter system enable restricted session;<br />
+alter database open;<br />
+@?/rdbms/admin/catnojav.sql<br />
+@?/xdk/admin/rmxml.sql<br />
+@?/javavm/install/rmjvm.sql<br />
+truncate table java$jvm$status;
+<br class="atl-forced-newline" /></p>
+<ol>
+	<li>Restart the database.</li>
+</ol>
+
+
+<h1 id="InstallingtheAcceleratorClassinOracleJVM-InstallingOracleJVM">Installing OracleJVM</h1>
+<p><br class="atl-forced-newline" /></p>
+<ol>
+	<li><span style="color: rgb(51,51,51);">As <strong>sys</strong> user, run the following:</span></li>
+</ol>
+
+
+<p><span style="color: rgb(43,39,19);">startup mount</span><br />
+<span style="color: rgb(0,0,120);">alter</span><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(43,39,19);">system</span><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(0,0,120);">set</span><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(107,0,1);">"_system_trig_enabled"</span><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(43,39,19);">= false scope=memory;</span><br />
+<span style="color: rgb(0,0,120);">alter</span><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(0,0,120);">database</span><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(0,0,120);">open</span><span style="color: rgb(43,39,19);">;</span><br />
+<span style="color: rgb(43,39,19);">@?/javavm/install/initjvm.sql</span><br />
+<span style="color: rgb(43,39,19);">@?/xdk/admin/initxml.sql</span><br />
+<span style="color: rgb(43,39,19);">@?/xdk/admin/xmlja.sql</span><br />
+<span style="color: rgb(43,39,19);">@?/rdbms/admin/catjava.sql</span><br />
+<span style="color: rgb(0,0,120);">shutdown</span><![CDATA[ ]]> <![CDATA[ ]]><span style="color: rgb(43,39,19);">immediate;</span>
+<br class="atl-forced-newline" /></p>
+<ol>
+	<li>Restart the database.</li>
+	<li>Execute the following script and resolve any INVALID objects.</li>
+</ol>
+
+
+<p><span style="color: rgb(26,26,26);">@?/rdbms/admin/utlrp.sql</span>
+<br class="atl-forced-newline" />
+The JVM should be installed and functional. You can check it using the following statement:
+<br class="atl-forced-newline" />
+SQL&gt; select comp_name, version, status from dba_registry</p>
+<h1 id="InstallingtheAcceleratorClassinOracleJVM-VerifyingOraclePermissions">Verifying Oracle Permissions</h1>
+<p>The Accelerator loads a Java class into an Oracle database schema and executes it as part of its operation.
+<br class="atl-forced-newline" />
+The required permissions are CREATE and EXECUTE permissions for PROCEDURES in order to load and execute the Java code.</p></body>
+</html>

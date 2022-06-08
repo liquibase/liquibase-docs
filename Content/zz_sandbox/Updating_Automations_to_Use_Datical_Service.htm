@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Updating Automations to Use Datical Service</h1>
+        <p>An automation is an implementation of automation software to perform Datical operations. See <a href="..\..\DDOC59\pages\Integrating_Datical_with_Automation_Tools.htm">Integrating Datical with Automation Tools</a>.</p>
+        <h1 id="UpdatingAutomationstoUseDaticalService-AutomationandtheDaticalDBCLI">Automation and the Datical DB CLI</h1>
+        <p>Automated environments typically contain automated steps configured for operations.&#160;</p>
+        <h2 id="UpdatingAutomationstoUseDaticalService-AddingUserstoDaticalService">Adding Users to Datical Service</h2>
+        <p>The hammer commands require a user and password to authenticate with Datical Service.&#160;</p>
+        <p>Add the users to Datical Service and give them the required roles.&#160;</p>
+        <p>Include authentication options in running Datical CLI commands, either through command-line options or through environment variable settings.&#160;</p>
+        <h2 id="UpdatingAutomationstoUseDaticalService-UpdatingOperationsthatCallDaticalCLICommands">Updating Operations that Call Datical CLI Commands</h2>
+        <p>If you have automated Datical operations using the Datical DB CLI, you can modify the Datical CLI commands to call Datical Service.&#160;</p>
+        <ul>
+            <li>Package new SQL code from the SCM repository</li>
+            <li>Forecast changes</li>
+            <li>Deploy changes</li>
+            <li>Roll back changes</li>
+            <li>Get status</li>
+        </ul>
+        <h1 id="UpdatingAutomationstoUseDaticalService-UpdatinganAutomatedEnvironment">Updating an Automated Environment</h1>
+        <h2 id="UpdatingAutomationstoUseDaticalService-1.SetUpaTestAutomationEnvironment">1.&#160;Set Up a Test Automation Environment</h2>
+        <p>Set up a sandbox automation environment to test usage with Datical Service.</p>
+        <p>Do not modify your production workflows without testing!</p>
+        <h2 id="UpdatingAutomationstoUseDaticalService-2.AddUserstoDatical">2. Add Users to Datical</h2>
+        <p>Create users in Datical and assign them the appropriate roles. The automation scripts run Datical commands as a configured user.&#160;</p>
+        <h2 id="UpdatingAutomationstoUseDaticalService-3.ImportProjectstoDatical">3. Import Projects to Datical</h2>
+        <p>Import all of the projects that are used in the automation scripts.</p>
+        <h2 id="UpdatingAutomationstoUseDaticalService-4.AddKeyValues">4. Add Key Values</h2>
+        <p>Properties for key values can be set for a project, pipeline, step, and connection.&#160;</p>
+        <p>Use them to ensure that projects and pipelines have unique identities on the service.&#160;</p>
+        <h2 id="UpdatingAutomationstoUseDaticalService-5.ModifyAutomationScripts">5. Modify Automation Scripts</h2>
+        <p>Do the following to modify an existing Datical DB automation environment use Datical Service.&#160;</p>
+        <ol>
+            <li>Locate scripts that use the following commands:<ul><li>hammer deploy</li><li>hammer forecast</li><li>hammer status</li><li>hammer groovy deployPackager.groovy</li></ul></li>
+            <li style="margin-left: 0.0px;">
+                <p class="auto-cursor-target">Modify the command syntax. See&#160;<a href="Using_Datical_DB_Hammer_Commands_with_Projects_in_Datical_Service.htm">Using Datical DB Hammer Commands with Projects in Datical Service</a>.&#160;</p>
+            </li>
+            <li>Create a Keycloak client and copy the value of secret for use in the DATICAL_CLIENT_SECRET environment variable.&#160;<ol><li>On the Datical service, go to Keycloak and log in as admin.&#160; &#160;<a class="external-link" href="https://192.168.99.100/auth" rel="nofollow">https://&lt;datical-services-ip&gt;/auth</a></li><li>Create <strong>Client</strong> with name = <code>hammer</code></li><li><code>Click Save</code></li><li>Enter <code>/*</code> in <strong>Valid Redirect URIs</strong></li><li>Select <strong>Access Type</strong> = <code>Confidential</code></li><li>Save</li><li>Click <strong>Credentials</strong></li><li>Copy the SECRET</li></ol></li>
+            <li>
+                <p class="auto-cursor-target">Modify the automation to set additional environment variables.</p>
+                <div class="table-wrap">
+                    <div class="table-wrap">
+                        <table class="wrapped confluenceTable">
+                            <colgroup>
+                                <col />
+                                <col />
+                            </colgroup>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p><span style="color: rgb(0,0,0);"><strong>Environment variables</strong></span>
+                                        </p>
+                                    </td>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p><span style="color: rgb(0,0,0);"><strong>Description</strong></span>
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="1" class="confluenceTd"><strong>DATICAL_PASSWORD</strong>
+                                    </td>
+                                    <td colspan="1" class="confluenceTd">password to access Datical Service</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="1" class="confluenceTd"><strong>DATICAL_CLIENT_SECRET</strong>
+                                    </td>
+                                    <td colspan="1" class="confluenceTd">the SECRET you copied from KeyCloak</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="1" class="confluenceTd"><strong>INSTANT_CLIENT_HOME</strong>
+                                    </td>
+                                    <td colspan="1" class="confluenceTd">Substitute your location of sqlplus</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p><strong>DDB_USER</strong>
+                                            <br class="atl-forced-newline" /><strong>DDB_PASS</strong>
+                                        </p>
+                                    </td>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p>Used for commands that operate on a single database.</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;" colspan="1" class="confluenceTd">
+                                        <p><strong>DDB_USER_&lt;REFDB&gt;</strong>
+                                        </p>
+                                        <p><strong>DDB_PASS_&lt;REFDB&gt;</strong>
+                                        </p>
+                                    </td>
+                                    <td style="text-align: left;" colspan="1" class="confluenceTd">
+                                        <p>Used for packager only. NOTE: No underscores are allowed in REFDB name. For example, use REFHF instead of REF_HF.</p>
+                                        <p>
+                                            <br />
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p><strong>DDB_REF_USER</strong>
+                                            <br class="atl-forced-newline" /><strong>DDB_REF_PASS</strong>
+                                        </p>
+                                    </td>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p>Used with<strong>REFERENCE&#160;</strong>variables for commands that operate on two databases.</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p><strong>DDB_TARGET_USER</strong>
+                                            <br class="atl-forced-newline" /><strong>DDB_TARGET_PASS</strong>
+                                        </p>
+                                    </td>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p>Used with<strong>TARGET</strong>&#160;variables for commands that operate on two databases.</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p><strong>DDB_AUDIT_USER</strong>
+                                            <br class="atl-forced-newline" /><strong>DDB_AUDIT_PASS</strong>
+                                        </p>
+                                    </td>
+                                    <td style="text-align: left;" class="confluenceTd">
+                                        <p>Used for commands that perform auditable operations.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </li>
+            <li>Test the automated steps.&#160;</li>
+        </ol>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>

@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Remove lock from DATABASECHANGELOGLOCK table?</h1>
+        <h1 id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-"><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><div class="toc-macro client-side-toc-macro  conf-macro output-block"></div></span></span>
+        </h1>
+        <h1 id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-Overview"><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);">Overview</span></span>
+        </h1>
+        <p><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);">When a Datical/Liquibase Enterprise/Liquibase Business deployment process is aborted or killed before it finishes, its database process lock table (DATABASECHANGELOGLOCK) is left with a lock record that prevents subsequent packaging or deployment jobs from being able to run. In order to allow future processes to proceed, the table needs to be cleared out by manually updating the column to 0 (zero).&#160; This can happen with any of the supported database platforms.</span></span>
+        </p>
+        <p><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">If the target is an Oracle database the&#160;</span><code>DATICAL_SPERRORLOG</code><span style="color: rgb(23,43,77);">table might also be held open.&#160; The&#160;</span><code>DATICAL_SPERRORLOG</code><span style="color: rgb(23,43,77);">table is used to capture output for scripts executed using&#160;</span><code>sqlplus</code><span style="color: rgb(23,43,77);">during a deployment.</span></span></span>
+        </p>
+        <p><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">Newer versions of Datical have better ways of handling the locks, so we recommend upgrading to Datical DB version 7.3 or higher for the smoothest handling of the locks.&#160; Please see below for different instructions for different versions of Datical.</span></span></span>
+        </p>
+        <h2 id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-SampleError"><span style="color: rgb(23,43,77);">Sample Error</span>
+        </h2>
+        <p><span style="color: rgb(23,43,77);">Below is sample text you may see in the Deploy Report if there is a lock on the databasechangeloglock table:</span>
+        </p>
+        <p class="auto-cursor-target"><span style="color: rgb(153,51,0);"><em>An error occurred deploying to '[dbDef]': liquibase.exception.LockException: Could not acquire change log lock. Currently locked by [user] ([user_ip]) since 2/27/20 9:44 AM</em></span>
+        </p>
+        <h1 id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-HammerCommandforreleasingDATABASECHANGELOGLOCK"><span style="color: rgb(23,43,77);">Hammer Command for releasing DATABASECHANGELOGLOCK</span>
+        </h1>
+        <p><span style="color: rgb(23,43,77);">There is a hammer command to release the lock.&#160; The instructions for using releaseLocks are different for older versions of Datical (7.0 and lower), or version 7.2, or newer versions of Datical (7.3 and higher).</span>
+        </p>
+        <h2 id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-InstructionsforDaticalversions7.3andhigher:">Instructions for Datical versions 7.3 and higher:</h2>
+        <p>The instructions for 7.3 and higher are simpler, because the hammer command works for both the DATABASECHANGELOGLOCK table and the Oracle DATICAL_SPERRORLOG table.&#160; We recommend upgrading to 7.3 or higher if you sometimes need to interrupt deploys and then use the releaseLocks command before running another deploy.</p>
+        <p>
+            <br />
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>releaseLocks</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve"> hammer releaseLocks &lt;dbDef&gt;</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <h2 id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-InstructionsforDaticalversion7.2:">Instructions for Datical version 7.2:</h2>
+        <p>With version 7.2 the releaseLocks command no longer requires a separate properties file for drivers.&#160;&#160;</p>
+        <p>
+            <br />
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>releaseLocks</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve"> hammer releaseLocks &lt;dbDef&gt;</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>If you are using Oracle with Datical version 7.2 and you need to manually terminate a packager job or a deploy job, the DATICAL_SPERRORLOG table may be held open on your Datical tracking schema.&#160; You may need to disconnect the session for the user that runs Datical.&#160;&#160;<span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">The&#160;</span><code>DATICAL_SPERRORLOG</code><span style="color: rgb(23,43,77);">table is used to capture output for scripts executed using&#160;</span><code>sqlplus</code><span style="color: rgb(23,43,77);">during an Oracle deployment.</span></span></span></p>
+        <p><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">Here is how you can disconnect the session:</span></span></span>
+        </p>
+        <ul>
+            <li>Run a query to find the process</li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT s.inst_id,
+   s.sid,
+   s.serial#,
+   p.spid,
+   s.username,
+   s.program FROM   gv$session s
+   JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre>
+            </div>
+        </div>
+        <ul>
+            <li>Disconnect the&#160;<span style="color: rgb(29,28,29);">session with the following statement.</span></li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre>
+            </div>
+        </div>
+        <h2 id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-InstructionsforDaticalversions7.0andlower:">Instructions for Datical versions 7.0 and lower:</h2>
+        <p>The instructions for 7.0 and lower requires a daticaldb.properties file to indicate the path to the drivers.&#160;&#160;</p>
+        <p>
+            <br />
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>releaseLocks.groovy</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer groovy releaseLocks.groovy [dbDef]</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>NOTE: You will need to specify path to your driver (jar file) in a new file called daticaldb.properties file within your project directory. Place the file in the same directory as the datical.project.&#160; Here's how we recommend setting up your daticaldb.properties file. Uncomment the relevant line before using:</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl hide-border-bottom" style="border-bottom-width: 1px;"><b class="code-title">daticaldb.properties</b><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span>
+            </div>
+            <div class="codeContent panelContent pdl hide-toolbar"><pre class="syntaxhighlighter-pre" xml:space="preserve">## Oracle driver (Linux)
+#drivers=/opt/datical/DaticalDB/repl/plugins/com.datical.db.drivers.oracle.common_1.0.12.jar
+
+## Oracle driver (Windows)
+#drivers=C:\\Users\\Administrator\\DaticalDB\\repl\\plugins\\com.datical.db.drivers.oracle.win_x86_64_1.0.12.jar
+
+## MS SQL Server driver
+#drivers=C:\\Users\\Administrator\\DaticalDB\\repl\\plugins\\com.datical.db.drivers.mssql_1.0.12.jar</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>If you are using Oracle with Datical version 7.0 and you need to manually terminate a packager job or a deploy job, the DATICAL_SPERRORLOG table may be held open on your Datical tracking schema.&#160; You may need to disconnect the session for the user that runs Datical.&#160;&#160;<span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">The&#160;</span><code>DATICAL_SPERRORLOG</code><span style="color: rgb(23,43,77);">table is used to capture output for scripts executed using&#160;</span><code>sqlplus</code><span style="color: rgb(23,43,77);">during an Oracle deployment.</span></span></span></p>
+        <p><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">Here is how you can disconnect the session:</span></span></span>
+        </p>
+        <ul>
+            <li>Run a query to find the process</li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT s.inst_id,
+   s.sid,
+   s.serial#,
+   p.spid,
+   s.username,
+   s.program FROM   gv$session s
+   JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre>
+            </div>
+        </div>
+        <ul>
+            <li>Disconnect the&#160;<span style="color: rgb(29,28,29);">session with the following statement.</span></li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p><span style="color: rgb(23,43,77);">Known issue with Oracle: When running this command to clear locks with Datical versions 7.0 or lower in an Oracle database you may see the following warning message relating to "MBeans":</span>
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl hide-border-bottom" style="border-bottom-width: 1px;"><b class="code-title">Warning when running releaseLocks against an Oracle database</b><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span>
+            </div>
+            <div class="codeContent panelContent pdl hide-toolbar"><pre class="syntaxhighlighter-pre" xml:space="preserve">WARNING: Error while registering Oracle JDBC Diagnosability MBean.
+java.security.AccessControlException: access denied ("javax.management.MBeanTrustPermission" "register")
+	at java.security.AccessControlContext.checkPermission(AccessControlContext.java:472)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:585)
+	at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.checkMBeanTrustPermission(DefaultMBeanServerInterceptor.java:1848)
+	at com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.registerMBean(DefaultMBeanServerInterceptor.java:322)
+	at com.sun.jmx.mbeanserver.JmxMBeanServer.registerMBean(JmxMBeanServer.java:522)
+	at oracle.jdbc.driver.OracleDriver.registerMBeans(OracleDriver.java:416)
+	at oracle.jdbc.driver.OracleDriver$1.run(OracleDriver.java:248)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at oracle.jdbc.driver.OracleDriver.&lt;clinit&gt;(OracleDriver.java:244)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:348)
+	at liquibase.database.DatabaseFactory.openConnection(DatabaseFactory.java:197)
+	at liquibase.database.DatabaseFactory.openDatabase(DatabaseFactory.java:151)
+	at liquibase.integration.commandline.CommandLineUtils.createDatabaseObject(CommandLineUtils.java:86)
+	at liquibase.integration.commandline.Main.doMigration(Main.java:960)
+	at liquibase.integration.commandline.Main.run(Main.java:190)
+	at liquibase.integration.commandline.Main.main(Main.java:105)
+	at com.datical.hammer.repl.LiquibaseCliCommand.runLiquibase(LiquibaseCliCommand.java:271)
+	at com.datical.hammer.repl.LiquibaseCliCommand.runLiquibase(LiquibaseCliCommand.java:211)
+	at com.datical.hammer.repl.LiquibaseCliCommand.run(LiquibaseCliCommand.java:45)
+	at com.datical.hammer.repl.DaticalDBHelper.executeCommand(DaticalDBHelper.java:3151)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.codehaus.groovy.runtime.callsite.PojoMetaMethodSite$PojoCachedMethodSiteNoUnwrapNoCoerce.invoke(PojoMetaMethodSite.java:233)
+	at org.codehaus.groovy.runtime.callsite.PojoMetaMethodSite.call(PojoMetaMethodSite.java:56)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:48)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:113)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:141)
+	at releaseLocks.run(releaseLocks.groovy:12)
+	at groovy.util.GroovyScriptEngine.run(GroovyScriptEngine.java:605)
+	at com.datical.hammer.repl.GroovyScriptCommand.run(GroovyScriptCommand.java:255)
+	at com.datical.hammer.repl.Main.runCommandFromArgs(Main.java:437)
+	at com.datical.hammer.repl.Main.main(Main.java:94)
+	at com.datical.hammer.repl.app.Application.start(Application.java:19)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+
+Successfully released all database change log locks for DATICAL_USER@jdbc:oracle:thin:@//demo-db1-rhel6.datical.net:1521/CAPS_REF1.datical.net
+Liquibase 'releaseLocks' Successful
+
+</pre>
+            </div>
+        </div>
+        <h1 class="auto-cursor-target" id="HowTo:RemovelockfromDATABASECHANGELOGLOCKtable?-AlternateSolutionforreleasingDATABASECHANGELOGLOCK">Alternate Solution&#160;<span style="color: rgb(23,43,77);">for releasing DATABASECHANGELOGLOCK</span></h1>
+        <p class="auto-cursor-target">Update the DATABASECHANGELOGLOCK table manually:</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>SQL</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">UPDATE DATABASECHANGELOGLOCK SET LOCKED=0;</pre>
+            </div>
+        </div>
+        <p class="auto-cursor-target">Note that if you update the DATABASECHANGELOGLOCK table manually, for Oracle you may also need to disconnect the session for the user that runs Datical.&#160;&#160;<span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">The&#160;</span><code>DATICAL_SPERRORLOG</code><span style="color: rgb(23,43,77);">table is used to capture output for scripts executed using&#160;</span><code>sqlplus</code><span style="color: rgb(23,43,77);">during an Oracle deployment.</span></span></span></p>
+        <p><span style="color: rgb(23,43,77);"><span style="color: rgb(51,51,51);"><span style="color: rgb(23,43,77);">Here is how you can disconnect the session:</span></span></span>
+        </p>
+        <ul>
+            <li>Run a query to find the process</li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT s.inst_id,
+   s.sid,
+   s.serial#,
+   p.spid,
+   s.username,
+   s.program FROM   gv$session s
+   JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre>
+            </div>
+        </div>
+        <ul>
+            <li>Disconnect the&#160;<span style="color: rgb(29,28,29);">session with the following statement.</span></li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre>
+            </div>
+        </div>
+    </body>
+</html>

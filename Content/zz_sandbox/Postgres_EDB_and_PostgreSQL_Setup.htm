@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Postgres EDB and PostgreSQL Setup</h1>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block">
+        </div>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>This page is currently invisible to customers through Restrictions</p>
+            </div>
+        </div>
+        <h1 id="PostgresEDBandPostgreSQLSetup-PlatformSupport">Platform Support</h1>
+        <p>Datical DB supports these Postgres platforms and variants:</p>
+        <ul>
+            <li>EDB Postgres</li>
+            <li>PostgreSQL (on-premise)</li>
+            <li>PostgreSQL on Amazon RDS</li>
+            <li>PostgreSQL on Amazon Aurora</li>
+        </ul>
+        <p>See&#160;<a href="Hardware__Software__and_Database_Requirements.htm">Hardware, Software, and Database Requirements</a>&#160;for more information on version support.&#160;</p>
+        <h1 id="PostgresEDBandPostgreSQLSetup-Prerequisite:OwnershipofSchemaandDatabaseObjects">Prerequisite: Ownership of Schema and Database Objects</h1>
+        <p>In order for Datical DB to manage an existing Postgres instance, it must connect as a user with at least one of the following requirements:</p>
+        <ul>
+            <li>Owns all schema to be managed by Datical DB <strong>and</strong> owns all objects in those schema.</li>
+            <li>Is a superuser (on-prem only–the superuser on Amazon RDS or Aurora does not have sufficient permissions)</li>
+        </ul>
+        <p>Postgres has a distinction between ownership and privilege, and only one user may own an object. Only the owner (or a superuser) may alter or drop a given object. Therefore, simply granting the owner's role to another user is not sufficient. Ownership must be explicitly transferred (see below). <span style="color: rgb(0,0,0);">When managing Postgres databases, p</span><span style="color: rgb(255,153,0);"><span style="color: rgb(0,0,0);">lease disregard any documentation referencing the use of multiple roles for Datical DB connection users.</span></span></p>
+        <p>"The right to modify or destroy an object is always the privilege of the owner only." - from PostgreSQL documentation <a class="external-link" href="https://www.postgresql.org/docs/9.6/ddl-priv.html" rel="nofollow">https://www.postgresql.org/docs/9.6/ddl-priv.html</a></p>
+        <p>Since it is necessary for Datical DB to perform both backup and restore operations on all schema it manages (which involves dropping and recreating entire schema and their objects), its connection user must own these schema and objects. If it does not, packaging fails and a permissions error is reported.&#160;</p>
+        <div class="confluence-information-macro confluence-information-macro-warning conf-macro output-block">
+            <p class="title">Special Instructions for Postgres in Amazon RDS</p>
+            <div class="confluence-information-macro-body">
+                <p>If you are using Postgres for Amazon RDS or for Aurora, the admin user they provide is NOT a true superuser and its privileges are NOT sufficient to perform Datical DB operations. The user specified in the DbDef connection must&#160;&#160;have proper permissions on the database (<em>connect</em>, <em>create</em>, and <em>temporary</em> are suggested) as well as ownership of schema and objects as described above. See AWS documentation for more information.</p>
+                <p>
+                    <br />
+                </p>
+                <div class="expand-container conf-macro output-block" id="expander-729805866">
+                    <div id="expander-control-729805866" class="expand-control"><span class="expand-control-text">Instructions for Reassigning Object Ownership in Postgres for Amazon RDS</span>
+                    </div>
+                    <div id="expander-content-729805866" class="expand-content expand-hidden">
+                        <p>The following steps to reassign object ownership without superuser privileges&#160;can be taken in Postgres in Amazon RDS environments</p>
+                        <p>1. Create a new role named 'change_owner' and grant it the LOGIN privilege</p>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">mydb=&gt; CREATE ROLE change_owner LOGIN;
+CREATE ROLE</pre>
+                            </div>
+                        </div><pre xml:space="preserve">
+                            <br />2. Make both the current owner ('old_owner') and the new Datical owner ('new_ddb_owner') roles members of the newly created role</pre>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">mydb=&gt; GRANT old_owner TO change_owner; 
+GRANT ROLE 
+mydb=&gt; GRANT new_ddb_owner TO change_owner; 
+GRANT ROLE</pre>
+                            </div>
+                        </div>
+                        <p>
+                            <br />
+                        </p>
+                        <p>3. Logout from psql and login using the new role</p>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">$ psql -U change_owner mydb
+mydb=&gt;</pre>
+                            </div>
+                        </div>
+                        <p>
+                            <br />
+                        </p>
+                        <p>4. Execute the reassignment</p>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">mydb=&gt; REASSIGN OWNED BY old_owner TO new_ddb_owner 
+REASSIGN OWNED</pre>
+                            </div>
+                        </div>
+                        <p>
+                            <br />Courtesy of&#160;<a class="external-link" href="https://sysadmintips.com/services/databases/postgresql-error-permission-denied-to-reassign-objects/" rel="nofollow">sysadmintips.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2 id="PostgresEDBandPostgreSQLSetup-PipelineStepsintheProject">Pipeline Steps in the Project</h2>
+        <p>Each database in your release pipeline is represented as a step in the Datical DB project. <span style="color: rgb(0,0,0);">Each step has its own set of connection information, including the user to connect as (the <strong>connection user</strong>).</span></p>
+        <p>At each step, the connection user must be the owner of all schema managed by Datical DB and the owner of all objects in that schema.</p>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <p class="title">Note</p>
+            <div class="confluence-information-macro-body">
+                <p>You do not have to use the same user for every step in the pipeline, as long as that user has the requisite ownership to perform Datical DB operations.</p>
+            </div>
+        </div>
+        <h1 id="PostgresEDBandPostgreSQLSetup-ChoosingaUsertoManagePostgreSQLDatabases">Choosing a User to Manage PostgreSQL Databases</h1>
+        <p>If you already have a user with the requisite ownership, you can configure Datical DB to connect as that user and skip the following steps.</p>
+        <h1 id="PostgresEDBandPostgreSQLSetup-CreatingaUsertoManagePostgreSQLDatabases">Creating a User to Manage PostgreSQL Databases</h1>
+        <p>If you want to create a new user to be the Datical DB connection user, then you have two options:</p>
+        <ol>
+            <li>Ensure that user is a superuser (on-prem Postgres)</li>
+            <li>Transfer ownership of all existing schema to be managed by Datical DB and all objects in those schema.</li>
+        </ol>
+        <p>The following sections show how to create a user, grant the required permissions, and transfer ownership of database objects.&#160;</p>
+        <h2 id="PostgresEDBandPostgreSQLSetup-1.CreatingtheDaticalUserandGrantingtheRequiredPermissions">1.&#160;Creating the Datical User and Granting the Required Permissions</h2>
+        <p>Log in as a superuser and run the following commands, substituting user and database name appropriately.</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE USER "datical_user" WITH PASSWORD 'password';
+GRANT CREATE, CONNECT, TEMPORARY ON DATABASE "your_database_name" TO "datical_user" WITH GRANT OPTION;</pre>
+            </div>
+        </div>
+        <h2 id="PostgresEDBandPostgreSQLSetup-2.TransferringOwnershipofDatabaseObjectstotheDaticalUser">2. Transferring Ownership of Database Objects to the Datical User</h2>
+        <p>You must either log in as a superuser or the object owner to transfer ownership.</p>
+        <p>
+            <br />
+        </p>
+        <ol>
+            <li>Make the current owner a member of the Datical user role.<ul><li><p class="auto-cursor-target">Log in as a superuser or the Datical user and grant membership:</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">GRANT "datical_user" to "current_owner";</pre></div></div></li></ul></li>
+            <li>Transfer ownership of database objects.<ul><li><p class="auto-cursor-target">To transfer ownership of a schema:<br /><br /></p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">ALTER SCHEMA "schema_name" OWNER TO "datical_user";</pre></div></div></li><li><p class="auto-cursor-target">To transfer ALL objects on a database to another user:<br /><br /></p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">REASSIGN OWNED BY "current_owner" TO "datical_user";</pre></div></div></li><li><p class="auto-cursor-target">To transfer a single object on a database to another user, please refer to the appropriate ALTER statement for that object type in the Postgres documentation.</p></li></ul></li>
+        </ol>
+        <h1 class="auto-cursor-target" id="PostgresEDBandPostgreSQLSetup-Limitations">Limitations</h1>
+        <ul>
+            <li>See Known Issues in&#160;<a href="..\..\D19Q2\pages\Datical_DB_v2019_2_2___Release_Notes.htm">Datical DB v2019.2.2 - Release Notes</a>&#160;and release notes for maintenance releases.&#160;</li>
+        </ul>
+        <h2 id="PostgresEDBandPostgreSQLSetup-FunctionTypeSupportOnCloudEnvironments">Function Type Support On Cloud Environments</h2>
+        <p>This is general information about <strong>Amazon</strong> support for these functions. The user with the highest level of permissions on Aurora/RDS (rds_superuser) does not have the capability to create certain functions. This is the case whether you are using Datical or not!</p>
+        <div class="table-wrap">
+            <table class="relative-table wrapped confluenceTable" style="width: 28.5558%;">
+                <colgroup>
+                    <col style="width: 41.1708%;" />
+                    <col style="width: 29.1235%;" />
+                    <col style="width: 29.7057%;" />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th class="confluenceTh">Function Type</th>
+                        <th class="confluenceTh">Community Edition</th>
+                        <th class="confluenceTh">Cloud (Aurora/RDS)</th>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">query language functions</td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-tick" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/check.png" width="16" height="16" alt="(tick)" />
+                        </td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-tick" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/check.png" width="16" height="16" alt="(tick)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">procedural language functions (TRUSTED)</td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-tick" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/check.png" width="16" height="16" alt="(tick)" />
+                        </td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-tick" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/check.png" width="16" height="16" alt="(tick)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">procedural language functions (UNTRUSTED)</td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-tick" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/check.png" width="16" height="16" alt="(tick)" />
+                        </td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-cross" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/error.png" width="16" height="16" alt="(error)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">internal functions</td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-tick" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/check.png" width="16" height="16" alt="(tick)" />
+                        </td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-cross" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/error.png" width="16" height="16" alt="(error)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">C-language functions</td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-tick" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/check.png" width="16" height="16" alt="(tick)" />
+                        </td>
+                        <td style="text-align: center;" class="confluenceTd">
+                            <img class="emoticon emoticon-cross" src="https://datical-cs.atlassian.net/wiki/s/1809036785/6452/b2c29440e6bad88b92f3d3fb442795ae33975e0e/_/images/icons/emoticons/error.png" width="16" height="16" alt="(error)" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

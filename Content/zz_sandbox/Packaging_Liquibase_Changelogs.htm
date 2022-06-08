@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Packaging Liquibase Changelogs</h1>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block">
+        </div>
+        <p>Packaging Liquibase changelogs is a separate process from packaging SQL files. They may be placed only in flexible folders. There is no fixed-folder name or processing for Liquibase changelogs.</p>
+        <h2 id="PackagingLiquibaseChangelogs-ChangelogFileRequirements">Changelog File Requirements</h2>
+        <p>Place the changelog files in a folder in your sql_code repository.&#160;</p>
+        <ul>
+            <li>Must be in a separate folder from SQL folders</li>
+            <li>The folder itself can be named anything you want. The folder name <code>changelog</code> is used in examples.</li>
+            <li>The files must consist of only complete changelogs.&#160;</li>
+            <li>The file must have an author.&#160;</li>
+            <li>Changesets must have globally unique IDs&#160;</li>
+        </ul>
+        <h3 id="PackagingLiquibaseChangelogs-ChangelogContentRestrictions">Changelog Content Restrictions</h3>
+        <p>The changesets in changelog files may not include the following</p>
+        <ul>
+            <li>External file references</li>
+            <li>Liquibase preconditions</li>
+            <li>Liquibase extensions</li>
+        </ul>
+        <h3 id="PackagingLiquibaseChangelogs-Sample">Sample</h3>
+        <p>Here is a sample changelog file (filename: <code>employee.xml</code>)</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">&lt;?xml version="1.0" encoding="UTF-8"?&gt;  
+
+&lt;databaseChangeLog  
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"  
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;  
+
+    &lt;changeSet  id="157"  author="bob"&gt;  
+        &lt;createTable  tableName="employee"&gt;  
+            &lt;column  name="id"  type="int"&gt;  
+                &lt;constraints  primaryKey="true"  nullable="false"/&gt;  
+            &lt;/column&gt;  
+            &lt;column  name="name"  type="varchar(50)"&gt;  
+                &lt;constraints  nullable="false"/&gt;  
+            &lt;/column&gt;  
+            &lt;column  name="active"  type="boolean"  defaultValueBoolean="true"/&gt;  
+        &lt;/createTable&gt;  
+    &lt;/changeSet&gt;  
+
+&lt;/databaseChangeLog&gt;</pre>
+            </div>
+        </div>
+        <h2 id="PackagingLiquibaseChangelogs-PropertiesforChangelogs">Properties for Changelogs</h2>
+        <p>The following properties in <code>metadata.properties</code> must be set in a folder that contains only changelogs.&#160;</p>
+        <ul>
+            <li><code>packageMethod=changelog</code>
+            </li>
+            <li><code>rerunnable=false</code>
+            </li>
+        </ul>
+        <p>Processing halts and reports errors if these conditions are not met.&#160;</p>
+        <p>In addition to these properties, other properties are also supported as documented here:&#160;<a href="Using_the_metadata_properties_file.htm">Using the metadata.properties file</a></p>
+        <h2 id="PackagingLiquibaseChangelogs-Processing">Processing</h2>
+        <p>During processing, the Liquibase changesets are transformed to Datical changesets.&#160;</p>
+        <h3 id="PackagingLiquibaseChangelogs-PropertiesSet">Properties Set</h3>
+        <p>The following attributes are added and set for the changelog and its changesets.&#160;</p>
+        <ul>
+            <li>datical:version (initially 1)</li>
+            <li>datical:versionStrategy (DEPLOY_ALL)</li>
+            <li>datical:origFilePath</li>
+            <li>datical:origFileName</li>
+        </ul>
+        <p>Additional properties are set during processing:</p>
+        <ul>
+            <li>Labels and contexts set in metadata.properties</li>
+            <li>Commit messages from source control</li>
+        </ul>
+        <h3 id="PackagingLiquibaseChangelogs-FileHandling">File Handling</h3>
+        <p>The changelog XML files are copied to the Resources folder for the project.&#160;</p>
+        <p>After processing, the changelog XML files are moved to the Archive folder for the project.&#160;</p>
+        <h3 id="PackagingLiquibaseChangelogs-DeveloperWorkflows">Developer Workflows</h3>
+        <p>You can package developer workflow scripts alongside the original changelog to manage workflow for its packaged changesets.&#160;</p>
+        <p><em>Supported</em>
+        </p>
+        <ul>
+            <li>
+                <p class="auto-cursor-target">Ignore - add a an ignore file&#160;to prevent the packaged&#160;changesets from being deployed.</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">&lt;original-filename&gt;-ignore.xml</pre>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p class="auto-cursor-target">Cleanup - add&#160;an XML changelog&#160;to reverse database changes caused by packaging a changelog. The cleanup changelog must account for all changes made by the original changelog.&#160;</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">&lt;original-filename&gt;-cleanup.xml</pre>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p class="auto-cursor-target">Replace - add a replacement changelog to replace the original changelog.</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">&lt;original-filename&gt;-replace.xml</pre>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <p><em>Not Supported</em>
+        </p>
+        <ul>
+            <li>Rollback - do not add a rollback file for Liquibase changelog. If a rollback file is found, packaging stops and exits with an error.&#160;</li>
+        </ul>
+        <p>See&#160;<a href="Developer_Workflows__Managing_Changesets_During_Development_and_Test.htm" rel="nofollow">Developer Workflows: Managing Changesets During Development and Test</a>.&#160;</p>
+    </body>
+</html>
