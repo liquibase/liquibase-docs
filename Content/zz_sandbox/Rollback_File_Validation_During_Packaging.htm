@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Rollback File Validation During Packaging</h1>
+        <p>Use the <code>validateRollback</code> option in <code>deployPackager.properties</code> to specify how to test your rollback scripts.&#160;</p>
+        <ul style="text-align: left;">
+            <li><strong>none&#160;</strong>- Do not test rollback scripts.</li>
+            <li><strong>withCompare</strong>- Test rollback scripts and their effect. During packaging, take a snapshot of the REF database to use for comparing database states to validate the rollback script. If the test fails, packager continues and shows a WARNING message in the log.&#160;</li>
+            <li><strong>withoutCompare</strong>- Test rollback scripts only to see if they run. Does not test their effects. If the test fails, packager exits with an ERROR.&#160;&#160;</li>
+        </ul>
+        <h1 id="RollbackFileValidationDuringPackaging-Project-LevelRequirementforAllSQLScriptstoHaveRollbackScripts">Project-Level Requirement for All SQL Scripts to Have Rollback Scripts</h1>
+        <p>If you specify either of the options to validate rollback scripts, then you must provide <code>-rollbac</code>k or _rollback files for all scripts in the project.&#160; The requirement starts when you enable the option. You do not need to provide rollback files for SQL scripts that have already been packaged and deployed.&#160;</p>
+        <h1 id="RollbackFileValidationDuringPackaging-Pre-ValidationChecks">Pre-Validation Checks</h1>
+        <p>Before starting the validation process, packager checks the scripts to determine whether they meet validation requirements.&#160;</p>
+        <h2 id="RollbackFileValidationDuringPackaging-RollbacksforNon-rerunnableSQLScripts">Rollbacks for Non-rerunnable SQL Scripts</h2>
+        <p>Non-rerunnable scripts are for code that can be run only once. The SQL scripts are archived after packaging.&#160;</p>
+        <p>The packager checks for the following conditions when it is determining how to validate rollback:</p>
+        <ul>
+            <li>The script produces one changeset.&#160; A rollback script is provided. This method is used in some cases where DDL and DML are packaged together.&#160;</li>
+            <li>The script produces several changesets. A rollback script is provided. This method is typically used for DDL.&#160;</li>
+        </ul>
+        <h2 id="RollbackFileValidationDuringPackaging-RollbacksforRerunnableSQLScripts">Rollbacks for Rerunnable SQL Scripts</h2>
+        <p>Rerunnable scripts are for code that can be run more than once, typically stored logic code (function, procedure, package, packagebody, view). These files are not archived. They are left in place and versioned for each time they are packaged.&#160;</p>
+        <p>Validation consists of checking that a prior version of the deployed changeset exists.&#160;</p>
+        <ul>
+            <li>Version of the SQL script must be greater than 1.&#160;</li>
+            <li>The previous version must have been deployed.&#160;</li>
+        </ul>
+        <h2 id="RollbackFileValidationDuringPackaging-DummyRollbackScriptsforIdempotentSQLScripts">Dummy Rollback Scripts for Idempotent SQL Scripts</h2>
+        <p>In special cases there are scripts that cannot have a rollback script. To satisfy the project-level requirement for all scripts to have rollback scripts, you can create a blank or comments-only rollback script for them.&#160;</p>
+        <p>Such scripts are called <em>idempotent</em>, which means that they can be run multiple times with the same result.&#160;</p>
+        <p>Examples:</p>
+        <ul>
+            <li>delete column from table</li>
+            <li>if an object exists, delete it and then create it; else create it.&#160;</li>
+        </ul>
+        <h1 id="RollbackFileValidationDuringPackaging-ValidationProcesswithCompare">Validation Process with Compare</h1>
+        <p>Packager uses the following high-level process when validating with&#160;<code>validateRollback=withCompare</code>.</p>
+        <ol>
+            <li>Snapshot the REF database for comparison purposes (snapshot #1)</li>
+            <li>Deploy changes using SQL scripts provided (not logged in DMCDB)</li>
+            <li>Snapshot the REF database again (snapshot #2)</li>
+            <li>Test rollback (not logged in DMCDB)</li>
+            <li>Snapshot the REF database again (snapshot #3)</li>
+            <li>Deploy using generated changesets (not logged in DMCDB)&#160;</li>
+            <li>Snapshot the REF database one final time (snapshot #4)</li>
+            <li>Compare snapshot #1 and snapshot #3 to ensure rollback works properly</li>
+            <li>Compare snapshot #2 and snapshot #4 to ensure that script packaging works properly.</li>
+        </ol>
+        <h2 id="RollbackFileValidationDuringPackaging-ErrorConditionsfortheValidationProcess">Error Conditions for the Validation Process</h2>
+        <p>Based on the validation process, you get messages in the packager report for the following conditions.&#160;</p>
+        <p>
+            <br />
+        </p>
+        <div class="table-wrap">
+            <table class="wrapped confluenceTable">
+                <colgroup>
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th class="confluenceTh">Test Rollback</th>
+                        <th class="confluenceTh">Test Deploy</th>
+                        <th class="confluenceTh">Snapshot Differences Detected</th>
+                        <th class="confluenceTh">Packager Action</th>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">Success</td>
+                        <td class="confluenceTd">Success</td>
+                        <td class="confluenceTd">No</td>
+                        <td class="confluenceTd">Continue&#160;</td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">Success</td>
+                        <td class="confluenceTd">Success</td>
+                        <td class="confluenceTd">Yes</td>
+                        <td class="confluenceTd">Continue</td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">Success</td>
+                        <td class="confluenceTd">Fail</td>
+                        <td class="confluenceTd">n/a</td>
+                        <td class="confluenceTd">Exit with error</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd">Success</td>
+                        <td colspan="1" class="confluenceTd">Fail&#160;</td>
+                        <td colspan="1" class="confluenceTd">Yes</td>
+                        <td colspan="1" class="confluenceTd">Exit with error</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd">Fail</td>
+                        <td colspan="1" class="confluenceTd">n/a</td>
+                        <td colspan="1" class="confluenceTd">n/a</td>
+                        <td colspan="1" class="confluenceTd">Exit with error</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <p class="title">Note</p>
+            <div class="confluence-information-macro-body">
+                <p>If differences between the snapshots are detected but the test rollback and test deploy succeed, packager gives you messages but continues. Check the messages and the scripts to be sure that the differences are acceptable and understood.&#160;</p>
+            </div>
+        </div>
+        <h1 id="RollbackFileValidationDuringPackaging-FixingFailedRollbackScripts">Fixing Failed Rollback Scripts</h1>
+        <p>If validation fails for the rollback script, then packaging stops without creating changesets.&#160;&#160;</p>
+        <p>Correct the rollback script and try packaging again:&#160;</p>
+        <ol>
+            <li>Correct the rollback script</li>
+            <li>Check the changes into source control</li>
+            <li>Re-run the packaging job.&#160;</li>
+        </ol>
+        <h1 id="RollbackFileValidationDuringPackaging-ReplacingScriptsWhenRollbackValidationisInEffect">Replacing Scripts When Rollback Validation is In Effect</h1>
+        <p>You may need to make changes to a SQL script and its rollback script after they are packaged and deployed.</p>
+        <p>When you make changes in that scenario, you should replace <strong>both</strong>&#160;the SQL script and its rollback script at the same time.&#160;</p>
+        <div class="table-wrap">
+            <table class="wrapped confluenceTable">
+                <colgroup>
+                    <col />
+                    <col />
+                    <col />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th style="text-align: center;" class="confluenceTh">Scenario</th>
+                        <th style="text-align: center;" class="confluenceTh">Validate the rollback?</th>
+                        <th colspan="1" class="confluenceTh">WARNING</th>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">New SQL script and its new rollback script</td>
+                        <td class="confluenceTd">YES</td>
+                        <td colspan="1" class="confluenceTd">None</td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">Replace and repackage both SQL script and its rollback script</td>
+                        <td class="confluenceTd">YES</td>
+                        <td colspan="1" class="confluenceTd">None</td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">Replace a SQL script but not its rollback script</td>
+                        <td class="confluenceTd">YES, BUT see Warning.&#160;</td>
+                        <td colspan="1" class="confluenceTd">The previous rollback script is pulled forward. Validation (withCompare) may fail if the new SQL script has changes that are not accounted for by the previous rollback script. Validation (withoutCompare) will succeed but the rollback script may not account for new changes.&#160;&#160;</td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">Replace rollback script but not its SQL Script. for a change set that was previously created</td>
+                        <td class="confluenceTd">NO</td>
+                        <td colspan="1" class="confluenceTd">Do not attempt this.&#160;The rollback cannot be validated. Validation is skipped but the new rollback script is deployed. If the rollback script is incorrect, you do not find out until you run a rollback operation.&#160;</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h1 id="RollbackFileValidationDuringPackaging-RollbackFilesandDeveloperWorkflowFiles">Rollback Files and Developer Workflow Files</h1>
+        <p>Do not use both <code>-rollback/_rollback</code> files AND also Developer Workflow files (<code>-cleanup/_cleanup</code>, <code>-replace/_replace</code>, <code>-ignore/_ignore</code>) for the same SQL script. In general, Developer Workflow functionality is intended for SQL scripts that do not have <code>-rollback/_rollback</code> files.&#160;</p>
+        <p>See&#160;<a href="Developer_Workflows__Managing_Changesets_During_Development_and_Test.htm" rel="nofollow">Developer Workflows: Managing Changesets during Deployment and Test</a></p>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>

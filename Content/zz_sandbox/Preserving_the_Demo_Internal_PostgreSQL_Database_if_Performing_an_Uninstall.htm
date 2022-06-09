@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Preserving the Demo/Internal PostgreSQL Database if Performing an Uninstall</h1>
+        <p>The demo mode runs on an internal PostgreSQL database, which allows you to use Datical DB features and configurations in a safe setting without impacting your live database. There may be times when you need to perform an uninstall. To preserve the internal PostgreSQL database and its data, follow these steps:</p>
+        <p><strong>Step 1.</strong> Copy the Datical <code>cluster.properties</code> file, which is in the following directory: <code>/opt/datical/config</code>, and place it outside the Datical project.</p>
+        <p><strong>Step 2. </strong>Select a directory to place the backup file outside the install directory. For example: <code>tmp</code>.</p>
+        <p><strong>Step 3.</strong> Run the <code>pg_dump</code> command:</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">&lt;install_dir&gt;/postgresql/bin/pg_dump --host=&lt;hostname&gt; --port=&lt;port&gt; --username=&lt;username&gt; 
+--format=c --file=/tmp/dmc_db.dmp datical</pre>
+            </div>
+        </div>
+        <p>You will be prompted for the DMC database password. You can provide the encrypted password from the <strong>Client Connect</strong> page.</p>
+        <p><strong>Step 4.</strong> Uninstall the DMC by running the following command:</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">sudo /opt/datical/uninstall</pre>
+            </div>
+        </div>
+        <div class="panel conf-macro output-block" style="background-color: #EAE6FF;border-color: #998DD9;border-width: 1px;">
+            <div class="panelContent" style="background-color: #EAE6FF;">
+                <p><code>/opt/datical</code> is the location where Datical Service was installed.</p>
+            </div>
+        </div>
+        <p><strong>Step 5.</strong> Reinstall the DMC with a new demo-mode database by referring to the <a class="external-link" href="https://dmc.datical.com/install/demo-mode/demo-home.htm" rel="nofollow">DMC demo mode</a> instruction.</p>
+        <p><strong>Step 6.</strong> Run the <code>pg_restore</code> command in your CLI:</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">&lt;install_dir&gt;/postgresql/bin/pg_restore --host=&lt;hostname&gt; --port=&lt;port&gt; --username=&lt;username&gt; 
+--format=c --dbname=datical /tmp/dmc_db.dmp</pre>
+            </div>
+        </div>
+        <p>You will be prompted for the DMC database password. Use the password found on the <strong>Client Connect</strong> page.</p>
+        <div class="panel conf-macro output-block" style="background-color: #EAE6FF;border-color: #998DD9;border-width: 1px;">
+            <div class="panelContent" style="background-color: #EAE6FF;">
+                <p>You may see a number of errors in regards to constraints on the database already existing. These errors can be ignored.</p>
+            </div>
+        </div>
+        <p><strong>Step 7.</strong> Save the existing encrypted password value from the new <code>&lt;install_dir&gt;/config/cluster.properties</code> file as you need to preserve the database password value from the newly installed demo database. For example, this value may look like <code>datical.db.password=R29pN0tvYjlyajNzeXZ3MUdRSssE=/</code>.</p>
+        <p><strong>Step 8.</strong> Place your copied <code>cluster.properties</code> file back to the config directory and overwrite the <code>datical.db.password</code> with the saved value.</p>
+        <p><strong>Step 9.</strong> Restart the DMC:</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">sudo service datical-service restart # OS command</pre>
+            </div>
+        </div>
+        <p><strong>Step 10.</strong>  <a class="external-link" href="https://dmc.datical.com/install/demo-mode/accessing-dmc-demo-mode.htm" rel="nofollow">Access the DMC in a demo mode</a> to ensure it works as expected.</p>
+        <h2 id="PreservingtheDemo/InternalPostgreSQLDatabaseifPerforminganUninstall-RelatedLinks">Related Links</h2>
+        <ul>
+            <li>
+                <p><a class="external-link" href="https://dmc.datical.com/troubleshoot/dmc-sudo-commands.htm" rel="nofollow">DMC sudo Commands</a>
+                </p>
+            </li>
+            <li>
+                <p><a class="external-link" href="https://dmc.datical.com/troubleshoot/troubleshoot-home.htm" rel="nofollow">Troubleshoot</a>
+                </p>
+            </li>
+            <li>
+                <p><a class="external-link" href="https://www.postgresql.org/docs/" rel="nofollow">The PostgreSQL documentation</a>
+                </p>
+            </li>
+        </ul>
+    </body>
+</html>

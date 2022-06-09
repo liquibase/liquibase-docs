@@ -1,0 +1,643 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Using the required deployPackager.properties file</h1>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block">
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>A project must have a deployPackager.properties file in order for SQL scripts to be packaged for it.&#160;</p>
+        <h1 id="UsingtherequireddeployPackager.propertiesfile-deployPackager.propertiesConfiguration">deployPackager.properties Configuration</h1>
+        <p>Before using the Deployment Packager, a deployPackager.properties will need to be created in the top level of your Datical project directory. This property file contains a variety of configuration information used by the Deployment Packager to interact with SCM solutions and to perform database backups and restorations.</p>
+        <p><strong>Note</strong>: there is a sample deployPackager.properties file provided in DaticalDB/repl/scripts.</p>
+        <h2 id="UsingtherequireddeployPackager.propertiesfile-PropertiesPrefixesforSQLCodeandDaticalProjectFiles">Properties Prefixes for SQL Code and Datical Project Files</h2>
+        <p>The property prefix indicates the type of files it affects and the location of those files.</p>
+        <ul>
+            <li><strong>sqlScm</strong> prefix - SQL code files (in predetermined subdirectories)</li>
+            <li><strong>ddbScm</strong> prefix - Datical project files (in a predetermined hierarchy)</li>
+        </ul>
+        <p>When properties for the project are not specified (<strong>ddbScm</strong> prefix), the values typically default to the properties for the SQL code (<strong>sqlScm</strong> prefix)&#160;</p>
+        <p>The following properties can be set in the <code>deployPackager.properties</code> file:</p>
+        <div class="table-wrap">
+            <table class="wrapped confluenceTable">
+                <colgroup>
+                    <col />
+                    <col />
+                    <col />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th class="confluenceTh">
+                            <p><span style="color: rgb(255,255,255);"><strong><span style="color: rgb(0,0,0);">Name</span></strong></span>
+                            </p>
+                        </th>
+                        <th colspan="1" class="confluenceTh">Applies to</th>
+                        <th class="confluenceTh">
+                            <p><span style="color: rgb(0,0,0);"><strong>Description</strong></span>
+                            </p>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>databaseBackupRestoreLocation</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Backup</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">Location to use for packager-driven backups of the database. During processing, Deployment Packager makes backups of the database that are normally stored on the database server itself.</span>
+                            </p>
+                            <p><span style="color: rgb(0,0,10);">Depending on your DBMS, the location may need to be specified as directory or a specific file.</span>
+                            </p>
+                            <ul>
+                                <li><span style="color: rgb(0,0,10);"><strong>Oracle</strong> and <strong>DB2 -&#160;</strong>the directory is on the server host, so the path expression is OS-specific. ('/' on Linux, '\' on Windows.)</span>
+                                </li>
+                                <li><span style="color: rgb(0,0,10);"><strong>DB2</strong> - include a trailing slash</span>
+                                </li>
+                                <li><strong>Windows hosts</strong> - Double the backslashes in the path.&#160; The backslash ( \ )&#160; is an escape character in Java properties files, so you must write '\\' to stand for '\'.&#160;<ul><li>Example:&#160;<code><span style="color: rgb(0,0,0);">C:\\Program Files\\Microsoft SQL Server\\MSSQL14.MyInstance\\DaticalBackups</span></code></li></ul></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>db2BackupDir.&lt;referenceDBName&gt;=0</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Backup</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>DB2 Only</strong>: Set automatically after the first execution of Deployment Packager. The warning from the first execution of packager on a given database can be ignored.</span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>ddlExcludeList</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Compares</td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p>SQL code types to exclude from a compare, typically to improve performance. When packaging DDL scripts, Deployment Packager compares the before and after state of the reference database. Use this property to exclude object types from the comparison. Values can be:&#160;</p>
+                                <ul>
+                                    <li><strong>none</strong> (the default)</li>
+                                    <li><strong>all</strong>
+                                    </li>
+                                    <li>Comma-separated list of these values:&#160;<span style="color: rgb(0,0,0);"><strong>procedure</strong>, <strong>package</strong>, <strong>packagebody</strong>, <strong>function, trigger, view</strong>. Excluding non-ddl objects can improve performance, especially with large databases.&#160;</span><ul><li><span style="color: rgb(0,0,0);">The preferred style is to separate by comma only. However, spaces and tabs are trimmed if they are encountered. </span></li><li><span style="color: rgb(0,0,0);">The values list may be enclosed in double quotes or not.</span></li></ul></li>
+                                </ul>
+                                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                                    <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Example ddlExcludeList property setting</b>
+                                    </div>
+                                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">ddlExcludeList="package,packagebody,procedure,function,trigger,view"ddlExcludeList=package,packagebody,procedure,function,trigger,view</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>ddbScmBranch</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Project files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">The SCM branch to use. If not specified, Deployment Packager uses the value from <strong>sqlScmBranch</strong>.</span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><strong>ddbScmDoCheckout</strong>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Project files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">If this is not present or is set to <code>true</code>, Deployment Packager ensures that the local repository is up to date before packaging. To skip this operation, set to <code>false</code>.</span>
+                            </p>
+                            <ul>
+                                <li>Git - equivalent to <code>git pull</code></li>
+                                <li>SNV - equivalent to <code>svn update</code></li>
+                                <li>TFS - equivalent to <code>tf get</code></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>ddbScmLastImportID</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Project files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">The SCM system ID for the most recently</span>  <em>processed </em>SQL code check in. It is automatically updated when the Deployment Packager completes successfully.</p>
+                            <p><span style="color: rgb(0,0,0);"><strong>Note:</strong></span>  <span style="color: rgb(0,0,10);">Do not leave blank. Do not use the most recent check-in. For first time use, use an ID from an earlier check-in.</span></p>
+                            <ul>
+                                <li><span style="color: rgb(0,0,10);">Git - first 8 digits of the hash</span>
+                                </li>
+                                <li>SVN - revision number</li>
+                                <li>TFS - changeset number</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>ddbScmPath</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Project files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">Path to the local copy of the SCM repository. If this is not present, Deployment Packager will use the value from <strong>sqlScmPath</strong>.</span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>ddbScmSystem</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Project files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><span style="color: rgb(0,0,10);">SCM type – one of&#160;<strong>git</strong>, <strong>svn</strong>,&#160;<strong>tfs</strong></span></span>
+                            </p>
+                            <p><span style="color: rgb(0,0,10);">May be different than the <strong>sqlScmSystem</strong>. If not specified, Deployment Packager uses the value from <strong>sqlScmSystem</strong>.</span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>enableBackupRestore</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Backup</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">When the Packager is run in 'dbdef=' mode, the backup and restore routines can be skipped for certain sensitive environments. The value of this property is a comma separated list of the environments in which the Packager should perform backup and restore tasks.</span>  <span style="color: rgb(0,0,10);"><strong>NOTE:</strong> Backup and restore tasks are NOT recommended for environments beyond development &amp; test.</span></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>scmBranchHandling</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SCM</td>
+                        <td class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span style="color: rgb(0,0,10);">Specifies how to handle branches in a multiple-branch project, one of two methods:</span>
+                                </p>
+                                <ul>
+                                    <li><span style="color: rgb(0,0,10);"><strong>scmswitch</strong> – use SCM-specific commands to switch branches in <strong>sqlScmPath</strong></span>
+                                    </li>
+                                    <li><span style="color: rgb(0,0,10);"><strong>directory</strong></span>  <span style="color: rgb(0,0,10);">–</span>  <span style="color: rgb(0,0,10);">use a specified directory.</span><ul><li><p class="auto-cursor-target"><span style="color: rgb(0,0,10);">When run against a pipeline, a pipeline-specific <strong>sqlScmPath</strong></span>  <span style="color: rgb(0,0,10);">is checked:</span>  <span style="color: rgb(0,0,10);"><br /></span></p><div class="preformatted panel conf-macro output-block" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre xml:space="preserve">&lt;pipeline&gt;.sqlScmPath=&lt;path&gt;</pre></div></div><p class="auto-cursor-target"><span style="color: rgb(0,0,10);"><br /></span></p></li><li><p class="auto-cursor-target"><span style="color: rgb(0,0,10);">When run against a dbdef, a dbdef-specific <strong>sqlScmPath</strong> is checked:</span></p><div class="preformatted panel conf-macro output-block" style="border-width: 1px;"><div class="preformattedContent panelContent"><pre xml:space="preserve">&lt;dbdef&gt;.sqlScmPath=&lt;path&gt; </pre></div></div></li><li><span style="color: rgb(0,0,10);">If a pipeline-specific or dbdef-specific path&#160;</span><span style="color: rgb(0,0,10);">is not provided, <strong>sqlScmPath</strong> is used. If <strong>sqlScmPath</strong> is also not specified, an error is returned.</span></li></ul></li>
+                                </ul>
+                                <p><span style="color: rgb(0,0,10);">See&#160;"Pipeline and DbDef Branch Settings" below.</span>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>sqlScmBranch</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">The repository branch to be used for SQL code. Format varies by SCM:</span>
+                            </p>
+                            <ul>
+                                <li><span style="color: rgb(0,0,10);">Git - branch name only</span>
+                                </li>
+                                <li><span style="color: rgb(0,0,10);">SVN - full branch URL, such as&#160;<code><span style="color: rgb(0,0,0);">svn://servername/projectname/branches/branchname</span></code></span>
+                                </li>
+                                <li><span style="color: rgb(0,0,10);">TFS - full branch specifier, such as&#160;<code><span style="color: rgb(0,0,0);">$/repo/project/branch</span></code></span>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><strong>sqlScmDoCheckout</strong>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">If this is not present or is set to <code>true</code>, Deployment Packager ensures that the local repository is up to date before packaging. To skip this operation, set to <code>false</code>.</span>
+                            </p>
+                            <ul>
+                                <li>Git - equivalent to <code>git pull</code></li>
+                                <li>SNV - equivalent to <code>svn update</code></li>
+                                <li>TFS - equivalent to <code>tf get</code></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>sqlScmLastImportID</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">The SCM system ID for the most recently</span>  <em>processed </em>SQL code check in. It is automatically updated when the Deployment Packager completes successfully.</p>
+                            <p><span style="color: rgb(0,0,0);"><strong>Note:</strong></span>  <span style="color: rgb(0,0,10);">Do not leave blank. Do not use the most recent check-in. For first time use, use an ID from an earlier check-in.</span></p>
+                            <ul>
+                                <li><span style="color: rgb(0,0,10);">Git - first 8 digits of the hash</span>
+                                </li>
+                                <li>SVN - revision number</li>
+                                <li>TFS - changeset number</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>sqlScmPath</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span style="color: rgb(0,0,10);">Path to the directory for SQL code in the local copy of the SCM repository. Can be an absolute path or path relative to the project directory.&#160;</span>
+                                </p>
+                                <p><span style="color: rgb(0,0,10);">When packager determines the location of SQL code, it builds the location from&#160;<strong>sqlSCMPath</strong> and <strong>sqlScmSQLBaseDir</strong>.&#160;</span>
+                                </p>
+                                <p><span style="color: rgb(0,0,10);">On Windows, backslashes must be doubled. Example:<br /></span>
+                                </p>
+                                <div class="preformatted panel conf-macro output-block" style="border-width: 1px;">
+                                    <div class="preformattedContent panelContent"><pre xml:space="preserve">sqlScmPath=c:\\users\\username\\scmworkdir\\projectname</pre>
+                                    </div>
+                                </div>
+                                <p><span class="auto-cursor-target" style="color: rgb(0,0,10);"><br /></span>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>sqlScmSQLBaseDir</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td class="confluenceTd">
+                            <div class="line number41 index40 alt2">Top level directory for SQL code stored in the local copy of the repository. This is a name only, not a path.&#160;If set to '.' uses the value of <strong>sqlScmPath</strong>. This directory contains:</div>
+                            <ul>
+                                <li class="line number41 index40 alt2">Set of fixed-name sub-directories needed by Deployment Packager (ddl,data_dml,sql, and so on)</li>
+                                <li class="line number41 index40 alt2">Specially configured directories (See&#160;<a href="Flexible_Folder_Names.htm">Flexible Folder Names</a>.)</li>
+                                <li class="line number41 index40 alt2">Combination of fixed-name and flexible-name directories&#160;</li>
+                            </ul>
+                            <p>If not specified, a default directory name <code>sql_code</code> is used.&#160;</p>
+                            <p><span style="color: rgb(0,0,10);">When packager determines the location of SQL code, it builds the location from&#160;<strong>sqlSCMPath</strong> and <strong>sqlScmSQLBaseDir</strong>.&#160;</span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);"><strong>sqlScmSystem</strong></span>
+                            </p>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td class="confluenceTd">
+                            <p><span style="color: rgb(0,0,10);">SCM type – one of&#160;<strong>git</strong>, <strong>svn</strong>,&#160;<strong>tfs</strong></span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>databaseBackupRestoreMethod</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Backup</td>
+                        <td colspan="1" class="confluenceTd"><span style="color: rgb(51,51,51);">Class name to use for custom backup and restore. The class is implemented in a .groovy script.&#160;</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>extensionsPath</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Backup</td>
+                        <td colspan="1" class="confluenceTd"><span style="color: rgb(51,51,51);">Path to directory containing .groovy files that implement a custom backup and restore method. If not specified, the following directory is used:&#160;</span>
+                            <br style="text-align: left;" /><code style="text-align: left;">&lt;datical-install&gt;/repl/scripts/extensions</code><span style="color: rgb(51,51,51);">.</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>databaseBackupMode</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Backup</td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p>Specifies how to manage reference database backups that are required for deployments.</p>
+                                <ul>
+                                    <li><strong>always</strong> - (Default) Back up the database for every change deployment. The schema to be backed up may be limited by using the <code>schemaName</code> property in <code>metatdata.properties</code>. This is the most commonly used mode.&#160;</li>
+                                    <li><strong>on_demand</strong> - Back up the database only when a <code>deployPackager.groovy</code> command line option is used: <code>createDatabaseBackup=true</code>.&#160; <em>This mode always backs up <strong>all </strong>managed schema and the tracking schema.&#160;</em>&#160;This mode is intended as a special case for use with large databases that take a very long time to back up.&#160;</li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>parallel</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Backup</td>
+                        <td colspan="1" class="confluenceTd"><strong>Oracle only</strong>. Maximum of parallel threads for expdp and impdp to use during backup and restore.&#160;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>archive</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">Processing</td>
+                        <td colspan="1" class="confluenceTd">
+                            <p>Archive SQL scripts in the archive directory after processing. This is done for SQL code in the <strong>ddl</strong> directory.&#160;Archiving is done by default.&#160;</p>
+                            <p>Set to <strong>false</strong> to override the default behavior.</p>
+                            <p>If not set or if set to <strong>true</strong>, archiving is done as usual.&#160;</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>validateRollback</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p>Test the rollback script provided for a SQL script (-rollback), unless set to <strong>none</strong>. The rollback script must be able to restore the database to its state before the SQL script was run. During testing, packager runs a test rollback and a test deploy from the rolled-back state. The test operations performed by packager are not logged to the audit database.&#160; Available with Datical version 5.1 or higher.</p>
+                                <ul>
+                                    <li><strong>none&#160;</strong>- Do not test rollback scripts.</li>
+                                    <li><strong>withCompare</strong> - Test rollback scripts and their effect. During packaging, take a snapshot of the REF database to use for comparing database states to validate the rollback script. If the test fails, packager continues and shows a WARNING message in the log.&#160;</li>
+                                    <li><strong>withoutCompare</strong> - Test rollback scripts only to see if they run. Does not test their effects. If the test fails, packager exits with an ERROR.&#160;&#160;<br /><br /></li>
+                                </ul>
+                                <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+                                    <p class="title">Note</p>
+                                    <div class="confluence-information-macro-body">
+                                        <p>If you enable rollback validation, you must provide rollback files (-rollback) for all SQL scripts <em>starting from when you enable it</em>. You do not need to provide files for SQL scripts that have already been packaged and deployed.&#160;</p>
+                                    </div>
+                                </div>
+                                <p>See <a href="Rollback_File_Validation_During_Packaging.htm">Rollback File Validation During Packaging</a>.&#160;</p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>disableTraceFile</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td colspan="1" class="confluenceTd">
+                            <p><strong>Oracle only</strong>. Controls whether the Oracle trace file is used. Default is false. Available in Datical versions 5.3 and higher.</p>
+                            <ul>
+                                <li><strong>true</strong> - disables the use of the trace file</li>
+                                <li><strong>false</strong> - enables the use of the trace file</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" class="confluenceTd"><strong>packageOrderStrategy</strong>
+                        </td>
+                        <td colspan="1" class="confluenceTd">SQL code files</td>
+                        <td colspan="1" class="confluenceTd">
+                            <p>Specifies a custom package order, one of:</p>
+                            <ul>
+                                <li>DEFAULT - use the default ordering of commit order, then packageMethod, then alphanumeric</li>
+                                <li>PACKAGEMETHOD - use ordering by packageMethod, then alphanumeric</li>
+                                <li>ALPHANUMERIC - use ordering by alphanumeric only</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h1 id="UsingtherequireddeployPackager.propertiesfile-PipelineandDbDefBranchSettings">Pipeline and DbDef Branch Settings</h1>
+        <p>In order for the Deployment Packager to process the appropriate scripts for a specific dbdef or pipeline, the SCM branch name and the ID for the last import processed need to be tracked separately in the deployPackager.properties files. These properties should take the following form:</p>
+        <ul style="margin-left: 0.0px;">
+            <li>Branch name:<ul><li>{<em>PipelineName</em>}.sqlScmBranch</li><li>{<em>DbDefName</em>}.sqlScmBranch for the branch name</li></ul></li>
+            <li>Last&#160;<ul><li>{<em>PipelineName</em>}.sqlScmLastImportID</li><li>{<em>DbDefName</em>}.sqlScmLastImportID.</li></ul></li>
+        </ul>
+        <p>Refer to the properties in the bottom section of the file below for an example of the Deployment Pipeline specific properties.</p>
+        <h1 id="UsingtherequireddeployPackager.propertiesfile-ExampledeployPackager.propertiesfile">Example deployPackager.properties file</h1>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>deployPackager.properties</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve"># This properties file controls the Datical DB deployPackager
+sqlScmSystem=git
+sqlScmLastImportID=421541c
+sqlScmBranch=master
+sqlScmPath=/home/developer/mySqlCode
+sqlScmSQLBaseDir=sql_code
+
+# the database backup restore location is on the db server.
+databaseBackupRestoreLocation=
+
+# Branch &amp; Pipeline Specific Properties for Multiple Pipeline Projects
+# Settings for the JUL_2016 Datical Deployment Pipeline
+JUL_2016.sqlScmBranch=JUL_2016_SQL
+JUL_2016.sqlScmLastImportID=75782c
+
+#Settings for the AUG_2016 Datical Deployment Pipeline
+AUG_2016.sqlScmBranch=AUG_2016_SQL
+AUG_2016.sqlScmLastImportID=49628d
+
+#Settings for the PROD_STAGING Database Definition
+PROD_STAGING.sqlScmBranch=AUG_2016_SQL
+PROD_STAGING.sqlScmLastImportID=69371n</pre>
+            </div>
+        </div>
+        <h1 id="UsingtherequireddeployPackager.propertiesfile-SampledeployPackager.propertiesFile">Sample deployPackager.properties File</h1>
+        <p>A sample deployPackager.properties file is included in the DaticalDB installation in directory <code>&lt;datical-install&gt;\DaticalDB\repl\scripts\</code>. You can copy it to each of your project directories and edit it for each project.&#160;</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl hide-border-bottom"><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span>
+            </div>
+            <div class="codeContent panelContent pdl hide-toolbar"><pre class="syntaxhighlighter-pre" xml:space="preserve"># This is a sample deployPackager properties file. 
+#
+# There are two sets of SCM information that can be supplied. The first specifies 
+# the location of the SQL files that will be packaged - these start with "sqlScm". 
+# The second is for the Datical DB project itself and has property names that start 
+# with "ddbScm". 
+#
+# In addition to SCM properties, you can also supply a location for database backups.
+#
+# The following properties can be set in the deployPackager.properties file:
+# sqlScmSystem       - SCM software type for SQL code - currently supported types
+#                      are git, svn, and tfs. Required. No default.
+# sqlScmPath         - Local directory path to the developer's SCM working copy for
+#                      SQL code. Can be absolute, or relative to the directory
+#                      where the Datical DB project is.
+#                      If using multiple branches, see the section below for more
+#                      details.
+#                      Note that When used on Windows, backslashes MUST be doubled,
+#                      because the \ character is an escape character. Proper Windows
+#                      statement for this would look like this:
+#                      sqlScmPath=c:\\users\\username\\scmworkdir\\projectname 
+# sqlScmBranch       - The repository branch to be used for SQL code. The format of
+#                      this value is dependent on the SCM system being used.
+#                        git - just supply the branch name
+#                        svn - supply the full branch URL, which might look like
+#                              svn://servername/projectname/branches/branchname
+#                        tfs - full branch specifier like $/repo/project/branch (your 
+#                              path may have more or fewer segments)
+#                      If using multiple branches, see the section below for more
+#                      details.
+# sqlScmLastImportID - The SCM system's "id" for the most recently processed SQL
+#                      code check in. This will be automatically updated when the 
+#                      deploy packager completes successfully.
+#                      For Git, this is the first 8 digits of the relevant hash
+#                      For SVN, this is the relevant release number
+#                      For TFS, this is an integer change identifier
+#                      Note: Do not leave blank. Do not use the most recent 
+#                      checkin. For first time use, use an ID from an earlier checkin.
+#                      If using multiple branches, see the section below for more
+#                      details.
+# sqlScmSQLBaseDir   - Top level directory for the SQL scripts stored in the 
+#                      developer's SQL SCM working copy. This is just the name of a 
+#                      single directory. Can be the character '.' to specify that
+#                      the directory specified by sqlScmPath is a directory that
+#                      contains the sub-directories (ddl,data_dml,sql,sqlplus,
+#                      sql_direct,function,procedure,package,packagebody,trigger)
+# sqlScmDoCheckout   - If this is not present or is set to 'true', deploy packager 
+#                      will ensure that the latest available revision of the SQL 
+#                      repository is retrieved before processing. Set this to 
+#                      'false' to skip this.
+#                      For users using git, this is equivalent to 'git pull'
+#                      For users using svn, this is equivalent to 'svn update'
+#                      For users using TFS, this is equivalent to 'tf get'
+# ddbScmSystem       - SCM software type for the Datical DB project. Currently 
+#                      supported types are git, svn, and tfs. May be different than 
+#                      the sqlScmSystem. If this is not present, deploy packager 
+#                      will use the value from sqlScmSystem.
+# ddbScmPath         - Local absolute directory path to the developer's Datical DB SCM 
+#                      working copy. If this is not present, deploy packager will 
+#                      use the value from sqlScmPath. 
+#                      Note that When used on Windows, backslashes MUST be doubled,
+#                      because the \ character is an escape character. Proper Windows
+#                      statement for this would look like this:
+#                      ddbScmPath=c:\\users\\username\\scmworkdir\\projectname 
+# ddbScmBranch       - The branch to be used for the Datical DB project. If this 
+#                      is not present, deploy packager will use the value from 
+#                      sqlScmBranch. See the description for sqlScmBranch for examples
+#                      of valid values.
+# ddbScmLastImportID - The SCM system's "id" for the most recently processed 
+#                      Datical DB project check in. This will be automatically 
+#                      updated when the deploy packager completes successfully.
+#                      For Git, this is the first 8 digits of the relevant hash
+#                      For SVN, this is the relevant release number
+#                      For TFS, this is an integer identifier
+#                      Note: Do not leave blank. Do not use the most recent 
+#                      checkin. For first time use, use an ID from an earlier checkin.
+# ddbScmDoCheckout   - If this is not present or is set to 'true', deploy packager 
+#                      will ensure that the latest available revision of the 
+#                      Datical DB repository is retrieved before processing. Set 
+#                      this to 'false' to skip this. If this is not present, 
+#                      deploy packager will use the value from sqlScmSystem.
+#                      For users using git, this is equivalent to 'git pull'
+#                      For users using svn, this is equivalent to 'svn update'
+#                      For users using TFS, this is equivalent to 'tf get'
+# parallel           - ORACLE-ONLY:  The number of parallel threads that can be 
+#                      used by expdp/impdp when doing backup/restore
+#
+# databaseBackupRestoreLocation - 
+#                      During packaging, the script will make backups 
+#                      of the database. These are usually stored on the database 
+#                      server itself. This property specifies the location to which 
+#                      the database backup should be written. Depending on your 
+#                      DBMS, this may need to be a directory or it may need to 
+#                      be a file.
+#                      Note: On Oracle and DB2, this directory will be on the 
+#                      server, so the path separator must follow the server's 
+#                      convention ('/' on Linux, '\' on Windows.) Because the 
+#                      '\' is an escape character in Java properties files, you 
+#                      must supply '\\' to indicate a single backslash.)
+#
+# When working with multiple branches in the sqlScm repository, there are 
+# additional pipeline-specific and dbDef-specific properties that can be set, as 
+# well as a property that controls how scm branching is handled. 
+#
+# scmBranchHandling  - This property can be set to either 'directory' or 
+#                      'scmswitch'. If it is not present, then deployPackager will 
+#                      behave as if 'scmswitch' has been set.
+#                      When set to 'directory', deployPackager will use different 
+#                      working copies that should each contain sql code 
+#                      corresponding to a particular SCM branch. This is most 
+#                      useful for SCM systems like SVN and TFS that pose
+#                      difficulties when working with multiple branches. When set 
+#                      to 'directory' then you will also need to set 
+#                      pipeline_name.sqlScmPath and/or dbDef_name.sqlScmPath 
+#                      properties as described below.
+#                      When this is set to 'scmswitch' or if this property is not 
+#                      set, then deployPackager will use the path specified by 
+#                      sqlScmPath as a single working copy, and will use SCM
+#                      specific commands to switch that working copy to use the 
+#                      appropriate branch that is specified using the 
+#                      pipeline_name.sqlScmBranch and/or dbDef_name.sqlScmBranch 
+#                      properties. This setting is most appropriate when using
+#                      git as the SCM tool.
+# pipeline_name.sqlScmPath - 
+#                      Local directory path to the developer's SCM working copy, 
+#                      on the branch that corresponds to the given pipeline, for 
+#                      SQL code. Can be absolute, or relative to the directory 
+#                      where the Datical DB project is.
+#                      Note that When used on Windows, backslashes MUST be doubled,
+#                      because the \ character is an escape character.
+# pipeline_name.sqlScmBranch - 
+#                      The repository branch to be used for SQL code. The format of
+#                      this value is dependent on the SCM system being used.
+#                        git - supply the branch name
+#                        svn - supply the full branch URL, which might look like
+#                              svn://servername/projectname/branches/branchname
+#                        tfs - full branch specifier like $/repo/project/branch (your 
+#                              path may have more or fewer segments)
+# pipeline_name.sqlScmLastImportID - 
+#                      The SCM system's "id" for the most recently processed 
+#                      Datical DB project check in on the branch corresponding to
+#                      the given pipeline_name. This will be automatically 
+#                      updated when the deploy packager completes successfully.
+#                      For Git, this is the first 8 digits of the relevant hash
+#                      For SVN, this is the relevant release number
+#                      For TFS, this is an integer identifier
+#                      Note: Do not leave blank. Do not use the most recent 
+#                      checkin. For first time use, use an ID from an earlier checkin.                                    
+# dbDef_name.sqlScmPath - Local directory path to the developer's SCM working copy, 
+#                      on the branch that corresponds to the given dbDef, for 
+#                      SQL code. Can be absolute, or relative to the directory 
+#                      where the Datical DB project is.
+#                      Note that When used on Windows, backslashes MUST be doubled,
+#                      because the \ character is an escape character.
+# dbDef_name.sqlScmBranch -
+#                      The repository branch to be used for SQL code corresponding
+#                      to the given dbDef_name. The format of this value is 
+#                      dependent on the SCM system being used.
+#                        git - supply the branch name
+#                        svn - supply the full branch URL, which might look like
+#                              svn://servername/projectname/branches/branchname
+#                        tfs - full branch specifier like $/repo/project/branch (your 
+#                              path may have more or fewer segments)
+# dbDef_name.sqlScmLastImportID     - 
+#                      The SCM system's "id" for the most recently processed 
+#                      Datical DB project check in on the branch corresponding to 
+#                      the given dbDef_name. This will be automatically updated 
+#                      when the deploy packager completes successfully.
+#                      For Git, this is the first 8 digits of the relevant hash
+#                      For SVN, this is the relevant release number
+#                      For TFS, this is an integer identifier
+#                      Note: Do not leave blank. Do not use the most recent 
+#                      checkin. For first time use, use an ID from an earlier checkin.
+# ddlExcludeList       Comma separated list of stored logic types to exclude from snapshot
+#                        This may be the values 'all', 'none', or combinations of:
+#                        'procedure', 'function', 'package', 'packagebody', 'trigger', 'view'
+# archive              If this is not present or is set to 'true', deploy packager will 
+#                      archive successfully processed SQL files after packaging.  
+#                      If set to false, no archiving will occur.
+# packageOrderStrategy -
+#                      DEFAULT - this is the default strategy that is set if the property is
+#                                not specified. This preserves the commit order while packaging.
+#                      PACKAGEMETHOD - packaging order is  based on the packageMethod first
+#                                and then by path/filename
+#                      ALPHANUMERIC - packaging order is based strictly on path/filename
+#
+sqlScmSystem=
+sqlScmLastImportID=
+sqlScmBranch=
+sqlScmPath=
+sqlScmSQLBaseDir=
+ddbScmSystem=
+ddbScmBranch=
+ddbScmPath=
+databaseBackupRestoreLocation=
+databaseBackkupMode=
+parallel=
+ddlExcludeList=
+archive=
+</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>

@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Oracle Roles and Permissions for Datical DB</h1>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block">
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>See <a href="Database_Users__Roles__and_Passwords.htm">Database Users, Roles, and Passwords</a> for a general discussion of database setup for Datical DB.&#160;</p>
+        <h1 id="OracleRolesandPermissionsforDaticalDB-Step1:DetermineRequiredGeneralPermissions">Step 1: Determine Required General Permissions</h1>
+        <p>The following permissions are needed by the Datical Database User so Datical can interact with the database.</p>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>The General Permissions are required for all environments (including the Datical Packaging environment).</p>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>There are two options for permission:</p>
+        <ul>
+            <li>Option1: Setup a DATICAL_ROLE for a Datical User that manages<strong> multiple schema</strong></li>
+            <li>Option2: Setup a DATICAL_ROLE for a Datical User that manages a<strong> single schema</strong> (this user must be the same as the schema being managed)</li>
+        </ul>
+        <h2 id="OracleRolesandPermissionsforDaticalDB-Option1:DATICAL_ROLE(tomanagemultipleschema)">Option 1: DATICAL_ROLE (to manage multiple schema)</h2>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_ROLE</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_ROLE NOT IDENTIFIED;
+
+GRANT ADMINISTER DATABASE TRIGGER TO DATICAL_ROLE;
+GRANT ALTER ANY INDEX TO DATICAL_ROLE;
+GRANT ALTER ANY MATERIALIZED VIEW TO DATICAL_ROLE;
+GRANT ALTER ANY PROCEDURE TO DATICAL_ROLE;
+GRANT ALTER ANY SEQUENCE TO DATICAL_ROLE;
+GRANT ALTER ANY TABLE TO DATICAL_ROLE;
+GRANT ALTER ANY TRIGGER TO DATICAL_ROLE;
+GRANT ALTER ANY TYPE TO DATICAL_ROLE;
+GRANT ALTER SESSION TO DATICAL_ROLE;
+GRANT GRANT ANY OBJECT PRIVILEGE TO DATICAL_ROLE;
+GRANT CREATE ANY DIRECTORY TO DATICAL_ROLE;
+GRANT CREATE ANY INDEX TO DATICAL_ROLE;
+-- Oracle Oddity: Remember to grant "create table" to the schema owner, or Datical will not be able to create materialized views in that schema.
+-- ex., GRANT CREATE TABLE TO &lt;schema_owner&gt;;
+GRANT CREATE ANY MATERIALIZED VIEW TO DATICAL_ROLE;
+GRANT CREATE ANY PROCEDURE TO DATICAL_ROLE;
+GRANT CREATE ANY SEQUENCE TO DATICAL_ROLE;
+GRANT CREATE ANY SYNONYM TO DATICAL_ROLE;
+GRANT CREATE ANY TABLE TO DATICAL_ROLE;
+GRANT CREATE ANY TRIGGER TO DATICAL_ROLE;
+GRANT CREATE ANY TYPE TO DATICAL_ROLE;
+GRANT CREATE ANY VIEW TO DATICAL_ROLE;
+GRANT CREATE SESSION TO DATICAL_ROLE;
+GRANT DELETE ANY TABLE TO DATICAL_ROLE WITH ADMIN OPTION;
+GRANT DROP ANY DIRECTORY TO DATICAL_ROLE;
+GRANT DROP ANY INDEX TO DATICAL_ROLE;
+GRANT DROP ANY MATERIALIZED VIEW TO DATICAL_ROLE;
+GRANT DROP ANY PROCEDURE TO DATICAL_ROLE;
+GRANT DROP ANY SEQUENCE TO DATICAL_ROLE;
+GRANT DROP ANY SYNONYM TO DATICAL_ROLE;
+GRANT DROP ANY TABLE TO DATICAL_ROLE;
+GRANT DROP ANY TRIGGER TO DATICAL_ROLE;
+GRANT DROP ANY TYPE TO DATICAL_ROLE;
+GRANT DROP ANY VIEW TO DATICAL_ROLE;
+GRANT EXECUTE ANY PROCEDURE TO DATICAL_ROLE;
+GRANT INSERT ANY TABLE TO DATICAL_ROLE;
+GRANT SELECT ANY DICTIONARY TO DATICAL_ROLE;
+GRANT SELECT ANY SEQUENCE TO DATICAL_ROLE;
+GRANT SELECT ANY TABLE TO DATICAL_ROLE;
+GRANT UPDATE ANY TABLE TO DATICAL_ROLE ;
+GRANT COMMENT ANY TABLE TO DATICAL_ROLE;
+
+-- The following permission are needed for SNAPSHOT, COMPARE, FORECAST on all available schemas
+GRANT SELECT ANY TABLE TO DATICAL_ROLE;
+GRANT SELECT ANY SEQUENCE TO DATICAL_ROLE;
+GRANT EXECUTE ANY PROCEDURE TO DATICAL_ROLE;
+GRANT CREATE ANY TRIGGER TO DATICAL_ROLE;
+
+-- The following permissions are needed for auto generation of permissions
+GRANT SELECT ANY DICTIONARY TO DATICAL_ROLE;
+
+-- The following permissions are needed for working with EDITIONING VIEWS
+GRANT CREATE ANY EDITION TO DATICAL_ROLE;
+GRANT DROP ANY EDITION TO DATICAL_ROLE;
+
+-- The following permissions are needed for management of database scoped triggers
+GRANT ADMINISTER DATABASE TRIGGER TO DATICAL_ROLE;
+
+-- The following must be run as sysdba
+-- SQL &gt; conn / as sysdba
+-- The following permissions are needed to capture storage options for SNAPSHOT
+GRANT EXECUTE on SYS.DBMS_METADATA TO DATICAL_ROLE;
+GRANT EXECUTE ON SYS.UTL_FILE TO DATICAL_ROLE;
+
+-- Grant the new role to the Datical User
+GRANT DATICAL_ROLE to $DaticalUser;</pre>
+            </div>
+        </div>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <p class="title">Note</p>
+            <div class="confluence-information-macro-body">
+                <p>For Oracle 12c container databases, Oracle requires that the user name starts with literal characters "c##" or "C##". See&#160;<a class="external-link" href="http://www.dba-oracle.com/t_ora_65096_create_user_12c_without_c_prefix.htm" rel="nofollow">http://www.dba-oracle.com/t_ora_65096_create_user_12c_without_c_prefix.htm</a></p>
+            </div>
+        </div>
+        <h2 class="auto-cursor-target" id="OracleRolesandPermissionsforDaticalDB-Option2:DATICAL_SCHEMA_OWNER_ROLE(tomanagesingleschemaasschemaowner)">Option 2: DATICAL_SCHEMA_OWNER_ROLE&#160;(to manage single schema as schema owner)</h2>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_ROLE_SCHEMA_OWNER</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
+
+GRANT CREATE SESSION TO DATICAL_SCHEMA_OWNER_ROLE;
+
+-- Unlimited tablespace access
+-- –or-
+-- GRANT UNLIMITED TABLESPACE TO $SchemaOwner;
+ 
+-- Grant access to one or more specified tablespaces
+-- ALTER USER $SchemaOwner QUOTA UNLIMITED ON &lt;tablespace&gt;;
+ 
+-- Standard Object Permissions
+GRANT CREATE TRIGGER TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE TABLESPACE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE SEQUENCE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE TABLE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE PROCEDURE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE SYNONYM TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE VIEW TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE TYPE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE MATERIALIZED VIEW TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE DATABASE LINK TO DATICAL_SCHEMA_OWNER_ROLE;
+ 
+-- Other, less common Object Permissions
+GRANT CREATE ASSEMBLY TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE OPERATOR TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE EXTERNAL JOB TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE LIBRARY TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE JOB TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE CLUSTER TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE EVALUATION CONTEXT TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE RULE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE RULE SET TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE DIMENSION TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE ROLLBACK SEGMENT TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE CUBE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE CUBE DIMENSION TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE CUBE BUILD PROCESS TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE MEASURE FOLDER TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE MINING MODEL TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE INDEXTYPE TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT CREATE PROFILE TO DATICAL_SCHEMA_OWNER_ROLE;
+  
+-- Permissions for working with EDITIONING VIEWS 
+-- Use ALTER &lt;user&gt; ENABLE EDITIONS on the user to enable editioning
+GRANT CREATE ANY EDITION TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT DROP ANY EDITION TO DATICAL_SCHEMA_OWNER_ROLE;
+
+-- Permissions That Are Not Recommended
+-- GRANT CREATE PUBLIC SYNONYM TO DATICAL_SCHEMA_OWNER_ROLE;
+-- GRANT CREATE PUBLIC DATABASE LINK TO DATICAL_SCHEMA_OWNER_ROLE;
+ 
+-- Permissions required to run the AUTO GENERATED PERMISSIONS feature
+GRANT SELECT ANY DICTIONARY TO DATICAL_SCHEMA_OWNER_ROLE;
+ 
+-- Alternatively, this should be the more restrictive set of GRANTs that are needed for AUTO GENERATED PERMISSIONS:
+-- GRANT SELECT ON DBA_SYS_PRIVS TO DATICAL_SCHEMA_OWNER_ROLE;
+-- GRANT SELECT ON DBA_ROLE_PRIVS TO DATICAL_SCHEMA_OWNER_ROLE;
+-- GRANT SELECT ON DBA_COL_PRIVS TO DATICAL_SCHEMA_OWNER_ROLE;
+ 
+-- Gather metadata (forecast/snapshot/diff)
+-- If we change the code to use the "USER" instead of the "DBA" views for snapshots in single user schema owner mode, then this permission could go away.
+GRANT SELECT ANY DICTIONARY TO DATICAL_SCHEMA_OWNER_ROLE;
+GRANT SELECT_CATALOG_ROLE TO DATICAL_SCHEMA_OWNER_ROLE;
+ 
+-- OPTIONAL (need to document the implications)
+-- Permission so Datical can check if the database is 12c but is running in 11g compatible mode
+-- This needs to be executed as SYSDBA
+GRANT SELECT ON V_$PARAMETER TO DATICAL_SCHEMA_OWNER_ROLE;
+ 
+-- Permissions needed to capture storage options
+-- This needs to be executed as SYSDBA
+GRANT EXECUTE ON SYS.UTL_FILE TO DATICAL_SCHEMA_OWNER_ROLE;
+
+-- Grant the new role to the SchemaOwner
+GRANT DATICAL_SCHEMA_OWNER_ROLE to $SchemaOwner;</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <h1 id="OracleRolesandPermissionsforDaticalDB-Step2:DetermineRequiredPackagerPermissions">Step 2: Determine Required Packager Permissions</h1>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>In addition to the General Permissions listed above, the below permissions are required by the Datical Packager.</p>
+                <p>This packager role is needed on Reference Databases only</p>
+            </div>
+        </div>
+        <div class="confluence-information-macro confluence-information-macro-note conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>To use Data Pump or external tables in an Oracle RAC configuration, you must ensure that the directory object path (DATICAL_DATA_PUMP_DIR by default) is on a cluster-wide file system.</p>
+                <p>The directory object must point to shared physical storage that is visible to, and accessible from, all instances where Data Pump and/or external tables processes may run.</p>
+            </div>
+        </div>
+        <div class="confluence-information-macro confluence-information-macro-note conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>If creating a new DIRECTORY to use for packaging, GRANT READ, WRITE, EXECUTE to <strong>both the DATICAL_ROLE and the DATICAL_USER.</strong></p>
+                <p>If you don't grant directly to the user, you may see an error when executing FileExists function which indicates that the backup file does not exist, even it if does.</p>
+                <p>Sample script to grant permissions to both ROLE (<code>DATICAL_PACKAGER_ROLE</code>) and USER (<code>DATICAL_USER</code>) to the DIRECTORY (<code>DATICAL_DATA_PUMP_DIR</code>):</p>
+                <p><code>GRANT READ, WRITE ON DIRECTORY DATICAL_DATA_PUMP_DIR TO DATICAL_PACKAGER_ROLE; </code>
+                    <br /><code>GRANT READ, WRITE ON DIRECTORY DATICAL_DATA_PUMP_DIR TO DATICAL_USER; </code>
+                </p>
+            </div>
+        </div>
+        <h2 id="OracleRolesandPermissionsforDaticalDB-Option1:DATICAL_PACKAGER_ROLE(tomanagemultipleschema)">Option 1: DATICAL_PACKAGER_ROLE (to manage multiple schema)</h2>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_PACKAGER_ROLE</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_ROLE NOT IDENTIFIED;
+
+-- When using the tracefileLocation=REMOTE, you will need to setup the following permissions. 
+-- Note: These permissions are only required on schemas running the Convert SQL Scripts command.  This is only needed on the packaging / reference database.
+GRANT ALTER SESSION TO DATICAL_PACKAGER_ROLE;
+GRANT EXECUTE ANY PROCEDURE TO DATICAL_PACKAGER_ROLE;
+GRANT CREATE ANY DIRECTORY TO DATICAL_PACKAGER_ROLE;
+GRANT DROP ANY DIRECTORY TO DATICAL_PACKAGER_ROLE;
+
+-- The following permissions are needed for backing up and restoring the database.  This is only needed on the packaging / reference database.
+GRANT EXP_FULL_DATABASE TO DATICAL_PACKAGER_ROLE;
+GRANT IMP_FULL_DATABASE TO DATICAL_PACKAGER_ROLE;
+
+CREATE OR REPLACE DIRECTORY DATICAL_DATA_PUMP_DIR AS '/home/oracle/datical_dpdump';
+GRANT ALL ON DIRECTORY DATICAL_DATA_PUMP_DIR TO DATICAL_PACKAGER_ROLE;
+-- Granting to the specific schema  (not just the role) is required
+GRANT ALL ON DIRECTORY DATICAL_DATA_PUMP_DIR TO $DaticalUser;
+
+-- The following must be run as sysdba
+-- SQL &gt; conn / as sysdba
+GRANT EXECUTE on SYS.UTL_FILE TO DATICAL_PACKAGER_ROLE;
+
+-- Grant the new role to the Datical User
+GRANT DATICAL_PACKAGER_ROLE to $DaticalUser;</pre>
+            </div>
+        </div>
+        <h2 class="auto-cursor-target" id="OracleRolesandPermissionsforDaticalDB-Option2:DATICAL_PACKAGER_SCHEMA_OWNER_ROLE(tomanagesingleschemaasschemaowner)">Option 2: DATICAL_PACKAGER_SCHEMA_OWNER_ROLE&#160;(to manage single schema as schema owner)</h2>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_PACKAGER_SCHEMA_OWNER</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
+
+-- When using the tracefileLocation=REMOTE, you will need to setup the following permissions.
+-- Note: These permissions are only required on schemas running the Convert SQL Scripts command.&#160; This is only needed on the packaging / reference database.
+GRANT ALTER SESSION TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
+CREATE OR REPLACE DIRECTORY "TRACE_FILE_DIR" AS $PathToTraceFilesOnServer;
+GRANT ALL ON DIRECTORY "TRACE_FILE_DIR" TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
+-- Granting to the specific schema owner (not just the role) is required
+GRANT ALL ON DIRECTORY "TRACE_FILE_DIR" TO $SchemaOwner;
+
+CREATE OR REPLACE DIRECTORY DATICAL_DATA_PUMP_DIR AS '/home/oracle/datical_dpdump';
+GRANT ALL ON DIRECTORY DATICAL_DATA_PUMP_DIR TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
+-- Granting to the specific schema owner (not just the role) is required
+GRANT ALL ON DIRECTORY DATICAL_DATA_PUMP_DIR TO $SchemaOwner;
+
+-- The following permissions are needed for backing up and restoring the database.&#160; This is only needed on the packaging / reference database.
+GRANT EXP_FULL_DATABASE TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
+GRANT IMP_FULL_DATABASE TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
+
+-- This needs to be executed as SYSDBA
+GRANT EXECUTE ON SYS.UTL_FILE TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
+
+-- Grant the new role to the SchemaOwner
+GRANT DATICAL_PACKAGER_SCHEMA_OWNER_ROLE to $SchemaOwner;
+</pre>
+            </div>
+        </div>
+        <h1 class="auto-cursor-target" id="OracleRolesandPermissionsforDaticalDB-Step3:AdditionalPermissions">Step 3:&#160;Additional Permissions</h1>
+        <h2 class="auto-cursor-target" id="OracleRolesandPermissionsforDaticalDB-DATICAL_TRACK_ROLE">DATICAL_TRACK_ROLE</h2>
+        <div class="confluence-information-macro confluence-information-macro-note conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>This role is needed on Datical Tracking schema only.</p>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_TRACK_ROLE</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
+
+-- will create 2 tables - DATABASECHANGELOG and DATABASECHANGELOGLOCK
+-- will insert records
+grant create session,
+  create procedure, create sequence, create table, create trigger, create type,
+  create synonym, create view,
+  create cluster, create indextype, create operator
+to DATICAL_TRACK_ROLE;</pre>
+            </div>
+        </div>
+        <h1 class="auto-cursor-target" id="OracleRolesandPermissionsforDaticalDB-Step4:GrantDefinedPermissionstotheDaticalUser">Step 4: Grant Defined Permissions to the Datical User</h1>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <p class="title">DEFAULT ROLE</p>
+            <div class="confluence-information-macro-body">
+                <p>Ensure that the roles created are added as a DEFAULT ROLE to the DATICAL_USER</p>
+            </div>
+        </div>
+        <p class="auto-cursor-target">Once you have selected the appropriate roles from above, GRANT them to the appropriate Datical User in each database instance.</p>
+        <h1 class="auto-cursor-target" id="OracleRolesandPermissionsforDaticalDB-ConnectionRestrictionsforSchemaOwnerDuringPackaging">Connection Restrictions for Schema Owner During Packaging</h1>
+        <p>Packaging requires that no schema-owner users are connected to the database.&#160;</p>
+        <ul>
+            <li>Deployment Packager checks for connections to the REF database at the beginning of a packaging operation. Packaging stops and reports an error if there are other active connections.&#160;</li>
+            <li>During packaging, if a schema-owner user attempts to connect to the database, packager warns and may stop.&#160;</li>
+        </ul>
+        <p>Deployment packager drops schema during packaging. If it is running as a schema-owner user, other schema-owner users prevent it from dropping schema as needed.&#160;</p>
+    </body>
+</html>
