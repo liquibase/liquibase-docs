@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Writing Rules from Templates</h1>
+        <h2 id="WritingRulesfromTemplates-GettingStarted">Getting Started</h2>
+        <ol>
+            <li>Create a simple Datical project<ol><li>Create 2 empty databases on your desired DB platform</li><li>Create project with 2 steps pointing to these databases</li></ol></li>
+            <li>Identify a new rule that needs to be created</li>
+            <li>Look for the Rule in the Rules Library below<ul><li>Types of rules (so far)<ul><li>Standards - Naming</li><li>Standards - Datatype</li><li>Security</li><li>Performance</li><li>Structure</li></ul></li></ul></li>
+            <li>Creating a Rule - either copy a rule from the library or create a new rule from the following templates (create your rule file using a meaningful name - see examples in library below)<br /><ol><li><p>SqlRule Rule Template&#160;</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeHeader panelHeader pdl hide-border-bottom"><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span></div><div class="codeContent panelContent pdl hide-toolbar"><pre class="syntaxhighlighter-pre" xml:space="preserve">/*
+@author &lt;add your name here&gt;@version 1.0
+@date &lt;add current date here&gt;@description &lt;add the description of the rule here&gt;*/
+
+// Setting the rule type ensures that people using the rule will know where to place it in the directory structure
+package com.datical.hammer.core.sqlrules
+
+dialect "mvel"// Java Utilities
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.ListUtils;
+
+// Rules Engine Utility Methods (used by all rules)
+import com.datical.db.project.DatabaseDef;
+import com.datical.db.project.Project;
+import com.datical.hammer.core.rules.ClientSystemInfo;
+import com.datical.hammer.core.rules.ProjectResources;
+import com.datical.hammer.core.rules.Response;
+import com.datical.hammer.core.rules.Response.ResponseType;
+import com.datical.hammer.core.forecast.rules.RuleFunctions;
+
+
+// Rules Engine Utility Methods (for SQLRules Only)
+import com.datical.hammer.core.rules.WithComments;
+import com.datical.hammer.core.rules.WithoutComments;
+
+// Development tip: Use regex creation and debugging site: https://regex101.com
+
+// Rule(s)
+rule "CreateIndex: Parallel attribute is missing and needs to be specified"    salience 1
+    when
+        wc : WithoutComments(getText().toLowerCase() matches ".*(create)(\\s+)(index)(?!.*parallel.*)([^;]+)[;].*" )
+    then
+		String errorMessage = 
+			"The parallel options is missing and needs to be specified in the Create Index SQL script: " +
+           wc.getSqlFile().getName();
+        insert(new Response(ResponseType.FAIL, errorMessage, drools.getRule().getName()));
+end
+</pre></div></div></li><li><p>PreForecast Rule Template&#160;</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeHeader panelHeader pdl hide-border-bottom"><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span></div><div class="codeContent panelContent pdl hide-toolbar"><pre class="syntaxhighlighter-pre" xml:space="preserve">/*
+@author &lt;add your name here&gt;@version 1.0
+@date &lt;add current date here&gt;@description &lt;add the description of the rule here&gt;*/
+
+// Setting the rule type ensures that people using the rule will know where to place it in the directory structure
+package com.datical.hammer.core.preforecast
+
+dialect "mvel"// Java Utilities
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.ListUtils;
+
+// Rules Engine Utility Methods (used by all rules)
+import com.datical.db.project.DatabaseDef;
+import com.datical.db.project.Project;
+import com.datical.hammer.core.forecast.rules.RuleFunctions;
+import com.datical.hammer.core.rules.ClientSystemInfo;
+import com.datical.hammer.core.rules.GeneratedSQL;
+import com.datical.hammer.core.rules.ProjectResources;
+import com.datical.hammer.core.rules.Response;
+import com.datical.hammer.core.rules.Response.ResponseType;
+import com.datical.hammer.core.status.ChangeMetaDataContainer;
+
+// Import Models for Objects (the following are the commonly used models)
+// Models: Liquibase Base Object Models
+import org.liquibase.xml.ns.dbchangelog.AddColumnType;
+import org.liquibase.xml.ns.dbchangelog.AddForeignKeyConstraintType;
+import org.liquibase.xml.ns.dbchangelog.AddPrimaryKeyType;
+import org.liquibase.xml.ns.dbchangelog.ChangeSetType;
+import org.liquibase.xml.ns.dbchangelog.ColumnAddColumnType;
+import org.liquibase.xml.ns.dbchangelog.ColumnBaseType;
+import org.liquibase.xml.ns.dbchangelog.ColumnExistsType;
+import org.liquibase.xml.ns.dbchangelog.ColumnType;
+import org.liquibase.xml.ns.dbchangelog.CreateIndexType;
+import org.liquibase.xml.ns.dbchangelog.CreateProcedureType;
+import org.liquibase.xml.ns.dbchangelog.CreateSequenceType;
+import org.liquibase.xml.ns.dbchangelog.CreateTableType;
+import org.liquibase.xml.ns.dbchangelog.CreateViewType;
+import org.liquibase.xml.ns.dbchangelog.DropTableType;
+import org.liquibase.xml.ns.dbchangelog.ForeignKeyConstraintExistsType;
+import org.liquibase.xml.ns.dbchangelog.LoadDataType;
+import org.liquibase.xml.ns.dbchangelog.LoadUpdateDataType;
+import org.liquibase.xml.ns.dbchangelog.RenameColumnType;
+import org.liquibase.xml.ns.dbchangelog.RenameTableType;
+import org.liquibase.xml.ns.dbchangelog.RenameViewType;
+import org.liquibase.xml.ns.dbchangelog.SqlType;
+
+// Models: Datical Stored Logic Extension Models
+import com.datical.xml.ns.storedlogic.CreateTriggerType;
+import com.datical.xml.ns.storedlogic.CreateFunctionType;
+import com.datical.xml.ns.storedlogic.CreatePackageBodyType;
+import com.datical.xml.ns.storedlogic.CreatePackageType;
+import com.datical.xml.ns.storedlogic.RenameTriggerType;
+
+// Models: Datical AppDBA Extension Models
+import com.datical.xml.ns.appdba.CreateSynonymType;
+
+// Rule(s)
+rule "Change Set Must Have a Comment"	salience 10000
+	when
+		$changeSet : ChangeSetType(  )
+		$comments : List( size == 0 )
+							from collect(CommentType()
+								from $changeSet.comments)
+	then
+		String errorMessage = "Change Set ID " + $changeSet.getId() + " has no comment.";
+		insert(new Response(ResponseType.FAIL, errorMessage, drools.getRule().getName(), $changeSet.getId()));
+end</pre></div></div></li><li><p>Forecast Rule Template&#160;</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeHeader panelHeader pdl hide-border-bottom"><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span></div><div class="codeContent panelContent pdl hide-toolbar"><pre class="syntaxhighlighter-pre" xml:space="preserve">/*
+@author &lt;add your name here&gt;@version 1.0
+@date &lt;add current date here&gt;@description &lt;add the description of the rule here&gt;*/
+
+// Setting the rule type ensures that people using the rule will know where to place it in the directory structure
+package com.datical.hammer.core.forecast
+
+dialect "mvel"// Java Utilities
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.ListUtils;
+
+// Rules Engine Utility Methods (used by all rules)
+import com.datical.db.project.DatabaseDef;
+import com.datical.db.project.Project;
+import com.datical.hammer.core.rules.ClientSystemInfo;
+import com.datical.hammer.core.rules.ProjectResources;
+import com.datical.hammer.core.rules.Response;
+import com.datical.hammer.core.rules.Response.ResponseType;
+import com.datical.hammer.core.forecast.rules.RuleFunctions;
+
+// Import Models for Objects (the following are the commonly used models)
+// Models: Liquibase Base Object Models
+import org.liquibase.xml.ns.dbchangelog.AddColumnType;
+import org.liquibase.xml.ns.dbchangelog.AddForeignKeyConstraintType;
+import org.liquibase.xml.ns.dbchangelog.AddPrimaryKeyType;
+import org.liquibase.xml.ns.dbchangelog.ChangeSetType;
+import org.liquibase.xml.ns.dbchangelog.ColumnAddColumnType;
+import org.liquibase.xml.ns.dbchangelog.ColumnBaseType;
+import org.liquibase.xml.ns.dbchangelog.ColumnExistsType;
+import org.liquibase.xml.ns.dbchangelog.ColumnType;
+import org.liquibase.xml.ns.dbchangelog.CreateIndexType;
+import org.liquibase.xml.ns.dbchangelog.CreateProcedureType;
+import org.liquibase.xml.ns.dbchangelog.CreateSequenceType;
+import org.liquibase.xml.ns.dbchangelog.CreateTableType;
+import org.liquibase.xml.ns.dbchangelog.CreateViewType;
+import org.liquibase.xml.ns.dbchangelog.DropTableType;
+import org.liquibase.xml.ns.dbchangelog.ForeignKeyConstraintExistsType;
+import org.liquibase.xml.ns.dbchangelog.LoadDataType;
+import org.liquibase.xml.ns.dbchangelog.LoadUpdateDataType;
+import org.liquibase.xml.ns.dbchangelog.RenameColumnType;
+import org.liquibase.xml.ns.dbchangelog.RenameTableType;
+import org.liquibase.xml.ns.dbchangelog.RenameViewType;
+import org.liquibase.xml.ns.dbchangelog.SqlType;
+
+// Models: Datical Stored Logic Extension Models
+import com.datical.xml.ns.storedlogic.CreateTriggerType;
+import com.datical.xml.ns.storedlogic.CreateFunctionType;
+import com.datical.xml.ns.storedlogic.CreatePackageBodyType;
+import com.datical.xml.ns.storedlogic.CreatePackageType;
+import com.datical.xml.ns.storedlogic.RenameTriggerType;
+
+// Models: Datical AppDBA Extension Models
+import com.datical.xml.ns.appdba.CreateSynonymType;
+
+// Models: Datical Database Models
+import com.datical.dbsim.model.Column;
+import com.datical.dbsim.model.DbModel;
+import com.datical.dbsim.model.FkConstraint;
+import com.datical.dbsim.model.Function;
+import com.datical.dbsim.model.Index;
+import com.datical.dbsim.model.PackageBody;
+import com.datical.dbsim.model.Procedure;
+import com.datical.dbsim.model.Schema;
+import com.datical.dbsim.model.Table;
+import com.datical.dbsim.model.Trigger;
+import com.datical.dbsim.model.View;
+
+
+// Rule(s)
+rule "Columns added to new tables should not have defaultValue set"	when
+		$createTable : CreateTableType( )
+		$defaultValues : List( size &gt; 0 )
+							from collect(ColumnType ( defaultValue not matches null
+															|| defaultValueNumeric not matches null
+															|| defaultValueBoolean not matches null
+															|| defaultValueDate not matches null
+															|| defaultValueComputed not matches null)
+								from $createTable.getColumn())
+	then
+		String errorMessage = drools.getRule().getName();
+		insert(new Response(ResponseType.FAIL, errorMessage, drools.getRule().getName()));
+end
+</pre></div></div></li><li><p>PostForecast Rule Template&#160;</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeHeader panelHeader pdl hide-border-bottom"><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span></div><div class="codeContent panelContent pdl hide-toolbar"><pre class="syntaxhighlighter-pre" xml:space="preserve">/*
+@author &lt;add your name here&gt;@version 1.0
+@date &lt;add current date here&gt;@description &lt;add the description of the rule here&gt;*/
+
+// Setting the rule type ensures that people using the rule will know where to place it in the directory structure
+package com.datical.hammer.core.postforecast
+
+dialect "mvel"// Java Utilities
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.ListUtils;
+
+// Rules Engine Utility Methods (used by all rules)
+import com.datical.db.project.DatabaseDef;
+import com.datical.db.project.Project;
+import com.datical.hammer.core.rules.ClientSystemInfo;
+import com.datical.hammer.core.rules.ProjectResources;
+import com.datical.hammer.core.rules.Response;
+import com.datical.hammer.core.rules.Response.ResponseType;
+import com.datical.hammer.core.forecast.rules.RuleFunctions;
+
+// Import Models for Objects (the following are the commonly used models)
+// Models: Liquibase Base Object Models
+import org.liquibase.xml.ns.dbchangelog.AddColumnType;
+import org.liquibase.xml.ns.dbchangelog.AddForeignKeyConstraintType;
+import org.liquibase.xml.ns.dbchangelog.AddPrimaryKeyType;
+import org.liquibase.xml.ns.dbchangelog.ChangeSetType;
+import org.liquibase.xml.ns.dbchangelog.ColumnAddColumnType;
+import org.liquibase.xml.ns.dbchangelog.ColumnBaseType;
+import org.liquibase.xml.ns.dbchangelog.ColumnExistsType;
+import org.liquibase.xml.ns.dbchangelog.ColumnType;
+import org.liquibase.xml.ns.dbchangelog.CreateIndexType;
+import org.liquibase.xml.ns.dbchangelog.CreateProcedureType;
+import org.liquibase.xml.ns.dbchangelog.CreateSequenceType;
+import org.liquibase.xml.ns.dbchangelog.CreateTableType;
+import org.liquibase.xml.ns.dbchangelog.CreateViewType;
+import org.liquibase.xml.ns.dbchangelog.DropTableType;
+import org.liquibase.xml.ns.dbchangelog.ForeignKeyConstraintExistsType;
+import org.liquibase.xml.ns.dbchangelog.LoadDataType;
+import org.liquibase.xml.ns.dbchangelog.LoadUpdateDataType;
+import org.liquibase.xml.ns.dbchangelog.RenameColumnType;
+import org.liquibase.xml.ns.dbchangelog.RenameTableType;
+import org.liquibase.xml.ns.dbchangelog.RenameViewType;
+import org.liquibase.xml.ns.dbchangelog.SqlType;
+
+// Models: Datical Stored Logic Extension Models
+import com.datical.xml.ns.storedlogic.CreateTriggerType;
+import com.datical.xml.ns.storedlogic.CreateFunctionType;
+import com.datical.xml.ns.storedlogic.CreatePackageBodyType;
+import com.datical.xml.ns.storedlogic.CreatePackageType;
+import com.datical.xml.ns.storedlogic.RenameTriggerType;
+
+// Models: Datical AppDBA Extension Models
+import com.datical.xml.ns.appdba.CreateSynonymType;
+
+// Models: Datical Database Models
+import com.datical.dbsim.model.Column;
+import com.datical.dbsim.model.DbModel;
+import com.datical.dbsim.model.FkConstraint;
+import com.datical.dbsim.model.Function;
+import com.datical.dbsim.model.Index;
+import com.datical.dbsim.model.PackageBody;
+import com.datical.dbsim.model.Procedure;
+import com.datical.dbsim.model.Schema;
+import com.datical.dbsim.model.Table;
+import com.datical.dbsim.model.Trigger;
+import com.datical.dbsim.model.View;
+
+
+// Rule(s)
+rule "All tables should have a primary key or unique constraint"	when
+		$db_model_container : ModelContainer( )
+	then
+		String errorMessage = "";
+		for (Schema schema : $db_model_container.getNewModel().getSchemas()) {
+			for (Table table : schema.getTables()) {
+				if (!table.getName().toUpperCase().equals("DATABASECHANGELOGLOCK") &amp;&amp; !table.getName().toUpperCase().equals("DATABASECHANGELOG")) {
+					if ((table.getPkConstraint() == null) &amp;&amp; table.getUniqueConstraints().isEmpty()) {
+						errorMessage += "Table (" + table.getName() + ") needs to have either a primary key or unique constraint.&lt;br/&gt;\n";
+					}
+				}
+			}
+		}
+		
+		if (errorMessage != "") {
+			insert(new Response(ResponseType.FAIL, errorMessage, drools.getRule().getName()));
+		}
+end
+
+
+</pre></div></div></li></ol></li>
+            <li>Testing a Rule<ol><li>Copy your rule into the appropriate Rules subfolder</li><li>In the GUI, right-click on the Rules folder and select "Check Rules" (this will detect any syntax errors)<ol><li>Note, this does not check SqlRules</li></ol></li><li>Create one or more SQL scripts named the same as your rule with a .sql ending that<ol><li>exercises a positive case&#160;</li><li>exercises a negative case</li><li>exercises one or more edge cases</li></ol></li><li><p class="auto-cursor-target">If this is a <strong>SQLFile rule</strong>, run the Datical command line as shown below or&#160;run the SQL script through the Packager (preview mode should be okay)</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">cd &lt;datical project workspace&gt;hammer runRules [SQL file | SQL files folder]
+
+</pre></div></div></li><li>If this is a <strong>Pre-Forecast, Forecast or PostForecast rule</strong>, then<ol><li>Run the SQL script through <strong>convert SQL</strong> to get it converted into change sets (save the relevant change sets in a file named the same as your rule with a .xml ending). The QA team will thank you.</li><li>Run Forecast on the second step in your project to test the rules on the undeployed changes now in your changelog</li></ol></li></ol></li>
+        </ol>
+    </body>
+</html>

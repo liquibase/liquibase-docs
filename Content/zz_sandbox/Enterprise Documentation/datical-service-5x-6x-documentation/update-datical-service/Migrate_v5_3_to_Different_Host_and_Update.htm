@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Migrate v5.3 to Different Host and Update</h1>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block">
+        </div>
+        <p>Use these instructions to update to the current version from v5.3. These instructions are for both physical servers and servers in a VM.&#160;</p>
+        <p>Note the following:</p>
+        <ul>
+            <li>Check the requirements to make sure that your existing host has sufficient resources, including disk space.&#160;</li>
+            <li>During the process you migrate existing data from your current installation</li>
+            <li>A script is provided to remove the original installation. It is an optional step. Test the new installation before removing the old one.&#160;</li>
+        </ul>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <p class="title">Note</p>
+            <div class="confluence-information-macro-body">
+                <p>All users are migrated. The default users on the newly installed Datical Service instance are not kept.&#160;</p>
+            </div>
+        </div>
+        <h1 id="Migratev5.3toDifferentHostandUpdate-DownloadBackupScripts">Download Backup Scripts</h1>
+        <p>Download the following backup scripts from Artifactory. You are prompted for Artifactory credentials.&#160;</p>
+        <ol>
+            <li><a class="external-link" href="https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-backup.jar" rel="nofollow">https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-backup.jar</a>
+            </li>
+            <li><a class="external-link" href="https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-backup-no-destroy.sh" rel="nofollow">https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-backup-no-destroy.sh</a>
+            </li>
+            <li><a class="external-link" href="https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-restore.sh" rel="nofollow">https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-restore.sh</a>
+            </li>
+            <li><a class="external-link" href="https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-cleanup.sh" rel="nofollow">https://artifactory.datical.net/artifactory/webapp/#/artifacts/browse/simple/General/datical-files-public/dmcmigration-cleanup.sh</a>
+            </li>
+        </ol>
+        <h1 id="Migratev5.3toDifferentHostandUpdate-PlaceBackupScriptsonCurrentDaticalServiceHost">Place Backup Scripts on Current Datical Service Host</h1>
+        <p>Put the downloaded backup scripts in a directory on the current Datical Service host. The examples use scp to place the files in /opt/datical.&#160;</p>
+        <p>Note that <code>dmcmigration-cleanup.sh</code> needs to be put in <code>/tmp</code>.&#160;</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">scp dmcmigration-backup.jar datical@&lt;datical_service_host&gt;:/opt/datical 
+scp dmcmigration-backup-no-destroy.sh datical@&lt;datical_service_host&gt;:/opt/datical 
+scp dmcmigration-cleanup.sh datical@&lt;datical_service_host&gt;:/tmp</pre>
+            </div>
+        </div>
+        <h1 id="Migratev5.3toDifferentHostandUpdate-BackUptheExistingDaticalService">Back Up the Existing Datical Service</h1>
+        <p>Run the migration scripts. They create the output in the same directory where the script is run.&#160;</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">$ cd /opt/datical
+$ sudo sh dmcmigration-backup-no-destroy.sh applicationdbexternal=false auditdbexternal=false
+
+applicationdbexternal is 'true' if application database is external
+auditdbexternal is 'true' if audit database is external
+</pre>
+            </div>
+        </div>
+        <p>The backed up data is placed in <code>dmcmigrationbackup.tar.gz</code> in the directory where the backup script was run (/<span style="font-family: monospace;">opt/datical&#160;</span>in this case).&#160;</p>
+        <h1 id="Migratev5.3toDifferentHostandUpdate-Copydmcmigrationbackup.tar.gztolocalmachine">Copy dmcmigrationbackup.tar.gz to local machine</h1>
+        <p>Copy dcmigrationbackup.tar.gz to the new host.&#160;</p>
+        <h1 id="Migratev5.3toDifferentHostandUpdate-PerformaNewInstallationofDaticalServiceontheNewHost">Perform a New Installation of Datical Service on the New Host</h1>
+        <p>Install Datical Service on the new host. Follow the instructions here:&#160;<a href="https://datical-cs.atlassian.net/wiki/spaces/DDD/pages/770671506/Installing+Datical+Service+on+a+Server+or+VM" rel="nofollow">Installing Datical Service on a Server or VM</a>.</p>
+        <h1 id="Migratev5.3toDifferentHostandUpdate-PlaceRestoreScriptandBackupFileontheNewHost">Place Restore Script and Backup File on the New Host</h1>
+        <p>Put the downloaded restore scripts and dmcmigrationbackup.tar.gz in a directory on the new Datical Service host. The examples use scp to place the files in /tmp.&#160;</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">scp dmcmigration-restore.sh datical@&lt;datical_service_host&gt;:/tmp
+scp dmcmigrationbackup.tar.gz datical@&lt;datical_service_host&gt;:/tmp</pre>
+            </div>
+        </div>
+        <h1 id="Migratev5.3toDifferentHostandUpdate-RestoreBackedUpDatatotheNewInstallation">Restore Backed Up Data to the New Installation</h1>
+        <p>Perform these steps on the running installation of Datical Service on the new host.&#160;</p>
+        <p>Before you perform the below step, make sure<strong> all services are up and running</strong>&#160;</p>
+        <ol>
+            <li>
+                <p class="auto-cursor-target">&#160;Extract backed up data to the new installation.</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">$ cd /tmp
+$ sudo sh dmcmigration-restore.sh</pre>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p class="auto-cursor-target">Configure Internal-client usage in 5.3 prior to upgrade:</p>
+                <ul>
+                    <li><strong>NO</strong>- Edit the file&#160;<strong>/opt/datical/dmcmigration/consulkeyvalues.txt&#160;</strong>and modify the entry at the end of the file to "<strong>include_internal_client:false</strong>"</li>
+                    <li><strong>YES</strong> - If internal-client is used in 5.3, then ensure the <strong>new installation of Datical Service has internal-client enabled</strong>.</li>
+                </ul>
+            </li>
+            <li>Migrate to new version</li>
+        </ol>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">$ sudo datical-control migrate-dmc --applicationdbexternal=false --auditdbexternal=false
+
+applicationdbexternal is 'true' if application database is external
+auditdbexternal is 'true' if audit database is external</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p><span style="font-size: 1.714em;">Remove the Old Installation (Optional)</span>
+        </p>
+        <div class="confluence-information-macro confluence-information-macro-warning conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>Test the installation on the new host before removing the installation on the original host.&#160;</p>
+                <p>This action cannot be undone.&#160;</p>
+            </div>
+        </div>
+        <p>To remove the original installation, run the cleanup script on the original host.&#160;</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">$ cd /tmp
+$ sudo sh dmcmigration-cleanup.sh</pre>
+            </div>
+        </div>
+    </body>
+</html>

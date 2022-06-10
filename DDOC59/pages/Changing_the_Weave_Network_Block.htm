@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Changing the Weave Network Block</h1>
+        <p>Datical Service requires a particular network block:</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">10.32.0.0/12</pre>
+            </div>
+        </div>
+        <p>If there is a collision with other usage, find another network block that is available for Datical Service to use.&#160;</p>
+        <h1 id="ChangingtheWeaveNetworkBlock-DetectionofCollisionfromRunningPre-installCheck">Detection of Collision from Running Pre-install Check</h1>
+        <p>When you run the pre-install check script you get the following message.&#160;</p>
+        <div class="preformatted panel conf-macro output-block" style="border-width: 1px;">
+            <div class="preformattedContent panelContent"><pre xml:space="preserve">!FAILED! IP route 10.32.0.0/12 is already in use</pre>
+            </div>
+        </div>
+        <h2 id="ChangingtheWeaveNetworkBlock-ContinuingwithInstallation">Continuing with Installation</h2>
+        <p>If the network block is the only problem, continue with the installation.&#160;</p>
+        <p>The installation will fail but components will be in place.&#160;&#160;</p>
+        <p class="auto-cursor-target">Check the logs for the <strong>weave-net</strong> pod. You see errors about the network block already being in use.&#160;</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">kubectl -n kube-system logs -l name=weave-net -c weave</pre>
+            </div>
+        </div>
+        <h1 id="ChangingtheWeaveNetworkBlock-ConfiguringWeavetoUseanAlternateNetworkBlock">Configuring Weave to Use an Alternate Network Block</h1>
+        <p>To change the configuration, you need to edit the weave configuration.</p>
+        <ol>
+            <li>
+                <p class="auto-cursor-target">Check the defined local networks to determine an open IP range.&#160;&#160;In the example below, the network block&#160;<code>172.30.0.0/16</code> will be used.</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">ip route show</pre>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p class="auto-cursor-target">Run the following command:</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">kubectl -n kube-system edit daemonset weave-net</pre>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p class="auto-cursor-target">Note the two <strong>env</strong> blocks. Add a new entry to both.&#160;</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">- name: IPALLOC_RANGE
+  value: "172.30.0.0/16"</pre>
+                    </div>
+                </div>
+                <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+                    <div class="confluence-information-macro-body">
+                        <p>Observe yaml file conventions for spaces and indention.</p>
+                        <p>Use the block CHECKPOINT_DISABLE as a guide.&#160;</p>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p class="auto-cursor-target">Check to see if the <code>weave-net</code> pod restarts.&#160;</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">kubectl -n kube-system get pods -w</pre>
+                    </div>
+                </div>
+                <ol>
+                    <li>
+                        <p class="auto-cursor-target">If the pod is not running, delete the pod. When it restarts, it reads the <code>weave.yaml</code> again.&#160;</p>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">kubectl -n kube-system delete pod -l name=weave-net</pre>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <p class="auto-cursor-target">Check that the weave-net pod is running.</p>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">kubectl -n kube-system get pods -w</pre>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <p class="auto-cursor-target">After you have confirmed that the <code>weave-net</code> pod is running, restart the installation.&#160;</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">datical-upgrade</pre>
+                    </div>
+                </div>
+            </li>
+        </ol>
+    </body>
+</html>
