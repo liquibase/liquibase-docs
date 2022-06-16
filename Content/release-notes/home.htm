@@ -9,63 +9,71 @@
         <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">	If you are still not using <MadCap:variable name="General.Hub" />, we have an easy way to start – see <MadCap:xref href="../tools-integrations/liquibase-hub/setup.htm">Getting Started with [%=General.Hub%]</MadCap:xref> for more details. See also <MadCap:xref href="../tools-integrations/liquibase-hub/release-notes.htm">[%=General.Hub%] Release Notes</MadCap:xref>.</p>
         <!--><MadCap:dropDown>
 			<MadCap:dropDownHead>
-				<MadCap:dropDownHotspot><MadCap:variable name="General.Liquibase" /> 4.11 release</MadCap:dropDownHotspot>
+				<MadCap:dropDownHotspot><MadCap:variable name="General.Liquibase" /> 4.12 release</MadCap:dropDownHotspot>
 			</MadCap:dropDownHead>
 			<MadCap:dropDownBody></-->
-        <h2><MadCap:variable name="General.Liquibase" /> 4.11 release</h2>
-        <p><b>Full Changelog:</b> <a href="https://github.com/liquibase/liquibase/compare/v4.9.1...v4.10.0">https://github.com/liquibase/liquibase/compare/v4.10.0...v4.11.0
-				</a></p>
-        <p>Please report any issues to <a href="https://github.com/liquibase/liquibase/issues">https://github.com/liquibase/liquibase/issues</a>.</p>
+        <h2><MadCap:variable name="General.Liquibase" /> 4.12 - June 17, 2022</h2>
+        <p><b>Full Changelog:</b> <a href="https://github.com/liquibase/liquibase/compare/v4.11.0...v4.12.0">https://github.com/liquibase/liquibase/compare/v4.11.0...v4.12.0</a></p>
         <h3>Breaking Changes</h3>
-        <p>Starting with 4.11, we moved the global libraries we ship with the CLI from the lib directory to a new internal directory structure. The lib directory is still included in the classpath as the place where users can add the additional global drivers/libraries they need.</p>
-        <p>The liquibase --version output has been enhanced to also include the third party libraries being used and their versions.</p>
-        <p><b>Impacts:</b>
-        </p>
+        <p>Support for Snowflake database has been moved from the external extension <a href="https://github.com/liquibase/liquibase-snowflake">liquibase-snowflake</a> into the main Liquibase artifact. If you are using the snowflake extension, remove it from your <code>lib </code>directory or however you are including it in your project. If you are using the Docker image, the <code>snowflake </code>docker label will no longer be updated so you need to update your reference to either <code>latest</code> or the version tag you prefer. For CLI users, the Snowflake driver also ships out of the box and so you should remove that from the <code>lib</code> directory as well <a href="https://github.com/liquibase/liquibase/pull/2841">https://github.com/liquibase/liquibase/pull/2841</a></p>
+        <h3> Enhancements</h3>
         <ul>
-            <li>If you are upgrading <MadCap:variable name="General.Liquibase" /> by overwriting an existing directory, you will have duplicate libraries between lib and internal/lib. You should manually delete any files in lib which you did not add yourself. <MadCap:variable name="General.Liquibase" /> will continue to work even with the duplicate libraries, but you may not be running the latest version of ones we ship, since the lib files take priority over what is in internal/lib. New installs are not impacted by this.</li>
-            <li>If you have any automation that did anything with our shipped files in lib, update it to reflect the new internal/lib location.</li>
+            <li> Quality Checks for Databases (DAT-9298) by @StevenMassaro in <a href="https://github.com/liquibase/liquibase/pull/2715">https://github.com/liquibase/liquibase/pull/2715</a><ul><li> This capability extends checks from just the changelog to look at the database itself for conditions of compliance, security, and more. This is currently a Liquibase Labs restricted capability, so please contact <a href="mailto:mario@liquibase.com">mario@liquibase.com</a> to request a license key.</li></ul></li>
+            <li>Added a new "liquibase.showBanner" setting. Setting this value to 'false' will disable the Liquibase startup banner from being shown. By @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2871">https://github.com/liquibase/liquibase/pull/2871</a></li>
+            <li>Added a new "liquibase.missingPropertyMode" setting to control what happens when a changelog contains a <code>${...}</code> string that doesn't correspond to a set changelog property. The default continues to be "preserve," which leaves it as-is. But other possible values are ERROR or EMPTY which will either stop execution with an error or replace it with an empty string.  By @dwieland in <a href="https://github.com/liquibase/liquibase/pull/2656">https://github.com/liquibase/liquibase/pull/2656</a></li>
+            <li>Added new "liquibase.preserveSchemaCase" argument to preserve the case of schemas exactly as passed to the various schema settings. Default remains "false" as before. DAT-10027 By @wwillard7800 in <a href="https://github.com/liquibase/liquibase/pull/2888">https://github.com/liquibase/liquibase/pull/2888</a></li>
+            <li>Introduced "latest" xsd file path. In addition to <code>http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.12.xsd</code> type XSDs references, you can now also use <code>http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd</code> instead. By using "latest", Liquibase will use the bundled XSD for it's version. The uploaded "latest" XSD will always be the most recent Liquibase release, so note how they can be different and locally cached IDE versions may be different yet.  By @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2886">https://github.com/liquibase/liquibase/pull/2886</a></li>
+            <li>Added new ConfiguredValueModifier extension point. This allows extensions to be written which will translate or convert configuration values from what was passed by the user before the value is passed to the internal code. By @mcred in <a href="https://github.com/liquibase/liquibase/pull/2252">https://github.com/liquibase/liquibase/pull/2252</a></li>
+            <li>Updated StandardLockService interface to make it more useful for extensions by @Cliftonz in <a href="https://github.com/liquibase/liquibase/pull/2785">https://github.com/liquibase/liquibase/pull/2785</a></li>
         </ul>
-        <p>For security reasons, we have also changed what is logged by the CLI to only log liquibase channel messages by default, rather than all log channels. If you are relying on logging from non-<MadCap:variable name="General.Liquibase" /> libraries, you can add channels with the new --log-channels flag, including --log-channels=all to restore the old functionality.</p>
-        <h3>Enhancements</h3>
+        <h3>JDBC Driver and Third-Party Library Updates</h3>
         <ul>
-            <li>Moved shipped jar files out of lib and into a new internal/lib directory by @nvoxland in #2850</li>
-            <li>To help with performance troubleshooting, there is now a --monitor-performance argument for the CLI (and only the CLI) which enables profiling of the <MadCap:variable name="General.Liquibase" /> run. The generated profiling information can help us understand and fix performance issues easier. #2599</li>
-            <li>Upgraded Java shipped with the installers from 11 to 17 by @nvoxland in #2602</li>
-            <li>Added whitelist for CLI log channels by @nvoxland in #2859</li>
+            <li>Added connector-api.jar to internal/lib by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2873">https://github.com/liquibase/liquibase/pull/2873</a></li>
+            <li>Upgraded mysql-connector-java from 8.0.28 to 8.0.29 by @dependabot in <a href="https://github.com/liquibase/liquibase/pull/2798">https://github.com/liquibase/liquibase/pull/2798</a></li>
+            <li>Move opencsv to be non-shaded by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2903">https://github.com/liquibase/liquibase/pull/2903</a></li>
+            <li> Added snowflake driver to CLI by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2931">https://github.com/liquibase/liquibase/pull/2931</a></li>
+            <li>Upgraded mssql-jdbc from 10.2.0.jre8 to 10.2.1.jre8 by @dependabot in <a href="https://github.com/liquibase/liquibase/pull/2846">https://github.com/liquibase/liquibase/pull/2846</a></li>
         </ul>
         <h3>Fixes</h3>
         <ul>
-            <li>Do not throw a confusing error if a datatype specified as a changelog parameter is not expanded by @nvoxland in #2772</li>
-            <li>Fixed SQLite not correctly snapshotting tables with underscores in the name by @nvoxland in #2778</li>
-            <li>Fixed local XSD lookup by @nvoxland in #2830</li>
-            <li>Standardized "start-h2" commands on "liquibase init start-h2" logic by @nvoxland in #2597</li>
-            <li>Support default values in the format (0)::real by @nvoxland in #2836</li>
-            <li>Fix handling of defaultSchemaName on Postgresql by @nvoxland in #2812</li>
-            <li>Introduce generateStatementsFromRows for extensions by @fbiville in #2686</li>
-            <li>Fixed XSD type of "ordered" and "cycle" attributes to be booleanby @DartVerder in #2725</li>
-            <li>Remove custom log message filtering by @nvoxland in #2777</li>
-            <li>Spring Boot: better support relativeToChangelogfile when ResourceLoaders return FilteredReactiveWebContextResources by @erik-meuwese-topicus in #2758</li>
-            <li>Fix ForeignKeyComparator when foreign key table is not known by @joserebelo in #2565</li>
-            <li>Test System Framework: add support for "liquibase.sdk.testSystem.skip" property by @StevenMassaro in #2838</li>
-            <li>Test System Framework: stop database containers when spock execution ends by @StevenMassaro in #2843</li>
-        </ul>
-        <h3>Updates</h3>
-        <h4>Security Updates</h4>
-        <p>No security updates needed in this release.</p>
-        <h4>JDBC Driver and Third-Party Library Updates</h4>
-        <ul>
-            <li>Upgraded picocli from 4.6.1 to 4.6.3 by @dependabot in #2518</li>
-            <li>Upgraded jaxb libraries to the newest 2.3.x versions by @nvoxland in #2793</li>
-            <li>Upgraded snakeyaml from 1.27 to 1.30 by @dependabot in #2498</li>
-            <li>OWASP Dependency Check: Reported Vulnerabilities</li>
-            <li>jcc.jar - This is a vulnerability reported against the IBM DB2 JDBC driver. It is awaiting reanalysis. We are currently on the newest version [CVE-2008-1997] (https://nvd.nist.gov/vuln/detail/CVE-2008-1997)</li>
+            <li>Fixed BLOBs in loadData for MySQL/MariaDB  by @MichaelCkr in <a href="https://github.com/liquibase/liquibase/pull/2595">https://github.com/liquibase/liquibase/pull/2595</a></li>
+            <li>Fixed getting ENUM column values from Mysql database having multiple schemas by @akatiyar in <a href="https://github.com/liquibase/liquibase/pull/2616">https://github.com/liquibase/liquibase/pull/2616</a></li>
+            <li>Added logic to Derby.getDefaultDriver() to check for availability of different driver classes by @AlexanderSashchenko in <a href="https://github.com/liquibase/liquibase/pull/2571">https://github.com/liquibase/liquibase/pull/2571</a></li>
+            <li>Fixed TableOutput spaces when using long words (DAT-10069) by @StevenMassaro in <a href="https://github.com/liquibase/liquibase/pull/2879">https://github.com/liquibase/liquibase/pull/2879</a></li>
+            <li>Fixed addAutoIncrement startValue and incrementBy support on postgresql by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2588">https://github.com/liquibase/liquibase/pull/2588</a></li>
+            <li>Support non-classpath: protocols in Spring by @reallyinsane in <a href="https://github.com/liquibase/liquibase/pull/2524">https://github.com/liquibase/liquibase/pull/2524</a></li>
+            <li>Fixed #2780: AddColumnChange with schema and NOT NULL constraint fails by @MartinRied in <a href="https://github.com/liquibase/liquibase/pull/2781">https://github.com/liquibase/liquibase/pull/2781</a></li>
+            <li>Make extension matching for SQL parsers case-insensitve DAT-10265 by @wwillard7800 in <a href="https://github.com/liquibase/liquibase/pull/2884">https://github.com/liquibase/liquibase/pull/2884</a></li>
+            <li>Restored outputDefaultSchema and outputDefaultCatalog command arguments by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2834">https://github.com/liquibase/liquibase/pull/2834</a></li>
+            <li>Quote liquibase.jar path in bash launcher by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2885">https://github.com/liquibase/liquibase/pull/2885</a></li>
+            <li>Fix for working with Firebird 2 and newer versions. Fixes nullables and boolean type. by @mngsgoncalves in <a href="https://github.com/liquibase/liquibase/pull/2277">https://github.com/liquibase/liquibase/pull/2277</a></li>
+            <li>Fixed issue if change changelog object is null by @kamalnigam in <a href="https://github.com/liquibase/liquibase/pull/2837">https://github.com/liquibase/liquibase/pull/2837</a></li>
+            <li>Filter out license key strings for Hub communication DAT-10522 by @wwillard7800 in <a href="https://github.com/liquibase/liquibase/pull/2926">https://github.com/liquibase/liquibase/pull/2926</a></li>
+            <li>Specify which parameter is missing in the error message by @bendem in <a href="https://github.com/liquibase/liquibase/pull/2567">https://github.com/liquibase/liquibase/pull/2567</a></li>
+            <li>Split license information into OSS vs. Pro directories by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2868">https://github.com/liquibase/liquibase/pull/2868</a></li>
+            <li>Use the method setBlob to insert blob data by @xjodoin in <a href="https://github.com/liquibase/liquibase/pull/605">https://github.com/liquibase/liquibase/pull/605</a></li>
+            <li>Smooth out differences in "./" paths by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2915">https://github.com/liquibase/liquibase/pull/2915</a></li>
+            <li>Include inherited labels in databasechangelog table by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2870">https://github.com/liquibase/liquibase/pull/2870</a></li>
+            <li>Restored OSGi headers by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2924">https://github.com/liquibase/liquibase/pull/2924</a></li>
+            <li>Working on better Git Bash console solution DAT-10230 by @wwillard7800 in <a href="https://github.com/liquibase/liquibase/pull/2882">https://github.com/liquibase/liquibase/pull/2882</a></li>
+            <li>Close InputStream in SQLFileChange (DAT-9855) by @StevenMassaro in <a href="https://github.com/liquibase/liquibase/pull/2920">https://github.com/liquibase/liquibase/pull/2920</a></li>
+            <li>Support prepared statements for query by @fbiville in <a href="https://github.com/liquibase/liquibase/pull/2913">https://github.com/liquibase/liquibase/pull/2913</a></li>
+            <li>Implement NOT VALID for Postgres databases by @coenvk in <a href="https://github.com/liquibase/liquibase/pull/2600">https://github.com/liquibase/liquibase/pull/2600</a></li>
         </ul>
         <h3>New Contributors</h3>
         <ul>
-            <li>@nikosmoum made their first contribution in #2630</li>
-            <li>@DartVerder made their first contribution in #2725</li>
-            <li>@erik-meuwese-topicus made their first contribution in #2758</li>
-            <li>@joserebelo made their first contribution in #2565</li>
+            <li>@MichaelCkr made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2595">https://github.com/liquibase/liquibase/pull/2595</a></li>
+            <li>@akatiyar made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2616">https://github.com/liquibase/liquibase/pull/2616</a></li>
+            <li>@Cliftonz made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2785">https://github.com/liquibase/liquibase/pull/2785</a></li>
+            <li> @reallyinsane made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2524">https://github.com/liquibase/liquibase/pull/2524</a></li>
+            <li> @MartinRied made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2781">https://github.com/liquibase/liquibase/pull/2781</a></li>
+            <li>@dwieland made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2656">https://github.com/liquibase/liquibase/pull/2656</a></li>
+            <li>@mngsgoncalves made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2277">https://github.com/liquibase/liquibase/pull/2277</a></li>
+            <li>@kamalnigam made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2837">https://github.com/liquibase/liquibase/pull/2837</a></li>
+            <li>@bendem made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2567">https://github.com/liquibase/liquibase/pull/2567</a></li>
+            <li>@xjodoin made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/605">https://github.com/liquibase/liquibase/pull/605</a></li>
+            <li>@abrackx made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2934">https://github.com/liquibase/liquibase/pull/2934</a></li>
+            <li>@coenvk made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2600">https://github.com/liquibase/liquibase/pull/2600</a></li>
         </ul>
         <h3>Get Certified</h3>
         <p>Learn all the <MadCap:variable name="General.Liquibase" /> fundamentals from free online courses by <MadCap:variable name="General.Liquibase" /> experts and see how to apply them in the real world at <a href="https://learn.liquibase.com/">https://learn.liquibase.com/</a>.</p>
@@ -83,7 +91,84 @@
         </ul>
         <p>Thanks to everyone who helps make the <MadCap:variable name="General.Liquibase" /> community strong!</p>
         <!--></MadCap:dropDownBody>
-		</MadCap:dropDown></-->
+		</MadCap:dropDown><-->
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.Liquibase" /> 4.11 release</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2><MadCap:variable name="General.Liquibase" /> 4.11 release</h2>
+                <p><b>Full Changelog:</b> <a href="https://github.com/liquibase/liquibase/compare/v4.9.1...v4.10.0">https://github.com/liquibase/liquibase/compare/v4.10.0...v4.11.0
+				</a></p>
+                <p>Please report any issues to <a href="https://github.com/liquibase/liquibase/issues">https://github.com/liquibase/liquibase/issues</a>.</p>
+                <h3>Breaking Changes</h3>
+                <p>Starting with 4.11, we moved the global libraries we ship with the CLI from the lib directory to a new internal directory structure. The lib directory is still included in the classpath as the place where users can add the additional global drivers/libraries they need.</p>
+                <p>The liquibase --version output has been enhanced to also include the third party libraries being used and their versions.</p>
+                <p><b>Impacts:</b>
+                </p>
+                <ul>
+                    <li>If you are upgrading <MadCap:variable name="General.Liquibase" /> by overwriting an existing directory, you will have duplicate libraries between lib and internal/lib. You should manually delete any files in lib which you did not add yourself. <MadCap:variable name="General.Liquibase" /> will continue to work even with the duplicate libraries, but you may not be running the latest version of ones we ship, since the lib files take priority over what is in internal/lib. New installs are not impacted by this.</li>
+                    <li>If you have any automation that did anything with our shipped files in lib, update it to reflect the new internal/lib location.</li>
+                </ul>
+                <p>For security reasons, we have also changed what is logged by the CLI to only log liquibase channel messages by default, rather than all log channels. If you are relying on logging from non-<MadCap:variable name="General.Liquibase" /> libraries, you can add channels with the new --log-channels flag, including --log-channels=all to restore the old functionality.</p>
+                <h3>Enhancements</h3>
+                <ul>
+                    <li>Moved shipped jar files out of lib and into a new internal/lib directory by @nvoxland in #2850</li>
+                    <li>To help with performance troubleshooting, there is now a --monitor-performance argument for the CLI (and only the CLI) which enables profiling of the <MadCap:variable name="General.Liquibase" /> run. The generated profiling information can help us understand and fix performance issues easier. #2599</li>
+                    <li>Upgraded Java shipped with the installers from 11 to 17 by @nvoxland in #2602</li>
+                    <li>Added whitelist for CLI log channels by @nvoxland in #2859</li>
+                </ul>
+                <h3>Fixes</h3>
+                <ul>
+                    <li>Do not throw a confusing error if a datatype specified as a changelog parameter is not expanded by @nvoxland in #2772</li>
+                    <li>Fixed SQLite not correctly snapshotting tables with underscores in the name by @nvoxland in #2778</li>
+                    <li>Fixed local XSD lookup by @nvoxland in #2830</li>
+                    <li>Standardized "start-h2" commands on "liquibase init start-h2" logic by @nvoxland in #2597</li>
+                    <li>Support default values in the format (0)::real by @nvoxland in #2836</li>
+                    <li>Fix handling of defaultSchemaName on Postgresql by @nvoxland in #2812</li>
+                    <li>Introduce generateStatementsFromRows for extensions by @fbiville in #2686</li>
+                    <li>Fixed XSD type of "ordered" and "cycle" attributes to be booleanby @DartVerder in #2725</li>
+                    <li>Remove custom log message filtering by @nvoxland in #2777</li>
+                    <li>Spring Boot: better support relativeToChangelogfile when ResourceLoaders return FilteredReactiveWebContextResources by @erik-meuwese-topicus in #2758</li>
+                    <li>Fix ForeignKeyComparator when foreign key table is not known by @joserebelo in #2565</li>
+                    <li>Test System Framework: add support for "liquibase.sdk.testSystem.skip" property by @StevenMassaro in #2838</li>
+                    <li>Test System Framework: stop database containers when spock execution ends by @StevenMassaro in #2843</li>
+                </ul>
+                <h3>Updates</h3>
+                <h4>Security Updates</h4>
+                <p>No security updates needed in this release.</p>
+                <h4>JDBC Driver and Third-Party Library Updates</h4>
+                <ul>
+                    <li>Upgraded picocli from 4.6.1 to 4.6.3 by @dependabot in #2518</li>
+                    <li>Upgraded jaxb libraries to the newest 2.3.x versions by @nvoxland in #2793</li>
+                    <li>Upgraded snakeyaml from 1.27 to 1.30 by @dependabot in #2498</li>
+                    <li>OWASP Dependency Check: Reported Vulnerabilities</li>
+                    <li>jcc.jar - This is a vulnerability reported against the IBM DB2 JDBC driver. It is awaiting reanalysis. We are currently on the newest version [CVE-2008-1997] (https://nvd.nist.gov/vuln/detail/CVE-2008-1997)</li>
+                </ul>
+                <h3>New Contributors</h3>
+                <ul>
+                    <li>@nikosmoum made their first contribution in #2630</li>
+                    <li>@DartVerder made their first contribution in #2725</li>
+                    <li>@erik-meuwese-topicus made their first contribution in #2758</li>
+                    <li>@joserebelo made their first contribution in #2565</li>
+                </ul>
+                <h3>Get Certified</h3>
+                <p>Learn all the <MadCap:variable name="General.Liquibase" /> fundamentals from free online courses by <MadCap:variable name="General.Liquibase" /> experts and see how to apply them in the real world at <a href="https://learn.liquibase.com/">https://learn.liquibase.com/</a>.</p>
+                <h3>Meet the Community</h3>
+                <p>Our community has built a lot. From extensions to integrations, you’ve helped make <MadCap:variable name="General.Liquibase" /> the amazing open source project that it is today. Keep contributing to making it stronger:</p>
+                <ul>
+                    <li><a href="https://www.liquibase.org/development/contribute.html">Contribute code</a>
+                    </li>
+                    <li><a href="https://github.com/Datical/liquibase-docs">Make doc updates</a>
+                    </li>
+                    <li><a href="https://forum.liquibase.org/">Help by asking and answering questions</a>
+                    </li>
+                    <li><a href="https://calendly.com/liquibase-outreach/product-feedback">Set up a chat with the Product team</a>
+                    </li>
+                </ul>
+                <p>Thanks to everyone who helps make the <MadCap:variable name="General.Liquibase" /> community strong!</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot><MadCap:variable name="General.Liquibase" /> 4.10 release</MadCap:dropDownHotspot>
@@ -1130,350 +1215,5 @@
                 <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v4.1.1">https://github.com/liquibase/liquibase/releases/tag/v4.1.1</a></p>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.10.3 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.10.3">https://github.com/liquibase/liquibase/releases/tag/v3.10.3</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 4.1.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v4.1.0">https://github.com/liquibase/liquibase/releases/tag/v4.1.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.10.2 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.10.2">https://github.com/liquibase/liquibase/releases/tag/v3.10.2</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 4.0.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v4.0.0">https://github.com/liquibase/liquibase/releases/tag/v4.0.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 4.0.0 beta 2 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v4.0.0-beta2">https://github.com/liquibase/liquibase/releases/tag/v4.0.0-beta2</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.10.1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.10.1">https://github.com/liquibase/liquibase/releases/tag/v3.10.1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.10.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.10.0">https://github.com/liquibase/liquibase/releases/tag/v3.10.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.9.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.9.0">https://github.com/liquibase/liquibase/releases/tag/v3.9.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 4.0.0 beta 1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v4.0.0-beta1">https://github.com/liquibase/liquibase/releases/tag/v4.0.0-beta1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.9 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.9">https://github.com/liquibase/liquibase/releases/tag/v3.8.9</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.8 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.8">https://github.com/liquibase/liquibase/releases/tag/v3.8.8</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.7 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.7">https://github.com/liquibase/liquibase/releases/tag/v3.8.7</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.6 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.6">https://github.com/liquibase/liquibase/releases/tag/v3.8.6</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.5 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.5">https://github.com/liquibase/liquibase/releases/tag/v3.8.5</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.4 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.4">https://github.com/liquibase/liquibase/releases/tag/v3.8.4</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.3 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.3">https://github.com/liquibase/liquibase/releases/tag/v3.8.3</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.2 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.2">https://github.com/liquibase/liquibase/releases/tag/v3.8.2</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/v3.8.1">https://github.com/liquibase/liquibase/releases/tag/v3.8.1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.8.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.8.0">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.8.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.7.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.7.0">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.7.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.6.3 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.3">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.3</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.6.2 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.2">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.2</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.6.1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.1">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.6.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.0">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.6.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.6.0 beta 1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/3.6.0-beta1">https://github.com/liquibase/liquibase/releases/tag/3.6.0-beta1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.5.5 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.5">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.5</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.5.4 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.4">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.4</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.5.3 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.3">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.3</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.5.2 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.2">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.2</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.5.1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.1">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.5.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.0">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.5.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.4.2 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.4.2">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.4.2</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.4.1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.4.1">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.4.1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.4.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.4.0">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.4.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.3.5 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.5">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.5</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.3.4 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.4">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.4</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.3.3 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.3">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.3</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.3.2 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.2">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.2</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.3.1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.1">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.3.0 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.0">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.3.0</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.2.3 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.2.3">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.2.3</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.1.1 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.1.1">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.1.1</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;"><MadCap:variable name="General.Liquibase" /> 3.0.8 release</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody>
-                <p>For release notes, visit: <a href="https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.0.8">https://github.com/liquibase/liquibase/releases/tag/liquibase-parent-3.0.8</a></p>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <p>To see the release notes for <MadCap:variable name="General.Liquibase" /> 3.0.7 and earlier, refer to <a href="https://github.com/liquibase/liquibase/releases?after=liquibase-parent-3.1.0"><MadCap:variable name="General.Liquibase" /> releases</a>.</p>
     </body>
 </html>
