@@ -2,41 +2,27 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
         <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with Cassandra | Liquibase Docs</title>
-        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/cassandra.html" />
+        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/cassandra.html" />
         <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Cassandra." />
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with Cassandra</h1>
-        <p><a href="https://cassandra.apache.org/doc/latest/architecture/overview.html">Apache Cassandra</a> is an open source, distributed, NoSQL database. It presents a partitioned wide column storage model with consistent semantics.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://cassandra.apache.org/">Apache Cassandra</a> page.</p>
+        <p><a href="https://cassandra.apache.org/doc/latest/architecture/overview.html">Apache Cassandra</a> is an open source, distributed, NoSQL database. It presents a partitioned wide column storage model with consistent semantics. For more information, see the <a href="https://cassandra.apache.org/">Apache Cassandra</a> page.</p>
         <h2>Supported Versions</h2>
         <ul>
             <li>3.11</li>
         </ul>
         <h2>Prerequisites</h2>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-prerequisites.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <h2>Install Drivers</h2>
-        <p>To use <MadCap:variable name="General.Liquibase" /> and Apache Cassandra, you need to have two jar files – JDBC and the <MadCap:variable name="General.Liquibase" /> Cassandra extension:</p>
-        <ol>
-            <li>Ensure you have downloaded the Simba JDBC jar driver file. To download it, go to the <a href="https://downloads.datastax.com/#odbc-jdbc-drivers">DataStax ODBC/JDBC Drivers</a> page and select <b>Simba JDBC Driver for Apache Cassandra</b> from the dropdown menu. Also, select the default package option unless you need a specific package. The driver downloads as a <code>.zip</code> file named <code>SimbaCassandraJDBC42-x.x.x.zip</code>.</li>
-            <li>Extract the <code>CassandraJDBCxx.jar</code> file and place it in the <code>liquibase/lib</code> directory.</li>
-            <li>Go to the <a href="https://github.com/liquibase/liquibase-cassandra/releases/">liquibase-cassandra</a> repository and download the latest released <MadCap:variable name="General.Liquibase" /> extension <code>.jar</code> file.</li>
-            <li>Place the <code>liquibase-cassandra-version.jar</code> file in the <code>liquibase/lib</code> install directory.</li>
-            <li>Open the <MadCap:variable name="General.Liquibase" /> properties file and specify the driver, as follows:</li><pre><code class="language-text">driver: com.simba.cassandra.jdbc42.Driver</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you put the <code>CassandraJDBCxx.jar</code> and <code>liquibase-cassandra-version.jar</code> files in a different directory, specify the path in the <MadCap:variable name="General.Liquibase" /> properties file, as follows: <code>classpath:../path_to_drivers/CassandraJDBCxx.jar; liquibase-cassandra-version.jar</code>.</p>
-        </ol>
-        <p>If you use Maven, you also need to download the Simba JDBC driver for Cassandra and put the driver in a location that your Maven build can access. Configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
-    &lt;groupId&gt;com.datastax.jdbc&lt;/groupId&gt;
-    &lt;artifactId&gt;CassandraJDBC42&lt;/artifactId&gt;
-    &lt;version&gt;4.2&lt;/version&gt;
-    &lt;scope&gt;system&lt;/scope&gt;
-    &lt;systemPath&gt;${basedir}/lib/CassandraJDBC42.jar&lt;/systemPath&gt;
-&lt;/dependency&gt;</code></pre>
-        <p>You need to specify that the scope is <code>system</code> and provide the <code>systemPath</code> in <code>pom.xml</code>. In the example, the <code>${basedir}/lib</code> is the location of the driver jar file.</p>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Apache Cassandra, you need to have two JAR files: a JDBC driver and the <MadCap:variable name="General.Liquibase" /> Cassandra extension:</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-cassandra-drivers.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorials.Not pre-installed&quot;]" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/code/database-cassandra-maven.flsnp" />
         <h2>Test Your Connection</h2>
         <p>For <MadCap:variable name="General.Liquibase" /> and Apache Cassandra to work, you need to:</p>
         <ol>
-            <li>Ensure your Cassandra database is configured. If you have Cassandra tools locally and want to check the status of Cassandra, run <code>$ bin/nodetool</code> status. The status column in the output should report UN which stands for “Up/Normal”:</li><pre><code class="language-text"># nodetool status
+            <li>Ensure your Cassandra database is configured. If you have Cassandra tools locally and want to check the status of Cassandra, run <code>$ bin/nodetool status</code>. The status column in the output should report UN, which stands for "Up/Normal":</li><pre><code class="language-text"># nodetool status
 Datacenter: datacenter1
 =======================
 Status=Up/Down
@@ -77,52 +63,16 @@ Status=Up/Down
             <li>Specify the database URL in the <MadCap:variable name="General.Liquibase" /> properties file, as follows:</li><pre><code class="language-text">url: jdbc:cassandra://localhost:9042/myKeyspace;DefaultKeyspace=myKeyspace</code></pre>
             <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
             <li>
-                <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-changelog.flsnp" />
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog.flsnp" />
             </li>
         </ol>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/code/database-changelog-examples.flsnp" />
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-test-connection.flsnp" />
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/misc/database-tracking-tables.flsnp" />
-        <h2>Supported Commands and <MadCap:variable name="General.changetypes"></MadCap:variable>s</h2>
-        <p>The supported <MadCap:variable name="General.changetypes" />s for Cassandra  are:</p>
-        <ul>
-            <li>
-                <MadCap:xref href="../../change-types/create-table.html">createTable</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../change-types/add-column.html">addColumn</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../change-types/drop-column.html">dropColumn</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../change-types/drop-table.html">dropTable</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../change-types/rename-column.html">renameColumn</MadCap:xref>
-            </li>
-        </ul>
-        <p>You can use all the commands with <MadCap:variable name="General.Liquibase" /> and Cassandra, except for:</p>
-        <ul>
-            <li>
-                <MadCap:xref href="../../commands/diff/diff.htm">diff</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../commands/diff/diff-json.htm">diff JSON</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../commands/diff/diff-changelog.html">diff-changelog</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../commands/snapshot/generate-changelog.html">generate-changelog</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../commands/snapshot/snapshot.html">snapshot</MadCap:xref>
-            </li>
-        </ul>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-test-connection.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tracking-tables.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-cassandra-commands-change-types.flsnp" />
         <h2>Related Links</h2>
         <ul>
-            <li><a href="https://www.liquibase.org/blog/running-liquibase-apache-cassandra">Get Up and Running with <MadCap:variable name="General.Liquibase" /> and Apache Cassandra</a>
+            <li><a href="https://www.liquibase.com/blog/running-liquibase-apache-cassandra">Get Up and Running with <MadCap:variable name="General.Liquibase" /> and Apache Cassandra</a>
             </li>
             <li>
                 <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>

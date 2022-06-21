@@ -1,54 +1,771 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Using Liquibase with DB2 on z/OS | Liquibase Docs</title>
-        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/db2onz.html" />
+    <head>
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with DB2 on z/OS | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/db2onz.html" />
         <meta name="description" content="This page guides you through the process of creating a new Liquibase project with DB2 on z/OS." />
     </head>
     <body>
         <h1 id="db2-on-zos-tutorial">Using <MadCap:variable name="General.Liquibase" /> with DB2 on z/OS</h1>
-        <h2>Step 1: Download and Extract <MadCap:variable name="General.Liquibase" /></h2>
+        <p><a href="https://www.ibm.com/docs/en/db2-for-zos">DB2 on z/OS</a> is a relational database management system that runs on the mainframe. For more information, see the <a href="https://www.ibm.com/docs/en/db2-for-zos/13?topic=getting-started-db2-zos">DB2 for z/OS documentation page</a>.</p>
+        <h2>Supported versions</h2>
+        <ul>
+            <li>11.X</li>
+            <li>12.X</li>
+            <li>13.X</li>
+        </ul>
+        <h2>Prerequisites</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
+        <h2>Install drivers</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and DB2 on z/OS, you need to have the DB2JCC driver and the <a href="https://www.ibm.com/support/pages/db2-jdbc-driver-versions-and-downloads">license JAR file</a>, which is required when connecting to a mainframe DB2 database. You must purchase the DB2 Connect product. The license file is contained within the activation package for it. For more information regarding the license file, see <a href="https://www.ibm.com/support/pages/location-db2jcclicensecisuzjar-file">Location of the db2jcc_license_cisuz.jar file</a>. Place the license JAR file in the <code>liquibase/lib</code> directory.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[DatabaseTutorials.Pre-installed]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;com.ibm.db2&lt;/groupId&gt;
+    &lt;artifactId&gt;jcc&lt;/artifactId&gt;
+    &lt;version&gt;11.5.7.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h2>Test your connection</h2>
         <ol>
-            <li><a href="https://www.liquibase.org/download">Download [%=General.Liquibase%]</a><MadCap:variable name="General.Liquibase" />.</li>
-            <li>After downloading the <code class="highlighter-rouge">*.zip</code> or <code class="highlighter-rouge">*.tar.gz</code>, extract the contents into a folder.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You may want to add this folder to your system PATH environment so that you can execute <MadCap:variable name="General.Liquibase" /> from any directory.</p></li>
+            <li>Ensure your DB2 on z/OS database is configured. You can check the status by running the <a href="https://www.ibm.com/docs/en/db2-for-zos/13?topic=commands-display-database-db2"><code>DISPLAY DATABASE</code> command</a>, which displays status information about DB2 databases.</li>
+            <li>Specify the database URL in the <MadCap:variable name="General.Liquibase" /> properties file:</li><pre xml:space="preserve"><code class="language-text" data-lang="text">url: jdbc:db2://&lt;servername&gt;:&lt;port&gt;/&lt;dbname&gt;</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The URL for DB2 on z/OS may have different formats, such as <code>jdbc:db2j:net:</code>, <code>jdbc:ibmdb:</code>, and <code>jdbc:ids:</code>, depending on your connection type. For more information, see <a href="https://www.ibm.com/docs/en/db2-for-zos/13?topic=cdsudidsdjs-url-format-data-server-driver-jdbc-sqlj-type-4-connectivity">URL format for IBM Data Server Driver for JDBC and SQLJ type 4 connectivity</a>.</p>
+            <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
+            <li>
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog.flsnp" />
+            </li>
         </ol>
-        <p>For this tutorial, we will refer to that directory as <code class="highlighter-rouge">LB_HOME</code>, and when executing the <MadCap:variable name="General.Liquibase" /> shell script will use <code class="highlighter-rouge">LB_HOME/liquibase</code> or <code class="highlighter-rouge">LB_HOME\liquibase.bat</code> as the example command.</p>
-        <h2>Step 2: Install Java</h2>
-        <ol>
-            <li>Java is a required dependency. Install Java if it is not already installed.
-<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can download and use either the Oracle JDK or <a href="https://jdk.java.net/13/">OpenJDK</a>. Be sure to <a href="https://stackoverflow.com/questions/52511778/how-to-install-openjdk-11-on-windows">configure</a> your <code>PATH</code> and environment variable properly.</p></li>
-            <li>Validate that you have a working Java version. On the command line, execute: <code class="highlighter-rouge">java -version</code></li>
-        </ol>
-        <p>Ensure that it runs successfully and displays your installed Java version.</p>
-        <h2>Step 3: Download the DB2JCC Driver and License File</h2>
-        <p>The <a href="https://www.ibm.com/support/pages/db2-jdbc-driver-versions-and-downloads">license JAR file</a> is required when connecting to a mainframe DB2 database, which is not a free JAR file. You must purchase the DB2 Connect product. The license file is contained within the activation package for it. For more information regarding the license file, see <a href="https://www.ibm.com/support/pages/location-db2jcclicensecisuzjar-file">Location of the db2jcc_license_cisuz.jar file</a>.</p>
-        <p><MadCap:variable name="General.Liquibase" /> comes with a pre-installed driver for DB2 in the <code>liquibase/lib</code> directory. For more information, see <MadCap:xref href="../../workflows/liquibase-community/adding-and-updating-liquibase-drivers.htm">Adding and Updating [%=General.Liquibase%] Drivers</MadCap:xref>.</p>
-        <h2>Step 4: Set Up the Properties File</h2>
-        <p>While it is possible to pass all required parameters, such as the JDBC driver and database URL on the command line, it is much easier to configure a <MadCap:variable name="General.Liquibase" /> properties file.</p>
-        <blockquote>
-            <p><strong>Pro Tip:</strong>  Create multiple <MadCap:variable name="General.Liquibase" /> properties files for your DEV, QA, and PROD environments. You can pass the specific properties file as a <MadCap:variable name="General.Liquibase" /> command line argument.</p>
-        </blockquote>
-        <ol>
-            <li>Create a new directory for your first <MadCap:variable name="General.Liquibase" /> project, and change into that directory. For this example, we named the directory <code class="highlighter-rouge">db2_zos</code></li>
-            <li>Create a text file named <code class="highlighter-rouge"><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> and add the following content:</li>
-        </ol>
-        <figure class="highlight"><pre xml:space="preserve"><code class="language-text" data-lang="text">driver: com.ibm.db2.jcc.DB2Driver
-classpath: &lt;C:/full/path/to/LB_HOME&gt;/lib/db2jcc.jar;&gt;&lt;C:/full/path/to/LB_HOME&gt;/lib/db2jcc_license_cisuz.jar&gt;
-url: jdbc:db2://&lt;HOST_IP_ADDRESS&gt;:&lt;PORT&gt;/&lt;DBNAME&gt;:retrieveMessagesFromServerOnGetMessage=true;emulateParameterMetaDataForZCalls=1;
-username: &lt;DBUSER&gt;
-password: &lt;DBUSER_PASSWORD&gt;
-changelog-file: db2zosChangeLog.xml</code></pre>
-        </figure>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Be sure to replace the <code class="highlighter-rouge">&lt;values&gt;</code> with the actual values for your system.</p>
-        <p>Ensure that you can execute <MadCap:variable name="General.Liquibase" />. At the command prompt, run one of the following commands, depending on your platform:</p>
-        <p><strong><u>Linux</u></strong>
-        </p><pre><code class="language-text">&lt;LB_HOME&gt;/liquibase --help</code></pre>
-        <p><strong><u>Windows</u></strong>
-        </p><pre><code class="language-text">&lt;LB_HOME&gt;\liquibase.bat --help</code></pre>
-        <p>You should now see some help output, and you are ready to begin using <MadCap:variable name="General.Liquibase" />.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/code/database-changelog-examples.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-test-connection.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tracking-tables.flsnp" />
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Supported <MadCap:variable name="General.changetypes" />s</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
+                    <thead>
+                        <tr class="TableStyle-TableStyles-Head-Header1">
+                            <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes"></MadCap:variable>
+                            </th>
+                            <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Supported</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-auto-increment.html">addAutoIncrement</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-check-constraint.html">addCheckConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-column.html">addColumn</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-default-value.html">addDefaultValue</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-foreign-key-constraint.html">addForeignKeyConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-lookup-table.html">addLookupTable</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-not-null-constraint.html">addNotNullConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-primary-key.html">addPrimaryKey</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/add-unique-constraint.html">addUniqueConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/alter-sequence.html">alterSequence</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-function.html">createFunction</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-index.html">createIndex</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-package.html">createPackage</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-package-body.html">createPackageBody</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-procedure.html">createProcedure</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-sequence.html">createSequence</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-synonym.html">createSynonym</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-table.html">createTable</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-trigger.html">createTrigger</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/create-view.html">createView</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/custom-change.html">customChange</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/delete.html">delete</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/disable-check-constraint.html">disableCheckConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/disable-trigger.html">disableTrigger</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-all-foreign-key-constraints.html">dropAllForeignKeyConstraints</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-check-constraint.html">dropCheckConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-column.html">dropColumn</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-default-value.html">dropDefaultValue</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-foreign-key-constraint.html">dropForeignKeyConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-function.html">dropFunction</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-index.html">dropIndex</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-not-null-constraint.html">dropNotNullConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-package.html">dropPackage</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-package-body.html">dropPackageBody</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-primary-key.html">dropPrimaryKey</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-procedure.html">dropProcedure</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-sequence.html">dropSequence</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-synonym.html">dropSynonym</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-table.html">dropTable</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-trigger.html">dropTrigger</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-unique-constraint.html">dropUniqueConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/drop-view.html">dropView</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/empty.html">empty</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/enable-check-constraint.html">enableCheckConstraint</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/enable-trigger.html">enableTrigger</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/execute-command.html">executeCommand</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/insert.html">insert</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/load-data.html">loadData</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/load-update-data.html">loadUpdateData</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/mark-unused.html">markUnused</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/merge-columns.html">mergeColumns</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/modify-data-type.html">modifyDataType</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/output.html">output</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/rename-column.html">renameColumn</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/rename-sequence.html">renameSequence</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/rename-table.html">renameTable</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/rename-trigger.html">renameTrigger</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/rename-view.html">renameView</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/set-column-remarks.html">setColumnRemarks</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/set-table-remarks.html">setTableRemarks</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/sql.html">sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/sql-file.html">sqlFile</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/stop.html">stop</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/tag-database.html">tagDatabase</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../change-types/update.html">update</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyA-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Supported commands</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
+                    <thead>
+                        <tr class="TableStyle-TableStyles-Head-Header1">
+                            <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Command</th>
+                            <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Supported</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/calculate-checksum.html">calculate-checksum</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/changelog-sync.htm">changelog-sync</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/changelog-sync-sql.htm">changelog-sync-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/changelog-sync-to-tag.htm">changelog-sync-to-tag</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/changelog-sync-to-tag-sql.htm">changelog-sync-to-tag-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/clear-checksums.htm">clear-checksums</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/docs/db-doc.html">db-doc</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/hub/deactivate-changelog.htm">deactivate-changelog</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/diff/diff.htm">diff</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/diff/diff-json.htm">diff JSON</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/diff/diff-changelog.html">diff-changelog</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/drop-all.htm">drop-all</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/future-rollback-count-sql.htm">future-rollback-count-sql &lt;value&gt;</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/future-rollback-from-tag-sql.htm">future-rollback-from-tag-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/future-rollback-sql.htm">future-rollback-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/snapshot/generate-changelog.html">generate-changelog</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>help</code>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/status/history.html">history</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/list-locks.htm">list-locks</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/mark-next-changeset-ran.html">mark-next-changeset-ran</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/mark-next-changeset-ran-sql.html">mark-next-changeset-ran-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/hub/register-changelog.htm">register-changelog</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/release-locks.htm">release-locks</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-by-tag.htm">rollback</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-count.htm">rollback-count</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-count-sql.htm">rollback-count-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-one-changeset.html">rollback-one-changeset</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-one-changeset-sql.html">rollback-one-changeset-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-one-update.html">rollback-one-update</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-one-update-sql.html">rollback-one-update-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-sql.htm">rollback-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-to-date.htm">rollback-to-date</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/rollback/rollback-to-date-sql.htm">rollback-to-date-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/snapshot/snapshot.html">snapshot</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/snapshot/snapshot-reference.html">snapshot-reference</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/status/status.htm">status --verbose</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/hub/sync-hub.htm">sync-hub</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/tag.html">tag</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/tag-exists.html">tag-exists</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/maintenance/unexpected-changesets.html">unexpected-changesets</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/update/update-count.htm">update-count</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/update/update-count-sql.html">update-count-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/update/update-testing-rollback.htm">update-testing-rollback</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/update/update-to-tag.html">update-to-tag</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body1">
+                            <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                                <MadCap:xref href="../../commands/update/update-to-tag-sql.html">update-to-tag-sql</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                        </tr>
+                        <tr class="TableStyle-TableStyles-Body-Body2">
+                            <td class="TableStyle-TableStyles-BodyB-Column1-Body2">
+                                <MadCap:xref href="../../commands/maintenance/validate.htm">validate</MadCap:xref>
+                            </td>
+                            <td class="TableStyle-TableStyles-BodyA-Column1-Body2">Supported</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
         <h2>Related links</h2>
         <ul>
             <li>
                 <MadCap:xref href="db2onzdeploy-sql.htm">Deploying Changes to DB2 on z/OS using SQL Scripts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../change-types/home.html">[%=General.Liquibase%] [%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">[%=General.Liquibase%] Commands</MadCap:xref>
             </li>
         </ul>
     </body>

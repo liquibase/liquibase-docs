@@ -5,7 +5,8 @@
         <meta name="description" content="Get started with the quality checks commands. Use the Liquibase checks command to build quality, security, and compliance into your database development workflow." />
     </head>
     <body>
-        <h1>Getting Started with the <code>checks</code> Command</h1>
+        <h1>Get Started with the <code>checks</code> Command <a href="https://www.liquibase.com/trial" target="_blank"><img src="../../Z_Resources/Images/Logos/pro-pages.jpg" style="vertical-align: middle;width: 3%" /></a></h1>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-pro.flsnp" />
         <p>To build quality, security, and compliance into your database development workflow, start using the <MadCap:variable name="General.Liquibase" /> <code>checks</code> command. <MadCap:variable name="General.Liquibase" /> allows executing  checks against a <MadCap:variable name="General.changelog" /> and customize the <code>checks</code> configuration to catch specific scenarios.</p>
         <h2>Prerequisites</h2>
         <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are new to <MadCap:variable name="General.Liquibase" />, follow <MadCap:xref href="../../start/home.htm">Getting Started with [%=General.Liquibase%]</MadCap:xref>.</p>
@@ -15,7 +16,7 @@
         <ol>
             <li>Create a new <code>changelog.sql</code> file and add the following:</li><pre><code class="language-text">--liquibase formatted sql
 				
---changeset your.name:1 labels:v0 context:all
+--changeset your.name:1 labels:v0 contextFilter:all
 create table person (
 	id int primary key,
 	name varchar(50) not null,
@@ -24,7 +25,7 @@ create table person (
 	city varchar(30)
 )
 				
---changeset your.name:2 labels:v0 context:all
+--changeset your.name:2 labels:v0 contextFilter:all
 create table company (
 	id int primary key,
 	name varchar(50) not null,
@@ -33,18 +34,15 @@ create table company (
 	city varchar(30)
 )
 				
---changeset other.dev:3 labels:v0 context:all
+--changeset other.dev:3 labels:v0 contextFilter:all
 alter table person add column country varchar(2)
 
---changeset other.dev:4 labels:v0 context:all
+--changeset other.dev:4 labels:v0 contextFilter:all
 drop table person;</code></pre>
             <li>Open your CLI and navigate to the directory with the <MadCap:variable name="General.changelog" /> file that you intend to use. Start by executing checks against a sample <MadCap:variable name="General.changelog" /> file using the default configuration provided by <MadCap:variable name="General.Liquibase" />:</li><pre xml:space="preserve"><code class="language-text">liquibase checks run</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If a configuration file does not exist, <MadCap:variable name="General.Liquibase" /> prompts you to create a new one for checks .</p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If a configuration file does not exist, <MadCap:variable name="General.Liquibase" /> prompts you to create a new <code>liquibase.checks-settings.conf</code> file for checks.</p>
         </ol>
         <p>If you use a sample <MadCap:variable name="General.changelog" /> provided in the instruction, the last <MadCap:variable name="General.changeset" /> in <code>changelog.sql</code> contains a <code>drop table</code> statement that is flagged by one of the checks in the default configuration.</p><pre><code class="language-text">Executing Quality Checks against changelog.sql
-No valid Liquibase Pro license key detected!
-Unlock unlimited checks with a free Pro license Key from https://liquibase.com/protrial
-Execution limited to 5 checks.
 Checks completed validation of the changelog and found the following issues:
 Changeset ID:       4
 Changeset Filepath: changelog.sql
@@ -67,12 +65,6 @@ run against each changeset:
   Warn when 'DROP COLUMN' detected
   Warn when 'MODIFY &lt;column&gt;' detected
 
-Checks Skipped Due to Community Limit of 5 Checks:
-  Check Table Column Count
-  Changesets Must Have a Label Assigned
-  Changesets Must Have a Context Assigned
-  Changesets Must Have a Comment Assigned
-				
 Liquibase command 'run' was executed successfully.</code></pre>
         <h2>Step 2: Disabling checks in the default configuration</h2>
         <p>You can disable any checks  by using the <MadCap:xref href="disable.htm">disable</MadCap:xref> command.</p>
@@ -80,9 +72,6 @@ Liquibase command 'run' was executed successfully.</code></pre>
         <p>Then, run the name in the <code>--check-name</code> parameter with the <code>disable</code> subcommand:</p><pre xml:space="preserve"><code class="language-text">liquibase checks disable --check-name=ChangeDropTableWarn</code></pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> saves the configuration change to your checks configuration file, the default of which is <code>liquibase.checks-settings.conf</code>, and print the configuration  again to show the change.</p>
         <p>If you execute the <code>run</code> command one more time, no issues will be detected.</p><pre><code class="language-text">Executing Quality Checks against changelog.sql
-No valid Liquibase Pro license key detected!
-Unlock unlimited checks with a free Pro license Key from https://liquibase.com/protrial
-Execution limited to 5 checks.
 
 Changesets Validated:
   ID: 1; Author: your.name; File path: changelog.sql
@@ -96,10 +85,6 @@ run against each changeset:
   Warn when 'DROP COLUMN' detected
   Warn when 'MODIFY &lt;column&gt;' detected
   Check Table Column Count
-  Checks Skipped Due to Community Limit of 5 Checks:
-  Changesets Must Have a Label Assigned
-  Changesets Must Have a Context Assigned
-  Changesets Must Have a Comment Assigned
 				
 Liquibase command 'run' was executed successfully.</code></pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To enable a check, use the <MadCap:xref href="enable.htm">enable</MadCap:xref> command.</p>
@@ -121,7 +106,7 @@ Customization complete. Review the table below to confirm your changes.</code></
             <p>After you complete the form, the checks configuration is printed for your review.</p>
         </ol>
         <ol start="3">
-            <li>Add the following to the <code>changelog.sql</code> file and save your changes:</li><pre><code class="language-text">--changeset other.dev:4 labels:v0 context:all
+            <li>Add the following to the <code>changelog.sql</code> file and save your changes:</li><pre><code class="language-text">--changeset other.dev:4 labels:v0 contextFilter:all
 truncate person;</code></pre>
         </ol>
         <ol start="4">
