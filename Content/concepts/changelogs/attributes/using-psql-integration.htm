@@ -1,0 +1,275 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using the PSQL integration and runWith attribute with Liquibase Pro and PostgreSQL | Liquibase Docs</title>
+        <link href="../../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/changelogs/attributes/using-psql-integration.html" />
+        <meta name="description" content="The page describes how to use the PSQL integration and runWith attribute with Liquibase Pro and PostgreSQL" />
+    </head>
+    <body>
+        <h1>Using the PSQL integration and <code>runWith</code> <MadCap:variable name="General.Param/Attribute" /> with <MadCap:variable name="General.LBPro" /> and PostgreSQL</h1>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>Use <MadCap:variable name="General.Liquibase" /> 4.13 or later</li>
+            <li>Specify how <MadCap:variable name="General.Liquibase" /> can find PSQL by adding PSQL to your PATH. Alternatively, pass its location in the <code>liquibase.psql.conf</code> file or from the command prompt  during runtime. See <code>liquibase.psql.path</code> in <MadCap:xref href="#SQL">PSQL integration arguments</MadCap:xref>.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> searches the PSQL&#160;location in the following order: runtime arguments, .conf file values, your PATH.</p>
+        <h2>Using the PSQL integration</h2>
+        <ol>
+            <li>Add the <code>runWith</code><MadCap:variable name="General.Param/Attribute" /> to the needed <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" /> you use:
+            </li>
+            <ul>
+                <li><code>runWith:psql</code> for an SQL <MadCap:variable name="General.changelog" /></li>
+                <li><code>runWith="psql"</code> for an XML <MadCap:variable name="General.changelog" /></li>
+                <li><code>"runWith": "psql"</code> for a JSON <MadCap:variable name="General.changelog" /></li>
+                <li><code>runWith: psql</code> for a YAML <MadCap:variable name="General.changelog" /></li>
+            </ul>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">See <MadCap:xref href="#runWith">runWith and psql examples</MadCap:xref>.</p>
+        </ol>
+        <ol start="2">
+            <li>Specify the <MadCap:xref href="#SQL">PSQL integration arguments</MadCap:xref> in one of the following ways:</li>
+            <ul>
+                <li>Add the values in <code>liquibase.psql.conf</code> or the <MadCap:variable name="General.Liquibase" /> property file.</li>
+            </ul>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can use the <code>liquibase.psql.conf</code> file along with the <MadCap:variable name="General.Liquibase" /> properties file. If you use <MadCap:variable name="General.LBPro" /> and PSQL in automation, set arguments in the <code>liquibase.psql.conf</code> file instead of running them every time at the command prompt.</p>
+            <ul>
+                <li>Set the values as environment variables</li>
+                <li>Run the values as Java system properties (JAVA_OPTS) along with any command at the command prompt:</li>
+            </ul>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 12pt;">Windows</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">set JAVA_OPTS=-Dliquibase.psql.&lt;option&gt;=&lt;value&gt; &amp;&amp; liquibase &lt;command&gt; --changelog-file=psql_script.sql</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 12pt;">macOS/Linux</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">export JAVA_OPTS=-Dliquibase.psql.&lt;option&gt;=&lt;value&gt; &amp;&amp; liquibase &lt;command&gt; --changelog-file=psql_script.sql</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+        </ol>
+        <ol start="3">
+            <li>Run a <MadCap:variable name="General.Liquibase"></MadCap:variable> command:
+            </li>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>liquibase update --changelog-file=psql_script.sql</code>
+            </p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the command fails, you will receive an error message. However, if you add a property that is not used in <MadCap:variable name="General.Liquibase" /> to the <code>liquibase.psql.conf</code> file, no error will occur. <MadCap:variable name="General.Liquibase" /> only ignores it.</p>
+        </ol>
+        <h2><a name="SQL"></a>PSQL integration arguments</h2>
+        <table style="mc-table-style: url('../../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: auto;">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: auto;">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: auto;">
+            </col>
+            <col class="TableStyle-TableStyles-Column-Column1" style="width: auto;">
+            </col>
+            <thead>
+                <tr class="TableStyle-TableStyles-Head-Header1">
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Property</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Environment variable</th>
+                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">CLI</th>
+                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><code>liquibase.psql.args</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <p><code>LIQUIBASE_PSQL_ARGS</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><code>--psql-args</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">
+                        [Optional] Extra arguments to pass to the <code>psql</code> executable. For more information about PSQL arguments, see <a href="https://www.postgresql.org/docs/current/app-psql.html">PSQL&#160;Documentation</a>.
+                        <p class="note" style="text-align: left;" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The delimiter for arguments is a space <code>" "</code>. Do not use a comma <code>","</code> or semicolon <code>";"</code>.
+</p></td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p><code>liquibase.psql.keep.temp</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <p><code>LIQUIBASE_PSQL_KEEP_TEMP</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p><code>--psql-keep-temp</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Flag to indicate whether or not to keep a temporary SQL file after the execution of PSQL. If <code>true</code>, the file is not deleted. Default: <code>false</code>.</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><code>liquibase.psql.keep.temp.name</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
+                        <p><code>LIQUIBASE_PSQL_KEEP_TEMP_NAME</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                        <p><code>--psql-keep-temp-name</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">[Optional] Flag to indicate the name of a temporary SQL file after the execution of PSQL. </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p><code>liquibase.psql.keep.temp.overwrite</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
+                        <p><code>LIQUIBASE_PSQL_KEEP_TEMP_OVERWRITE</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">
+                        <p><code>--psql-keep-temp-overwrite</code>
+                        </p>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Flag to overwrite any files in the specified directory with the same name.
+Default: <code>true</code>.
+</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>liquibase.psql.keep.temp.path</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;"><code>LIQUIBASE_PSQL_KEEP_TEMP_PATH</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>--psql-keep-temp-path</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">[Optional] Flag to indicate the location to store a temporary SQL file after the execution of PSQL. If not specified, the                              files are stored in the system's <code>temp</code> directory. </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body2">
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>liquibase.psql.path</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;"><code>LIQUIBASE_PSQL_PATH</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><code>--psql-path</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">Path to the <code>psql</code> executable. </td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>liquibase.psql.timeout</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1" style="font-family: Arial;"><code>LIQUIBASE_PSQL_TIMEOUT</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>--psql-timeout</code>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">
+                        <p>Seconds to wait for the <code>psql</code> timeout:
+</p>
+                        <ul>
+                            <li style="text-align: left;">"-1" disables the timeout
+                            </li>
+                            <li style="text-align: left;">"0" returns an error
+                            </li>
+                            <li style="text-align: left;">1800 seconds (30 minutes) is the default value
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><a name="runWith"></a><code style="font-size: 18pt;">runWith</code><span style="font-size: 18pt;"> and </span><code style="font-size: 18pt;">psql</code><span style="font-size: 18pt;"> examples</span>
+                </MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h3>Formatted SQL <MadCap:variable name="General.changeset" style="font-style: normal; font-weight: bold;" /> using the <code>runWith</code><MadCap:variable name="General.Param/Attribute" style="font-weight: bold;" /></h3><pre xml:space="preserve"><code class="language-html">-- liquibase formatted sql
+				
+-- changeset myauthorname:2314 runWith:psql
+			
+	DECLARE l_emp_name VARCHAR2(250);	
+	l_emp_no NUMBER;	
+	l_salary NUMBER;	
+			
+	l_manager VARCHAR2(250);	
+	BEGIN	
+	INSERT INTO emp(emp_name,emp_no,salary,manager) VALUES('BBB',1000,25000,'AAA');
+	
+	...	
+	END;		
+	/</code></pre>
+                <h3>XML <MadCap:variable name="General.changelog" style="font-style: normal;" /> with the inline SQL <MadCap:variable name="General.changeset" style="font-style: normal;" /> using the <code>runWith</code><MadCap:variable name="General.Param/Attribute" /></h3><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+&lt;changeSet id="2" author="myauthorname" runWith="psql"&gt; 
+&lt;sql&gt;
+	DECLARE l_emp_name VARCHAR2(250);
+	l_emp_no NUMBER;
+	l_salary NUMBER;
+	l_manager VARCHAR2(250);
+       BEGIN
+	INSERT INTO emp(emp_name,emp_no,salary,manager) VALUES('BBB',1000,25000,'AAA');
+	...
+	END;
+	/
+&lt;/sql&gt; 
+
+&lt;/changeSet&gt;</code></pre>
+                <h3>XML <MadCap:variable name="General.changelog" style="font-style: normal;"></MadCap:variable> pointing to an SQL file with raw SQL in it
+                </h3><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />					
+
+&lt;changeSet id="2315" author="myauthorname" runWith="psql"&gt;  
+	&lt;sqlFile
+	path="my/path/file.sql"
+... &gt; 
+&lt;/changeSet&gt;</code></pre>
+                <h3>YAML <MadCap:variable name="General.changelog" style="font-style: normal;"></MadCap:variable> pointing to an SQL file with raw SQL in it
+                </h3><pre xml:space="preserve"><code class="language-yaml" data-lang="yaml">databaseChangeLog:
+   - changeSet:
+       id: 1-yaml
+       author: myauthorname
+       runWith: psql
+       changes:
+       - sqlFile:
+           path: person.sql
+           relativeToChangelogFile: true</code></pre>
+                <h3>JSON <MadCap:variable name="General.changelog" style="font-style: normal;"></MadCap:variable> pointing to an SQL file with raw SQL in it
+                </h3><pre xml:space="preserve"><code class="language-json" data-lang="json">{
+	"databaseChangeLog": [
+	   {
+		"changeSet": {
+		  "id": "1-json",
+		  "author": "myauthorname",
+		  "runWith": "psql",
+		  "changes": [
+			{
+			      "sqlFile":{
+				      "path": "person.sql",
+				      "relativeToChangelogFile": "true"
+				}
+			 }
+		   ]
+	     }
+       }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>PSQL best practices</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/parameter-sql-plus-sql-cmd-best-practices.flsnp" MadCap:conditionTagExpression="include[SQLPlusSQLCMD.PSQL]">
+        </MadCap:snippetBlock>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="runwith.htm">runWith [%=General.changeset%] [%=General.Param/Attribute%]</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../install/tutorials/postgresql.html">Using [%=General.Liquibase%] with PostgreSQL</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
