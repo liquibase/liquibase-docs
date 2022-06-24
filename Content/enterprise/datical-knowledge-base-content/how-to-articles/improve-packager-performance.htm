@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Improve Packager Performance</h1>
+        <p>
+            <br />
+        </p>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block"></div>
+        <h2 id="HowTo:ImprovePackagerPerformance-Overview">Overview</h2>
+        <p>
+            <br />
+        </p>
+        <p>Below are suggestions that can improve packager performance.&#160; Which suggestions may be most relevant can depend on which stages of packager are showing longer times spent in the packagerReport.html and/or which packaging folders and script types are showing longer times spent.&#160; The first step is to look in your packager reports to see which stage(s) of packaging are taking the most time.</p>
+        <p>Note that although turning off certain features and settings can improve performance time, it can be a trade off since you may lose functionality.&#160; Which features and settings to narrow down the scope of or disable may be different for each customer.</p>
+        <p>Please contact our Technical Support team if you would like assistance analyzing the timing shown in your packager reports and adjusting the settings that are relevant for your environment.</p>
+        <h2 id="HowTo:ImprovePackagerPerformance-TiminginpackagerReport.html">Timing in packagerReport.html</h2>
+        <p>
+            <br />
+        </p>
+        <p>First run deployPackager and obtain timing data on the complete workflow in the packagerReport.html. You may want to run packager multiple times, with different types of scripts committed in different folders.&#160; The timing will likely be different for some types of scripts compared to others because packager uses different processes.&#160; Such as timing for ddl folder (when using the default ddl packageMethod=convert) versus timing for sql_direct folder or ddl_direct folder (or any folder with any name that uses either packageMethod=direct or packageMethod=ddl_direct) versus timing for function/procedure/etc stored logic folders (uses packageMethod=storedlogic).</p>
+        <p>Each packagerReport.html has six main sections:</p>
+        <ul>
+            <li>Overview - Scripts Processed</li>
+            <li>Additional Logs &amp; Reports</li>
+            <li>Deploy Packager Phases</li>
+            <li>Runtime Environment Properties</li>
+            <li>Packager Configuration Properties</li>
+            <li>All Properties</li>
+        </ul>
+        <p>Here is an example of the whole report (click image to enlarge):</p>
+        <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" height="250" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/470974699/report-whole01.jpg?version=2&amp;modificationDate=1599240964132&amp;cacheVersion=1&amp;api=v2&amp;width=217&amp;height=250" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/470974699/report-whole01.jpg?version=2&amp;modificationDate=1599240964132&amp;cacheVersion=1&amp;api=v2&amp;width=434&amp;height=500 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/470974699/report-whole01.jpg?version=2&amp;modificationDate=1599240964132&amp;cacheVersion=1&amp;api=v2&amp;width=217&amp;height=250 1x" /></span>
+        </p>
+        <p>For analyzing performance timing look at the third section called Deploy Packager Phases.&#160;&#160;The Deploy Packager Phases section breaks down the timing for each stage of packager:</p>
+        <ul>
+            <li>Initialization</li>
+            <li>Detect Files to Package</li>
+            <li>Verify Metadata Properties</li>
+            <li>Run SQL Rules</li>
+            <li>Back up database</li>
+            <li>Package Files</li>
+            <li>Restore Database</li>
+            <li>Final Forecast</li>
+            <li>Final Deploy</li>
+            <li>Archiving DDL and DML scripts</li>
+            <li>Final checkin</li>
+        </ul>
+        <p>The Deploy Packager Phases section shows the timing for each stage (click image to enlarge):</p>
+        <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" height="250" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/470974699/report-phases01.jpg?version=1&amp;modificationDate=1599240260782&amp;cacheVersion=1&amp;api=v2&amp;width=233&amp;height=250" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/470974699/report-phases01.jpg?version=1&amp;modificationDate=1599240260782&amp;cacheVersion=1&amp;api=v2&amp;width=466&amp;height=500 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/470974699/report-phases01.jpg?version=1&amp;modificationDate=1599240260782&amp;cacheVersion=1&amp;api=v2&amp;width=233&amp;height=250 1x" /></span>
+        </p>
+        <h2 id="HowTo:ImprovePackagerPerformance-ItemsthatcanaffectPackagerPerformance">Items that can affect Packager Performance</h2>
+        <p>
+            <br />
+        </p>
+        <p>1.&#160;When managing multiple schema in a multischema project, use the optional "<strong>schemaName</strong>" property in the metadata.properties file.&#160; Here are details about it:</p>
+        <ul>
+            <li>When configuring the repository for your SQL scripts, you may now specify which schema a script applies to in a multi-schema project. This will allow the Deployment Packager to limit it's change detection &amp; recovery capabilities to only those schema that are impacted by the scripts being processed during that packager run.&#160;</li>
+            <li>For example: If there are 30 schema in your project, but there are only scripts for 4 of the schema in this packaging run, then packager will be limited to the 4 relevant schema for that packaging run (instead of all 30 schema).&#160; This can shorten the packager run time.&#160; This only works if all of the scripts for that packaging run have the schemaName property set in the metadata.properties files in their folders.</li>
+            <li>To configure, set the value of&#160;a 'schemaName' property in the metadata.properties file for a specific directory. The value can be one schema name or a comma separated list of schema names. Do not put quotes around the schema values with Datical versions 6.12 or lower.&#160; It is important to use casing for the value of the schemaName property that matches the casing of how your schema is listed in your datical.project file.&#160; For example: schemaName=SCHEMA1.&#160; Please see this page →&#160;<a href="..\..\DDOC\pages\Using_the_metadata_properties_file.htm" rel="nofollow">Using the metadata.properties file</a></li>
+            <li>Setting this property does not affect script execution in any way. &#160;It is used internally by the Deployment Packager to limit the scope of operations by schema.</li>
+            <li>We recommend using either schemaName property OR backup on demand:<ul><li>If you are using backup mode "always", then the schemaName property will limit the schema list to the relevant schemas for three aspects of packager: backup, restore, and snapshot.&#160;</li><li>However, if you are using backup mode "on demand" then the schemaName property will limit the schema list to the relevant schemas for only one aspect of packager: snapshot.&#160; &#160;When you set backup to "on_demand" all of the schemas in the project will be backed up and restored, the schemas for backup/restore will NOT be limited based on the schemaName property.</li></ul></li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>2.&#160; If packaging scripts in the "ddl" folder (when using Fixed Folders) or packageMethod=convert (when using Flexible Folders) is slow, consider using the optional "<strong>ddlExcludeList</strong>" property in the deployPackager.properties file to exclude certain object types from the snapshots that are used for before and after comparisons with ddl scripts.&#160; If you are packaging stored logic objects in their recommended corresponding packaging folders (such as packaging function scripts in the "function" folder, and packaging procedure scripts in the "procedure" folder) then you do NOT need to have those object types in the snapshots used by the convert method when packaging ddl scripts in the "ddl" folder.&#160; Excluding stored logic object types from the snapshots used in the "ddl" folder can improve performance, especially if you have a lot of stored logic objects in your database.&#160;</p>
+        <p>Please see "ddlExcludeList" in this document&#160;→&#160;<a href="..\..\DDOC\pages\Using_the_Required_deployPackager_properties_File.htm" rel="nofollow">Using the required deployPackager.properties file</a></p>
+        <p>
+            <br />
+        </p>
+        <p>3.&#160; Use backup "<strong>on_demand</strong>" to create static backups, such as a nightly backup that can be used by packaging jobs as needed.&#160; You would have two different automation jobs.&#160; One job is your existing packager job that processes your new sql scripts.&#160; The other job will be a job that runs packager in preview mode each night to only create the backup file.&#160; Please see this document for the appropriate settings for each job →&#160;<a href="..\..\DDOC\pages\Managing_Database_Backup_and_Restore.htm" rel="nofollow">Managing Database Backup and Restore</a></p>
+        <ul>
+            <li>If you want to use static on demand backups with Oracle or SQL Server, we recommend running Datical DB versions 5.6 or higher.&#160;&#160;</li>
+            <li>If you want to use static on demand backups with Postgres, we recommend running Datical DB versions 6.12 or higher.</li>
+            <li>Note that if you use backup on_demand, you will NOT get the full benefits of using the schemaName property in the metadata.properties file:<ul><li>If you are using backup mode "always", then the schemaName property will limit the schema list to the relevant schemas for three aspects of packager: backup, restore, and snapshot.&#160;</li><li>However, if you are using backup mode "on demand" then the schemaName property will limit the schema list to the relevant schemas for only one aspect of packager: snapshot.&#160; &#160;When you set backup to "on_demand" all of the schemas in the project will be backed up and restored, the schemas for backup/restore will NOT be limited based on the schemaName property.</li></ul></li>
+            <li>Troubleshooting performance time of on_demand static backups:&#160; If you are implementing static/on_demand backups&#160;but have not seen a significant improvement in how long your packager jobs take to run, check your configuration.&#160; If you have set&#160;<code>databaseBackupMode=on_demand </code>but are still using&#160;<code>createDatabaseBackup=true&#160;</code>in your main packager jobs that process scripts, that is an unusual configuration.&#160; Packager will work with that configuration but it will still create a new backup file for each packager job that processes scripts, and therefore you would NOT be getting the possible performance benefit that you would have in the more typical configuration of creating a nightly backup separately and re-using that backup file when processing scripts (to avoid running backup each time).&#160; To optimize the on_demand backup, do NOT use <code>createDatabaseBackup=true&#160;</code>with your main packaging job that processes scripts (assuming that the backup file was already created and is in place).&#160;</li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>4.&#160; For Oracle, you can set the "<strong>parallel</strong>" property in the deployPackager.properties file for Oracle backup/restore as described in these pages:</p>
+        <ul>
+            <li><a href="..\..\DDOC\pages\Using_the_Required_deployPackager_properties_File.htm" rel="nofollow">Using the required deployPackager.properties file</a>
+            </li>
+            <li><a class="external-link" href="https://docs.oracle.com/database/121/SUTIL/GUID-3081A258-0C23-40B0-8487-9C7A0D248E23.htm#SUTIL921" rel="nofollow">https://docs.oracle.com/database/121/SUTIL/GUID-3081A258-0C23-40B0-8487-9C7A0D248E23.htm#SUTIL921</a>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>5.&#160; Change your <strong>Row Count</strong>&#160;setting to "approximate" or "disabled" (because "approximate" is significantly faster than "exact") →&#160;<a href="..\..\DDOC\pages\Settings_for_Collecting_Row_Counts.htm" rel="nofollow">Settings for Collecting Row Counts</a></p>
+        <ul>
+            <li>If you use rules that relate to row count, set this to "approximate".&#160; If you do not use rules relating to row count, set this to "disabled".</li>
+        </ul>
+        <p style="margin-left: 30.0px;">There are different ways you can set the row count option, use the method you prefer:</p>
+        <ul>
+            <li>In the desktop client/Eclipse GUI, set it to approximate.&#160; See Collect Row Counts During Forecast &amp; Deploy here →&#160;<a href="..\..\DDOC\pages\Configuring_Project_Settings.htm" rel="nofollow">Configuring Project Settings</a></li>
+            <li>Set it using the hammer CLI command (example: "hammer set enableRowCount approximate").&#160; See enableRowCount here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\CLI_Commands.htm" rel="nofollow">CLI Commands#set</a></li>
+            <li>If you use the optional project creator script, see enableRowCount here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\Creating_a_Datical_Project_Using_the_Project_Creation_Script__project_creator_groovy_.htm" rel="nofollow">Creating a Datical Project Using the Project Creation Script (project_creator.groovy)</a></li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>6.&#160; Use the optional <strong>Limited Forecast</strong>&#160;which is typically faster than Full Forecast, please see this page →&#160;&#160;<a href="..\..\DDOC\pages\Limited_Forecast.htm" rel="nofollow">Limited Forecast</a></p>
+        <ul>
+            <li><em>Caveat:</em> This could have an impact on Rules enforcement if using Rules.</li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>7.&#160; Run packager as a different <strong>user</strong> than the schema owner (so packager drops the schema and re-creates it, instead of clearing out each object).</p>
+        <p>
+            <br />
+        </p>
+        <p>8.&#160; For Oracle/SQL Server/DB2, change the <strong>Stored Logic Validity Check</strong> to "local" (the default) or "limited" or "disabled", depending on which features you actively use.</p>
+        <ul>
+            <li><span><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);"><span><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);">Please see the notes in these pages:<br /></span></span></span></span></span></span></span></span>
+                <ul>
+                    <li><span><span style="color: rgb(23,43,77);"><span style="color: rgb(0,82,204);"><a href="..\..\DDOC\pages\Stored_Logic_Validity_Check.htm" rel="nofollow" style="text-decoration: none;">Stored Logic Validity Check details</a></span></span></span>
+                    </li>
+                    <li><span><span style="color: rgb(23,43,77);"><span style="color: rgb(0,82,204);"><a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569453#ConfiguringProjectSettings-ProjectSettings" rel="nofollow" style="text-decoration: none;">Project Settings</a></span></span></span>
+                    </li>
+                </ul>
+            </li>
+            <li><span>Performance recommendations:</span>
+                <ul>
+                    <li><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);">If you do <strong>not</strong> review or use the information in the Stored Logic Validity Check section of your deploy reports, then set&#160;<span style="color: rgb(0,0,0);">storedLogicValidityCheck="disabled" to avoid possible performance slow down for a feature you aren't actively using.</span></span></span>
+                    </li>
+                    <li>If you review and use the Stored Logic Validity Check information in your deploy reports but you do <strong>not</strong><span style="color: rgb(0,0,0);"> use the </span><span>storedLogicValidityAction=FAIL option,&#160;<span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);">then we recommend setting&#160;<span style="color: rgb(0,0,0);">storedLogicValidityCheck="limited".</span></span></span></span></li>
+                    <li>If you review and use the Stored Logic Validity Check information in your deploy reports <strong>and</strong> you also<span style="color: rgb(0,0,0);">&#160;have enabled the </span><span>storedLogicValidityAction=FAIL option,&#160;<span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);">then we recommend setting&#160;<span style="color: rgb(0,0,0);">storedLogicValidityCheck="local".</span></span></span></span></li>
+                    <li><span><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);">Although <span><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);"><span style="color: rgb(0,0,0);">storedLogicValidityCheck="global" is an available setting and is the most comprehensive, if performance timing is an important consideration then it may be better to use a smaller scope such as "local" or "limited".</span></span></span></span></span></span></span></span>
+                    </li>
+                </ul>
+            </li>
+            <li>There are different ways you can set the stored logic validity check level, use the method you prefer to set the value:<ul><li>In the desktop client/Eclipse GUI, set it to limited.&#160; See Stored Logic Validity Check here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\Configuring_Project_Settings.htm" rel="nofollow">Configuring Project Settings</a></li><li>Set it using the hammer CLI command (example: "hammer set invalidsCheck limited").&#160; See invalidsCheck here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\CLI_Commands.htm" rel="nofollow">CLI Commands#set</a></li><li>If you use the optional project creator script, see invalidsCheck here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\Creating_a_Datical_Project_Using_the_Project_Creation_Script__project_creator_groovy_.htm" rel="nofollow">Creating a Datical Project Using the Project Creation Script (project_creator.groovy)</a></li><li>In the datical.project file, this is represented as storedLogicValidityCheck="disabled" or storedLogicValidityCheck="limited" or storedLogicValidityCheck="local".</li></ul></li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>9.&#160; Packaging ddl scripts from the <strong>sql_direct</strong> folder (packageMethod=direct) or from the ddl_direct folder (packageMethod=ddl_direct) is typically faster than from the<strong> ddl</strong> folder (packageMethod=convert).&#160; You could also opt to set packageMethod=ddl_direct for your <strong>ddl</strong> folder for better performance.</p>
+        <ul>
+            <li><em>Caveat:</em> If you are not using <a href="..\..\DDOC\pages\Using_SQL_Parser.htm" rel="nofollow">SQL Parser for Oracle</a>, then only sqlrules would apply in sql_direct and ddl_direct folder, or any folder with any name that uses packageMethod=ddl_direct or packageMethod=direct.&#160; (Other types of rules and forecast modeling do NOT apply for ddl_direct/direct/sql_direct changes if you are not using SQL Parser for Oracle.)</li>
+            <li>If you are using Oracle with a recent version of Liquibase Enterprise/Datical DB 7.x, you could consider using <strong>SQL Parser for Oracle</strong> to add forecast modeling and forecast rules.<ul><li>When you enable the SQL Parser for Oracle project setting, SQL Parser is applicable by default to the ddl_direct folder (packageMethod=ddl_direct), the sql_direct folder (packageMethod=direct), and sql folder (packageMethod=sqlfile).&#160;&#160;</li><li>You could also opt to set packageMethod=ddl_direct for your ddl folder using <a href="..\..\DDOC\pages\Flexible_Folder_Names.htm" rel="nofollow">flexible folder</a> configuration so that folder would also use SQL Parser.&#160; Using SQL Parser with packageMethod=ddl_direct/packageMethod=direct for ddl would be faster than using the packageMethod=convert for ddl (convert is the default for ddl).&#160; You can change the packageMethod for the ddl folder in the <a href="..\..\DDOC\pages\Using_the_metadata_properties_file.htm" rel="nofollow">metadata.properties</a> file for the ddl folder.&#160; Using packageMethod=ddl_direct would make that folder be processed near the beginning of the folder order.&#160; Or using packageMethod=direct would make that folder be processed near the end of the folder order.</li><li>If your DML scripts are quite large, for performance reasons you could disable SQL Parser for any folder where large DML scripts may be packaged.&#160; You can disable SQL Parser at the folder level by setting disableSqlParser=true in the metadata.properties file for that folder.&#160; Note that disableSqlParser=true is already set by default for the DATA_DML folder in newer versions 7.6 and higher.</li><li>There were improvements to SQL Parser for Oracle in versions 7.8 and 7.12.&#160; We recommend upgrading to a recent 7.x version if you are using SQL Parser for Oracle.</li><li>Please see these pages:<ul><li><a href="..\..\DDOC\pages\Using_SQL_Parser.htm" rel="nofollow">Using SQL Parser</a></li><li><a href="..\..\DDOC\pages\Flexible_Folder_Names.htm">Flexible Folder Names</a></li><li><a href="..\..\DDOC\pages\Using_the_metadata_properties_file.htm">Using the metadata.properties file</a></li><li><a href="How_To__Choose_Between_CONVERT__ddl__and_DDL_DIRECT__ddl_direct__Packaging_Methods.htm">How To: Choose Between CONVERT (ddl) and DDL_DIRECT (ddl_direct) Packaging Methods</a></li></ul></li></ul></li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>10.&#160; Having the build agent and the database in close <strong>proximity</strong> can help performance.</p>
+        <p>
+            <br />
+        </p>
+        <p>11.&#160; If you have enabled the <strong>Automatically Generate SQL&#160;</strong>setting you may see performance improvements by turning off that project setting.&#160;&#160;</p>
+        <p>There are different ways you can disable this setting, use the method you prefer:</p>
+        <ul>
+            <li>In the desktop client/Eclipse GUI, disable the project setting.&#160; See "Automatically generate SQL for Forecast, Deploy, and Rollback" here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\Configuring_Project_Settings.htm" rel="nofollow">Configuring Project Settings</a></li>
+            <li>Disable it using the hammer CLI command (example: "hammer set autoGenSQL false").&#160; See autoGenSQL here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\CLI_Commands.htm" rel="nofollow">CLI Commands#set</a></li>
+            <li>If you use the optional project creator script, see autoGenSQL here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\Creating_a_Datical_Project_Using_the_Project_Creation_Script__project_creator_groovy_.htm" rel="nofollow">Creating a Datical Project Using the Project Creation Script (project_creator.groovy)</a></li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>12.&#160; Certain types of script errors (such as missing end delimiter) can cause a packager build job to hang indefinitely during the deploy section of packager. To avoid having this happen, you can set a <strong>Script Execution Timeout</strong> for your REF environments.&#160;</p>
+        <ul>
+            <li>It is recommended to set it on your REF dbDef step only, not for your higher environments.&#160;</li>
+            <li>You can configure the number of seconds packager should wait before timing out when deploying a script, for example 600 seconds (10 minutes).&#160;&#160;You can use the number of seconds that seems appropriate for the types of scripts you typically package.&#160; The timeout period is per each individual script.&#160;</li>
+            <li>If a script is taking longer to deploy than the timeout value, packager build will fail with a timeout error and indicate which script timed out.&#160;&#160;Having packager fail with a timeout error allows packager to finish all of its steps normally, including restoring/reverting REF DB to its previous state from prior to the error.&#160; This is better than having packager hang indefinitely then terminating the job manually, which could leave REF in an unexpected state with an incomplete deployment.&#160;</li>
+        </ul>
+        <p>Note that the Script Execution Timeout only applies to changes executed using SQLPlus/SQLCMD/CLPPlus/EDBPlus.&#160; It does NOT apply to scripts packaged in the function/procedure/package/view/trigger/sql folders (when using fixed folders) or to folders using packageMethod=STOREDLOGIC or packageMethod=SQLFILE (when using flexible folders).</p>
+        <p>There are different ways you can set the timeout, use the method you prefer:</p>
+        <ul>
+            <li>In the desktop client/Eclipse GUI, set it on the REF dbDef step.&#160; See "CLPPLus Timeout (seconds)" for DB2, "SQL*Plus Timeout (seconds)" for Oracle, "EDB*Plus Timeout (seconds)" for Postgres, and "SQLCMD Timeout (seconds)" for SQL Server here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\Configuring_Step_Settings__DbDefs_.htm" rel="nofollow">Configuring Step Settings (DbDefs)</a></li>
+            <li>Set it using the hammer CLI command (example: "hammer set scriptExecutionTimeout REF 600").&#160; See scriptExecutionTimeout here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\CLI_Commands.htm" rel="nofollow">CLI Commands#set</a></li>
+            <li>If you use the optional project creator script, see scriptExecutionTimeout here&#160;&#160;→&#160;<a href="..\..\DDOC\pages\Creating_a_Datical_Project_Using_the_Project_Creation_Script__project_creator_groovy_.htm" rel="nofollow">Creating a Datical Project Using the Project Creation Script (project_creator.groovy)</a></li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>13.&#160; If you don't need to use the <strong>Forecast DML</strong> project setting, disable it.</p>
+        <p>There are different ways you can disable this setting, use the method you prefer:</p>
+        <ul>
+            <li>In the desktop client/Eclipse GUI, go to the Settings tab.&#160; Expand the Deployment Settings section.&#160; Disable the "Forecast Data Modification Changes (DML)" checkbox.</li>
+            <li>Disable it using the hammer CLI command:&#160; "hammer set forecastDML false"</li>
+            <li><a href="..\..\DDOC\pages\Recommendations_for_Working_with_Large_DML_Scripts.htm">Recommendations for Working with Large DML Scripts</a>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>14.&#160; Consider increasing the <strong>amount of RAM</strong> used by Datical using the Xmx setting.&#160; See the instructions here:&#160;<a href="..\..\DDOC\pages\Increase_the_amount_of_RAM_used_by_Datical_DB.htm">Increase the amount of RAM used by Datical DB</a></p>
+        <p>
+            <br />
+        </p>
+        <p>15.&#160; Upgrade to a <strong>current version of Liquibase Enterprise/Datical</strong>:</p>
+        <ul>
+            <li>There were performance improvements for those who use the Stored Logic Validity Check project setting in Datical DB version 6.12 (and higher).</li>
+            <li>There were performance improvements for Status, statusDetails, and Pipeline Status in Datical DB version 6.14 (and higher).&#160;This also improved operations which run status implicitly such as deploy, rollback, deployPackager, convert SQL and changeLogSync.&#160;&#160;</li>
+            <li>There were performance improvements specifically for multi-database/multi-catalog configurations of SQL Server projects in Datical DB version 6.16 (and higher).</li>
+            <li>There is a fix for the <a href="..\..\DDOC\pages\Configuring_Deployment_Packager_to_Use_the_Oracle_Datapump_API_for_Backup_and_Restore.htm" rel="nofollow">DATAPUMP API</a> Oracle backup and restore in Datical DB version 6.16 (and higher) to better handle running multiple packager jobs concurrently.</li>
+            <li>There is a new cleanup command for packager in Datical DB versions 7.3 (and higher).&#160; The cleanup command can be run after any time that you might need to manually interrupt a packager build job midway.&#160; The cleanup command is to unblock subsequent packager jobs after a manual interruption by clearing the locks on DATABASECHANGELOGLOCK and DATICAL_SPERRORLOG tables and also restoring REF.&#160; Please see this page for more details:&#160;<a href="How_To__Use_ReleaseLocks_Command_and_Packager_with_Cleanup_Option.htm">How To: Use ReleaseLocks Command and Packager with Cleanup Option</a></li>
+            <li>With Datical DB version 7.6 (and higher), there is a new feature that prevents continuing to run packager jobs after a backup error or restore error.&#160;&#160;Please see the "Recovering from a Backup or Restore Failure" section here for more details:&#160;<a href="..\..\DDOC\pages\Managing_Database_Backup_and_Restore.htm" rel="nofollow">Recovering from a Backup or Restore Failure</a></li>
+            <li>There were improvements for memory utilization of SQL scripts that produce a high-volume output in 7.11 (and higher).</li>
+            <li>There were improvements for<a href="..\..\DDOC\pages\Using_SQL_Parser.htm" rel="nofollow" style="text-decoration: none;">SQL Parser for Oracle</a>&#160;in version 7.12 (and higher).&#160;</li>
+            <li>There were improvements for&#160;<a href="..\..\DDOC\pages\Limited_Forecast.htm" rel="nofollow">Limited Forecast</a> in version 7.13 (and higher):<ul><li><span style="color: rgb(23,43,77);">Limited Forecast will only profile tables impacted by the changesets to be forecasted or deployed</span></li><li><span style="color: rgb(23,43,77);">Limited Forecast will only profile the schema impacted by the changesets to be forecasted or deployed in multi-schema projects</span></li></ul></li>
+            <li>Significant performance improvements for <a href="..\..\DDOC\pages\Forecasting_Changes.htm" rel="nofollow">Forecast</a> profiling in version 7.14 (and higher):<ul><li><span style="color: rgb(23,43,77);">Faster forecasting of Views and Materialized Views</span></li><li><span style="color: rgb(23,43,77);">Faster profiling for tables, columns, and views in multi-schema projects</span></li><li><span style="color: rgb(23,43,77);">Use multiple connections (maximum of 10 connections) to profile schemas simultaneously in Oracle multi-schema projects.&#160;&#160;<span style="color: rgb(23,43,77);">Note that with 7.14 (and higher) in Oracle projects with multiple schemas, you may notice higher CPU utilization due to multiple connections being used for Oracle forecast profiling.</span></span></li></ul></li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>16.&#160; Although not specifically about packager, it may also be useful to check the items on these pages that may improve <strong>Deploy</strong> performance:</p>
+        <ul>
+            <li><a href="..\..\DDOC\pages\Improving_Performance.htm" rel="nofollow">Improving Performance</a>
+            </li>
+            <li><a href="How_To__Improve_Deployment_Performance.htm">How To: Improve Deployment Performance</a>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body"></div>
+        </div>
+        <h2 id="HowTo:ImprovePackagerPerformance-Relatedarticles">Related articles</h2>
+        <p />
+        <p />
+        <ul class="content-by-label conf-macro output-block">
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="#">How To: Improve Packager Performance</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_To__Improve_Deployment_Performance.htm">How To: Improve Deployment Performance</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="Implementation_Guide__Initial_Setup_of__deployPackager_properties__File.htm">Implementation Guide: Initial Setup of "deployPackager.properties" File</a>
+                </div>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>

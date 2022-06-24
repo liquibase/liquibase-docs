@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Datical Headless Linux Installation</h1>
+        <p>Headless installation is different from console mode by the fact it does not require any input from the user so it can be done by soe automation agent like Jenkins or ElectricFlow. However it requires an XML file passed as a parameter to the installer instead of the "-console" option) .</p>
+        <p>
+            <br />
+        </p>
+        <p>The <a href="https://datical-cs.atlassian.net/wiki/download/attachments/918459/autoInstall-Linux.xml?version=1&amp;modificationDate=1507156306396&amp;cacheVersion=1&amp;api=v2">autoInstall-Linux.xm</a><a href="https://datical-cs.atlassian.net/wiki/download/attachments/918459/autoInstall-Linux.xml?version=1&amp;modificationDate=1507156306396&amp;cacheVersion=1&amp;api=v2">l</a> file used for the Ubuntu example and a version tailored for <a href="https://datical-cs.atlassian.net/wiki/download/attachments/918459/autoInstall.xml?version=4&amp;modificationDate=1610137645630&amp;cacheVersion=1&amp;api=v2">Windows</a> are attached.</p><pre xml:space="preserve">
+            <br />
+        </pre>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">Overview:
+1.  Verify / Install prerequisites
+	&gt; Java Runtime 8.x (only required for initial installation)
+	&gt; Oracle Client - Database Utilities (impdp &amp; expdp) (required to run deploymentPackager unless you are using DATAPUMP API, not required for installation)
+	&gt; zip, unzip
+2.	Create datical group &amp; datical user (optional)
+	&gt; Alternatively, install software using existing jenkins user
+3.  Download Datical Files (into tmp directory) &amp; Setup Directories
+	&gt; Installer: DaticalDB-linux.gtk.x86_64-x.y.z.jar
+	&gt; Composite Repo: DaticalDBCompositeRepo-x.y.z.zip
+	&gt; License File: filename-admin.lic
+	&gt; Directory Structure: datical_install_files.zip
+4.  Install Datical
+	&gt; Run installer
+	&gt; Create symbolic link to versioned install directory (optional)
+	&gt; Copy license to install directory &amp; repl directory (optional)
+	&gt; Modify logging-config.ini (optional)
+	&gt; Modify repl/logging-config.ini (optional)
+	&gt; Modify datical.ini (optional)
+	&gt; Modify hammer-bin.ini (optional)
+	&gt; Unzip reporttemplates.zip to $workspace/.reporttemplates
+	&gt; Install Drivers
+5.  Verify install
+6.  Zip datical for distribution
+7.  Unzip /opt on other servers for replication.
+8.	Install DaticalDB Jenkins plugin (see Datical DB - Integrating Other Tools Systems.pdf, pg 11-13)
+	
+Create datical user &amp; group?
+Create sym link?
+export $PATH (optional) in .bash_profile?
+export DATICAL_DB_HOME in .bash_profile?
+run ./~.bash_profile
+Questions:
+* How does the datical/jdbc_drivers directory get recognized?  (See Full Access doc pg. 15)
+* Which user / group on linux should install DaticalDB?
+</pre>
+            </div>
+        </div>
+        <h2 id="HowTo:DaticalHeadlessLinuxInstallation-RedHat/CentOS">RedHat / CentOS</h2>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">CENTOS 7, Minimum Install:
+Commands (RedHat Enterprise / CentOS7):
+1.  [root@localhost ~]# yum install zip unzip
+	[root@localhost ~]# yum install java-1.8.0-openjdk.x86_64
+2.	Create datical group &amp; datical user
+	[root@localhost ~]# groupadd datical
+	[root@localhost ~]# useradd -d /opt/datical -g datical datical
+	[root@localhost ~]# passwd datical
+3.  Download Datical Files
+	[root@localhost ~]# su datical
+	[datical@localhost root]$ cd ~
+	[datical@localhost ~]$ mkdir tmp
+	[datical@localhost ~]$ cd tmp
+	[datical@localhost tmp]$ ftp SJC-FTP.thruinc.net
+	   Name:  software.datical.com\user@email.com
+	   Password:  password
+		ftp&gt; cd COMMON/Datical_DB_Software/Datical_DB_4.18.3999
+		ftp&gt; binary
+		ftp&gt; get DaticalDB-linux.gtk.x86_64-4.18.3999.jar
+		ftp&gt; get DaticalDBCompositeRepo-4.18.3999.zip
+		ftp&gt; quit
+	[datical@localhost tmp]$ unzip datical_install_files.zip -d ~/
+	[datical@localhost tmp]$ mv DaticalDB-linux.gtk.x86_64-4.18.3999.jar ~/installers/daticaldb_4.18.3999/
+	[datical@localhost tmp]$ mv filename-admin.lic ~/license/
+	[datical@localhost tmp]$ mv DaticalDBCompositeRepo-4.18.3999.zip ~/installers/daticaldb_4.18.3999/
+4.	Install Datical	
+	[datical@localhost tmp]$ cd ~/app/daticaldb_4.18.3999/
+	[datical@localhost daticaldb_4.18.3999]$ java -jar ~/installers/daticaldb_4.18.3999/DaticalDB-linux.gtk.x86_64-4.18.3999.jar -console
+		&gt; Select target path [/opt/datical/app/daticaldb_4.18.3999]
+		&gt; Do not install license in this step
+	[datical@localhost daticaldb_4.18.3999]$ cp ~/license/filename-admin.lic .
+	[datical@localhost daticaldb_4.18.3999]$ cp ~/license/filename-admin.lic repl/
+	[datical@localhost daticaldb_4.18.3999]$ sed -i -- 's/@user.home\/datical/\/opt\/datical\/workspace/g' datical.ini
+	[datical@localhost daticaldb_4.18.3999]$ sed -i -- 's/@user.home\/datical/\/opt\/datical\/workspace/g' repl/hammer-bin.ini
+	[datical@localhost daticaldb_4.18.3999]$ cd ~/app
+	[datical@localhost app]$ ln -s daticaldb_4.18.3999/ daticaldb
+	[datical@localhost app]$ cd ~/workspace
+	[datical@localhost workspace]$ unzip ~/tmp/.reporttemplates.zip -d .
+	[datical@localhost workspace]$ cd ~/app/daticaldb_4.18.3999/repl
+	[datical@localhost repl]$ ./hammer installDrivers jar:file:/opt/datical/installers/daticaldb_4.18.3999/DaticalDBCompositeRepo-4.18.3999.zip\!/
+5.  Verify Install
+	[datical@localhost daticaldb]$ cd ~/app/daticaldb/repl
+	[datical@localhost repl]$ ./hammer checkdrivers
+	[datical@localhost repl]$ ./hammer show version
+	[datical@localhost repl]$ ./hammer show license
+	
+6.	Zip for Distribution
+	[datical@localhost datical]$ rm -rf installers
+	[datical@localhost datical]$ rm -rf tmp
+	[datical@localhost datical]$ rm -rf license
+	[datical@localhost datical]$ mkdir /tmp/datical
+	[datical@localhost datical]$ cd /opt
+	[datical@localhost opt]$ zip -r /tmp/datical/datical.zip datical
+
+</pre>
+            </div>
+        </div>
+        <h2 id="HowTo:DaticalHeadlessLinuxInstallation-Ubuntu">Ubuntu</h2>
+        <p>Tested on Ubuntu 17.04 with attached autoInstall.xml&#160; (Ubuntu was supported with 4.x and 5.x versions of Datical, but not with 6.x or 7.x versions of Datical.)</p><pre xml:space="preserve">
+            <br />
+        </pre>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">sudo apt-get install -y default-jre
+sudo apt install -y unzip
+sudo apt install -y xterm
+sudo apt-get install build-essential
+
+4. Install Datical
+sudo mkdir /opt/DaticalDB_4.18.3999
+sudo chmod 777 /opt/DaticalDB_4.18.3999
+sudo ln -sf /opt/DaticalDB_4.18.3999/ /opt/DaticalDB
+java -jar DaticalDB-linux.gtk.x86_64-4.18.3999.jar autoInstall.xml
+cp *-admin.lic /opt/DaticalDB
+cp *-admin.lic /opt/DaticalDB/repl
+export PATH=$PATH:/opt/DaticalDB/repl
+hammer installDrivers http://update.datical.com/latest/thirdparty
+5.  Verify Install
+hammer checkdrivers
+hammer show version
+hammer show license
+
+</pre>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Uninstalling Datical Service (Versions 5.6 - 6.17)</h1>
+        <p>To uninstall and fully remove Datical Service versions 5.6 through 6.17 run the commands below in a terminal on the system where Datical Service is installed. Prior to execution, review each command to insure that executing it won’t have unintended consequences with other software solutions and products on the system. </p>
+        <p><strong>NOTE: </strong>Requires <code>sudo</code> privileges.</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve"># Reset kubernetes to empty
+sudo kubeadm reset -f
+# Shut down customer local docker registry and remove all saved images
+sudo docker stop local-registry
+sudo docker rm local-registry
+sudo docker image prune --all
+# Unmount gluster volumes and remove them from fstab
+sudo umount /opt/datical/config/cluster
+sudo umount /opt/datical/data-clustered
+sudo sed -i '/localhost:\/cluster-*/d' /etc/fstab
+# Shut down and disable gluster service
+sudo systemctl stop glusterd
+sudo systemctl disable glusterd
+# Shut down and disable external etcd service
+# NOTE: Skip these commands if etcd is used by other programs on the server
+sudo systemctl stop etcd
+sudo systemctl disable etcd
+# Shut down and disable postgresql-proxy service
+sudo systemctl stop postgresql-proxy
+sudo systemctl disable postgresql-proxy
+# Shut down and disable docker service
+# NOTE: Skip these commands if you wish to continue using docker on this system
+sudo systemctl stop dockerd
+sudo systemctl disable dockerd
+# Uninstall our software
+sudo yum remove datical-server
+# Uninstall gluster
+sudo yum remove glusterfs-server glusterfs-api glusterfs-cli glusterfs-fuse     
+# Uninstall kubernetes
+sudo yum remove kubelet kubeadm kubectl
+# Uninstall docker
+# NOTE: Skip this command if you wish to continue using docker on this system
+sudo yum remove docker-ce
+# Uninstall any dependencies where the reason they were installed has been removed
+sudo yum autoremove
+# Remove our custom yum repo
+sudo rm /etc/yum.repos.d/datical.repo
+# Removes generated data outside /opt/datical
+sudo rm /etc/sysctl.d/datical.conf
+sudo rm -rf /var/lib/kubelet
+sudo rm -rf /home/datical/.kube
+sudo rm -rf /root/.kube
+sudo rm -rf /etc/kubernetes/
+sudo rm /etc/systemd/system/postgresql-proxy.service
+sudo rm -rf /etc/systemd/system/kubelet.service.d 
+# Re-enables and re-starts firewalld our docs say to disable
+# NOTE: This step can be safely skipped if you don't wish to use firewalld
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+# Reboot to ensure all processes are shut down
+sudo shutdown -r now
+# Removes /opt/datical
+# NOTE: If /opt/datical is a mount volume and can't be removed, you may safely remove the contents of the volumn
+sudo rm -rf /opt/datical</pre>
+            </div>
+        </div>
+        <p />
+    </body>
+</html>

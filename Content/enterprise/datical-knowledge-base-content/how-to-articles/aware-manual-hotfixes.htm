@@ -1,0 +1,312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Make Datical Aware of Manual Hotfixes</h1>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block"></div>
+        <hr />
+        <p>
+            <br />
+        </p>
+        <p>Sometimes it is necessary to make manual changes into database environments.</p>
+        <p>For example, a release went out to PROD environment, however, there was an issue which impacted the PROD database. The issue is immediately root caused and the solution is applied manually to PROD database. How then do you make Datical aware of those manual changes?</p>
+        <p>Note that any manual changes made to a Datical-managed environment should ultimately be deployed to all environments in the pipeline. This will allow the pipeline to remain in sync with respect to changes deployed over time.&#160;</p>
+        <h2 id="HowTo:MakeDaticalAwareofManualHotfixes-Solutions">Solutions</h2>
+        <p>There are three different paths to accomplishing this:</p>
+        <h3 id="HowTo:MakeDaticalAwareofManualHotfixes-1.Nomanualchanges-fixissueslikeallotherchanges"><span style="font-size: 16.0px;font-weight: bold;">1.&#160;No manual changes - fix issues like all other changes</span>
+        </h3>
+        <p>This is applicable when you have the sufficient time window to root cause the issue, script it, commit into SCM, package and deploy into your pipeline just like normal changes/ This means you will always leverage your automation framework.</p>
+        <h3 id="HowTo:MakeDaticalAwareofManualHotfixes-2.Usea&quot;hotfix&quot;processtopackagechangesanddeploydirectlytoSTAGEandPROD.">2. Use a "hotfix" process to package changes and deploy directly to STAGE and PROD.&#160;</h3>
+        <p>This allows you to bypass deploying into your DEV and QA environments and hotfix changesets can be deployed directly to STAGE and PROD. You will be responsible for eventually deploying your hotfix changes back into DEV and QA environments, typically performed after hotfix changes have released to PROD.</p>
+        <h3 id="HowTo:MakeDaticalAwareofManualHotfixes-3.Anemergencyfixisnecessary">3. An emergency fix is necessary&#160;</h3>
+        <p>You only have a small time window to fix the PROD database. In this case, you will root cause your issues, test your fix in STAGE and once validated, deploy to PROD.</p>
+        <p>Start by capturing the hotfix in a SQL script. Commit the script into SCM so that it can be packaged, converted into a changeset and deployed (i.e., backfilled) into all other environments. Since PROD environment already contains the change, there is no need to deploy the changeset there. Instead, you will use Datical's "<strong>Change Log Sync</strong>" feature to mark the hotfix changeset as EXECUTED in PROD environment. This will create an entry in PROD's tracking table (DATABASECHANGELOG) and the audit database. This results in Datical becoming aware that the change from hotfix changeset already exists in PROD.</p>
+        <h2 id="HowTo:MakeDaticalAwareofManualHotfixes-Step-by-stepguide">Step-by-step guide</h2>
+        <p>For the purpose of the document, we will assume that the Datical project has the following pipeline (see table below). The emergency fix is captured in the script called "<code>hotfix_aug.sql</code>". Changes from this script have been manually executed in STAGE and PROD environments. We now need to package this script so that it can be deployed to REF1, DEV and QA environments.</p>
+        <p>
+            <br />
+        </p>
+        <div class="table-wrap">
+            <table class="relative-table wrapped confluenceTable" style="margin-left: auto;margin-right: auto;width: 83.3085%;">
+                <colgroup>
+                    <col style="width: 21.9338%;" />
+                    <col style="width: 15.2193%;" />
+                    <col style="width: 15.4879%;" />
+                    <col style="width: 15.3984%;" />
+                    <col style="width: 15.667%;" />
+                    <col style="width: 16.2936%;" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th colspan="1" class="confluenceTh">
+                            <br />
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>REF1</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>DEV</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>QA</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>STAGE</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>PROD</p>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th colspan="1" class="confluenceTh">hotfix_aug.sql</th>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge aui-lozenge-current conf-macro output-inline">UNDEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge aui-lozenge-current conf-macro output-inline">UNDEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge aui-lozenge-current conf-macro output-inline">UNDEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge conf-macro output-inline">MANUALLY DEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge conf-macro output-inline">MANUALLY DEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="1" class="confluenceTh">label used for release</th>
+                        <td colspan="5" class="confluenceTd">release/1.0.0</td>
+                    </tr>
+                    <tr>
+                        <th colspan="1" class="confluenceTh">label used to hotfix</th>
+                        <td colspan="5" class="confluenceTd">hotfix/1.0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <br />
+        </p>
+        <h3 id="HowTo:MakeDaticalAwareofManualHotfixes-PackageHotfixScript">Package Hotfix Script</h3>
+        <p>Commit your hotfix script in SQL repository. In order for it to obtain the correct hotfix label (e.g., "hotfix/1.0.0"), use the commit message where you can specify the label in square brackets. For example:</p>
+        <ul>
+            <li style="text-align: left;"><code>git commit -m "Hotfix for release 1.0.0 -&#160;[<span style="color: rgb(0,0,0);"><strong>hotfix/1.0.0</strong></span>]"</code>
+            </li>
+        </ul>
+        <p style="text-align: left;">Deployment Packager will automatically pick up the string inside square brackets and apply it as a label to changesets resulting from scripts that are part of that commit. As a result of running Packager, Datical will generate a new artifact version for you to deploy to your database environments.</p>
+        <h3 id="HowTo:MakeDaticalAwareofManualHotfixes-DeployHotfixChangesets">Deploy Hotfix Changesets</h3>
+        <p>Resulting changesets can be deployed using the label "hotfix/1.0.0" to DEV and QA environments using your deployment automation framework.&#160;You could have a separate process for deploying hotfix changes to STAGE and PROD. Or your deployment automation framework could be designed to automatically detect hotfix changes deploying to STAGE and PROD and choose the "Change Log Sync" method.</p>
+        <p>In your automation system (Jenkins, Bamboo, UrbanCode, etc.), create a new job or process which will perform following operations:</p>
+        <ol>
+            <li>Download the latest version of the Datical artifact</li>
+            <li>Run "hammer changelogSync" command. This command takes three arguments:<ol><li><strong>dbDef</strong> - This is the name of the environment where changes are to be marked as executed, e.g., "STAGE" or "PROD"</li><li><strong>pipeline</strong> - This is the Datical pipeline which will be associated with the changelogSync for auditing purposes.&#160;</li><li><strong>labels</strong> - This is the specific label you want to register as executed</li></ol></li>
+        </ol>
+        <p>Here is the complete sample script with some additional code for before and after status:</p>
+        <ul>
+            <li>
+                <p class="auto-cursor-target">"hammer statusDetails" used to status your environment before and after applying the "changelogSync" command (note: use of&#160;<code>REM</code>&#160;and environment variables "<code>%&lt;variableName&gt;%</code>" are specific to Windows platform):</p>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Mark Changes as Deployed</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">echo -------------------------------
+set PATH=%PATH%;C:\apps\Datical\repl
+hammer statusDetails STAGE
+hammer changelogSync STAGE --pipeline="pipelineName" --labels="hotfix_script_name.sql"hammer statusDetails STAGE
+hammer statusDetails PROD
+hammer changelogSync PROD --pipeline="pipelineName" --labels="hotfix_script_name.sql"hammer statusDetails PROD
+echo -------------------------------</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>Here is how your automation job would report the outcome (notice item #12 in statusDetails output which indicates the hotfix entry made to STAGE and PROD) :</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">get status of STAGE before changeLogSync
+Defaulting contexts to STAGE from STAGE
+Defaulting labels to release/1.0.0 from STAGE
+Database:  STAGE
+Deployed Change Sets
+    ____________________________________________________________________________________________________________________________________________________________________________
+    | Change Set                                           | Contexts               | Labels                                          | DBMS  | Reason| Comments                |
+    |===========================================================================================================================================================================|
+ 1. | Temp_Table                                           |                        | temp_table.sql,release/1.0.0,release/2.0.0      |       | New   | createTable             |
+ 2. |                                                      |                        |                                                 |       |       | tableName=TEMP_TABL     |
+ 3. | TAG_q4-2017,createAAA_TESTA1.sql                     |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | tagDatabase             |
+ 4. | apc1-1 (createTable tableName=AAA_TESTA1)            |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | createTable             |
+ 5. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 6. | TAG_q4-2017,createAAA_TESTA2.sql                     |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | tagDatabase             |
+ 7. | c5cl-1 (createTable tableName=AAA_TESTA2)            |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | createTable             |
+ 8. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 9. | sxon-1 (createTable tableName=AAA_TESTA3)            |                        | release/1.0.0,createaaa_testa3.sql              |       | New   | createTable             |
+10. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+11. | 20170731104511745_Insert_dml_AAA_TESTA3              |                        | release/1.0.0,insert_dml_aaa_testa3.sql         |       | New   | DDL and DML scripts     |
+Undeployed Change Sets
+  NONE
+Ignored Change Sets
+  NONE
+
+Saved status information to AuditDB for project 'PatientPortal'.
+Executing changeLogSync for pipeline 'currentRelease'
+Defaulting contexts to STAGE from STAGE
+Updating AuditDB database for project PatientPortal
+Saved status information to AuditDB for project 'PatientPortal'.
+changelogSync to 'STAGE' successful. All applicable changesets marked as deployed.
+get status of STAGE after changeLogSync
+Defaulting contexts to STAGE from STAGE
+Defaulting labels to release/1.0.0 from STAGE
+Database:  STAGE
+Deployed Change Sets
+    ____________________________________________________________________________________________________________________________________________________________________________
+    | Change Set                                           | Contexts               | Labels                                          | DBMS  | Reason| Comments                |
+    |===========================================================================================================================================================================|
+ 1. | Temp_Table                                           |                        | temp_table.sql,release/1.0.0,release/2.0.0      |       | New   | createTable             |
+ 2. |                                                      |                        |                                                 |       |       | tableName=TEMP_TABL     |
+ 3. | TAG_q4-2017,createAAA_TESTA1.sql                     |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | tagDatabase             |
+ 4. | apc1-1 (createTable tableName=AAA_TESTA1)            |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | createTable             |
+ 5. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 6. | TAG_q4-2017,createAAA_TESTA2.sql                     |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | tagDatabase             |
+ 7. | c5cl-1 (createTable tableName=AAA_TESTA2)            |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | createTable             |
+ 8. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 9. | sxon-1 (createTable tableName=AAA_TESTA3)            |                        | release/1.0.0,createaaa_testa3.sql              |       | New   | createTable             |
+10. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+11. | 20170731104511745_Insert_dml_AAA_TESTA3              |                        | release/1.0.0,insert_dml_aaa_testa3.sql         |       | New   | DDL and DML scripts     |
+12. | hotfix_aug                                           |                        | hotfix/1.0.0                                    |       |       | createTable             |
+13. |                                                      |                        |                                                 |       |       | tableName=AAA_hotfix    |
+Undeployed Change Sets
+  NONE
+Ignored Change Sets
+  NONE
+
+Saved status information to AuditDB for project 'PatientPortal'.
+get status of PROD before changeLogSync
+Defaulting contexts to PROD from PROD
+Defaulting labels to release/1.0.0 from PROD
+Database:  PROD
+Deployed Change Sets
+    ____________________________________________________________________________________________________________________________________________________________________________
+    | Change Set                                           | Contexts               | Labels                                          | DBMS  | Reason| Comments                |
+    |===========================================================================================================================================================================|
+ 1. | Temp_Table                                           |                        | temp_table.sql,release/1.0.0,release/2.0.0      |       | New   | createTable             |
+ 2. |                                                      |                        |                                                 |       |       | tableName=TEMP_TABL     |
+ 3. | TAG_q4-2017,createAAA_TESTA1.sql                     |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | tagDatabase             |
+ 4. | apc1-1 (createTable tableName=AAA_TESTA1)            |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | createTable             |
+ 5. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 6. | TAG_q4-2017,createAAA_TESTA2.sql                     |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | tagDatabase             |
+ 7. | c5cl-1 (createTable tableName=AAA_TESTA2)            |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | createTable             |
+ 8. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 9. | sxon-1 (createTable tableName=AAA_TESTA3)            |                        | release/1.0.0,createaaa_testa3.sql              |       | New   | createTable             |
+10. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+11. | 20170731104511745_Insert_dml_AAA_TESTA3              |                        | release/1.0.0,insert_dml_aaa_testa3.sql         |       | New   | DDL and DML scripts     |
+Undeployed Change Sets
+  NONE
+Ignored Change Sets
+  NONE
+
+Saved status information to AuditDB for project 'PatientPortal'.
+Executing changeLogSync for pipeline 'currentRelease'
+Defaulting contexts to PROD from PROD
+Updating AuditDB database for project PatientPortal
+Saved status information to AuditDB for project 'PatientPortal'.
+changelogSync to 'PROD' successful. All applicable changesets marked as deployed.
+get status of PROD after changeLogSync
+Defaulting contexts to PROD from PROD
+Defaulting labels to release/1.0.0 from PROD
+Database:  PROD
+Deployed Change Sets
+    ____________________________________________________________________________________________________________________________________________________________________________
+    | Change Set                                           | Contexts               | Labels                                          | DBMS  | Reason| Comments                |
+    |===========================================================================================================================================================================|
+ 1. | Temp_Table                                           |                        | temp_table.sql,release/1.0.0,release/2.0.0      |       | New   | createTable             |
+ 2. |                                                      |                        |                                                 |       |       | tableName=TEMP_TABL     |
+ 3. | TAG_q4-2017,createAAA_TESTA1.sql                     |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | tagDatabase             |
+ 4. | apc1-1 (createTable tableName=AAA_TESTA1)            |                        | release/1.0.0,createaaa_testa1.sql              |       | New   | createTable             |
+ 5. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 6. | TAG_q4-2017,createAAA_TESTA2.sql                     |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | tagDatabase             |
+ 7. | c5cl-1 (createTable tableName=AAA_TESTA2)            |                        | release/1.0.0,createaaa_testa2.sql              |       | New   | createTable             |
+ 8. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+ 9. | sxon-1 (createTable tableName=AAA_TESTA3)            |                        | release/1.0.0,createaaa_testa3.sql              |       | New   | createTable             |
+10. |                                                      |                        |                                                 |       |       | tableName=AAA_TESTA     |
+11. | 20170731104511745_Insert_dml_AAA_TESTA3              |                        | release/1.0.0,insert_dml_aaa_testa3.sql         |       | New   | DDL and DML scripts     |
+12. | hotfix_aug                                           |                        | hotfix/1.0.0                                    |       |       | createTable             |
+13. |                                                      |                        |                                                 |       |       | tableName=AAA_hotfix    |
+Undeployed Change Sets
+  NONE
+Ignored Change Sets
+  NONE
+
+Saved status information to AuditDB for project 'PatientPortal'.</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <h2 id="HowTo:MakeDaticalAwareofManualHotfixes-Relatedarticles">Related articles</h2>
+        <p />
+        <p />
+        <ul class="content-by-label conf-macro output-block">
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_To__Abandon_a_Single_Changeset_from_a_Script.htm">How To: Abandon a Single Changeset from a Script</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_To__Deploy_Changes_to_a_Specific_Environment.htm">How To: Deploy Changes to a Specific Environment</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="User_Guide__Synchronize_Datical_DB_Project__Git_.htm">User Guide: Synchronize Datical DB Project (Git)</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="#">How To: Make Datical Aware of Manual Hotfixes</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="User_Guide__Synchronize_Datical_DB_Project__TFS_.htm">User Guide: Synchronize Datical DB Project (TFS)</a>
+                </div>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>
