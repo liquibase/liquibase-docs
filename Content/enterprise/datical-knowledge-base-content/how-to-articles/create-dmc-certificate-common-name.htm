@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Create a DMC Certificate with specific Common Name</h1>
+        <p>The documented DMC commands generate a certificate that contains a * as the Common Name. If you wish to override the Common Name follow these steps:</p>
+        <ol>
+            <li>
+                <p>Add&#160;<strong>--debug</strong> to the command to expose the full keytool string:  <em>datical-control https generate-signing-request --output /tmp/certificate.csr <strong>--debug&#160;</strong></em></p>
+                <ol>
+                    <li>
+                        <p>Output:</p>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">[centos@dmcserver datical-service]$ datical-control https generate-signing-request --output /tmp/certificate.csr --debug&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+Executing shell:
+/opt/datical/jre/bin/keytool -certreq -alias datical -keystore /opt/datical/data/datical-service/keystore.p12 -storepass datical -file /tmp/certificate.csr
+Environment: null
+CSR saved to /tmp/certificate.csr</pre>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <p />
+                <ol>
+                    <li>
+                        <p>(If you want to use a *.example.com certificate)Re-run the Executing shell command that is returned from the above command and insert the Common Name you would like to be used by the certificate in an option called <strong>-dname</strong>: <em>/opt/datical/jre/bin/keytool -certreq -alias datical <strong>-dname "o=example, o=com"</strong> -v -keystore /opt/datical/data/datical-service/keystore.p12 -storepass datical -file /tmp/certificate.csr</em></p>
+                        <ol>
+                            <li>
+                                <p>Output:</p>
+                                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">[centos@dmcserver datical-service]$ /opt/datical/jre/bin/keytool -certreq -alias datical -dname "o=liquibase, o=com" -v -keystore /opt/datical/data/datical-service/keystore.p12 -storepass datical -file /tmp/certificate.csr
+Certification request stored in file &lt;/tmp/certificate.csr&gt;Submit this to your CA</pre>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        <p>(If you want to use a hostname.example.com certificate)Re-run the Executing shell command that is returned from the above command and insert the Common Name you would like to be used by the certificate in an option called <strong>-dname</strong>: <em>/opt/datical/jre/bin/keytool -certreq -alias datical <strong>-dname "CN=hostname,o=example, o=com"</strong> -v -keystore /opt/datical/data/datical-service/keystore.p12 -storepass datical -file /tmp/certificate.csr</em></p>
+                        <ol>
+                            <li>
+                                <p>Output:</p>
+                                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">[centos@dmcserver datical-service]$ /opt/datical/jre/bin/keytool -certreq -alias datical -dname "cn=dmcserver,o=liquibase, o=com" -v -keystore /opt/datical/data/datical-service/keystore.p12 -storepass datical -file /tmp/certificate.csr
+Certification request stored in file &lt;/tmp/certificate.csr&gt;Submit this to your CA</pre>
+                                    </div>
+                                </div>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <p>Check that the new certificate has the desired common name versus a * with this command: <em>openssl req -in /tmp/certificate.csr -noout -text</em></p>
+                <ol>
+                    <li>
+                        <p>Output:</p>
+                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">[centos@dmcserver datical-service]$ openssl req -in /tmp/certificate.csr -noout -text
+Certificate Request:
+&#160;&#160;&#160; Data:
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; Version: 0 (0x0)
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; Subject: O=com, O=liquibase
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; Subject Public Key Info:
+&#160;&#160;&#160;&#160;&#160;&#160;&#160; &#160;&#160;&#160;&#160;Public Key Algorithm: rsaEncryption
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; Public-Key: (2048 bit)
+</pre>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+        <p />
+    </body>
+</html>
