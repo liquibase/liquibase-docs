@@ -21,43 +21,34 @@
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
         <p>To use <MadCap:variable name="General.Liquibase" /> and  Oracle ATP or Oracle ADW, you need the JDBC driver JAR file:</p>
-        <ol>
-            <li>Ensure you downloaded the <a href="https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html">Oracle JDBC driver JAR file</a> to connect to the Oracle database. You can download <code>ojdbc8.jar</code> or <code>ojdbc10.jar</code>. The <code>ojdbc10.jar</code> file is certified with JDK10 and JDK11, and the <code>ojdbc8.jar</code> file is certified with JDK8, JDK9, and JDK11.</li>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is best practice to use the Oracle Database 18c (or higher) drivers.  Also, the following additional <code>.jar</code> files are required:  <code>oraclepki.jar</code>, <code>osdt_cert.jar</code>, and <code>osdt_core.jar</code>. For more information, see <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/connect-jdbc-thin-wallet.html">Using Oracle Autonomous Database on Shared Exadata Infrastructure</a>.</p>
-            <li>Place the <code>ojdbc&lt;version&gt;.jar</code> file in the <code>liquibase/lib</code> directory.</li>
-        </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you place the<code> ojdbc&lt;version&gt;.jar</code> file in a different directory, specify the path in the <MadCap:variable name="General.Liquibase" /> properties file, as follows: <code>classpath:../path_to_drivers/ojdbc&lt;version&gt;.jar</code>. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Specifying Properties in a Connection Profile</MadCap:xref>.</p>
-        <p>If you use Maven, you also need to download the Oracle driver jar file and put the driver in a location that your Maven build can access. Configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+        <p>Ensure you downloaded the <a href="https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html">Oracle JDBC driver JAR file</a> to connect to the Oracle database. You can download <code>ojdbc8.jar</code> or <code>ojdbc10.jar</code>. The <code>ojdbc10.jar</code> file is certified with JDK10 and JDK11, and the <code>ojdbc8.jar</code> file is certified with JDK8, JDK9, and JDK11.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is best practice to use the Oracle Database 18c (or higher) drivers.  Also, the following additional <code>.jar</code> files are required:  <code>oraclepki.jar</code>, <code>osdt_cert.jar</code>, and <code>osdt_core.jar</code>. For more information, see <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/connect-jdbc-thin-wallet.html">Using Oracle Autonomous Database on Shared Exadata Infrastructure</a>.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorials.Not pre-installed&quot;]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;com.oracle.ojdbc&lt;/groupId&gt;
     &lt;artifactId&gt;ojdbc8&lt;/artifactId&gt;
     &lt;version&gt;19.3.0.0&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
         <h2>Test your connection</h2>
-        <ol>
-            <li>Ensure that you created:</li>
-        </ol>
+        <p>Ensure that you have created:</p>
         <ul>
-            <li><a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/autonomous-provision.html#GUID-0B230036-0A05-4CA3-AF9D-97A255AE0C08">Oracle Autonomous Database with ATP or ADW</a> via the Oracle Cloud Infrastructure Console.</li>
+            <li>An <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/autonomous-provision.html#GUID-0B230036-0A05-4CA3-AF9D-97A255AE0C08">Oracle Autonomous Database with ATP or ADW</a> via the Oracle Cloud Infrastructure Console.</li>
             <li>An <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/network-access-control-list-configure.html#GUID-B6389402-3F4D-45A2-A4DE-EAF1B31D8E50">access control list</a> while providing your IP address.</li>
         </ul>
-        <ol start="2">
+        <p>Ensure that your Oracle ATP or ADW&#160;database is configured:</p>
+        <ol>
             <li>Download the Wallet to connect to the database:
-			<ol><li>Log into your Oracle Cloud account.</li><li>Navigate to the <b>Autonomous Database</b> details page and select <b>DB Connection</b>.</li><li>Select <b>Wallet Type</b>, and then select <b>Download</b>.</li><li>Enter a secure password for the Wallet and download the <code>.zip</code> file to save the client security credentials.</li><li>Unzip the Wallet and place it somewhere safe in your file system to prevent unauthorized database access.</li><li>Navigate to the Wallet folder and update the <code>ojdbc.properties</code> file with the following:<ul><li>Comment out the <code>oracle.net.wallet_location</code> line.</li><li>Set <code>javax.net.ssl.trustStorePassword</code> to the Wallet password that you entered to download the Wallet.</li><li>Set <code>javax.net.ssl.keyStorePassword</code> to the Wallet password that you entered to download the Wallet.</li></ul><pre><code class="language-text">#oracle.net.wallet_location=(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=${TNS_ADMIN})))
+			<ol><li>Log into your Oracle Cloud account.</li><li>Navigate to <b>Autonomous Database</b> and select <b>DB Connection</b> &gt; <b>Wallet Type</b> &gt; <b>Download</b>.</li><li>Enter a secure password for the Wallet and download the ZIP file to save the client security credentials.</li><li>Unzip the Wallet and place it somewhere safe in your file system to prevent unauthorized database access.</li><li>Navigate to the Wallet folder and update the <code>ojdbc.properties</code> file with the following:<ul><li>Comment out the <code>oracle.net.wallet_location</code> line.</li><li>Set <code>javax.net.ssl.trustStorePassword</code> to the Wallet password that you entered to download the Wallet.</li><li>Set <code>javax.net.ssl.keyStorePassword</code> to the Wallet password that you entered to download the Wallet.</li></ul><pre><code class="language-text">#oracle.net.wallet_location=(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=${TNS_ADMIN})))
 javax.net.ssl.trustStore=${TNS_ADMIN}/truststore.jks
 javax.net.ssl.trustStorePassword=my_wallet_password
 javax.net.ssl.keyStore=${TNS_ADMIN}/keystore.jks
 javax.net.ssl.keyStorePassword=my_wallet_password</code></pre></li><li>In the Wallet folder, open the <code>sqlnet.ora</code> and ensure that <code>SSL_SERVER_DN_MATCH=yes</code>.</li></ol></li>
-        </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can use other methods to securely connect to Autonomous Database. For more information, see <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/connect-data-warehouse.html#GUID-94719269-9218-4FAF-870E-6F0783E209FD">Connecting to Autonomous Database</a>.</p>
-        <ol start="3">
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For alternative secure connection methods, see <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/connect-data-warehouse.html">Connecting to Autonomous Database</a>.</p>
             <li>
                 <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
             </li><pre><code class="language-text">url: jdbc:oracle:thin:@&lt;database_name&gt;_high?TNS_ADMIN=/path/to/Wallet_&lt;database_name&gt;</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Windows, ensure the TNS_ADMIN path to your wallet folder includes double dashes in the URL property. </p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Windows, ensure the <code>TNS_ADMIN</code> path to your wallet folder includes double slashes in the URL property.</p>
             <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>url: jdbc:oracle:thin:@databaseName_high?TNS_ADMIN=path//to//Wallet_databaseName</code>
             </p>
-        </ol>
-        <ol start="4">
             <li>
                 <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog.flsnp" />
             </li>
