@@ -1,37 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
-        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with MaxDB | Liquibase Docs</title>
-        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/maxdb.html" />
-        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with MaxDB." />
+        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with BigQuery | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/bigquery.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with BigQuery." />
     </head>
     <body>
-        <h1>Using <MadCap:variable name="General.Liquibase" /> with MaxDB</h1>
-        <p><a href="https://maxdb.sap.com/">SAP MaxDB</a> is a relational database management system  that was developed by SAP SE. For more information, see <a href="https://help.sap.com/docs/SAP_MAXDB">SAP MaxDB Documentation</a>.</p>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with BigQuery</h1>
+        <p><a href="https://cloud.google.com/bigquery/">Google BigQuery</a> is a fully managed analytics data warehouse. For more information, see <a href="https://cloud.google.com/bigquery/docs">BigQuery Documentation</a>.</p>
         <h2>Supported versions</h2>
         <ul>
-            <li>7.4.4</li>
+            <li>2.13.6</li>
         </ul>
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
-        <p>To use <MadCap:variable name="General.Liquibase" /> and MaxDB, you need the <a href="https://maxdb.sap.com/">JDBC driver JAR file</a> and the latest <a href="https://github.com/liquibase/liquibase-maxdb/releases"><MadCap:variable name="General.Liquibase" /> MaxDB extension JAR file</a>.</p>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and BigQuery, you need two JAR&#160;files:&#160;the <a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers">JDBC&#160;driver</a> (<a href="https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery/2.13.6">Maven</a>) and the <a href="https://github.com/liquibase/liquibase-bigquery">Liquibase extension for Google BigQuery</a>.</p>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorialsDriver.Not pre-installed&quot;]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
-    &lt;groupId&gt;com.sap&lt;/groupId&gt;
-    &lt;artifactId&gt;sapdbc&lt;/artifactId&gt;
-    &lt;version&gt;7.4.4&lt;/version&gt;
-&lt;/dependency&gt;</code></pre><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
-    &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
-    &lt;artifactId&gt;liquibase-maxdb&lt;/artifactId&gt;
-    &lt;version&gt;<MadCap:variable name="General.CurrentLiquibaseVersion" />&lt;/version&gt;
+    &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;google-cloud-bigquery&lt;/artifactId&gt;
+    &lt;version&gt;2.13.6&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
         <h2>Test your connection</h2>
         <ol>
-            <li>Ensure your MaxDB database is configured. See <a href="https://wiki.scn.sap.com/wiki/display/MaxDB/SAP+MaxDB+Installation+on+Microsoft+Windows+and+Linux">MaxDB Installation on Microsoft Windows and Linux</a> for more information.</li>
+            <li>Ensure your BigQuery database is configured. See <a href="https://cloud.google.com/bigquery/docs/quickstarts">BigQuery Quickstarts</a> for more information. For example, you can run a query of a sample table in BigQuery using the <a href="https://cloud.google.com/bigquery/docs/quickstarts/load-data-bq"><code>bq</code> command-line tool</a>:</li><pre><code class="language-text">bq show bigquery-public-data:samples.shakespeare</code></pre>
             <li>
-                <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
-            </li><pre><code class="language-html">url: jdbc:sapdb://localhost:7200/MaxDB1</code></pre>
-            <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
+            </li><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://https://googleapis.com/bigquery/v2:&lt;port&gt;/&lt;path/to/database&gt;;ProjectId=&lt;BigQuery project ID&gt;;OAuthType=&lt;INT&gt;;</code></pre>
         </ol>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog-test-connection.flsnp" />
         <MadCap:dropDown>
@@ -40,11 +35,13 @@
             </MadCap:dropDownHead>
             <MadCap:dropDownBody>
                 <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
-                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
-                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
                     <thead>
                         <tr class="TableStyle-TableStyles-Head-Header1">
-                            <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes" />
+                            <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes"></MadCap:variable>
                             </th>
                             <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Supported</th>
                         </tr>
@@ -450,8 +447,10 @@
             </MadCap:dropDownHead>
             <MadCap:dropDownBody>
                 <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
-                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
-                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;" />
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
+                    <col class="TableStyle-TableStyles-Column-Column1" style="width: 600px;">
+                    </col>
                     <thead>
                         <tr class="TableStyle-TableStyles-Head-Header1">
                             <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Command</th>
@@ -753,10 +752,10 @@
         <h2>Related links</h2>
         <ul>
             <li>
-                <MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref>
+                <MadCap:xref href="../../change-types/home.html">[%=General.Liquibase%] [%=General.changetypes%]s</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="../../commands/home.htm">Liquibase Commands</MadCap:xref>
+                <MadCap:xref href="../../commands/home.htm">[%=General.Liquibase%] Commands</MadCap:xref>
             </li>
         </ul>
     </body>
