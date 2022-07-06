@@ -15,7 +15,12 @@
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
-        <p>To use <MadCap:variable name="General.Liquibase" /> and BigQuery, you need two JAR&#160;files:&#160;the <a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers">JDBC&#160;driver</a> (<a href="https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery/2.13.6">Maven</a>) and the <a href="https://github.com/liquibase/liquibase-bigquery">Liquibase extension for Google BigQuery</a>.</p>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and BigQuery, you need two JAR&#160;files:</p>
+        <ul>
+            <li><a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers">JDBC&#160;driver</a> (<a href="https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery/2.13.6">Maven download</a>)</li>
+            <li><a href="https://github.com/liquibase/liquibase-bigquery">Liquibase extension for Google BigQuery</a>
+            </li>
+        </ul>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorialsDriver.Not pre-installed&quot;]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
     &lt;artifactId&gt;google-cloud-bigquery&lt;/artifactId&gt;
@@ -28,12 +33,98 @@
                 <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
             </li><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://https://googleapis.com/bigquery/v2:443/&lt;dbname&gt;;ProjectId=&lt;STR&gt;;OAuthType=&lt;INT&gt;;</code></pre>
             <p>Specify the name of your database in place of <code>dbname</code>. Specify the ID&#160;of your BigQuery project as the value of <code>ProjectId</code>. Specify  your BigQuery authentication method as the value of <code><a href="https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/options/oauthtype.htm">OAuthType</a></code>:</p>
-            <ul>
-                <li><code>OAuthType=0</code>:&#160;<b>Google Services Account</b>. You must also specify the options <code>OAuthServiceAcctEmail</code> and <code>OAuthPvtKeyPath</code> in your <code>url</code> property. For more information, see <a href="https://developers.google.com/identity/protocols/oauth2/service-account">Using OAuth 2.0 for Server to Server Applications</a>.</li>
-                <li><code>OAuthType=1</code>: <b>Google User Account</b>. Requires your user account credentials. For more information, see <a href="https://cloud.google.com/docs/authentication/end-user">Authenticating as an end user</a>.</li>
-                <li><code>OAuthType=2</code>:&#160;<b>Google Authorization Server Access Token</b>. You must also specify the options <code>OAuthAccessToken</code>, <code>OAuthRefreshToken</code>, <code>OAuthClientId</code>, and <code>OAuthClientSecret</code> in your <code>url</code> property. For more information, see <a href="https://developers.google.com/identity/protocols/oauth2">Using OAuth 2.0 to Access Google APIs</a>.</li>
-                <li><code>OAuthType=3</code>: <b>Application Default Credentials</b>. For more information, see <a href="https://cloud.google.com/docs/authentication/production">Authenticating as a service account</a>.</li>
-            </ul>
+            <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+                <thead>
+                    <tr class="TableStyle-TableStyles-Head-Header1">
+                        <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><code>OAuthType</code>
+                        </th>
+                        <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Description</th>
+                        <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Notes</th>
+                        <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="TableStyle-TableStyles-Body-Body1">
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial; text-align: left;"><code>0</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial; text-align: left;">Google Services Account</td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="text-align: left;">
+                            <p>You must also specify the options <code>OAuthServiceAcctEmail</code> and <code>OAuthPvtKeyPath</code> in your <code>url</code> property. For more information, see:</p>
+                            <ul>
+                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/serviceaccount.htm">Simba:&#160;Using a Google Services Account</a>
+                                </li>
+                                <li><a href="https://developers.google.com/identity/protocols/oauth2/service-account">Google: Using OAuth 2.0 for Server to Server Applications</a>
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="text-align: left;"><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+ProjectId=myProject;
+OAuthType=0;
+OAuthServiceAcctEmail=lbtest@bq123.iam.gserviceaccount.com;
+OAuthPvtKeyPath=C:\path\serviceKey.p12;</code></pre>
+                        </td>
+                    </tr>
+                    <tr class="TableStyle-TableStyles-Body-Body2">
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial; text-align: left;"><code>1</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial; text-align: left;">Google User Account</td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="text-align: left;">
+                            <p>Requires your user account credentials. For more information, see:</p>
+                            <ul>
+                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/useraccount.htm">Simba: Using a Google User Account</a>
+                                </li>
+                                <li><a href="https://cloud.google.com/docs/authentication/end-user">Google:&#160;Authenticating as an end user</a>
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="text-align: left;"><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+ProjectId=myProject;
+OAuthType=1;</code></pre>
+                        </td>
+                    </tr>
+                    <tr class="TableStyle-TableStyles-Body-Body1">
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial; text-align: left;"><code>2</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial; text-align: left;">Google Authorization Server Access Token</td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="text-align: left;">
+                            <p>You must also specify the options <code>OAuthAccessToken</code>, <code>OAuthRefreshToken</code>, <code>OAuthClientId</code>, and <code>OAuthClientSecret</code> in your <code>url</code> property. For more information, see:</p>
+                            <ul>
+                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/pregentoken.htm">Simba: Using&#160;Pre-Generated Access and&#160;Refresh Tokens</a>
+                                </li>
+                                <li><a href="https://developers.google.com/identity/protocols/oauth2">Google: Using OAuth 2.0 to Access Google APIs</a>
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="text-align: left;"><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+ProjectId=myProject;
+OAuthType=2;
+OAuthAccessToken=a25c7cfd36214f94a79d;
+OAuthRefreshToken=2kl0Qvuw9qt4abia54qga5t97;
+OAuthClientId=22n6627g243322f7;
+OAuthClientSecret=cDE+F2g3Hcjk4K5lazM;</code></pre>
+                        </td>
+                    </tr>
+                    <tr class="TableStyle-TableStyles-Body-Body2">
+                        <td class="TableStyle-TableStyles-BodyB-Column1-Body2" style="font-family: Arial; text-align: left;"><code>3</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyB-Column1-Body2" style="font-family: Arial; text-align: left;">Application Default Credentials</td>
+                        <td class="TableStyle-TableStyles-BodyB-Column1-Body2" style="text-align: left;">
+                            <p>For more information, see:</p>
+                            <ul>
+                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/appdefaultcred.htm">Simba:&#160;Using Application Default Credentials</a>
+                                </li>
+                                <li><a href="https://cloud.google.com/docs/authentication/production">Google: Authenticating as a service account</a>
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyA-Column1-Body2" style="text-align: left;"><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+ProjectId=myProject;
+OAuthType=3;</code></pre>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>For more information, see <a href="https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/options/intro-auth.htm">Simba JDBC&#160;Authentication Driver Configuration Options</a>.</p>
         </ol>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog-test-connection.flsnp" />
         <MadCap:dropDown>
