@@ -8,7 +8,7 @@
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with CockroachDB</h1>
         <p><a href="https://www.cockroachlabs.com/">CockroachDB</a> is a distributed database with standard SQL for cloud applications. You can run CockroachDB on your local machine or use a cloud cluster.</p>
-        <h2>Supported Versions</h2>
+        <h2>Supported versions</h2>
         <ul>
             <li>20.1</li>
             <li>20.2</li>
@@ -17,21 +17,19 @@
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-test-harness.flsnp" />
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
-        <h2>Install Drivers</h2>
-        <p>To use <MadCap:variable name="General.Liquibase" /> and CockroachDB, you need to have the <a href="https://jdbc.postgresql.org/download.html">JDBC driver JAR file</a>.</p>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[DatabaseTutorials.Pre-installed]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+        <h2>Install drivers</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and CockroachDB, you need the <a href="https://jdbc.postgresql.org/download.html">JDBC driver JAR file</a>.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[DatabaseTutorialsDriver.Pre-installed]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
     &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
     &lt;version&gt;42.3.4&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-        <h2>Test Your Connection</h2>
-        <p>For <MadCap:variable name="General.Liquibase" /> and CockroachDB to work, you need to:</p>
+        <h2>Test your connection</h2>
         <ol>
-            <li>Ensure your CockroachDB is configured. You can check its status depending on your cluster setup. For example, you can check basic network connectivity (ping), port connectivity (telnet), and certificate validity. See the <a href="https://www.cockroachlabs.com/docs/v20.2/cluster-setup-troubleshooting.html">Troubleshoot Cluster Setup</a> for more details.</li>
-            <li>Generate or check <a href="https://www.cockroachlabs.com/docs/v20.2/cockroach-cert.html">TLS certificates</a> for the user that you created during a <a href="https://www.cockroachlabs.com/docs/v20.2/secure-a-cluster.html">secure CockroachDB cluster setup</a>. Use the <code>cockroach cert</code> command to generate the certificates:</li><pre><code class="language-text">cockroach cert create-client user --certs-dir=certs --ca-key=my-safe-directory/ca.key --also-generate-pkcs8-key</code></pre>
-        </ol>
-        <ol start="3">
-            <li>Specify the database URL in the <MadCap:variable name="General.Liquibase" /> properties file, as follows:</li>
+            <li>Ensure your CockroachDB is configured:<ol><li>&#160;You can check its status depending on your cluster setup. For example, you can check basic network connectivity (ping), port connectivity (telnet), and certificate validity. See the <a href="https://www.cockroachlabs.com/docs/v20.2/cluster-setup-troubleshooting.html">Troubleshoot Cluster Setup</a> for more details.</li><li>Generate or check <a href="https://www.cockroachlabs.com/docs/v20.2/cockroach-cert.html">TLS certificates</a> for the user that you created during a <a href="https://www.cockroachlabs.com/docs/v20.2/secure-a-cluster.html">secure CockroachDB cluster setup</a>. Use the <code>cockroach cert</code> command to generate the certificates:</li><pre><code class="language-text">cockroach cert create-client user --certs-dir=certs --ca-key=my-safe-directory/ca.key --also-generate-pkcs8-key</code></pre></ol></li>
+            <li>
+                <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
+            </li>
             <h3>CockroachDB on-premises</h3><pre><code class="language-text">url:jdbc:postgresql://localhost:26257/database?ssl=true&amp;sslmode=require&amp;sslrootcert=/full-path/certs/ca.crt&amp;sslkey=/full-ath/certs/client.user.key.pk8&amp;sslcert=/full-path/certs/client.user.crt</code></pre>
             <p>When using the CockroachDB on-premises and specifying the URL, enter your IP address or host name, and then the port followed by the database name. The example of the format is:<code> jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:&lt;PORT&gt;/&lt;DATABASE&gt;</code>.</p>
             <p>The SSL connection parameters to the full paths of the certificates that you generated are optional. A key in PKCS#8 format is the standard key encoding format in Java. As an alternative, you can use the URL without SSL connection parameters by specifying the username and password <MadCap:variable name="General.Param/Attribute" />s:</p><pre><code class="language-text">url: jdbc:postgresql://localhost:26257/dev
@@ -40,14 +38,9 @@ password: password</code></pre>
             <h3>CockroachDB cloud</h3><pre><code class="language-text">url: jdbc:postgresql://liquibase-3r8.aws-us-east-2.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full&amp;sslrootcert=liquibase-ca.crt</code></pre>
             <p>When using the CockroachCloud instance and specifying URL, enter a global host name and the port <code>26257</code> by referring to the <a href="https://www.cockroachlabs.com/docs/cockroachcloud/quickstart">CockroachCloud</a> website. Also, add the database name with the SSL mode and the path to the CA certificate to your URL.</p>
             <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
-            <li>
-                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog.flsnp" />
-            </li>
         </ol>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/code/database-changelog-examples.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog-test-connection.flsnp" />
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	CockroachDB has <a href="https://www.cockroachlabs.com/docs/v20.2/online-schema-changes#limited-support-for-schema-changes-within-transactions">limited support for online schema changes in transactions</a>. To avoid issues with incomplete transactions, you can set the <a href="https://docs.liquibase.com/concepts/basic/changeset.html">runInTransaction <MadCap:variable name="General.Param/Attribute" /></a> to <code>false</code>. However, take into account that if this <MadCap:variable name="General.Param/Attribute" /> is set to false and an error occurs part way through running a <MadCap:variable name="General.changeset" /> that contains multiple statements, the <MadCap:variable name="General.Liquibase" /> <MadCap:variable name="General.databasechangelog" /> table will be left in an invalid state.</p>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-test-connection.flsnp" />
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tracking-tables.flsnp" />
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>Supported <MadCap:variable name="General.changetypes" />s</MadCap:dropDownHotspot>
@@ -460,7 +453,7 @@ password: password</code></pre>
         </MadCap:dropDown>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>Supported Commands</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot>Supported commands</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody>
                 <table style="border: 1;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
@@ -764,7 +757,7 @@ password: password</code></pre>
                 </table>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <h2>Related Links</h2>
+        <h2>Related links</h2>
         <ul>
             <li><a href="https://www.cockroachlabs.com/docs/stable/">CockroachDB Docs</a>
             </li>

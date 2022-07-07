@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Access Reports Directory (Windows)</h1>
+        <p>Often in automation, after running a Forecast or Deploy operation, you need to access the newly created HTML report. This file could be located in a timestamped directory such as this:</p>
+        <p style="margin-left: 60.0px;"><strong><code>C:\apps\Jenkins\workspace\Forecast\customerportal_ddb\Reports\2017\08-Aug\DEV\forecast_DEV_20170814_103758\forecastReport.html</code></strong>
+        </p>
+        <p><span class="inline-comment-marker">You may need to publish this report to a web server or send it as an attachment to users.</span>
+        </p>
+        <p>This documents shows you how to access it via Windows and Linux.</p>
+        <h2 id="HowTo:AccessReportsDirectory(Windows)-Step-by-stepguide">Step-by-step guide</h2>
+        <p>After you have run the "hammer forecast ..." or "hammer deploy ..." command, you need the following shell script to access your HTML reports.</p>
+        <ol>
+            <li>Setup your base environment variables<br /><ol><li>HTML home if you are publishing your reports to a web server (e.g., WAMP stack)</li><li><p>Setup timestamp variables</p></li></ol></li>
+            <li>
+                <p>Build your path to reports directory using base environment variables (e.g., path in Jenkins workspace to your Datical project "<code>customerportal_ddb</code>")</p>
+                <ol>
+                    <li>Path to forecast reports</li>
+                    <li>Path to deploy reports</li>
+                </ol>
+            </li>
+            <li>Sample usage if you are publishing your report to a web server<ol><li>Assumes there is an environment variable "DBDEF" available to indicate where we perform the Forecast or Deploy operation. This would be set to a database environment in your Datical pipeline.</li></ol></li>
+            <li>
+                <p class="auto-cursor-target">Here is the complete code:</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>environment variables</b>
+                    </div>
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">echo -------------------------------------------
+REM 1. Setup your base environment variables:
+set HTMLHome=C:\apps\Bitnami\wampstack-5.6.31-0\apache2\htdocs\DaticalReports
+set TIMEStamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
+set month-num=%date:~4,2%
+if %month-num%==01 set mo-name=jan
+if %month-num%==02 set mo-name=feb
+if %month-num%==03 set mo-name=mar
+if %month-num%==04 set mo-name=apr
+if %month-num%==05 set mo-name=may
+if %month-num%==06 set mo-name=jun
+if %month-num%==07 set mo-name=jul
+if %month-num%==08 set mo-name=aug
+if %month-num%==09 set mo-name=sep
+if %month-num%==10 set mo-name=oct
+if %month-num%==11 set mo-name=nov
+if %month-num%==12 set mo-name=dec
+echo Month name directory is %month-num%-%mo-name%
+echo -------------------------------------------
+
+echo -------------------------------------------
+REM 2. Build your path to Reports directory using base environment variables
+set DaticalForecastReportDir=%WORKSPACE%\customerportal_ddb\Reports\%date:~10,4%\%month-num%-%mo-name%\%DBDEF%\forecast*
+set DaticalDeployReportDir=%WORKSPACE%\customerportal_ddb\Reports\%date:~10,4%\%month-num%-%mo-name%\%DBDEF%\deploy*
+echo ...Workspace is %WORKSPACE%\customerportal_ddb
+echo ...DaticalForecastReportDir is %DaticalForecastReportDir%
+echo ...DaticalDeployReportDir   is %DaticalDeployReportDir%
+echo -------------------------------------------
+
+echo -------------------------------------------
+REM 3. Sample usage if you are publishing your report to a web server
+REM      a. Assumes there is an environment variable "DBDEF" available to indicate where we perform the Forecast or Deploy operation. This would be set to a database environment in your Datical pipeline.
+mkdir %HTMLHome%\%TIMEStamp%\%DBDEF%\img
+mkdir %HTMLHome%\%TIMEStamp%\%DBDEF%\forecast
+mkdir %HTMLHome%\%TIMEStamp%\%DBDEF%\deploy
+cd %DaticalForecastReportDir%
+copy img %HTMLHome%\%TIMEStamp%\%DBDEF%\img
+copy forecast %HTMLHome%\%TIMEStamp%\%DBDEF%\forecast
+copy *.html %HTMLHome%\%TIMEStamp%\%DBDEF%\%DBDEF%_ForecastReport.html
+
+cd %DaticalDeployReportDir%
+copy img %HTMLHome%\%TIMEStamp%\%DBDEF%\img
+copy deploy %HTMLHome%\%TIMEStamp%\%DBDEF%\deploy
+copy *.html %HTMLHome%\%TIMEStamp%\%DBDEF%\%DBDEF%_DeployReport.html
+echo -------------------------------------------</pre>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p class="auto-cursor-target">Here's how your reports may appear on the web server:</p>
+                <ol>
+                    <li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="337" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-7-52.png?version=1&amp;modificationDate=1502726876510&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-7-52.png?version=1&amp;modificationDate=1502726876510&amp;cacheVersion=1&amp;api=v2&amp;width=460&amp;height=341 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-7-52.png?version=1&amp;modificationDate=1502726876510&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=249 1x" /></span>&#160;→&#160;<span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="337" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-8-18.png?version=1&amp;modificationDate=1502726902166&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=154" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-8-18.png?version=1&amp;modificationDate=1502726902166&amp;cacheVersion=1&amp;api=v2&amp;width=674&amp;height=308 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-8-18.png?version=1&amp;modificationDate=1502726902166&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=154 1x" /></span>&#160;→&#160;<span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="337" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-8-49.png?version=1&amp;modificationDate=1502726933148&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=153" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-8-49.png?version=1&amp;modificationDate=1502726933148&amp;cacheVersion=1&amp;api=v2&amp;width=674&amp;height=306 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1279822/image2017-8-14_11-8-49.png?version=1&amp;modificationDate=1502726933148&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=153 1x" /></span></li>
+                </ol>
+            </li>
+        </ol>
+        <p />
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body"></div>
+        </div>
+        <h2 style="margin-left: 30.0px;" id="HowTo:AccessReportsDirectory(Windows)-Relatedarticles">Related articles</h2>
+        <p style="margin-left: 30.0px;" />
+        <p style="margin-left: 30.0px;" />
+        <ul class="content-by-label conf-macro output-block">
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_do_I_get_my_HTML_reports_to_show_up_properly_in_Jenkins_.htm">How do I get my HTML reports to show up properly in Jenkins?</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_To__Change_Default_Location_for_Datical_Projects.htm">How To: Change Default Location for Datical Projects</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_To__Set_default_web_browser_in_the_GUI.htm">How To: Set default web browser in the GUI</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_To__Update_Datical_License.htm">How To: Update Datical License</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="How_To__Install_Datical_DB_2019_2_2_or_2019_2_3_GUI.htm">How To: Install <MadCap:variable name="General.DaticalDB" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> 2019.2.2 or 2019.2.3 GUI</a>
+                </div>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>
