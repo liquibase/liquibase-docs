@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Unabandon changes</h1>
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block">
+        </div>
+        <hr />
+        <p>
+            <br />
+        </p>
+        <p>This solution is needed when some changes were previously abandoned in a release but now need to be allowed to proceed forward as part of a new release.&#160;</p>
+        <h2 id="HowTo:Unabandonchanges-Considerations">Considerations</h2>
+        <p>As you plan to unabandon changes, take the following into consideration:</p>
+        <ol>
+            <li>Are the previously abandoned changeset ready to be promoted without any modifications?</li>
+            <li>If previously abandoned changeset require modifications then bring a "fix" script.<ol><li>Can the fix be applied together with the previously abandoned changesets such that original changesets and the fix changeset be applied together all the way to PROD?</li><li>Or does the fix script need to be applied to remove previously deploy changes? In this case, you would only need to apply the fix script only into those environments where previously abandoned changes were already deployed. This can be controlled using "contexts". Follow the steps described in&#160;<a href="../../../knowledge-base/how-to-articles/How_To__Abandon_changes.htm">How To: Abandon changes</a> in order to fully abandon your changes. This would effectively clean your environments from abandoned changesets. You would then bring a modified version of the abandoned script to package and deploy into the pipeline.</li></ol></li>
+        </ol>
+        <h2 id="HowTo:Unabandonchanges-Step-by-stepguide">Step-by-step guide</h2>
+        <p>Following steps guide you towards unabandoning your changesets assuming that those changesets do not require any modification.&#160;</p>
+        <p>For the purpose of the document, we will assume that the Datical project has the following pipeline and that all changesets generating from "<code>temp_table.sql</code>" were previously abandoned for release 1.0.0. And prior to getting abandoned, those changes had been deployed up until the QA environment. We now need to unabandon changesets from this script so that those can be deployed to STAGE and PROD environments as part of <strong>release 2.0.0</strong>. As such, you will remove the label "abandoned" from those changesets. And you will add the new label for the release (release/2.0.0).</p>
+        <div class="table-wrap">
+            <table class="relative-table wrapped confluenceTable" style="margin-left: auto;margin-right: auto;width: 59.0036%;">
+                <colgroup>
+                    <col style="width: 34.1787%;" />
+                    <col style="width: 13.1643%;" />
+                    <col style="width: 13.1643%;" />
+                    <col style="width: 13.1643%;" />
+                    <col style="width: 13.1643%;" />
+                    <col style="width: 13.1643%;" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th colspan="1" class="confluenceTh">
+                            <br />
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>REF1</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>DEV</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>QA</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>STAGE</p>
+                        </th>
+                        <th style="text-align: center;" class="confluenceTh">
+                            <p>PROD</p>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th colspan="1" class="confluenceTh"><span>Changesets from "temp_table.sql"</span>
+                        </th>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge aui-lozenge-success conf-macro output-inline">DEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge aui-lozenge-success conf-macro output-inline">DEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge aui-lozenge-success conf-macro output-inline">DEPLOYED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge conf-macro output-inline">ABANDONED</span>
+                                </p>
+                            </div>
+                        </td>
+                        <td colspan="1" class="confluenceTd">
+                            <div class="content-wrapper">
+                                <p><span class="status-macro aui-lozenge conf-macro output-inline">ABANDONED</span>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="1" class="confluenceTh">Initial labels</th>
+                        <td colspan="5" class="confluenceTd">temp_table.sql,release/1.0.0,abandoned</td>
+                    </tr>
+                    <tr>
+                        <th colspan="1" class="confluenceTh">Final labels</th>
+                        <td colspan="5" class="confluenceTd"><span>temp_table.sql,<span>release/1.0.0</span>,<strong>release/2.0.0</strong></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <br />You can perform this task in automation, however, the user will need to provide two input parameters: 1) the script name to unabandon and 2) the new release label. In your automation system (Jenkins, Bamboo, UrbanCode Build, etc.), create a new job which will perform following operations:</p>
+        <ol>
+            <li>Checkout Datical project from your source control (Git, TFS, SVN)</li>
+            <li>Run "hammer removeLabels" command. This command takes two arguments:<ol><li><strong>lookupChangesets</strong>&#160;- This is the script name which you want to abandon, e.g., "<code>abandoned,temp_table.sql</code>".&#160;<strong>The "temp_table.sql" will be the FIRST user provided argument.</strong></li><li style="list-style-type: none;"><strong>labels</strong>&#160;- This is the label you want to remove from your changesets, e.g., "<code>abandoned</code>"<ol><li>Once you agree on what naming convention to use to abandon changes, this argument can be programmatic (e.g., "abandoned/1.0.0") or hard-coded (e.g., "abandoned").</li></ol></li></ol></li>
+            <li>Run "hammer addLabels" command. This command takes two arguments:<ol><li><strong>lookupChangesets</strong>&#160;- This is the script name which you unabandon, e.g., "<code>temp_table.sql</code>".&#160;<strong>The "temp_table.sql" is the FIRST user provided argument.</strong></li><li><strong>labels</strong>&#160;- This is the new release label you want to give to your changesets, e.g., "<code>release/2.0.0</code>". <strong>The "release/2.0.0" is the SECOND user provided argument.</strong></li></ol></li>
+            <li>Commit and push Datical project back into source control</li>
+            <li>Publish a new artifact version</li>
+        </ol>
+        <p>
+            <br />
+        </p>
+        <p>Here is the complete sample script with some additional code for before and after status:</p>
+        <ul>
+            <li>Perform SCM operation so that you can check-in your changes back into SCM ("git branch --set-upstream-to ...")</li>
+            <li>"hammer findChangeSets" used to identify labels before and after applying the "removeLabels" command (note: This code is for Windows batch command):</li>
+            <li>
+                <p class="auto-cursor-target">Perform SCM operation to commit and push the code and provide a relevant commit message ("git commit ..." and "git push ...")</p>
+            </li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Abandon Changes</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">echo -------------------------------
+set PATH=%PATH%;C:\apps\Datical\repl
+git clone http://user@bitbucket.datical.net/scm/bbu/ddb.git
+cd ddb
+git branch --set-upstream-to=origin/master master 
+git status
+hammer findChangeSets --lookupChangesets="abandoned,%lookupChangesets%"hammer removeLabels --lookupChangesets="abandoned,%lookupChangesets%" --labels="abandoned"hammer addLabels --lookupChangesets="%lookupChangesets%" --labels="%newReleaseLabel%"hammer findChangeSets --lookupChangesets="%lookupChangesets%,%newReleaseLabel%"REM add steps to commit Datical project into Git.
+echo commit new changes back into Bitbucket
+git add -A
+git commit -m "Automations:UnabandonScript-%lookupChangesets% - build number=%BUILD_NUMBER%"git push -u origin master
+echo -------------------------------</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>Here is how your automation job would report your unabandoned changesets:</p>
+        <ul>
+            <li>Notice that one changeset was identified with lookupChangets="abandoned,temp_table.sql". Later, the same changeset was identified when lookupChangesets="temp_table.sql"</li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>a</b>
+            </div>
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer findChangeSets --lookupChangesets="abandoned,temp_table.sql"_______________________
+| Change Set ID| Author|
+|======================|
+| Temp_Table   | amalik|
+hammer removeLabels --lookupChangesets="abandoned,temp_table.sql" --labels="abandoned"Labels removed for change set Temp_Table
+Updating labels for change set Temp_Table
+hammer findChangeSets --lookupChangesets="temp_table.sql"_______________________
+| Change Set ID| Author|
+|======================|
+| Temp_Table   | amalik|</pre>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>Here is how the abandoned changeset looks like in Datical GUI:</p>
+        <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="950" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1441793/image2017-8-15_21-16-36.png?version=1&amp;modificationDate=1502849798990&amp;cacheVersion=1&amp;api=v2&amp;width=950&amp;height=97" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1441793/image2017-8-15_21-16-36.png?version=1&amp;modificationDate=1502849798990&amp;cacheVersion=1&amp;api=v2&amp;width=1086&amp;height=111 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1441793/image2017-8-15_21-16-36.png?version=1&amp;modificationDate=1502849798990&amp;cacheVersion=1&amp;api=v2&amp;width=950&amp;height=97 1x" /></span>
+        </p>
+        <p>
+            <br />Now that the "abandoned" label has been removed, make sure to create a new artifact version.</p>
+        <ol>
+            <li>When you use your deployment automation tool you will use your newly created versioned artifact to deploy database changes.</li>
+        </ol>
+        <p>Make sure that you alway deploy using "!<strong><code>abandoned</code></strong>" label (notice the "!") with your deploy automation tool. Here is a sample deploy command you would use:</p>
+        <ol>
+            <li style="list-style-type: none;background-image: none;">
+                <ol>
+                    <li><strong><code>hammer deploy STAGE --labels<span style="color: rgb(34,34,34);">&#160;"release/2.0.0 AND !abandoned"</span></code></strong>
+                    </li>
+                    <li><strong><code>hammer deploy PROD --labels<span style="color: rgb(34,34,34);">&#160;"release/2.0.0 AND !abandoned"</span></code></strong>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+        <p>
+            <br />
+        </p>
+        <h2 id="HowTo:Unabandonchanges-Relatedarticles">Related articles</h2>
+        <p />
+        <p />
+        <ul class="content-by-label conf-macro output-block">
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="../../../knowledge-base/how-to-articles/How_To__Remove_abandonded_changes_from_Datical_and_lower_environments.htm">How To: Remove abandonded changes from Datical and lower environments</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="../../../knowledge-base/how-to-articles/How_To__Abandon_changes.htm">How To: Abandon changes</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="../../../knowledge-base/how-to-articles/How_To__Negate_changes.htm">How To: Negate changes</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="../../../knowledge-base/how-to-articles/How_To__Abandon_a_Single_Changeset_from_a_Script.htm">How To: Abandon a Single Changeset from a Script</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="#">How To: Unabandon changes</a>
+                </div>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+        <div><span style="font-family: monospace;white-space: pre-wrap;"><br /></span>
+        </div>
+    </body>
+</html>
