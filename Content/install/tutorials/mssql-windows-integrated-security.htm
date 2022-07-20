@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title>Using Liquibase and MSSQL with Windows Integrated Security | Liquibase Docs</title>
-        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/mssql-windows-integrated-security.html" />
+        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/mssql-windows-integrated-security.html" />
         <meta name="description" content="This page guides you through the process of using Liquibase with MSSQL and Windows Integrated Security." />
     </head>
     <body>
@@ -10,27 +10,33 @@
         <p>To do this, you must first complete the integrated security setup complete on your server. For more information, see <a href="https://docs.microsoft.com/en-us/previous-versions/aspnet/bsz5788z(v=vs.100)">How to: Access SQL Server Using Windows Integrated Security</a>. Then you can set up <MadCap:variable name="General.Liquibase" /> to manage your changes.</p>
         <p>To set up <MadCap:variable name="General.Liquibase" /> with MSSQL without using Windows Integrated Security, see <MadCap:xref href="mssql.html">Using [%=General.Liquibase%] with MSSQL</MadCap:xref>.</p>
         <h2>Prerequisites</h2>
-        <p>Ensure you have completed the following steps:</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <ul>
-            <li><a href="https://docs.microsoft.com/en-us/previous-versions/aspnet/bsz5788z(v=vs.100)">Set up your SQL&#160;Server database with Windows Integrated Security</a>.
-            </li>
-            <li><a href="../liquibase-windows.htm">Installed [%=General.Liquibase%]</a>.</li>
-            <li>Created a <MadCap:variable name="General.Liquibase"></MadCap:variable> project folder to store all <MadCap:variable name="General.Liquibase"></MadCap:variable> files.</li>
-            <li>Created a new <MadCap:variable name="General.Liquibase" /> properties file or are using the existing <code><MadCap:variable name="General.liquiPropFile" /></code> file included in the installation package. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Specifying Properties in a Connection Profile</MadCap:xref>.</li>
+            <li><a href="https://docs.microsoft.com/en-us/previous-versions/aspnet/bsz5788z(v=vs.100)">Set up your SQL&#160;Server database with Windows Integrated Security</a>.</li>
         </ul>
-        <h2>Driver information</h2>
-        <p>To use <MadCap:variable name="General.Liquibase"></MadCap:variable> and Microsoft SQL Server, you need to have the <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server">JDBC driver .jar file</a>. <MadCap:variable name="General.Liquibase"></MadCap:variable> comes with a pre-installed driver for MSSQL in the <code>liquibase/lib</code> directory. For more information, see <MadCap:xref href="../../workflows/liquibase-community/adding-and-updating-liquibase-drivers.htm">Adding and Updating [%=General.Liquibase%] Drivers</MadCap:xref>.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	If you place the <code>mssql-jdbc-&lt;version&gt;.jre&lt;version&gt;.jar</code> file in a different directory, specify the path in the <MadCap:variable name="General.Liquibase" /> properties file, as follows: <code>classpath:../path_to_drivers/mssql-jdbc-&lt;version&gt;.jre&lt;version&gt;.jar</code>. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Specifying Properties in a Connection Profile</MadCap:xref>.</p>
-        <p>If you install a non-default driver for MSSQL, make sure the JDBC driver is version 9.4+ to avoid getting the following error: "This driver is not configured for integrated authentication." Then set the filepath of the driver file <code>mssql-jdbc_auth-&lt;version&gt;.x64.dll</code> with the <code>PATH</code> environment variable.</p>
-        <h2>Setup</h2>
+        <h2>Install drivers</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Microsoft SQL Server, you need the <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server">JDBC driver JAR file</a>. </p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[DatabaseTutorialsDriver.Pre-installed]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;com.microsoft.sqlserver&lt;/groupId&gt;
+    &lt;artifactId&gt;mssql-jdbc&lt;/artifactId&gt;
+    &lt;version&gt;10.2.0.jre8&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <p>If you install a non-default driver for MSSQL, make sure the JDBC driver is version 9.4+ to avoid getting the following error: "This driver is not configured for integrated authentication." Then set the filepath of the driver file <code>mssql-jdbc_auth-&lt;version&gt;.x64.dll</code> with the <code>PATH</code> environment variable. Place your non-default driver in the <code>liquibase/lib</code> directory.</p>
+        <h2>Test your connection</h2>
         <ol>
             <li>
-                <p>Ensure that you have set the <MadCap:variable name="General.Liquibase" /> <code>url</code> property in the <MadCap:variable name="General.Liquibase" /> properties file or with <MadCap:xref href="../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref>:</p><pre xml:space="preserve"><code class="language-text">jdbc:sqlserver://hostname;portNumber=1433;databaseName=databaseName;integratedSecurity=true;</code></pre>
-                <p>Replace <code>hostname</code> with your actual hostname and <code>databaseName</code> with your actual database name. You don't have to set <code>username</code> and <code>password</code> because the authentication is established on the operating system thread to access the SQL Server database.<br /></p>
+                <p>Ensure your MSSQL&#160;database is configured:</p>
+                <ol>
+                    <li>Ensure your SQL Server ports are open to communicate with the server.</li>
+                    <li>Ensure with your IT admin that an inbound firewall rule for SQL Server ports 1433 TCP/IP and 1434 UDP/IP is enabled.</li>
+                    <li>Restart the Server to take the new changes.</li>
+                </ol>
             </li>
-            <li>Ensure your SQL Server ports are open to communicate with the server.</li>
-            <li>Ensure with your IT admin that an inbound firewall rule for SQL Server ports 1433 TCP/IP and 1434 UDP/IP is enabled.</li>
-            <li>Restart the Server to take the new changes.</li>
+            <li>
+                <p>Specify the database URL in the <MadCap:variable name="General.Liquibase" /> properties file:</p><pre xml:space="preserve"><code class="language-text">url: jdbc:sqlserver://hostname;portNumber=1433;databaseName=databaseName;integratedSecurity=true;</code></pre>
+                <p>Replace <code>hostname</code> with your actual hostname and <code>databaseName</code> with your actual database name. You don't have to set <code>username</code> and <code>password</code> because the authentication is established on the operating system thread to access the SQL Server database.</p>
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
+            </li>
             <li>
                 <p>Create a new <MadCap:variable name="General.changelog" /> file called <code>myChangeLog.sql</code> with the following create table <code>salesTableZ</code> <MadCap:variable name="General.changeset" />:</p><pre><code class="language-sql">-- liquibase formatted sql
 -- changeset TsviZ:createTable_salesTableZ-1221
@@ -42,17 +48,13 @@ MARKET varchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 )
 --rollback DROP TABLE salesTableZ</code></pre>
             </li>
-        </ol>
-        <h2>Testing Your Connection</h2>
-        <ol>
+            <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/status/status.htm">status --verbose</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve"><code class="language-text">liquibase --username=test --password=test --changelog-file=&lt;changelog.xml&gt; status</code></pre>
             <li>
-                <p>Run the <MadCap:xref href="../../commands/status/verbose.htm">status --verbose</MadCap:xref> command to see whether the connection is successful. Specify the name of the <MadCap:variable name="General.changelog" /> you created in place of <code>changelog.xml</code>:</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=changelog.xml status</code></pre>
-                <p xml:space="preserve" class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Alternatively, you can add the <code>changelog-file</code><MadCap:variable name="General.Param/Attribute"></MadCap:variable> to the <MadCap:variable name="General.Liquibase" /> properties file.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can pass arguments in the&#160;CLI&#160;or keep them in the <MadCap:variable name="General.Liquibase" /> properties file.</p>
             </li>
-            <li>
-                <p>Run your first update with the <MadCap:variable name="General.Liquibase" /> <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command, which will make changes to your database. You can also run the <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref> command if you want to inspect the SQL before running the <code>update</code> command.</p><pre><code class="language-text">liquibase --changelog-file=changelog.xml update-sql
-liquibase --changelog-file=changelog.xml update</code></pre>
-            </li>
+            <li>Inspect the SQL&#160;with  the <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref> command. Then make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command:</li><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=&lt;changelog.xml&gt; update-sql
+liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
+            <li>From a database UI&#160;tool, ensure that your database contains the table you added along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</li>
         </ol>
         <p>For more information, including a list of supported commands and <MadCap:variable name="General.changetypes" />s in MSSQL, see <MadCap:xref href="mssql.html">Using [%=General.Liquibase%] with MSSQL</MadCap:xref>.</p>
         <h2>Related links</h2>

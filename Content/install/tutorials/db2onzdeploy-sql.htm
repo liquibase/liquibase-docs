@@ -1,32 +1,34 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title>Deploying Changes to DB2 on z/OS | Liquibase Docs</title>
-        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/db2onzdeploy-sql.html" />
+        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/db2onzdeploy-sql.html" />
         <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
         <meta name="description" content="This page guides you through the process of creating deploying changes to DB2 on z/OS." />
     </head>
     <body>
         <h1>Deploying Changes to DB2 on z/OS using SQL Scripts</h1>
-        <h2>Step 1: Create an SQL Folder</h2>
+        <h2>Step 1: Create a SQL folder</h2>
         <p>In the <MadCap:variable name="General.Liquibase" /> project folder that you created, create a folder named <code>sql_files</code>  to store SQL scripts that <MadCap:variable name="General.Liquibase" /> will track, version, and deploy.</p>
         <p>The directory structure should look like this:</p><pre><code class="language-text">$LB_HOME/db2_zos/sql_files</code></pre>
-        <h2>Step 2: Setup the <MadCap:variable name="General.changelog" /></h2>
-        <p>This is a one-time step to configure a change log to point to the SQL folder that will contain SQL scripts. Create and save a file in the <MadCap:variable name="General.Liquibase" /> project directory you created (<code>$LB_HOME/db2_zos</code>). The file should be named <code>db2zosChangeLog.xml</code>.</p>
-        <p>The contents of <code>db2zosChangeLog.xml</code> should be as follows:</p><pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+        <h2>Step 2: Set up the <MadCap:variable name="General.changelog" /></h2>
+        <p>This is a one-time step to configure a change log to point to the SQL folder that will contain SQL scripts. Create and save a file called <code>changelog.xml</code> in the <MadCap:variable name="General.Liquibase" /> project directory you created (<code>$LB_HOME/db2_zos</code>).</p>
+        <p>The contents of <code>changelog.xml</code> should be as follows:</p><pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 <MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />	
 &lt;includeAll path="sql_files"/&gt;
 &lt;/databaseChangeLog&gt;</code></pre>
         <h2>Step 3: Add an SQL Script to the SQL Folder</h2>
-        <p>With a <MadCap:variable name="General.Liquibase" /> properties file, like <MadCap:variable name="General.liquiPropFile" /> from the tutorial setup and the newly created <code>db2zosChangeLog.xml</code>, we are now ready to start adding SQL scripts to the <code>sql_files</code> folder. <MadCap:variable name="General.Liquibase" /> orders the scripts in the folder alphanumerically.</p>
+        <p>With a <MadCap:variable name="General.Liquibase" /> properties file, like <MadCap:variable name="General.liquiPropFile" /> from the tutorial setup and the newly created <code>changelog.xml</code>, we are now ready to start adding SQL scripts to the <code>sql_files</code> folder. <MadCap:variable name="General.Liquibase" /> orders the scripts in the folder alphanumerically.</p>
         <p>Create a file named <code>001_create_person_table.sql</code> with the following and save it in the <code>sql_files</code> folder:</p><pre><code class="language-sql">create table PERSON (
 ID int not null,
 FNAME varchar(100) not null
 );</code></pre>
-        <p>We are now ready to deploy the script! Open the command line and navigate to <code>$LB_HOME/db2_zos</code>. Run <code>$LB_HOME/liquibase update</code> if on a UNIX system or <code>$LB_HOME\liquibase.bat update</code> if on Windows.</p>
-        <p>You will see that your database now contains a table called <code>PERSON</code>.</p>
-        <h2>Step 4: Check your Database</h2>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/database-tracking-tables.flsnp" />
-        <h2>Common Command Line Arguments</h2>
+        <h2>Step 4: Check your database</h2>
+        <p>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/status/status.htm">status --verbose</MadCap:xref> command to see whether the connection is successful:</p><pre xml:space="preserve"><code class="language-text">liquibase --username=test --password=test --changelog-file=&lt;changelog.xml&gt; status</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can pass arguments in the&#160;CLI&#160;or keep them in the <MadCap:variable name="General.Liquibase" /> properties file.</p>
+        <p>Inspect the SQL&#160;with the <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref> command. Then make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command:</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=&lt;changelog.xml&gt; update-sql
+liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
+        <p>From a database UI&#160;tool, ensure that your database contains the table you added along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</p>
+        <h2>Common command line arguments</h2>
         <p>Use can use command line arguments to override the default options at runtime. The following are common command line arguments:</p>
         <table style="width: 100%;margin-left: auto;margin-right: auto;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
             <col class="TableStyle-TableStyles-Column-Column1" />

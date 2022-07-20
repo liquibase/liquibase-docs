@@ -1,149 +1,123 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head>
         <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" /><title>Using Liquibase with Impala/Hive | Liquibase Docs</title>
-        <meta rel="canonical" href="https://docs.liquibase.com/workflows/database-setup-tutorials/apache-derby.html" />
+        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/impala-hive.html" />
         <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Impala/Hive." />
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with Impala/Hive</h1>
-        <table style="margin-left: auto;margin-right: auto;">
-            <col style="width: 98px;" />
-            <col style="width: 300px;" />
-            <tbody>
-                <tr>
-                    <td style="text-align: center;">
-                        <img src="../../Z_Resources/Images/community-members/EvgeniiSeliavka.jpg" />
-                    </td>
-                    <td><b>Written by: </b><a href="https://www.linkedin.com/in/eseliavka" style="font-weight: bold;">Evgenii Seliavka</a><![CDATA[
-                    ]]></td>
-                </tr>
-            </tbody>
-        </table>
-        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project for Impala/Hive. In this tutorial, you will learn how to install the required database drivers and configure the <MadCap:variable name="General.Liquibase" /> properties file to establish a database connection to Impala/Hive.</p>
-        <p>Support for Impala/Hive is provided via a <MadCap:variable name="General.Liquibase" /> extension. The extension provides basic database operations including:</p>
+        <p>Apache Impala is an open source massively parallel processing (MPP) database for Apache Hadoop. For more information, see <a href="https://impala.apache.org/">Apache Impala Documentation</a>.</p>
+        <p>Apache Hive is a data warehouse that queries distributed data integrated with Apache Hadoop. For more information, see <a href="https://hive.apache.org/">Apache Hive Documentation</a>.</p>
+        <p>Support for Impala/Hive is provided via a <MadCap:variable name="General.Liquibase" /> extension. The extension provides basic database operations, including DML and DDL statements.</p>
+        <h2>Supported versions</h2>
         <ul>
-            <li>DML statements</li>
-            <li>DDL statements</li>
+            <li>Impala: 2.6.4</li>
+            <li>Hive: 2.6.2</li>
         </ul>
         <h2>Prerequisites</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
+        <h2>Install drivers</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Impala/Hive, you need:</p>
         <ul>
-            <li>Ensure that you have <a href="../liquibase-windows.htm">Installed [%=General.Liquibase%]</a>.</li>
-            <li>Ensure that the <MadCap:variable name="General.Liquibase" /> executable location is in the <code>PATH</code> environment variable.</li>
-        </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"> We will refer to the location of the <MadCap:variable name="General.Liquibase" /> executable as <code>$LIQUIBASE_HOME</code> in this tutorial.</p>
-        <ul>
-            <li><![CDATA[
-                ]]><a href="https://www.cloudera.com/downloads/connectors/impala/jdbc/2-6-4.html">Download the Impala JDBC driver</a>.</li>
-            <li><![CDATA[
-                ]]><a href="https://www.cloudera.com/downloads/connectors/hive/jdbc/2-6-2.html">Download the Hive JDBC driver</a>.</li>
-            <li><![CDATA[
-                ]]><a href="https://github.com/eselyavka/liquibase-impala">Download the <MadCap:variable name="General.Liquibase" /> extension for Impala/Hive</a>.</li>
-        </ul>
-        <h2>Tutorial</h2>
-        <p>Before you can start with database update you have to build a Impala/Hive <MadCap:variable name="General.Liquibase" /> plugin,  you must use <a href="https://maven.apache.org/">Maven</a> and perform several prerequisites steps:</p>
-        <ul>
-            <li>Upload Impala/Hive JDBC driver to you local maven repository with the following command:</li><pre><code class="language-text">mvn install:install-file -Dfile=${file} -DgroupId=${groupId} -DartifactId=${artifactId} -Dversion=${version} -Dpackaging=jar</code></pre>
-        </ul>
-        <p>Where:</p>
-        <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
-            <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
-            <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
-            <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
-            <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">file</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">groupid</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">artifactid</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">version</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>ImpalaJDBC41.jar</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>com.cloudera.impala.jdbc</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>ImpalaJDBC41</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">2.6.4</td>
-                </tr>
-                <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>HiveJDBC41.jar</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>com.cloudera.hive.jdbc</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>HiveJDBC41</code>
-                    </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">2.6.2</td>
-                </tr>
-            </tbody>
-        </table>
-        <ul>
-            <li>
-                (optional, but recommended) Deploy the above artifacts to an internal, private Maven repository such as Nexus or Artifactory, for subsequent use
+            <li><a href="https://www.cloudera.com/downloads/connectors/impala/jdbc/2-6-27.html">The Impala JDBC driver JAR&#160;file</a>
             </li>
-            <li>
-                Build <code>liquibase-impala</code> by executing <code>mvn clean install</code>. This will install liquibase-impala in your local Maven repository and create a <code>liquibase-impala.jar fat-jar</code> in the <code>target</code> directory.           </li>
-            <li>
-                (optional, but recommended) Deploy <code>liquibase-impala</code> to your internal, private Maven repository.            </li>
+            <li><a href="https://www.cloudera.com/downloads/connectors/hive/jdbc/2-6-19.html">The Hive JDBC driver JAR file</a>
+            </li>
+            <li><a href="https://github.com/eselyavka/liquibase-impala">The <MadCap:variable name="General.Liquibase" /> extension for Impala/Hive</a>
+            </li>
         </ul>
-        <p>After all the above steps were been completed you have to build extension with the command below, from the extension project directory root:</p><pre><code class="language-text">mvn clean package</code></pre>
-        <p>By default, this will create a fat-jar under the target folder with the name <code>liquibase-impala.jar</code>, which includes both JDBC drivers, so you no need to copy JDBC drivers to the <code>liquibase/lib</code> folder, <code>liquibase-impala.jar</code> is self sufficient.</p>
-        <p>To configure a <MadCap:variable name="General.Liquibase" /> project for Impala/Hive, perform the following steps:</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorialsDriver.Not pre-installed&quot;]" />
+        <p>Impala:</p><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;com.cloudera.impala.jdbc&lt;/groupId&gt;
+    &lt;artifactId&gt;ImpalaJDBC41&lt;/artifactId&gt;
+    &lt;version&gt;2.5.41&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <p>Hive:</p><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.hive&lt;/groupId&gt;
+    &lt;artifactId&gt;hive-jdbc&lt;/artifactId&gt;
+    &lt;version&gt;3.1.3&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h3>Maven Fat JAR</h3>
+        <p>To bundle the Impala and Hive driver JAR files into a single Fat JAR, follow these steps:</p>
         <ol>
-            <li>
-                Install the <MadCap:variable name="General.Liquibase" /> extension.
-            </li>
+            <li>Upload the Impala/Hive JDBC driver to your local maven repository with the following command:</li><pre><code class="language-text">mvn install:install-file -Dfile=${file} -DgroupId=${groupId} -DartifactId=${artifactId} -Dversion=${version} -Dpackaging=jar</code></pre>
+            <p>Where:</p>
+            <table style="mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');margin-left: auto;margin-right: auto;" class="TableStyle-TableStyles" cellspacing="0">
+                <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
+                <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
+                <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
+                <col class="TableStyle-TableStyles-Column-Column1" style="width: 300px;" />
+                <thead>
+                    <tr class="TableStyle-TableStyles-Head-Header1">
+                        <th class="TableStyle-TableStyles-HeadE-Column1-Header1">file</th>
+                        <th class="TableStyle-TableStyles-HeadE-Column1-Header1">groupid</th>
+                        <th class="TableStyle-TableStyles-HeadE-Column1-Header1">artifactid</th>
+                        <th class="TableStyle-TableStyles-HeadD-Column1-Header1">version</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="TableStyle-TableStyles-Body-Body1">
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>ImpalaJDBC41.jar</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>com.cloudera.impala.jdbc</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>ImpalaJDBC41</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyD-Column1-Body1">2.5.41</td>
+                    </tr>
+                    <tr class="TableStyle-TableStyles-Body-Body2">
+                        <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>HiveJDBC41.jar</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>com.cloudera.hive.jdbc</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><code>HiveJDBC41</code>
+                        </td>
+                        <td class="TableStyle-TableStyles-BodyA-Column1-Body2">3.1.3</td>
+                    </tr>
+                </tbody>
+            </table>
+            <li>(Recommended) Deploy the above artifacts to an internal, private Maven repository such as Nexus or Artifactory.</li>
+            <li>Run <code>mvn clean install</code>. This installs <code>liquibase-impala</code> in your local Maven repository and creates a <code>liquibase-impala.jar</code> Fat JAR in the <code>target</code> directory.</li>
+            <li>(Recommended) Deploy <code>liquibase-impala</code> to your internal, private Maven repository.</li>
+            <li>From the root folder of the extension project directory, build the extension with this command:</li><pre><code class="language-text">mvn clean package</code></pre>
         </ol>
-        Copy the extension jar file into the <code>$LIQUIBASE_HOME/lib</code> directory.
-        <ol MadCap:continue="true">
-			<li>Create a project folder.</li>
-		</ol>The project folder stores the <MadCap:variable name="General.Liquibase" /> configuration files and <MadCap:variable name="General.changelog" />s.<ol MadCap:continue="true">
-				<li>Create a <MadCap:variable name="General.Liquibase" /> properties file, such as <code><MadCap:variable name="General.liquiPropFile" /></code>, and save it to the project folder.</li>
-			</ol><MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-liquibase-properties.flsnp" /><p>The properties file must contain the following properties:</p><ul><li>Impala:</li></ul><pre><code class="language-text">changelog-file: db.changelog.xml
-driver: com.cloudera.impala.jdbc41.Driver
-url: jdbc:impala://localhost:21050/impala_test
-classpath: ../../Liquibase_ExtJars/liquibase-impala.jar</code></pre><ul><li>Hive:</li></ul><pre><code class="language-text">changelog-file: db.changelog.xml
-driver: com.cloudera.hive.jdbc41.HS2Driver
-url: jdbc:hive2://localhost:10000/hive_test;UID=eselyavka;UseNativeQuery=1
-classpath: ../../Liquibase_ExtJars/liquibase-impala.jar</code></pre><p>Use the following format for the URL property:</p><pre><code class="language-text">jdbc:databaseXYZ://&lt;server&gt;/&lt;full_db_path&gt;</code></pre><ul><li>If you placed the jar files in the <code>liquibase/lib</code> install directory, do not specify the classpath property in the <MadCap:variable name="General.Liquibase" /> properties file. Otherwise, specify the path to the extension as shown in the preceding example.</li><li>To apply a <MadCap:variable name="General.LBPro" /> key to your project, add the following property to the <MadCap:variable name="General.Liquibase" /> properties file:</li></ul><pre><code class="language-html">liquibaseProLicenseKey: &lt;paste license key&gt;</code></pre><ol MadCap:continue="true"><li><p>Create a <code>dbchangelog.xml</code> file in the project folder.</p></li></ol><p>The <MadCap:variable name="General.changelog" /> files contain a sequence of <MadCap:variable name="General.changeset" />s, each of which makes small changes to the structure of your database. For more information, see <MadCap:xref href="../../concepts/changelogs/working-with-changelogs.html">Working with [%=General.changelog%]s</MadCap:xref>.</p><p><MadCap:variable name="General.Liquibase" /> provides a <MadCap:variable name="General.changelog" /> template located at <code>$LIQUIBASE_HOME/examples/xml/blank.changelog.xml</code>.</p><p>Copy the <code>blank.changelog.xml</code> file to the project folder and rename it to <code>dbchangelog.xml</code>.</p><p>The contents of the <MadCap:variable name="General.changelog" /> resemble what is shown here. Each version of <MadCap:variable name="General.Liquibase" /> features an updated XML schema, so make sure to use the one that matches the version of <MadCap:variable name="General.Liquibase" /> you have installed.</p><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-<MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
-		
-&lt;changeSet author="eselyavka" id="create-table-example"&gt;
-	&lt;createTable  tableName="person"&gt;
-	&lt;column  name="firstname"  type="STRING"/&gt;
-	&lt;column  name="lastname"  type="STRING"/&gt;
-	&lt;/createTable&gt;
-&lt;/changeSet&gt;
-
-&lt;changeSet author="eselyavka" id="insert-example"&gt;
-	&lt;insert tableName="person"&gt;
-	&lt;column name="firstname" value="Foo"/&gt;
-	&lt;column  name="lastname"  value="Bar"/&gt;
-	&lt;/insert&gt;
-&lt;/changeSet&gt;
-
-&lt;/databaseChangeLog&gt;</code></pre><ol MadCap:continue="true"><li>Verify the project configuration</li></ol><p>Run the <MadCap:variable name="General.Liquibase" /> status command to verify that the configuration is complete.</p><p>Open a command prompt and navigate to the project folder. Run the command as shown below.</p><pre><code class="language-text">[19:41:04][0][eselyavka@ThinkPad-T510:~]$ /opt/liquibase/liquibase status
-Liquibase Community 3.10.3 by Datical
-####################################################
-##   _     _             _ _                      ##
-##  | |   (_)           (_) |                     ##
-##  | |    _  __ _ _   _ _| |__   __ _ ___  ___   ##
-##  | |   | |/ _` | | | | | '_ \ / _` / __|/ _ \  ##
-##  | |___| | (_| | |_| | | |_) | (_| \__ \  __/  ##
-##  \_____/_|\__, |\__,_|_|_.__/ \__,_|___/\___|  ##
-##              | |                               ##
-##              |_|                               ##
-##                                                ##
-##  Get documentation at docs.liquibase.com       ##
-##  Get certified courses at learn.liquibase.com  ##
-##  Get advanced features and support at          ##
-##      liquibase.com/protrial                    ##
-##                                                ##
-####################################################
-Starting Liquibase at Thu, 22 Oct 2020 19:41:10 PDT (version 3.10.3 #32 built at Mon Oct 12 07:24:42 UTC 2020)
-2 change sets have not been applied to User@jdbc:impala://localhost:21050/impala_test
-Liquibase command 'status' was executed successfully.</code></pre><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Check the corresponding JDBC URL for Impala which should start with <code>User@jdbc:impala</code>. For Hive it is: <code>User@jdbc:hive2</code>.</p><ol MadCap:continue="true"><li><p>Generate and execute SQL</p></li></ol><p>Open the command prompt, navigate to the project directory, and then run the following command to get the SQL output of the <MadCap:variable name="General.changelog" />s:</p><pre><code class="language-text">liquibase update-sql</code></pre><p>To execute the <MadCap:variable name="General.changeset" /> in your schema, run the following:</p><pre><code class="language-text">liquibase update</code></pre><ol MadCap:continue="true"><li>Verify that the tables have been created</li></ol><p>From an impala-shell/beeline CLI tool, check your database changes. You will see a new person and table added to the database. For example:</p><pre><code class="language-text">impala-shell --quiet -i localhost -d impala_test -q "SELECT * FROM person;"</code></pre><p><img src="../../Z_Resources/Images/Screenshots/workflows/impala-person-data.png" /></p><pre><code class="language-text">beeline --silent=true -u jdbc:hive2://localhost:10000/hive_test -n "$(whoami)" -e  "SELECT * FROM PERSON;"</code></pre><p><img src="../../Z_Resources/Images/Screenshots/workflows/hive-data2.png" /></p><ol MadCap:continue="true"><li>Verify that the <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tables were created.</li></ol><p>Using an impala-shell/beeline CLI tool, you should see the new <MadCap:variable name="General.Liquibase" /> tables.</p><pre><code class="language-text">impala-shell --quiet -i localhost -d impala_test -q "SHOW TABLES"</code></pre><p><img src="../../Z_Resources/Images/Screenshots/workflows/impala-liquibase-tables3.png" /></p><pre><code class="language-text">beeline --silent=true -u jdbc:hive2://localhost:10000/hive_test -n "$(whoami)" -e  "SHOW TABLES;"</code></pre><p><img src="../../Z_Resources/Images/Screenshots/workflows/hive-tables4.png" /></p><MadCap:snippetBlock src="../../Z_Resources/Snippets/def/database-tracking-tables.flsnp" /><h2>Congratulations!</h2><p>You have successfully configured your project and can begin creating <MadCap:variable name="General.changeset" />s to migrate changes to your database.</p><h2>See also</h2><ul><li><a href="https://impala.apache.org/impala-docs.html" style="font-weight: bold;">Impala documentation</a></li><li><a href="https://hive.apache.org/" style="font-weight: bold;">Hive documentation</a></li><li><MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref></li><li><MadCap:xref href="../../commands/home.htm">Liquibase Commands</MadCap:xref></li></ul></body>
+        <p>By default, this creates a Fat JAR called <code>liquibase-impala.jar</code> in the target folder that include both the Impala and Hive JDBC drivers. If you use the Fat JAR, you do not also need to copy the individual JDBC drivers to the <code>liquibase/lib</code> folder.</p>
+        <h2>Test your connection</h2>
+        <ol>
+            <li>Ensure your Impala/Hive database is configured. See <a href="https://impala.apache.org/docs/build/html/topics/impala_config_performance.html">Post-Installation Configuration for Impala</a> and <a href="https://cwiki.apache.org/confluence/display/Hive//GettingStarted#GettingStarted-ConfigurationManagementOverview">Configuration Management Overview for Hive</a> for more information.</li>
+            <li>
+                <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
+            </li><pre xml:space="preserve"><code class="language-text">url: jdbc:impala://localhost:21050/impala_test
+url: jdbc:hive2://localhost:10000/hive_test;UID=your_uid;UseNativeQuery=1</code></pre>
+            <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
+        </ol>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog-test-connection.flsnp" />
+        <p>For example, using <code>impala-shell</code> or <code>beeline</code> in the CLI:</p><pre><code class="language-text">impala-shell --quiet -i localhost -d impala_test -q "SELECT * FROM person;"</code></pre>
+        <p>
+            <img src="../../Z_Resources/Images/Screenshots/workflows/impala-person-data.png" />
+        </p><pre><code class="language-text">beeline --silent=true -u jdbc:hive2://localhost:10000/hive_test -n "$(whoami)" -e  "SELECT * FROM PERSON;"</code></pre>
+        <p>
+            <img src="../../Z_Resources/Images/Screenshots/workflows/hive-data2.png" />
+        </p><pre><code class="language-text">impala-shell --quiet -i localhost -d impala_test -q "SHOW TABLES"</code></pre>
+        <p>
+            <img src="../../Z_Resources/Images/Screenshots/workflows/impala-liquibase-tables3.png" />
+        </p><pre><code class="language-text">beeline --silent=true -u jdbc:hive2://localhost:10000/hive_test -n "$(whoami)" -e  "SHOW TABLES;"</code></pre>
+        <p>
+            <img src="../../Z_Resources/Images/Screenshots/workflows/hive-tables4.png" />
+        </p>
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://impala.apache.org/impala-docs.html" style="font-weight: bold;">Impala documentation</a>
+            </li>
+            <li><a href="https://hive.apache.org/" style="font-weight: bold;">Hive documentation</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">Liquibase Commands</MadCap:xref>
+            </li>
+        </ul>
+    </body>
 </html>

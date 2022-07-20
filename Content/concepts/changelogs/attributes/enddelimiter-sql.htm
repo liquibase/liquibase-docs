@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>endDelimiter SQL attribute | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/changelogs/attributes/enddelimiter-sql.html" />
+        <meta name="description" content="Reference information for the endDelimiter SQL attribute. The endDelimiter SQL attribute is generally used to prevent incomplete SQL statements from being processed when the SQL files contain objects referencing a ';' which Liquibase treats as the default end delimiter." />
+    </head>
+    <body>
+        <h1><code>endDelimiter</code> SQL <MadCap:variable name="General.Param/Attribute" /></h1>
+        <p>The <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /> can be set in a <code>sql</code> or <code>sqlFile</code> <MadCap:variable name="General.changetypes" /> to override the default value of <code>;</code>.  The <code>endDelimiter</code> can be set to <code>''</code> or to a character other than <code>;</code> to indicate the end of the SQL statement. The <MadCap:variable name="General.Param/Attribute" /> is generally used to prevent incomplete SQL statements from being processed when the SQL files contain statements referencing a <code>;</code> which <MadCap:variable name="General.Liquibase" /> treats as the default end delimiter.</p>
+        <p>A corresponding <code>rollbackEndDelimiter</code> applies specifically to rollback for <code>sql</code> and <code>sqlFile</code> <MadCap:variable name="General.changetypes" />s.</p>
+        <p>The <code>endDelimiter</code> can also be set in the <MadCap:variable name="General.Liquibase" /> properties file by setting <code>delimiter=&lt;string&gt;</code>.</p>
+        <MadCap:snippetBlock src="../../../Resources/Snippets/Changeset Attribute Case Format.flsnp" />
+        <h2>Uses</h2>
+        <p>The following examples demonstrate use of the <code>endDelimiters</code> SQL attribute:</p>
+        <h3>Use <code>endDelimiter</code> in SQL for <code>PROCEDURE</code> and <code>FUNCTION</code></h3>
+        <p>An <code>endDelimiter</code> can be used when the <MadCap:variable name="General.changeset" /> contains SQL to create a stored procedure or function that contains the default <code>';'</code> end delimiter.  To avoid incomplete statements being sent to the database, the <MadCap:variable name="General.changeset" /> must be marked to have a different <code>endDelimiter</code>.</p>
+        <h3>Use <code>endDelimiter</code> for some DBMS systems to run multiple statements</h3>
+        <p>The <code>endDelimiter</code> must be specified for some dbms systems to run multiple statements.</p>
+        <h2>Setting the <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /></h2>
+        <h3>Escaping an <code>endDelimiter</code></h3>
+        <p>When setting an <code>endDelimiter</code>, note that certain DBMS and operating systems require delimiter values to be escaped.  For example, a <code>$$</code> <code>endDelimiter</code> with <code>mysql</code> requires escaping as: <code>endDelimiter="\$\$"</code>. A <MadCap:variable name="General.Liquibase" /> migration error indicates the delimiter that needs to be escaped would be:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: Migration failed for change set &lt;changelog&gt;::&lt;id&gt;::&lt;author&gt;:
+ Reason: liquibase.exception.DatabaseException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '$$$</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>SQL example of a <MadCap:variable name="General.changeset" /> using an <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /></MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql"> --liquibase formatted sql
+
+--changeset your.name:101 endDelimiter:/
+CREATE FUNCTION calcProfit2(cost FLOAT, price FLOAT) 
+RETURNS DECIMAL(9,2)
+DETERMINISTIC
+BEGIN
+  DECLARE profit DECIMAL(9,2);
+  SET profit = price-cost;
+  RETURN profit;
+  END
+  /
+
+CREATE FUNCTION calcProfit3(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,3)
+DETERMINISTIC
+BEGIN
+DECLARE profit DECIMAL(9,3);
+SET profit = price-cost;
+RETURN profit;
+END
+/ </code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example of a <MadCap:variable name="General.changeset" /> using an <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /></MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+  &lt;changeSet author="your.name" id="sql-example"&gt;
+    &lt;sql dbms="mysql" splitStatements="true" endDelimiter="/" stripComments="true"&gt;
+      DROP FUNCTION IF EXISTS calcProfit;
+      /
+      CREATE FUNCTION calcProfit(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2)
+      DETERMINISTIC
+      BEGIN
+        DECLARE profit DECIMAL(9,2);
+        SET profit = price-cost;
+        RETURN profit;
+      END
+      /
+    &lt;/sql&gt;
+  &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>YAML example of a <MadCap:variable name="General.changeset" /> using an <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /></MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+ -  changeSet:
+ id:  1001
+ author:  your.name
+ changes:
+  -  sql:
+     endDelimiter: "@@"
+     splitStatements: true
+     sql: DROP FUNCTION IF EXISTS calcProfit9; @@ CREATE FUNCTION calcProfit9(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2) DETERMINISTIC BEGIN DECLARE profit DECIMAL(9,2); SET profit = price-cost; RETURN profit; END @@
+     stripComments: true</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>JSON example of a <MadCap:variable name="General.changeset" /> using an <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /></MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+   "databaseChangeLog":[
+      {
+        "changeSet":{
+            "id":"1001",
+            "author":"your.name",
+            "changes":[
+               {
+                  "sql":{
+                    "endDelimiter":"@@",
+                    "dbms":"mysql",
+                    "splitStatements":true,
+                    "sql":"DROP FUNCTION IF EXISTS calcProfit;\n@@\nCREATE FUNCTION calcProfit(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2)\nDETERMINISTIC\nBEGIN\nDECLARE profit DECIMAL(9,2);\nSET profit = price-cost;\nRETURN profit;\nEND\n@@",
+  "stripComments":true
+             }
+           }
+         ] 
+       }
+     }
+   ]
+ }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

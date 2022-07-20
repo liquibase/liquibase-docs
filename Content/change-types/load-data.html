@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title>loadData | Liquibase Docs</title>
         <meta rel="canonical" href="https://docs.liquibase.com/change-types/load-data.html" />
@@ -17,14 +17,29 @@
         </ul>
         <p>Once the date format string is set, <MadCap:variable name="General.Liquibase" /> will then call the <code>SimpleDateFormat.parse()</code> method attempting to parse the input string so that it can return a date/time. If problems occur, then a <code>ParseException</code> is thrown and the input string is treated as a <code>String</code> for the <code>INSERT</code> command to be generated.
 If UUID type is used, UUID value is stored as string and NULL in cell is supported.</p>
-        <h2>Loading data with the <code>loadData</code> tag</h2>
+        <h3>Non-ISO&#160;date format</h3>
+        <p>To use a non-ISO&#160;format for your dates:</p>
+        <ol>
+            <li>Ensure you are using <MadCap:variable name="General.Liquibase" /> 4.40 or later.</li>
+            <li>Add an <code>ALTER&#160;SESSION</code> command in SQL&#160;to your <MadCap:variable name="General.changeset" />.</li>
+            <li>Specify the <code>DATE</code>&#160;type in the affected columns of your <code>loadData</code>&#160;<MadCap:variable name="General.changeset" />.</li>
+        </ol>
+        <p>For example, in an Oracle database using <code>MM/DD/YYYY HH:MI:SS AM</code>:</p><pre xml:space="preserve"><code class="language-text">&lt;changeSet author="Liquibase" id="0"&gt;
+    &lt;sql&gt;
+        ALTER SESSION SET NLS_DATE_FORMAT = 'MM/DD/YYYY HH:MI:SS AM';
+    &lt;/sql&gt;
+    &lt;loadData&gt;
+        &lt;column name="EXPIRATION_DATE" type="DATE 'MM/DD/YYYY HH:MI:SS AM'"/&gt;
+    &lt;/loadData&gt;
+&lt;changeSet&gt;</code></pre>
+        <h2>Load data with the <code>loadData</code> tag</h2>
         <p>All CSV columns are used by default while generating SQL even if they are not described in columns property. If you want to skip the specific headers in the CSV file, use type property with a skip value.</p>
         <p>Imagine that you have a table where <code>a</code>,<code>b</code>,<code>c</code> are column names, and <code>1</code>,<code>2</code>,<code>3</code> are values. To load only <code>a</code> and <code>b</code> columns, add a column configuration for it and set its type to "skip":</p><code>&lt;column name="c" header="c" type="skip" /&gt;</code>
         <p>If you use the <MadCap:xref href="../commands/snapshot/generate-changelog.html">generate-changelog</MadCap:xref> command to re-create the current state of the database and receive the output of this data as the CSV file in a specific directory, add <code>dataOutputDirectory</code> where the CSV file with the insert statements will be kept:</p><pre><code class="language-text">liquibase --diffTypes=tables,functions,views,columns,indexes,foreignkeys,primarykeys,uniqueconstraints,data,storedprocedures,triggers,sequences --dataOutputDirectory=data generate-changelog</code></pre>
         <p>If you don't use the <code>--dataOutputDirectory</code> flag while running the command or the <code>loadData</code> tag added in the <MadCap:variable name="General.changelog" />, you will have the insert statements in your <MadCap:variable name="General.changelog" />:</p><pre><code class="language-text"> liquibase --diffTypes=tables,functions,views,columns,indexes,foreignkeys,primarykeys,uniqueconstraints,data,storedprocedures,triggers,sequences --changelog-file=myChangelog.xml generate-changelog</code></pre>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>An example of the <MadCap:variable name="General.changelog" /> with the insert statements:</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot>Example <MadCap:variable name="General.changelog" /> with insert statements:</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre><code class="language-xml"> 
 &lt;changeSet author="support.liquibase.net (generated)" id="1595949192529-5"&gt;
@@ -438,28 +453,34 @@ If no <code>column</code> is defined at all, the type is taken from a database. 
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">SQL Server</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Snowflake</td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><b>Supported</b>
                     </td>
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body1">No</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">SQLite</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">SQL Server</td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><b>Supported</b>
                     </td>
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Sybase</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">SQLite</td>
                     <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><b>Supported</b>
                     </td>
                     <td class="TableStyle-TableStyles-BodyD-Column1-Body1">No</td>
                 </tr>
                 <tr class="TableStyle-TableStyles-Body-Body2">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2">Sybase Anywhere</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body2"><b>Supported</b>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2">Sybase</td>
+                    <td class="TableStyle-TableStyles-BodyE-Column1-Body2"><b>Supported</b>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body2">No</td>
+                    <td class="TableStyle-TableStyles-BodyD-Column1-Body2">No</td>
+                </tr>
+                <tr class="TableStyle-TableStyles-Body-Body1">
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">Sybase Anywhere</td>
+                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><b>Supported</b>
+                    </td>
+                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">No</td>
                 </tr>
             </tbody>
         </table>
