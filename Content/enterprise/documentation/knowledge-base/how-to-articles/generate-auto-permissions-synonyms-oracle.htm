@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Generate Auto Permissions or Synonyms for Oracle Using a Custom Script</h1>
+        <h1 id="HowTo:GenerateAutoPermissionsorSynonymsforOracleUsingaCustomScript-Overview">Overview</h1>
+        <p>There may be situations where the built-in Auto Permission and Auto Synonym rules for Oracle cannot handle the complex logic required by an application. For example, the requirement may be to grant SELECT for all tables beginning with a certain prefix. This functionality can be accomplished by creating a custom script that will generate the grants according to the requirements. Then create a changeset that is executed at the end of every deployment to run the script.</p>
+        <h3 id="HowTo:GenerateAutoPermissionsorSynonymsforOracleUsingaCustomScript-Step1–CreateaScripttoPerformGrantOperations">Step 1 – Create a Script to Perform Grant Operations</h3>
+        <p>Create a script that will generate the desired grant or synonym statements. The script can utilize change log properties (<a href="../../../DDOC/pages/Setting_Properties_in_the_Project_Changelog.htm">Setting Properties in the Project Changelog</a> ) to customize values for different steps in the pipeline. The following is an example of a script to grant privileges to an Application User for all tables in a specified schema that are named “ABC_%”. The criteria for APPUSER will be specified by properties from the project changelog.  </p>
+        <p>Save the script to a location outside the SQL SCM for the Datical Project since we will manually add the changeset to the changelog.</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">declare
+  v_statement varchar2(512);
+  errbuf varchar2(2400);
+  cursor grants is
+  select o.owner, o.object_name
+  from dba_objects o
+  where o.owner = '${TAB_OWNER}'
+  and o.object_type = 'TABLE'
+  and object_name like 'ABC_%'
+  minus
+  select owner, table_name  /* exclude objects that have grants */
+  from dba_tab_privs
+  where grantee = '${APPUSER}'
+  and owner = '${TAB_OWNER}'
+  and privilege='SELECT';
+begin
+-- Create Grants
+  for obj in grants loop
+    v_statement := 'grant select on '||obj.owner || '.' ||obj.object_name ||' to ${APPUSER}';
+    begin
+    execute immediate v_statement;
+    exception
+    when others then
+      errbuf := sqlerrm;
+      dbms_output.put_line('Error occurred during grant');
+      dbms_output.put_line(v_statement);
+      dbms_output.put_line(errbuf);
+    end;
+  end loop;
+end;
+/</pre>
+            </div>
+        </div>
+        <p />
+        <h3 id="HowTo:GenerateAutoPermissionsorSynonymsforOracleUsingaCustomScript-Step2–CreateChangelogPropertiesforReplacementVariables">Step 2 – Create Changelog Properties for Replacement Variables</h3>
+        <p>If the script requires different values based upon context or labels, create the required properties. Go the Project Settings in the Datical GUI and select Manage Properties.</p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="204" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/ChangeLogProperties.png?version=1&amp;modificationDate=1597159981931&amp;cacheVersion=1&amp;api=v2&amp;width=204&amp;height=160" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/ChangeLogProperties.png?version=1&amp;modificationDate=1597159981931&amp;cacheVersion=1&amp;api=v2&amp;width=373&amp;height=294 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/ChangeLogProperties.png?version=1&amp;modificationDate=1597159981931&amp;cacheVersion=1&amp;api=v2&amp;width=204&amp;height=160 1x" /></span>
+        <p>Add the properties to be used by the script along with the Context or Label where the property value should be applied. Within the script specify the Property Key using the syntax ${property_key}.  </p><span class="confluence-embedded-file-wrapper image-center-wrapper"><img class="confluence-embedded-image image-center" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/1552089135/image-20200402-224922.png?version=1&amp;modificationDate=1597159981735&amp;cacheVersion=1&amp;api=v2" /></span>
+        <h3 id="HowTo:GenerateAutoPermissionsorSynonymsforOracleUsingaCustomScript-Step3–AddtheChangeSettotheChangeLog">Step 3 – Add the ChangeSet to the ChangeLog</h3>
+        <p>From the Datical GUI, Select “Add a Change Set”.  </p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="102" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/AddAChangeSet.png?version=1&amp;modificationDate=1597159981561&amp;cacheVersion=1&amp;api=v2&amp;width=102&amp;height=196" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/AddAChangeSet.png?version=1&amp;modificationDate=1597159981561&amp;cacheVersion=1&amp;api=v2&amp;width=204&amp;height=392 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/AddAChangeSet.png?version=1&amp;modificationDate=1597159981561&amp;cacheVersion=1&amp;api=v2&amp;width=102&amp;height=196 1x" /></span>
+        <p />
+        <p>Scroll down and select the “Execute a SQL script file using JDBC”/“Custom SQL (External File)” change type. Note that “Execute a SQL script file using JDBC” is the newer name in versions 7.9 or higher, and “Custom SQL (External File)” is the older name for the same change type in versions 7.8 or lower.</p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="204" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/ExternalFile.png?version=1&amp;modificationDate=1597159981412&amp;cacheVersion=1&amp;api=v2&amp;width=204&amp;height=114" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/ExternalFile.png?version=1&amp;modificationDate=1597159981412&amp;cacheVersion=1&amp;api=v2&amp;width=275&amp;height=155 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1552089135/ExternalFile.png?version=1&amp;modificationDate=1597159981412&amp;cacheVersion=1&amp;api=v2&amp;width=204&amp;height=114 1x" /></span>
+        <p>Browse to select the file. Deselect Split Statements.  </p><span class="confluence-embedded-file-wrapper image-center-wrapper"><img class="confluence-embedded-image image-center" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/1552089135/auto_table_grants.PNG?version=1&amp;modificationDate=1597159981227&amp;cacheVersion=1&amp;api=v2" /></span>
+        <p>On the next screen select Finalize.</p>
+        <div class="panel conf-macro output-block" style="background-color: #EAE6FF;border-color: #998DD9;border-width: 1px;">
+            <div class="panelContent" style="background-color: #EAE6FF;">
+                <p><strong>NOTE:</strong> If your script contains statements that are specific to sqlplus, it may be better to use the “Execute with SQL Plus” change set type, instead of the “Execute a SQL script file using JDBC”/“Custom SQL (External File)” change set type.</p>
+            </div>
+        </div>
+        <p>Next on the Create Change Set screen:</p>
+        <p>Enter the ChangeSet ID (any text string) and the Author.  </p>
+        <p>Set the Execution Settings to:</p>
+        <p style="margin-left: 30.0px;">“Redeploy this Change Set every time the contents are modified” – Allows modification of the SQL file saved to the resources directory. Without this there will be “checksum” errors if the file is modified.</p>
+        <p style="margin-left: 30.0px;"> “Deploy this Change Set every time a deployment is performed” – Changeset will be run for every Deployment.</p>
+        <p>Set Deploy Order to “After Other Change Sets”.  </p><span class="confluence-embedded-file-wrapper image-center-wrapper"><img class="confluence-embedded-image image-center" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/1552089135/AuthorId.png?version=1&amp;modificationDate=1597159981060&amp;cacheVersion=1&amp;api=v2" /></span>
+        <p>Click Finish.</p>
+        <p>Add, Commit, and Push the changes to the SCM.</p>
+        <h3 id="HowTo:GenerateAutoPermissionsorSynonymsforOracleUsingaCustomScript-Step5–TesttheNewChangeSet">Step 5 – Test the New Change Set</h3>
+        <p>Package and deploy a simple “CREATE TABLE” script. Verify that the grants are applied to the new table.</p>
+        <p />
+    </body>
+</html>
