@@ -4,18 +4,54 @@
         <link href="../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
     </head>
     <body>
-        <h1>liquibase-flow File and Command (For LABS&#160;only)</h1>
+        <h1>liquibase-flow File and Command </h1>
         <p>&#160;</p>
-        <p>The <code>liqubase-flow</code> command and the flow file on which it operates moves Liquibase forward into a more robust, more convenient utility. Multiple <MadCap:variable name="General.CompanyName" /> steps are setup in another tool, such as a Jenkins file or GitHub actions, to perform the multiple steps <MadCap:variable name="General.CompanyName" /> is often tasked with in a ci/cd job. The flow command  provides the convenience of performing all of the steps in one place. This leads to better repeatability and standardization of the steps in a DevOps pipeline.</p>
+        <p>The <code>liqubase-flow</code> command and the Flow File on which it operates allows the user to place multiple commands within a single file so they can all run sequentially by typing a single command into the CLI.  The flow command  provides the convenience of performing all of the steps in one place. This leads to better repeatability and standardization of the steps in a DevOps pipeline.</p>
         <p> You only need to use the <code>liqubase-flow</code> command to perform all actions specified in Jenkins, GitHub actions, or any CI/CD&#160;support tool of your choosing. Changes are made in the flow file when updates to Liquibase steps are necessary. You only have to update them in the flow file to bring all jobs up to date. This is especially convenient when flow files are stored in remote locations or shared across teams.</p>
-        <h2>Syntax rules for Command Arguments and Global Arguments</h2>
-        <p>Below are the syntax rules for arguments that function with <code>liqubase-flow</code>.</p>
-        <p>yaml is the language the liquibase-flow file is written in and it is case sensitive. camelCasing </p>
-        <p>&#160;</p>
+        <h2>Flow File Operation</h2>
+        <p>Three are two ways to create a Flow File. One is the Default Flow File method, which can only run with h2, and the Existing Project method. It's important to note that the file is not installed by default so the flow file must be created.  If a flow file is created without a Connection Profile or a changelog configured, it will fail to run. This is why h2 is necessary with the Default File Method.</p>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>
-                    <h2>The following list of Global Arguments cannot be set in the Flow file.</h2>
+                    <h3>Default Flow File Method</h3>
+                </MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>This method is for users who are creating an entirely new project. To create a default Flow File, users must start h2. </p>
+                <p>1. From the CLI, navigate to the appropriate <MadCap:variable name="General.CompanyName" /> directory and run <code>liquibase init start-h2</code> to establish the h2 connection.</p>
+                <p>2. From a clean terminal window, run <code>liquibase init project</code> to create a new project.</p>
+                <p>3. Liquibase will prompt you to create a changelog and you will type Y to confirm.</p>
+                <p>4. Type ls to list what files are available in your current directory. You will see that the example-changelog.sql and liquibase.properties files are available.</p>
+                <p>5. Run the liquibase flow command.</p>
+                <p>6. Liquibase will prompt you to create a flow file. From the three options available, type 1.</p>
+                <p>The file is created and validated successfully. </p>
+                <p>7. You will notice in the CLI that liquibase tried to run checks run but there is a warning that says:</p>
+                <p>Checks executed against H2 generated SQL, which may not contain certain objects. liquibase.checks-settings.conf does not exist.<br />Would you like to create it?&#160;(Y/N):</p>
+                <p>8. Type Y to create a checks configuration file.</p>
+                <p>9. Liquibase will ask the question below. Type the desired result in the CLI.<br />Do you want to see this operation's report in <MadCap:variable name="General.Hub" />, which improves team collaboration?&#160;If so, enter your email. If not, enter N&#160;to no longer be prompted, or S to skip for now, but ask again next time.</p>
+                <p>10. liquibase update executes successfully. You can see in the example below the Stages ran in the same order displayed in the Flow file.</p>
+                <p>&#160;</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Existing Project Method</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>This method is for users who have a current project that already has a changelog and Connection Profile configured. It's important to note that the first time users run flow in this manner, the flow file will fail because it will not be configured in the way the default flow file is initially.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h3>After Flow File is successfully written</h3>
+        <p>Once the flow File is written, we suggest running the <code>flow validate</code> command. This ensures that the <MadCap:variable name="General.Liquibase"></MadCap:variable>commands have all of the parameters necessary to run successfully and the yaml formatting is correct. Find the syntax rules for yaml below on this page.</p>
+        <p>Run <code>flow validate --flow-file update-status-diff.flow</code> in the CLI.</p>
+        <p>If the file fails the validation check, <MadCap:variable name="General.CompanyName" />will state what command argument(s) were not resolved. You can then review and correct your flow file and then run the <code>flow validate</code> command again to ensure it is working as expected.</p>
+        <h2>How is the Flow File organized?</h2>
+        <p>Within the flow file you will notice there are Stages that contain Actions. The three Actions sections which include actions, afterActions, and endStage contain all commands that run when liquibase flow executes. Any <MadCap:variable name="General.Liquibase" />command arguments, abbreviated as <code>cmdArgs</code> in the flow file, can be placed in any Stage Action section with the exception of the list of global arguments below.</p>
+        <p>After Stage, afterActions occur. Common command arguments included here are cleanup, status, and history so they always occur after the initial Actions run. Once afterActions runs, the endStage section runs. If there are errors within any section in the Flow File, <MadCap:variable name="General.Liquibase" /> will fail and exit.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>
+                    <h3>The following list of Global Arguments cannot be set in the Flow file.</h3>
                 </MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody>
@@ -75,10 +111,87 @@
                 </table>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
+        <p>&#160;</p>
+        <h2>Syntax rules for Command Arguments and Global Arguments</h2>
+        <p>Below are the syntax rules for formatting the <code>liqubase flow</code> file.</p>
+        <p>The <MadCap:variable name="General.Liquibase" />Flow file is written in yaml and it is essential to have all syntax correct for the flow file to run successfully. As you can see in the below flow file example, the cmdArgs section has all commands between curly braces and separated by commas. </p>
+        <p>All command arguments are formatted in the following way:<br /><code>cmdArgs: {command-name: argument value, snapshot-format: JSON}</code></p>
+        <p>Command arguments that are referencing the Connection Profile are formatted in the following way:<br /></p><code>cmdArgs:{url: "${postgresNamespace.url}", user:&#160;"${postgresNamespace.user}"}</code>
+        <p>Flow File Example:</p><pre xml:space="preserve"><code class="language-text" data-lang="text"># flow-name: "ProductWorkflow with Namespaces" #
+include: 
+ - postgresNamespace: postgres-vars.yaml
+  stages:
+   status:
+    actions:
+    - type: liquibase
+	command: status
+	cmdArgs: { url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+    - type: liquibase
+	command: status
+	cmdArgs: {verbose: true, url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+  changeLogChecks:
+    actions:
+    - type: liquibase
+	command: checks run
+	cmdArgs: {checks-scope: changelog, --changelog-file: "${postgresNamespace.changelogFile}"}
+  update:
+    actions:
+    - type: liquibase
+	command: update-sql
+	globalArgs: {output-file: updatesql.txt}
+	cmdArgs: {url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+    - type: liquibase
+       command: update
+	cmdArgs: {url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+  historyPostUpdate:
+    actions:
+    - type: liquibase
+       command: history
+	cmdArgs: {url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}"}
+  rollback:
+    actions: 
+    - type: liquibase
+	command: rollback-one-changeset
+	cmdArgs: { changeset-author: QA, changeset-id: 1, changeset-path: product-workflow-changelog.xml, force: true, url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}"}
+    - type: liquibase
+	command: rollback-count
+	cmdArgs: { count: 1, url="${postgresNamespace.url}, user: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}}
+  databasechecks:
+    actions:
+    - type: liquibase
+	command: checks run
+	cmdArgs: { checks-scope: database, url="${postgresNamespace.url}, user: "${postgresNamespace.user}", password: "${postgresNamespace.password}"}
+  afterActions:
+    actions:
+    - type: cmd
+    	command: echo
+  	cmdArgs: { ----Workflow with Namespaces Stages Complete!---- }
+endStage:
+    actions:
+    - type: liquibase
+	command: history
+	cmdArgs: {url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}"}
+    afterActions:
+	actions:
+	- type: cmd
+	command: echo
+       cmdArgs: { ----WE DID IT!!!---- }</code></pre>
+        <h2>globalVariables</h2>
+        <p>globalVariables must be defined at the top of the Flow File with the syntax shown in the example flow file. Each Action specified in the Flow File can reference a globalVariable as a command argument. This saves you time and keeps your Flow File tidy.</p>
+        <h3>Example globalVariable:</h3><code>offlineRefUrl: "offline:postgres?snapshot=refSnapshot.json"</code>
+        <p>&#160;</p>
+        <h3>Example of globalVariable in use:</h3><code>cmdArgs: { url: "${onlineTargetUrl}"}</code>
+        <h2>stagingVariables</h2>
+        <p>stageVariables work exactly like a globalVariable except they are declared inside of each stage group. If you have the same variable declared as a globalVariable, the stageVariables are applied, not the globalVariable. For example, if you have a changelog globalVariable but need to specify a different changelog, you can apply that via a stageVariable. stageVariables always override globalVariables.</p>
+        <p>Include configured YAML&#160;files within a Flow File</p>
+        <p>Flow Files can include references to other yaml files with configuration by using the include section of the file. You need only create a variable name for the referenced YAML&#160;file and then reference the file title so that the Flow File can locate it.</p>
+        <p>Example of Flow File include functionality:</p>
+        <br /><code>include: CRLF<br /> - postgresNamespace: postgres-vars.yaml</code>
+        <p>You will then add the created variable name to the cmdArgs section to enable the functionality.</p>
+        <p>(mention example of what this will look like here.)</p>
         <p>default name and location and commands</p>
         <p>customization options</p>
         <p>edge cases</p>
-        <p>endStage</p>
         <p>&#160;</p>
     </body>
 </html>
