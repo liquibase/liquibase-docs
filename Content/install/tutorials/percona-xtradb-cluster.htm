@@ -7,7 +7,7 @@
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with Percona XtraDB Cluster</h1>
-        <p>Percona XtraDB Cluster is a database clustering solution for MySQL. It integrates Percona Server for MySQL and Percona XtraBackup with the Galera library to enable synchronous multi-source replication. For more information, see the <a href="https://www.percona.com/doc/percona-xtradb-cluster/LATEST/intro.html">Percona XtraDB Cluster documentation page</a>.</p>
+        <p><a href="https://www.percona.com/software/mysql-database/percona-xtradb-cluster">Percona XtraDB Cluster</a> is a database clustering solution for MySQL. It integrates Percona Server for MySQL and Percona XtraBackup with the Galera library to enable synchronous multi-source replication. For more information, see <a href="https://www.percona.com/doc/percona-xtradb-cluster/LATEST/intro.html">Percona XtraDB Cluster documentation</a>.</p>
         <h2>Supported versions</h2>
         <ul>
             <li>5.7 – officially certified and tested with Test Harness and <MadCap:variable name="General.Liquibase" /></li>
@@ -15,20 +15,16 @@
         </ul>
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
-        <ul>
-            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> provides the <MadCap:xref href="../../commands/init/project.htm">init project</MadCap:xref> command, which creates a project folder with configuration files – <MadCap:variable name="General.changelog" /> with <MadCap:variable name="General.changeset" />s and the <MadCap:variable name="General.Liquibase" /> properties file, <code><MadCap:variable name="General.liquiPropFile" /></code>. To create these files automatically, run <code>liquibase init project</code> and choose <b>[C]</b> to customize parameters for Percona XtraDB Cluster. </p>
-        </ul>
         <h2>Install drivers</h2>
-        <p>To use <MadCap:variable name="General.Liquibase" /> and Percona XtraDB Cluster, you need to have the <a href="https://dev.mysql.com/downloads/connector/j/">JDBC driver JAR file</a>: Place the <code>mysql-connector-java-version.jar</code> file in the <code>liquibase/lib</code> directory.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you place the <code>mysql-connector-java-version.jar</code> file in a different directory, specify the path in the <MadCap:variable name="General.Liquibase" /> properties file, as follows: <code>classpath:../path_to_drivers/mysql-connector-java-version.jar</code>. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Specifying Properties in a Connection Profile</MadCap:xref>.</p>
-        <p>If you use Maven, you also need to download the <a href="https://mvnrepository.com/artifact/mysql/mysql-connector-java">MySQL driver jar file</a> and put the driver in a location that your Maven build can access. Configure the Maven <code>pom.xml</code> file to use the local copy of the driver jar file. For example:</p><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+        <p>To use <MadCap:variable name="General.Liquibase" /> and Percona XtraDB Cluster, you need to have the <a href="https://dev.mysql.com/downloads/connector/j/">JDBC driver JAR file</a> (<a href="https://mvnrepository.com/artifact/mysql/mysql-connector-java">Maven download</a>):</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorialsDriver.Not pre-installed&quot;]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;mysql&lt;/groupId&gt;
     &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
-    &lt;version&gt;8.0.21&lt;/version&gt;
+    &lt;version&gt;8.0.30&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
         <h2>Test your connection</h2>
         <ol>
-            <li>Ensure your Percona XtraDB Cluster is configured:<ol><li>Check the database status by running the <a href="https://www.percona.com/doc/percona-xtradb-cluster/5.7/wsrep-status-index.html#wsrep_cluster_status">wsrep_cluster_status</a> command or <a href="https://www.percona.com/doc/percona-xtradb-cluster/LATEST/verify.html">verifying replication</a>:</li><li>Run the following SQL script to create <MadCap:variable name="General.Liquibase" /> metatables:</li><pre><code class="language-text">--  Create Database Lock Table
+            <li>Ensure your Percona XtraDB Cluster database is configured:<ol><li>Check the database status by running the <a href="https://www.percona.com/doc/percona-xtradb-cluster/5.7/wsrep-status-index.html#wsrep_cluster_status">wsrep_cluster_status</a> command or <a href="https://www.percona.com/doc/percona-xtradb-cluster/LATEST/verify.html">verifying replication</a>:</li><li>Run the following SQL script to create <MadCap:variable name="General.Liquibase" /> metatables:</li><pre><code class="language-text">--  Create Database Lock Table
 DROP TABLE IF EXISTS `DATABASECHANGELOGLOCK`;
 CREATE TABLE `DATABASECHANGELOGLOCK` (
 					ID INT NOT NULL,
