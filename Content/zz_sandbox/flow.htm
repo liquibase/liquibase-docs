@@ -144,7 +144,72 @@
         <p>All command arguments are formatted in the following way:<br /><code>cmdArgs: {command-name: argument value, snapshot-format: JSON}</code></p>
         <p>Command arguments that are referencing the Connection Profile are formatted in the following way:<br /></p><code>cmdArgs:{url: "${postgresNamespace.url}", user:&#160;"${postgresNamespace.user}"}</code>
         <p>This example Flow File is the simplest scenario in which only cmdArgs are specified in the Actions. For this example to run, a liquibase.properties file with url, username and password must be available. The properties file should be in the same directory as the flow file. Additionally, the user will need a changelog file.</p>
-        <p>Flow File Example:</p><pre xml:space="preserve"><code class="language-text" data-lang="text"># flow-name: "ProductWorkflow with Namespaces" #
+        <p>Flow File Example:</p>
+        <MadCap:codeSnippet style="caption-side: top;">
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>flow file example</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;"># flow-name: "ProductWorkflow with Namespaces" #
+include: 
+ - postgresNamespace: postgres-vars.yaml
+  stages:
+   status:
+    actions:
+    - type: liquibase
+	command: status
+	cmdArgs: { url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+    - type: liquibase
+	command: status
+	cmdArgs: {verbose: true, url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+  changeLogChecks:
+    actions:
+    - type: liquibase
+	command: checks run
+	cmdArgs: {checks-scope: changelog, --changelog-file: "${postgresNamespace.changelogFile}"}
+  update:
+    actions:
+    - type: liquibase
+	command: update-sql
+	globalArgs: {output-file: updatesql.txt}
+	cmdArgs: {url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+    - type: liquibase
+       command: update
+	cmdArgs: {url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+  historyPostUpdate:
+    actions:
+    - type: liquibase
+       command: history
+	cmdArgs: {url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}"}
+  rollback:
+    actions: 
+    - type: liquibase
+	command: rollback-one-changeset
+	cmdArgs: { changeset-author: QA, changeset-id: 1, changeset-path: product-workflow-changelog.xml, force: true, url: "${postgresNamespace.url}", user: "${postgresNamespace.user}, password: "${postgresNamespace.password}"}
+    - type: liquibase
+	command: rollback-count
+	cmdArgs: { count: 1, url="${postgresNamespace.url}, user: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}}
+  databasechecks:
+    actions:
+    - type: liquibase
+	command: checks run
+	cmdArgs: { checks-scope: database, url="${postgresNamespace.url}, user: "${postgresNamespace.user}", password: "${postgresNamespace.password}"}
+  afterActions:
+    actions:
+    - type: cmd
+    	command: echo
+  	cmdArgs: { ----Workflow with Namespaces Stages Complete!---- }
+endStage:
+    actions:
+    - type: liquibase
+	command: history
+	cmdArgs: {url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}"}
+    afterActions:
+	actions:
+	- type: cmd
+	command: echo
+       cmdArgs: { ----WE DID IT!!!---- }</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet><pre xml:space="preserve"><code class="language-text" data-lang="text"># flow-name: "ProductWorkflow with Namespaces" #
 include: 
  - postgresNamespace: postgres-vars.yaml
   stages:
