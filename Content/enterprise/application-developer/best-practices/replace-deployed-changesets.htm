@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>Replacing Deployed Changesets: replace</h1>
+        <p>Use a replace script to replace a deployed changes with the desired changes.&#160;</p>
+        <p>Sometimes database changes (changesets) need to be replaced after deployment. This can occur if a change fails testing in a later stage environment.&#160; &#160;</p>
+        <p>The replace capability allows you to deploy a changeset that is specially marked for replacing prior changes.&#160; During processing, the original changeset gets the attribute <code>ignore=true</code> to prevent it from being deployed further.&#160;</p>
+        <p>See&#160;<a href="cleaning-deployed-changesets.htm" rel="nofollow">Cleaning Up Deployed Changesets: cleanup</a>.&#160;</p>
+        <h1 id="ReplacingDeployedChangesets:replace-PairingaReplaceScriptwithaCleanupScript">Pairing a Replace Script with a Cleanup Script</h1>
+        <p>You commonly need to deploy a cleanup script to undo the changes of the script you want to replace.&#160;</p>
+        <p>A cleanup script and a replace script can be packaged in the same packaging run.&#160;</p>
+        <h1 id="ReplacingDeployedChangesets:replace-TypesofChangeEligibleforReplaceScripts">Types of Change Eligible for Replace Scripts</h1>
+        <p>Replace scripts work for different types "non-rerunnable" changes:</p>
+        <ul>
+            <li>DDL folder or packageMethod=CONVERT</li>
+            <li><span style="color: rgb(51,51,51);">DDL_DIRECT folder or packageMethod=DDL_DIRECT</span>
+            </li>
+            <li>DATA_DML folder or packageMethod=DATA_DML</li>
+            <li>SQL_DIRECT folder or packageMethod=DIRECT</li>
+            <li>SQL folder or packageMethod=SQLFILE</li>
+            <li>Liquibase changelogs - replace the changesets packaged from the original changelog with changesets from the replacement changelog.</li>
+        </ul>
+        <p>Cleanup and/or Replace are&#160;<strong>NOT</strong> recommended for stored logic (code: package, packagebody, procedure, function, trigger, view folders).&#160; Use the provided versioning capability with stored logic instead.&#160;</p>
+        <h1 id="ReplacingDeployedChangesets:replace-ReplacingChangesets">Replacing Changesets</h1>
+        <p>For a file named<code>myscript.sql</code>, create a replace file that contains the code to replace what was deployed before. Use one of the following forms:</p>
+        <p style="margin-left: 30.0px;"><code style="margin-left: 0.0px;">myscript-replace.sql</code>
+        </p>
+        <p style="margin-left: 30.0px;"><code style="margin-left: 0.0px;">myscript_replace.sql</code>
+        </p>
+        <p>The file may use any extension (e.g. .sql) or no extension.&#160;</p>
+        <h1 id="ReplacingDeployedChangesets:replace-Processing">Processing</h1>
+        <p>Deployment Packager processes the -replace files during packaging, as follows:</p>
+        <ol style="margin-left: 0.0px;">
+            <li>Searches the changelog for matching changesets based on filename. Packager will error if there are no matching changesets in the changelog that were previously packaged with the same filename in the same path relative to the root folder. Changesets must match these attributes:<ul><li>origFilePath</li><li>origFileName</li></ul></li>
+            <li>Sets&#160;<code>ignore=true</code> attribute on all matching changesets (same orgFilePath and origFileName) that pertain to the most recent / highest version&#160;</li>
+            <li>Produces new changeset(s) and positions them in the changelog.immediately following the most recent changeset(s)&#160;</li>
+            <li>Archives the replace file as appropriate.</li>
+        </ol>
+    </body>
+</html>
