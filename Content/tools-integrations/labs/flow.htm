@@ -147,41 +147,30 @@
         <p>Flow File Example:</p>
         <MadCap:codeSnippet>
             <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">stages:
-  fStage1:
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">##########           LIQUIBASE FLOW FILE               ##########
+##########  learn more http://docs.liquibase.com/flow  ##########
+
+## NOTE: This example flowfile is called from the examples/liquibase.advanced.flow file
+## While it could be run on its own, this file is designed to show that flow-files can be decomposed
+## into separate files as makes sense for your use cases.
+
+stages:
+
+  cleanuptheDB:
+
     actions:
-    - type: liquibase
-      command: update-sql
-      cmdArgs: {changelog-file: "product-workflow-changelog.xml"}
-    - type: liquibase
-      command: checks run
-      cmdArgs: {checks-scope: "changelog", changelog-file: "product-workflow-changelog.xml"}
-    - type: liquibase
-      command: drop-all
-    - type: liquibase
-      command: update
-      cmdArgs: {changelogfile: "product-workflow-changelog.xml"}
-    - type: liquibase
-      command: generate-changelog
-      cmdArgs: {changelogfile: "gclc.postgres.sql"}
-#
-# Actions to run after the primary flow stages
-#
+
+      - type: liquibase
+        command: dropAll
+
+        
     afterActions:
+    
       - type: liquibase
         command: status
-        cmdArgs: {verbose: true, changelog-file: "gclc.postgres.sql"}
-  endStage: 
-    actions:
-      - type: liquibase
-        command: generate-changelog
-        cmdArgs: {changelog-file: "gcle.postgres.sql", schemas: "proschema" }
-      - type: liquibase
-        command: checks run
-        cmdArgs: {changelog-file: "product-workflow-changelog.xml"}
-    afterActions:
-      - type: liquibase
-        command: history</MadCap:codeSnippetBody>
+        cmdArgs: {verbose: TRUE}
+
+</MadCap:codeSnippetBody>
         </MadCap:codeSnippet>
         <h2>globalVariables</h2>
         <p>globalVariables must be defined at the top of the Flow File with the syntax shown in the example Flow File. Each Action specified in the Flow File can reference a globalVariable as a command argument. This saves you time and keeps your Flow File tidy.</p>
@@ -239,52 +228,111 @@
                     <MadCap:codeSnippetCaption>
                         <p>flow-with-include-global</p>
                     </MadCap:codeSnippetCaption>
-                    <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;"># flow-name: "ProductWorkflow with Namespaces" #
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">##########           LIQUIBASE FLOW FILE               ##########
+##########  learn more http://docs.liquibase.com/flow  ##########
+
+## NOTE: This is an advanced example flowfile, compared to the other sample at examples/liquibase.flowfile.yaml
+## Advanced options show in this file include:
+## non-default name of 'liquibase.advanced.flow' (use by setting flowfile property to this name)
+#### example for CLI: liquibase flow --flow-file=liquibase.advanced.flow
+#### example for ENV Var: LIQUIBASE_FLOW_FLOW_FILE=liquibase.advanced.flow
+## use of 'include' to inject namespaced yaml files of key:val variables
+## use of globalVariables and stageVariables
+## use of globalArgs and cmdArgs
+## use of property substitution
+## use of a nested flowfile (in this case in the endStage, but could be elsewhere)
+
+
+## Bring in and namespace an external file with yaml 'key: val' pairs for use in this file
+## The variables will be used as ${namespace.variablename}, seen in this example as $(DATES.THISDATE)
 include:
-  postgresNamespace: postgres-vars.props
-stages:
-  fStage1:
-   actions:
-   - type: liquibase
-     command: status
-     cmdArgs: {verbose: true, url: "${postgresNamespace.url}", username: "${postgresNamespace.username}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
-  changeLogChecks:
+  DATES: liquibase.flowvariables.yaml
+
+
+
+
+## Set up some global variables for property substitution in ANY stage
+globalVariables:
+  PROJNAME: "MyFlowProject"
+
+
+## Start the stages. There can be more than one, if desired.
+stages:  
+  
+  ## The first stage. There can be more than one if desired.
+  stage1:
+
+    ## set up vars for property substitution in THIS stage only
+    stageVariables:
+      VERBOSESTATE: TRUE
+
+
     actions:
+    
+   #
+   # Do a validate command 
+   #
+    - type: liquibase
+      command: validate
+
+   #
+   # tell me what is pending a deployment
+   #
+    - type: liquibase
+      command: status
+      cmdArgs: {verbose: "${VERBOSESTATE}"}
+
+   #
+   # And then save a version in detail
+   #
+    - type: liquibase
+      command: updatesql
+      globalArgs: {outputfile: "${PROJNAME}-${DATES.THISDATE}-updatesql.log"}
+        
+
+
+   #
+   # Quality Checks for changelog 
+   #
     - type: liquibase
       command: checks run
-      cmdArgs: {checks-scope: changelog, changelog-file: "${postgresNamespace.changelogFile}"}
-  update:
-    actions:
+      cmdArgs: {checks-scope: changelog}
+   #
+   # Run update
+   #
     - type: liquibase
-      command: update-sql
-      globalArgs: {output-file: updatesql.txt}
-      cmdArgs: {url: "${postgresNamespace.url}", user: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
+      command: update 
+
+
+      
+   #
+   # Quality Checks for database 
+   #
     - type: liquibase
-      command: update
-      cmdArgs: {url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}
-  historyPostUpdate:
-    actions:
+      command: checks run
+      cmdArgs: {checks-scope: database}
+      
+    
+    ## Put your clean up and other actions for this stage in the afterActions
+    afterActions:
     - type: liquibase
       command: history
-      cmdArgs: {url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}"}
-  rollback:
-    actions: 
-    - type: liquibase
-      command: rollback-one-changeset
-      cmdArgs: {changeset-author: QA, changeset-id: 1, changeset-path: product-workflow-changelog.xml, force: true, url: "${postgresNamespace.url}", username: "${postgresNamespace.user}, password: "${postgresNamespace.password}"}
-    - type: liquibase
-      command: rollback-count
-      cmdArgs: {count: 1, url="${postgresNamespace.url}, username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}}
-  databasechecks:
-    actions:
-    - type: liquibase
-      command: checks run
-      cmdArgs: { checks-scope: database, url="${postgresNamespace.url}, username: "${postgresNamespace.user}", password: "${postgresNamespace.password}"}
+      globalArgs: {outputfile: "${PROJNAME}-${DATES.THISDATE}-history.log"}
+
+
+
+## Put your clean up and other actions for after success in all stage(s) above in the endStage
 endStage:
   actions:
-  - type: liquibase
-    command: history
-    cmdArgs: {url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}"}</MadCap:codeSnippetBody>
+    - type: liquibase
+      command: flow
+      cmdArgs: {flowfile: liquibase.endstage.flow}
+      
+  afterActions: null
+
+
+
+</MadCap:codeSnippetBody>
                 </MadCap:codeSnippet>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
