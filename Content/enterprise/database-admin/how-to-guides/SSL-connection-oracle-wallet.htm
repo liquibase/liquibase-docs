@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+    </head>
+    <body>
+        <h1>SSL Connection to an Oracle Database Through Oracle Wallet</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p />
+        <div class="toc-macro client-side-toc-macro  conf-macro output-block">
+        </div>
+        <p>Oracle Wallet is used to store configuration information for secure connections to Oracle databases.&#160;</p>
+        <p>Datical DB supports secure connections (SSL) to Oracle databases through Oracle Wallet. This page describes the process:</p>
+        <ul>
+            <li>Have the correct version of the Oracle JDBC driver installed. The driver supplied with Datical DB versions 5.7.5665 (or higher) was updated to support Oracle Wallet.&#160;</li>
+            <li>Set up required configuration files and environment variables.</li>
+        </ul>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <p class="title">Note</p>
+            <div class="confluence-information-macro-body">
+                <p>Datical DB uses Oracle Wallet for certificates only. You specify a user and password for the connection separately when creating the connection to the database in each DbDef.&#160;</p>
+            </div>
+        </div>
+        <p>See <a class="external-link" href="https://docs.oracle.com/middleware/1213/wls/JDBCA/oraclewallet.htm#JDBCA600" rel="nofollow">Oracle Wallet documentation </a>maintained by Oracle Corporation.&#160;</p>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <p class="title">Note</p>
+            <div class="confluence-information-macro-body">
+                <p>You cannot use the Datical Accelerator for Oracle in projects or DbDefs where you are using Oracle Wallet for secure connections.&#160;&#160;(Note that the optional accelerator/compression driver was only available with versions 7.15 or lower.&#160; It has been deprecated for versions 7.16 and higher.)&#160;&#160;See <a href="SSL-connection-oracle-wallet.htm">Datical Accelerator for Oracle (deprecated)</a>.&#160;</p>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <h1 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-Prerequisite:OracleWalletInstalledandConfigured">Prerequisite: Oracle Wallet Installed and Configured</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>These instructions assume that you have done the following:</p>
+        <ul>
+            <li>Installed Oracle Wallet with your Oracle database and understand its use</li>
+            <li>Created certificates and placed them in the Oracle Wallet on the server and the client</li>
+            <li>Know the file location of the Oracle Wallet folder on the client</li>
+        </ul>
+        <h1 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-1.CreateaDirectoryforOracleWalletFiles">1. Create a Directory for Oracle Wallet Files</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>Create a directory on the host where you run Datical DB to use for the wallet file and Oracle configuration files.&#160;</p>
+        <p>The example places it in the <code>oracle_wallet</code> directory under the <code>&lt;project&gt;</code> directory in the default location for Datical DB projects.&#160; If Oracle is installed on the host, another common location might be <code>$ORACLE_HOME/network/admin</code>.&#160;&#160;</p>
+        <p><strong>Linux</strong>
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">/datical/oracle_wallet</pre>
+            </div>
+        </div>
+        <p><strong>Windows</strong>
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">C:\datical\oracle_wallet</pre>
+            </div>
+        </div>
+        <h1 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-2.AddConfigurationFilestotheOracleWalletDirectory">2. Add Configuration Files to the Oracle Wallet Directory</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <div class="table-wrap">
+            <table class="wrapped confluenceTable">
+                <colgroup>
+                    <col />
+                    <col />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th class="confluenceTh">File</th>
+                        <th class="confluenceTh">Desription</th>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd"><code>ojdbc.properties</code>
+                        </td>
+                        <td class="confluenceTd">Oracle database driver configuration file.&#160;</td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd"><code>cwallet.sso</code>
+                        </td>
+                        <td class="confluenceTd">
+                            <p>Oracle wallet file.</p>
+                            <p>Copy this file from the Oracle database server.</p>
+                            <p>Here is some more information about&#160;<a href="generate-cwallet-sso-load-certificates.htm">How To: Generate the cwallet.sso file and Load SSL Certificates</a>&#160;from Datical Knowledge base.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd"><code>sqlnet.ora</code>
+                        </td>
+                        <td class="confluenceTd">
+                            <p>Profile configuration file for the Oracle database client.&#160;</p>
+                            <p>Copy this file from the Oracle database server.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="confluenceTd"><code>tnsnames.ora</code>
+                        </td>
+                        <td class="confluenceTd">
+                            <p>Configuration file that maps <em>net service names</em> to <em>connect descriptors</em>.</p>
+                            <p>Copy this file from the Oracle database server.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-2a.AddWalletLocationtoojdbc.properties">2a. Add Wallet Location to ojdbc.properties</h2>
+        <p>Add the following line to the <code>ojdbc.properties</code> file. The driver uses this property to access the other files.&#160;</p>
+        <p><strong>Linux</strong>
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">oracle.net.wallet_location=(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=/datical/oracle_wallet)))</pre>
+            </div>
+        </div>
+        <p><strong>Windows</strong>
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">oracle.net.wallet_location=(SOURCE=(METHOD=FILE)(METHOD_DATA=(DIRECTORY=C:\\datical\\oracle_wallet)))</pre>
+            </div>
+        </div>
+        <h2 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-2b.AddServiceNametotnsnames.ora">2b. Add Service Name to tnsnames.ora</h2>
+        <p>Add the following section to <code>tnsnames.ora</code>. Substitute values for these tokens:</p>
+        <ul>
+            <li><code>&lt;oracledb-hostname&gt;</code> - the host name of the machine (or VM or AWS instance) where Oracle is running</li>
+            <li><code>&lt;oracledb-port&gt;</code> - the port configured to use SSL by the listener on the database server.&#160; Default is 2484.</li>
+            <li><code>&lt;oracledb-servicename&gt;</code> - the host name of the machine (or VM or AWS instance) where the Oracle database server is running.&#160; If using a SID to connect, specify it instead.</li>
+        </ul>
+        <p>In the following example, the section is named <code>ORA_AWS</code>. You may name it as you wish. Use this name for the <strong>TNS Alias</strong> setting in Datical DB projects.&#160;</p>
+        <p>
+            <br />
+        </p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">ORA_AWS = 
+(DESCRIPTION = 
+   (ADDRESS = 
+      (PROTOCOL = TCPS)
+      (HOST = &lt;oracledb-hostname&gt;)
+      (PORT = &lt;oracledb-port&gt;)
+   )
+   (CONNECT_DATA = 
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = &lt;oracledb-servicename&gt;)
+   )
+)</pre>
+            </div>
+        </div>
+        <h1 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-3.SetTNS_ADMINtoPointtotheConfigurationFilesDirectory">3. Set TNS_ADMIN to Point to the Configuration Files Directory</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>On the host where Datical DB is running, set the TNS_ADMIN environment variable to the directory containing the configuration files.&#160;</p>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">set TNS_ADMIN = /datical/oracle_wallet/</pre>
+            </div>
+        </div>
+        <h1 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-4.SetUpDaticalProjectstoUseOracleWallet">4. Set Up Datical Projects to Use Oracle Wallet</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>When you create a DbDef in a project and choose Oracle as the database type, you set the following property:</p>
+        <ul>
+            <li><strong>Connection Type </strong>- Choose TNSNAMES/LDAP</li>
+            <li><strong>TNS Alias</strong>&#160; - Specifies the service name in&#160;<code>tnsnames.ora&#160;</code>that contains configuration information for the connection.</li>
+        </ul>
+        <p>See also Oracle Database Step Settings in <a href="../../devops-engineer/define-release-pipeline/configure-projects/configure-step-settings-dbdefs.htm" rel="nofollow">Configuring Step Settings (DbDefs)</a>.&#160;</p>
+        <h1 id="SSLConnectiontoanOracleDatabaseThroughOracleWallet-5.TesttheConfiguration">5. Test the Configuration</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <div class="confluence-information-macro confluence-information-macro-note conf-macro output-block">
+            <p class="title">Note</p>
+            <div class="confluence-information-macro-body">
+                <p>Before running Oracle Wallet with Datical, please run the OraConnect.groovy test script to verify that your environment is setup correctly.</p>
+                <ul>
+                    <li>The command and it's usage can be found here:&#160;<a href="testing-oracle-connections.htm">Testing Oracle Connections</a></li>
+                </ul>
+            </div>
+        </div>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Include a SqlRule to enforce Managed Schemas<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /></h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>In <MadCap:variable name="General.DaticalDB" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> version 7.6 the product was enhanced to allow for a SqlRule that will error if scripts contain changes to schemas that are not the managed schemas for the project.</p>
+        <h3 id="HowTo:IncludeaSqlRuletoenforceManagedSchemas-Requirements">Requirements</h3>
+        <ul>
+            <li>
+                <p><MadCap:variable name="General.DaticalDB" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> version 7.6 or higher</p>
+            </li>
+            <li>
+                <p>All project managed schemas must be listed in the datical.project file </p>
+            </li>
+        </ul>
+        <h3 id="HowTo:IncludeaSqlRuletoenforceManagedSchemas-Instructions">Instructions</h3>
+        <ol>
+            <li>
+                <p>Create a rule with the following content. Rule is also included below in the Download Rule section.</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">/*
+@author Liquibase
+@version 1.0
+@date July 28, 2020
+@description ERROR if SQL script references a schema outside Project file
+*/
+/*
+README: 
+This is a SQL Rule which throws ERROR when a sql script references a schema outside Project file
+To Execute this rule use:
+hammer runRules [dbDef] [SQL file | SQL files folder]
+*/
+package com.datical.hammer.core.sqlrules.CheckProjectSchemas
+
+import com.datical.db.project.Project;
+import com.datical.db.project.Schema;
+import com.datical.db.project.DatabaseDef;
+import com.datical.dbsim.model.DbModel;
+import com.datical.db.project.Plan;
+import java.util.regex.*;
+import com.datical.db.project.util.ProjectUtil;
+import java.util.*;
+import com.google.common.collect.Iterables;
+import liquibase.database.Database;
+import com.datical.hammer.core.liquibase.status.LiquibaseAPIUtils;
+import com.datical.hammer.core.connectionservice.DatabaseBuilder;
+import java.sql.Connection;
+import com.datical.hammer.core.rules.ProjectResources;
+import com.datical.hammer.core.rules.Response;
+import com.datical.hammer.core.rules.Response.ResponseType;
+import com.datical.hammer.core.rules.WithComments;
+import com.datical.hammer.core.rules.WithoutComments;
+import com.datical.hammer.core.DatabaseDefUtil;
+import com.datical.hammer.core.extensions.DBOperations;
+
+/***********************************************************  Rules  *************************************************************/
+/* @return false if validation fails; true otherwise */
+function boolean validateSql(String sql, Project project, DBOperations operations, String regex) {
+    
+	System.out.println("Validation called: CheckProjectSchemas");
+	List&lt;String&gt; availableSchemas = getAvailableSchemas(project, operations);
+	List&lt;String&gt; availableSchemasList =  new ArrayList&lt;&gt;();
+	for(String schema : availableSchemas) {
+		availableSchemasList.add(schema.toLowerCase());
+	}
+	boolean nonManagedSchemaFound = false;
+    List&lt;String&gt; schemaStringList = new ArrayList&lt;&gt;();
+    for (Schema schema : project.getSchemas()) {
+      schemaStringList.add(schema.getName().toLowerCase().replaceAll("\\$\\{.*\\}.",""));
+    }
+	//System.out.println("Available schemas size:"+availableSchemasList.size());
+	//System.out.println("Assigned schemas size:"+schemaStringList.size());
+	Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+	Matcher matcher = pattern.matcher(sql);
+	while(matcher.find()){
+	String formattedSchemaName = matcher.group(1).replace("[","").replace("]","");
+	
+	//System.out.println("Formatted Schema Name = " + formattedSchemaName);
+		if(!schemaStringList.contains(formattedSchemaName) &amp;&amp; availableSchemasList.contains(formattedSchemaName)) {
+			nonManagedSchemaFound = true;
+			System.out.println("Non Managed Schema Name found in script: " + formattedSchemaName);
+			break;
+		}
+	}
+	
+	return nonManagedSchemaFound;
+}
+function DatabaseDef getDatabaseDef(Project project) {
+	String dbName = project.getSchemaSelectionStep();
+	DatabaseDef dbDef = DatabaseDefUtil.findDbByName(project, dbName);
+	return dbDef;
+}
+function List&lt;String&gt; getAvailableSchemas(Project project, DBOperations operations){
+	DatabaseDef dbDef = getDatabaseDef(project);
+	List&lt;String&gt; schemas =  new ArrayList();
+	Connection connection = null;
+	try {
+		connection = DatabaseBuilder.buildPlainConnection(dbDef);
+		schemas = operations.getSchemaNames(connection);		
+	 } catch (Exception dbe) {
+			
+	 }  finally {
+		  if (connection != null){
+			try {
+			  connection.close();
+			} catch (Exception e) {
+			  ; // do nothing
+			}
+		  }
+		}
+	  return schemas;
+}
+rule "Check Project Schemas Format"    salience 1
+	when
+	    $project : Project()
+		$operations : DBOperations()
+		woc : WithoutComments(validateSql(getText().toLowerCase(), $project, $operations, "(\\S+)\\s*\\.\\s*(\\S+)"))
+	then
+		String errorMessage = "Script references a Schema not listed in Project file (Sql Script: " + woc.getSqlFile().getName() + ")";
+        insert(new Response(ResponseType.FAIL, errorMessage, drools.getRule().getName()));
+	end</pre>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <p>This rule needs to be placed in <strong>&lt;project_dir&gt;/Rules/SqlRules</strong></p>
+            </li>
+            <li>
+                <p>This rule should account for schemas referenced in any of the below formats when using the actual schema name (not property substitution for schema name). Additional schema patterns can be included by modifying the regex on Line 110. Lines 57 and 65 would also need to be reviewed:</p>
+                <ol>
+                    <li>
+                        <p>schema_name.object_name</p>
+                    </li>
+                    <li>
+                        <p>[schema_name].[object_name]</p>
+                    </li>
+                    <li>
+                        <p>schema_name.[object_name]</p>
+                    </li>
+                    <li>
+                        <p>[schema_name].object_name</p>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <p>There may be matches for the regex pattern in the sql script that are not schema names. In order to avoid triggering the rule in these false positive cases, the rule compares the schema name against the list of available schemas on the database. If the schema name is not included in the list of available schemas the match will be disregarded.</p>
+            </li>
+            <li>
+                <p>Example Packager Error:</p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="646" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1588756513/image-20200821-204659.png?version=1&amp;modificationDate=1598042696191&amp;cacheVersion=1&amp;api=v2&amp;width=646&amp;height=156" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1588756513/image-20200821-204659.png?version=1&amp;modificationDate=1598042696191&amp;cacheVersion=1&amp;api=v2&amp;width=1292&amp;height=312 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1588756513/image-20200821-204659.png?version=1&amp;modificationDate=1598042696191&amp;cacheVersion=1&amp;api=v2&amp;width=646&amp;height=156 1x" /></span>
+                <p />
+            </li>
+            <li>
+                <p>If you wish to check the rule using hammer runRules, a dbDef parameter must be included. This command needs to be run from the ddb repo:</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer runRules [dbDef] [SQL file | SQL files folder]</pre>
+                    </div>
+                </div>
+            </li>
+        </ol>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>The attached rule will handle property substitution for the database name, but it does not handle property substitution for schema names.</p>
+            </div>
+        </div>
+        <h3 id="HowTo:IncludeaSqlRuletoenforceManagedSchemas-DownloadRule">Download Rule</h3>
+        <p class="media-group"><span class="confluence-embedded-file-wrapper conf-macro output-inline"><a class="confluence-embedded-file" href="https://datical-cs.atlassian.net/wiki/download/attachments/1588756513/CheckProjectSchemas.drl?version=1&amp;modificationDate=1598042109565&amp;cacheVersion=1&amp;api=v2"><img src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1588756513/CheckProjectSchemas.drl?version=1&amp;modificationDate=1598042109565&amp;cacheVersion=1&amp;api=v2&amp;viewType=fileMacro" height="250" /></a></span>
+        </p>
+        <p />
+    </body>
+</html>

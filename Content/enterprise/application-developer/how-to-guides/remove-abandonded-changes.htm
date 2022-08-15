@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title></title>
+    </head>
+    <body>
+        <h1>How To: Remove abandonded changes from Datical and lower environments<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /></h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <hr />
+        <p>
+            <br />
+        </p>
+        <p>This document describes how to permanently remove changes from Datical and from lower environments that were abandoned.</p>
+        <h2 id="HowTo:RemoveabandondedchangesfromDaticalandlowerenvironments-CleanLowerEnvironments">Clean Lower Environments</h2>
+        <p>In order to remove abandoned changes from lower environments, you would need to apply the "fix" script to those environments. In order to control where to deploy your "fix" script, you can use "contexts" in Datical. Follow the steps described in&#160;<a href="remove-abandonded-changes.htm" rel="nofollow">How To: Abandon changes</a>&#160;in order to remove your changes. This would effectively clean your environments from abandoned changesets.&#160;</p>
+        <h2 id="HowTo:RemoveabandondedchangesfromDaticalandlowerenvironments-WhereAreChangesetsReferenced?">Where Are Changesets Referenced?</h2>
+        <p>Changesets that you label as "abandoned" reside in the <code>changelog.xml</code> file in your Datical project.</p>
+        <p>In general, these changesets are referenced in multiple places:</p>
+        <ul>
+            <li>Datical project repository in SCM<ul><li>Changelog directory (in changelog.xml) as indicated above</li><li>Resource directory (scripts associated with the changeset or referenced in the changeset)</li></ul></li>
+            <li><code><span style="font-family: Arial, sans-serif;">SQL code repository in SCM (scripts originating in the "ddl", "ddl_direct", "data_dml", "sql", sql_direct" folders are referenced in the "archive" directory)</span></code>
+            </li>
+            <li>Tracking table (DATABASECHANGELOG) in each database environment where those changesets got deployed.</li>
+            <li>Audit database&#160;</li>
+        </ul>
+        <h2 id="HowTo:RemoveabandondedchangesfromDaticalandlowerenvironments-PrimaryProcess">Primary Process</h2>
+        <p><strong>Although abandoned changes can be removed (or fixed) from database environments, it should be noted that abandoned changesets SHOULD NOT BE removed from the Datical project</strong>. Those changesets are safe to remain in the Datical project. These changesets serve as evidence of changes that Datical packaged, deployed and abandoned over time. As such, entries logged in tracking table (DATABASECHANGELOG) and audit database also serve to provide audit trail of such changes.&#160;</p>
+        <h3 id="HowTo:RemoveabandondedchangesfromDaticalandlowerenvironments-WhatwillhappenifyoudeleteabandonedchangesetsfromyourDaticalproject">What will happen if you delete abandoned changesets from your Datical project</h3>
+        <p>As indicated above, there are multiple traces of abandoned changesets. If you delete those changesets from your Datical project (from changelog.xml file), then because those changesets are still referenced in multiple places, <strong>your deleted changesets will continue to show when you Status your database environment</strong> (as ignored changesets).&#160;</p>
+        <h2 id="HowTo:RemoveabandondedchangesfromDaticalandlowerenvironments-AlternateProcess">Alternate Process</h2>
+        <p>In the event that a changeset must absolutely needs to be deleted from changelog.xml, this activity can only be done using Datical GUI. As such, it should be noted that this would be a manual task and could impact release automation platform if not done correctly. Therefore, this path should be taken very rarely and with great caution. Typically, this task would be performed after a release has been pushed to PROD.</p>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>You will need to make sure that your Datical project is connected to your SCM and that you are working on the latest version of your project.</p>
+            </div>
+        </div>
+        <ol>
+            <li>In Datical GUI, get the latest version of the Datical project from SCM. E.g., "git pull"</li>
+            <li>Click on the "Design" tab (near the bottom).&#160;<ol><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="400" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-21-45.png?version=1&amp;modificationDate=1502889707771&amp;cacheVersion=1&amp;api=v2&amp;width=400&amp;height=421" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-21-45.png?version=1&amp;modificationDate=1502889707771&amp;cacheVersion=1&amp;api=v2&amp;width=533&amp;height=561 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-21-45.png?version=1&amp;modificationDate=1502889707771&amp;cacheVersion=1&amp;api=v2&amp;width=400&amp;height=421 1x" /></span>&#160;→&#160;<span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="700" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-23-5.png?version=1&amp;modificationDate=1502889787408&amp;cacheVersion=1&amp;api=v2&amp;width=700&amp;height=331" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-23-5.png?version=1&amp;modificationDate=1502889787408&amp;cacheVersion=1&amp;api=v2&amp;width=1057&amp;height=500 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-23-5.png?version=1&amp;modificationDate=1502889787408&amp;cacheVersion=1&amp;api=v2&amp;width=700&amp;height=331 1x" /></span></li></ol></li>
+            <li>In the Design view, select the changeset you want to delete. Then right-click and select Remove.<ol><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="700" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-25-10.png?version=1&amp;modificationDate=1502889912875&amp;cacheVersion=1&amp;api=v2&amp;width=700&amp;height=326" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-25-10.png?version=1&amp;modificationDate=1502889912875&amp;cacheVersion=1&amp;api=v2&amp;width=1055&amp;height=492 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-25-10.png?version=1&amp;modificationDate=1502889912875&amp;cacheVersion=1&amp;api=v2&amp;width=700&amp;height=326 1x" /></span></li></ol></li>
+            <li>VERY IMPORTANT: Your project is now in an unsaved state. This is indicated by the * in the view.&#160;<u>Save your project by going to the File menu and select "Save"</u>. Or you can use Ctrl+S shortcut key from your keyboard<ol><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="213" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-27-53.png?version=1&amp;modificationDate=1502890075288&amp;cacheVersion=1&amp;api=v2&amp;width=213&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-27-53.png?version=1&amp;modificationDate=1502890075288&amp;cacheVersion=1&amp;api=v2&amp;width=257&amp;height=301 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-27-53.png?version=1&amp;modificationDate=1502890075288&amp;cacheVersion=1&amp;api=v2&amp;width=213&amp;height=249 1x" /></span></li></ol></li>
+            <li>Now, when you Status your database and look at what's deployed in your database, you will notice that the deleted changeset shows up in the Ignored view with comments "Not in Changelog"<ol><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="900" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-15_18-4-34.png?version=1&amp;modificationDate=1502889436342&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=180" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-15_18-4-34.png?version=1&amp;modificationDate=1502889436342&amp;cacheVersion=1&amp;api=v2&amp;width=1050&amp;height=210 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-15_18-4-34.png?version=1&amp;modificationDate=1502889436342&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=180 1x" /></span></li><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="900" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-33-49.png?version=1&amp;modificationDate=1502890431012&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=64" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-33-49.png?version=1&amp;modificationDate=1502890431012&amp;cacheVersion=1&amp;api=v2&amp;width=1009&amp;height=72 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1474575/image2017-8-16_8-33-49.png?version=1&amp;modificationDate=1502890431012&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=64 1x" /></span></li></ol></li>
+            <li>VERY IMPORTANT: Commit and push your Datical project back into SCM because your changelog.xml file has changed.<ol><li>For example, "git commit ..." followed by "git push".</li></ol></li>
+        </ol>
+        <h2 id="HowTo:RemoveabandondedchangesfromDaticalandlowerenvironments-Relatedarticles">Related articles</h2>
+        <p />
+        <p />
+        <ul class="content-by-label conf-macro output-block">
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="#">How To: Remove abandonded changes from Datical and lower environments</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="remove-abandonded-changes.htm">How To: Abandon changes</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="remove-abandonded-changes.htm">How To: Negate changes</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="remove-abandonded-changes.htm">How To: Abandon a Single Changeset from a Script</a>
+                </div>
+            </li>
+            <li>
+                <div><span class="icon aui-icon aui-icon-small aui-iconfont-page-default" title="Page">Page:</span>
+                </div>
+                <div class="details"><a href="remove-abandonded-changes.htm">How To: Deploy Changes to a Specific Environment</a>
+                </div>
+            </li>
+        </ul>
+        <p>
+            <br />
+        </p>
+        <p>
+            <br />
+        </p>
+    </body>
+</html>
