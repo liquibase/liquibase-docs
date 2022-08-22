@@ -1,14 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html>
     <head><title></title>
     </head>
     <body>
-        <h1>How To: Recover when Archive Files have been Modified</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-        <p>Once a file has been moved to the archive folder it should no longer be modified. In the event that a file is updated in the archive folder there are a couple of methods for fixing.</p>
-        <h3 id="HowTo:RecoverwhenArchiveFileshavebeenModified-Archivefileshavebeenmodifiederror">Archive files have been modified error</h3>
-        <p>The error you will see in the logs when an archive file has been modified is as below.</p>
-        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
-            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve"><MadCap:variable name="General.DaticalDB" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> was able to locate existing Change Sets for the script 'orders_table_05.sql'
+        <h1>How To: Recover when Archive Files have been Modified</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /><p>Once a file has been moved to the archive folder it should no longer be modified. In the event that a file is updated in the archive folder there are a couple of methods for fixing.</p><h3 id="HowTo:RecoverwhenArchiveFileshavebeenModified-Archivefileshavebeenmodifiederror">Archive files have been modified error</h3><p>The error you will see in the logs when an archive file has been modified is as below.</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve"><MadCap:variable name="General.DaticalDB" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> was able to locate existing Change Sets for the script 'orders_table_05.sql'
 but the checksums that were associated with those Change Sets when the script was originally packaged do not match the checksum generated from the current script.
 Current Checksum Value:  81ebbca24c7e47f8bb40d1fce88b2dd7
 ________________________________________________________________________________
@@ -21,113 +16,8 @@ originally packaged do not match the checksum generated from the current script.
 This typically indicates that the script has changed since it was originally
 packaged OR you are attempting to manage different scripts with identical names.
 If this was an expected change, you can rename the current file and check it 
-into the appropriate folder outside of the archive to re-Package it.</pre>
-            </div>
-        </div>
-        <p>The error is similar to the error you will get for trying to package a file with the same name as a previously packaged file. To distinguish that this error is because a archive file was modified, check the section of the log for PACKAGING ORDER FOR COMMIT FILES. You will see a file in the archive folder that is attempting to be packaged. For example:</p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="680" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-153921.png?version=1&amp;modificationDate=1620229164182&amp;cacheVersion=1&amp;api=v2&amp;width=680&amp;height=110" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-153921.png?version=1&amp;modificationDate=1620229164182&amp;cacheVersion=1&amp;api=v2&amp;width=1265&amp;height=205 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-153921.png?version=1&amp;modificationDate=1620229164182&amp;cacheVersion=1&amp;api=v2&amp;width=680&amp;height=110 1x" /></span>
-        <p />
-        <h3 id="HowTo:RecoverwhenArchiveFileshavebeenModified-Method1:UpdatethesqlScmLastImportIDforthebranchindeployPackager.properties">Method 1: Update the sqlScmLastImportID for the branch in deployPackager.properties</h3>
-        <p>By using this method, you are essentially skipping over any SQL commits that occurred between the last time Packager successfully packaged and when the archive folder was modified.</p>
-        <ol>
-            <li>
-                <p>On the packaging branch, find the commitID where the archive file was modified.</p>
-                <ol>
-                    <li>
-                        <p>This commitID should be present in the log in the section PACKAGING ORDER FOR COMMIT FILES.</p>
-                    </li>
-                    <li><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="632" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=632&amp;height=102" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=1264&amp;height=204 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=632&amp;height=102 1x" /></span>
-                        <ol>
-                            <li>
-                                <p>If there are changes after the above commitID dependent on changes between the last time Packager successfully packaged, just use the <u>last</u> commitID on the branch.</p>
-                            </li>
-                        </ol>
-                    </li>
-                </ol>
-            </li>
-            <li>
-                <p>In the ddb repo, update the <strong>deployPackager.properties</strong> file &lt;branch&gt;.sqlScmLastImportID to use the commitID from step 1.</p>
-                <ol>
-                    <li>
-                        <p>The existing &lt;branch&gt;.sqlScmLastImportID in the deployPackager.properties is the last time Packager ran successfully. This should also match the most recent “Datical automatic check-in” message if you are looking at the git commit log.</p>
-                    </li>
-                    <li><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="578" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154927.png?version=1&amp;modificationDate=1620229769918&amp;cacheVersion=1&amp;api=v2&amp;width=578&amp;height=74" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154927.png?version=1&amp;modificationDate=1620229769918&amp;cacheVersion=1&amp;api=v2&amp;width=622&amp;height=80 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154927.png?version=1&amp;modificationDate=1620229769918&amp;cacheVersion=1&amp;api=v2&amp;width=578&amp;height=74 1x" /></span><span class="confluence-embedded-file-wrapper image-center-wrapper"><img class="confluence-embedded-image image-center" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/2548924423/image-20210505-155810.png?version=1&amp;modificationDate=1620230293745&amp;cacheVersion=1&amp;api=v2" /></span>
-                    </li>
-                </ol>
-            </li>
-            <li>
-                <p>Run a Packaging job.</p>
-            </li>
-            <li>
-                <p>You will need to make small changes (eg. add a space) to any SQL files that were modified since the last time Packager ran successfully and the commitID you used in step 2 in order for Packager to pick up the changes and process them.</p>
-                <ol>
-                    <li>
-                        <p>Commit these small changes to source control.</p>
-                    </li>
-                </ol>
-            </li>
-            <li>
-                <p>Run a Packaging job again to pick up the changes from all the SQL files modified in step 4.</p>
-            </li>
-        </ol>
-        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
-            <div class="confluence-information-macro-body">
-                <p>Note: This method is <strong><u>not</u></strong> recommended for projects with multiple pipelines that are merged into one branch from another, eg. develop → qa → stress → prod. In this case, each pipeline branch would need to have the sqlScmLastImportID updated after each merge from the lower branch until the problem was resolved across all pipelines.</p>
-            </div>
-        </div>
-        <h3 id="HowTo:RecoverwhenArchiveFileshavebeenModified-Method2:UpdatethePackagerbranchtobebasedoncommitpriortoarchiveupdate">Method 2: Update the Packager branch to be based on commit prior to archive update</h3>
-        <p>In this method, you are resetting the Packaging branch to an earlier state in git. </p>
-        <ol>
-            <li>
-                <p>On the packaging branch, find the commitID <u>prior</u> to when the archive file was modified.</p>
-                <ol>
-                    <li>
-                        <p>This commit containing the modified archive file should be present in the log in the section PACKAGING ORDER FOR COMMIT FILES.</p>
-                    </li>
-                    <li><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="612" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=612&amp;height=99" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=1224&amp;height=198 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=612&amp;height=99 1x" /></span>
-                        <p>Look in SCM commit history or use ‘git log’ to find the commit <u>prior</u> to the archive file commit.</p>
-                    </li>
-                </ol>
-            </li>
-            <li>
-                <p>Rename the existing packaging branch to eg. &lt;branch&gt;-archive. Instructions:</p>
-                <ol>
-                    <li>
-                        <p />
-                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
-                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">git checkout &lt;branch&gt;git branch -m &lt;branch&gt;-archive
+into the appropriate folder outside of the archive to re-Package it.</pre></div></div><p>The error is similar to the error you will get for trying to package a file with the same name as a previously packaged file. To distinguish that this error is because a archive file was modified, check the section of the log for PACKAGING ORDER FOR COMMIT FILES. You will see a file in the archive folder that is attempting to be packaged. For example:</p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="680" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-153921.png?version=1&amp;modificationDate=1620229164182&amp;cacheVersion=1&amp;api=v2&amp;width=680&amp;height=110" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-153921.png?version=1&amp;modificationDate=1620229164182&amp;cacheVersion=1&amp;api=v2&amp;width=1265&amp;height=205 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-153921.png?version=1&amp;modificationDate=1620229164182&amp;cacheVersion=1&amp;api=v2&amp;width=680&amp;height=110 1x" /></span><p /><h3 id="HowTo:RecoverwhenArchiveFileshavebeenModified-Method1:UpdatethesqlScmLastImportIDforthebranchindeployPackager.properties">Method 1: Update the sqlScmLastImportID for the branch in deployPackager.properties</h3><p>By using this method, you are essentially skipping over any SQL commits that occurred between the last time Packager successfully packaged and when the archive folder was modified.</p><ol><li><p>On the packaging branch, find the commitID where the archive file was modified.</p><ol><li><p>This commitID should be present in the log in the section PACKAGING ORDER FOR COMMIT FILES.</p></li><li><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="632" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=632&amp;height=102" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=1264&amp;height=204 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=632&amp;height=102 1x" /></span><ol><li><p>If there are changes after the above commitID dependent on changes between the last time Packager successfully packaged, just use the <u>last</u> commitID on the branch.</p></li></ol></li></ol></li><li><p>In the ddb repo, update the <strong>deployPackager.properties</strong> file &lt;branch&gt;.sqlScmLastImportID to use the commitID from step 1.</p><ol><li><p>The existing &lt;branch&gt;.sqlScmLastImportID in the deployPackager.properties is the last time Packager ran successfully. This should also match the most recent “Datical automatic check-in” message if you are looking at the git commit log.</p></li><li><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="578" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154927.png?version=1&amp;modificationDate=1620229769918&amp;cacheVersion=1&amp;api=v2&amp;width=578&amp;height=74" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154927.png?version=1&amp;modificationDate=1620229769918&amp;cacheVersion=1&amp;api=v2&amp;width=622&amp;height=80 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154927.png?version=1&amp;modificationDate=1620229769918&amp;cacheVersion=1&amp;api=v2&amp;width=578&amp;height=74 1x" /></span><span class="confluence-embedded-file-wrapper image-center-wrapper"><img class="confluence-embedded-image image-center" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/2548924423/image-20210505-155810.png?version=1&amp;modificationDate=1620230293745&amp;cacheVersion=1&amp;api=v2" /></span></li></ol></li><li><p>Run a Packaging job.</p></li><li><p>You will need to make small changes (eg. add a space) to any SQL files that were modified since the last time Packager ran successfully and the commitID you used in step 2 in order for Packager to pick up the changes and process them.</p><ol><li><p>Commit these small changes to source control.</p></li></ol></li><li><p>Run a Packaging job again to pick up the changes from all the SQL files modified in step 4.</p></li></ol><div class="confluence-information-macro confluence-information-macro-information conf-macro output-block"><div class="confluence-information-macro-body"><p>Note: This method is <strong><u>not</u></strong> recommended for projects with multiple pipelines that are merged into one branch from another, eg. develop → qa → stress → prod. In this case, each pipeline branch would need to have the sqlScmLastImportID updated after each merge from the lower branch until the problem was resolved across all pipelines.</p></div></div><h3 id="HowTo:RecoverwhenArchiveFileshavebeenModified-Method2:UpdatethePackagerbranchtobebasedoncommitpriortoarchiveupdate">Method 2: Update the Packager branch to be based on commit prior to archive update</h3><p>In this method, you are resetting the Packaging branch to an earlier state in git. </p><ol><li><p>On the packaging branch, find the commitID <u>prior</u> to when the archive file was modified.</p><ol><li><p>This commit containing the modified archive file should be present in the log in the section PACKAGING ORDER FOR COMMIT FILES.</p></li><li><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" width="612" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=612&amp;height=99" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=1224&amp;height=198 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2548924423/image-20210505-154040.png?version=1&amp;modificationDate=1620229242714&amp;cacheVersion=1&amp;api=v2&amp;width=612&amp;height=99 1x" /></span><p>Look in SCM commit history or use ‘git log’ to find the commit <u>prior</u> to the archive file commit.</p></li></ol></li><li><p>Rename the existing packaging branch to eg. &lt;branch&gt;-archive. Instructions:</p><ol><li><p /><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">git checkout &lt;branch&gt;git branch -m &lt;branch&gt;-archive
 git push origin -u &lt;branch&gt;-archive
-git push origin --delete &lt;branch&gt;</pre>
-                            </div>
-                        </div>
-                    </li>
-                </ol>
-            </li>
-            <li>
-                <p>Create a new git branch from the commitID found in step 1. Use the original branch name. Instructions:</p>
-                <ol>
-                    <li>
-                        <p />
-                        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
-                            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">git checkout &lt;branch&gt;-archive
-git checkout -b &lt;branch&gt; &lt;commit_id_prior_to_commit_where_archive_file_was_modified&gt;git push origin -u &lt;branch&gt;</pre>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <p>You should <u>not</u> need to update the deployPackager.properties &lt;branch&gt;.sqlScmLastImportID as you do in Method 1. That commitID should still be present in the branch you’ve just created. </p>
-                    </li>
-                </ol>
-            </li>
-            <li>
-                <p>Run a Packaging job.</p>
-            </li>
-            <li>
-                <p>Any SQL file changes made after the commitID will no longer be in the branch. They will needed to be added back. The &lt;branch&gt;-archive branch should be available for reference.</p>
-            </li>
-            <li>
-                <p>Commit back to source control after adding back the changes and run Packaging job again.</p>
-            </li>
-        </ol>
-        <p />
-    </body>
+git push origin --delete &lt;branch&gt;</pre></div></div></li></ol></li><li><p>Create a new git branch from the commitID found in step 1. Use the original branch name. Instructions:</p><ol><li><p /><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">git checkout &lt;branch&gt;-archive
+git checkout -b &lt;branch&gt; &lt;commit_id_prior_to_commit_where_archive_file_was_modified&gt;git push origin -u &lt;branch&gt;</pre></div></div></li><li><p>You should <u>not</u> need to update the deployPackager.properties &lt;branch&gt;.sqlScmLastImportID as you do in Method 1. That commitID should still be present in the branch you’ve just created. </p></li></ol></li><li><p>Run a Packaging job.</p></li><li><p>Any SQL file changes made after the commitID will no longer be in the branch. They will needed to be added back. The &lt;branch&gt;-archive branch should be available for reference.</p></li><li><p>Commit back to source control after adding back the changes and run Packaging job again.</p></li></ol><p /></body>
 </html>
