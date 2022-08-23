@@ -1,0 +1,316 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us">
+    <head><title></title>
+        <link href="../../../../Resources/Stylesheets/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.css" rel="stylesheet" />
+    </head>
+    <body>
+        <h1 class="Heading1">Azure REST API for the Ephemeral Deploy Packager Process</h1>
+        <ul class="ul_3">
+            <li class="li_1">
+                <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Azure REST API Settings</a> </p>
+                <ul class="ul_2">
+                    <li class="li_1">
+                        <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Client Secret Authentication</a>
+                        </p>
+                    </li>
+                    <li class="li_1">
+                        <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Using Client Secret Authentication</a>
+                        </p>
+                    </li>
+                    <li class="li_1">
+                        <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Client Certificate Authentication</a> </p>
+                        <ul class="ul_1">
+                            <li class="li_1">
+                                <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Creating a Service Principal</a>
+                                </p>
+                            </li>
+                            <li class="li_1">
+                                <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Creating a Client Certificate and Private Key Using the OpenSSL Utility</a>
+                                </p>
+                            </li>
+                            <li class="li_1">
+                                <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Uploading a Client Certificate to Azure App Registrations</a>
+                                </p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="li_1">
+                        <p class="p_1"><a href="file:///C:/Users/Amber Williams/Downloads/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process.doc#AzureRESTAPIfortheEphemeralDeployPackag" class="Hyperlink">Using Client Certificate Authentication</a>
+                        </p>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p class="NormalWeb">Liquibase Enterprise uses the Azure REST API to perform a point-in-time restore during packaging for Azure SQL Managed Instances. The Deployment Packager uses the Azure REST API to manage backup and restore operations for the reference database.</p>
+        <p class="NormalWeb"><span class="inline-comment-marker">You can authenticate with the Azure SQL Database REST API using certificates </span>and a <span class="HTMLCode_1">Client Secret</span>. In your Azure REST API settings, you can choose <span class="Strong">Certificate Authentication</span> or <span class="Strong">Client Secret Authentication</span>. Also, the following attributes are available in the Datical DB GUI:</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb">Azure Client ID</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Azure Tenant ID</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Azure Client Secret (for Client Secret Authentication only)</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Azure Resource Group</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Azure Subscription ID</p>
+            </li>
+        </ul>
+        <p class="NormalWeb">The REST API Client Secret is a sensitive credential. For this reason, it is strongly recommended that this credential be provided at runtime in an environment variable and not stored in the GUI. For more information, see the <a href="../../../database-admin/how-to-guides/providing-runtime-credentials.htm" class="Hyperlink">Runtime Credentials</a> documentation.</p>
+        <p>
+            <img src="../../../../Resources/Images/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process/Azure REST API for the Ephemeral.png" class="img_1" />
+        </p>
+        <h2 class="Heading2">Azure REST API Settings</h2>
+        <p class="NormalWeb">Azure REST API settings contain the information about Azure SQL Managed Instance (<span class="HTMLCode_1">subscriptionId</span>, <span class="HTMLCode_1">tenantId</span>, and <span class="HTMLCode_1">resourceGroup</span>) and service principal (<span class="HTMLCode_1">password</span> and <span class="HTMLCode_1">appId</span>, which are <span class="HTMLCode_1">Azure Client Secret</span> and <span class="HTMLCode_1">Client ID</span>).</p>
+        <p class="NormalWeb">Azure REST API settings are only required for <span class="HTMLCode_1">Packager</span> processes to support restore and backup operations. You don’t need to configure the Azure REST API settings to execute other commands such as <span class="HTMLCode_1">Deploy</span>, <span class="HTMLCode_1">Forecast</span>, and others.</p>
+        <h3 class="Heading3">Client Secret Authentication </h3>
+        <p class="NormalWeb">A Client Secret Authentication requires two service principal attributes and the Azure SQL Managed Instance information – <span class="HTMLCode_1">Azure Client Authentication</span> and <span class="HTMLCode_1">Client ID</span>. Thus, you need to create a service principal to get a bearer token and initiate a point-in-time backup for Azure SQL Managed Instance.</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb">An Azure service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources. The roles assigned to the service principal have control over which resources can be accessed and at which level. For more information, see <a href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" class="Hyperlink">Create an Azure service principal with the Azure CLI</a> or <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" class="Hyperlink">Create a service principal using the Azure portal</a>.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">A bearer token is a security token that grants access to a protected resource. For more information, see <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols" class="Hyperlink">OAuth 2.0 and OpenID Connect protocols on the Microsoft identity platform</a>.</p>
+            </li>
+        </ul>
+        <p class="NormalWeb">You can create a service principal through the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" class="Hyperlink">Azure portal</a> or <a href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" class="Hyperlink">CLI</a>. You must have an <span class="HTMLCode_1">Owner</span> role and specify it along with the resource group.</p>
+        <p>
+            <img src="../../../../Resources/Images/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process/Azure REST API for the Ephemeral_1.png" class="img_2" /><span class="expand-control-text">An example of the CLI commands and output for creating a service principal:</span> </p>
+        <p class="HTMLPreformatted">az login</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">az ad sp create-for-rbac -n "service_principal_name" --role Owner --scopes </p>
+        <p class="HTMLPreformatted">/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">Changing "service_principal_name" to a valid URI of </p>
+        <p class="HTMLPreformatted">"http://service_principal_name", which is the required format used for </p>
+        <p class="HTMLPreformatted">service principal names</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">Creating 'Owner' role assignment under scope '/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev'</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">The output includes credentials that you must protect. Be sure that you do not include</p>
+        <p class="HTMLPreformatted">these credentials in your code or check the credentials into your source control. </p>
+        <p class="HTMLPreformatted">For more information, see https://aka.ms/azadsp-cli</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">{</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "appId": "et78acie-some-id",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "displayName": "service_principal_MI",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "name": "http://service_principal_MI",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "password": "bth6-some-password",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "tenant": "fd564a-some-tenant"</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">}</p>
+        <p class="NormalWeb">Once a service principal is successfully created, ensure the following attributes are available:</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb">appId (Client ID)</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">password (Client Secret)</p>
+            </li>
+        </ul>
+        <p class="NormalWeb">This configuration focuses on a single-tenant application run within only one organization. You must have your permissions set to register an application with your Azure AD tenant and assign a role to the application in your Azure subscription. Also, when you register an application through the Azure portal, an application object and service principal is automatically created in your home directory or tenant.</p>
+        <h3 class="Heading3"><span class="inline-comment-marker">Using Client Secret Authentication</span>
+        </h3>
+        <p>
+            <img src="../../../../Resources/Images/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process/Azure REST API for the Ephemeral_1.png" class="img_2" /><span class="expand-control-text">CLI Usage</span> </p>
+        <p class="NormalWeb">To use Azure Active Directory Client Authentication in the CLI, you need to run the <span class="HTMLCode_1">newDbDef</span> command. The <span class="HTMLCode_1">newDbDef</span> command creates a new <span class="HTMLCode_1">dbDef</span> based on the key and value pairs specified as arguments. The <span class="HTMLCode_1">newDbDef</span> command includes the Azure REST API authentication option called <span class="HTMLCode_1">azureRestAuthenticationOption</span>, which is required for Azure Active Directory Client Authentication (Azure SQL Managed Instance). The needed value for <span class="HTMLCode_1">azureRestAuthenticationOption</span> is <span class="HTMLCode_1">clientSecret</span>:</p>
+        <p class="HTMLPreformatted">hammer newDbDef DbDefClass SqlServerDbDef dbType AZ_SQLMI </p>
+        <p class="HTMLPreformatted">azureRestAuthenticationOption clientSecret name Source username username_example </p>
+        <p class="HTMLPreformatted">password password_example databaseName DA defaultSchemaName dbo defaultCatalogName </p>
+        <p class="HTMLPreformatted">catalog_example contexts some_context labels some_label </p>
+        <p class="HTMLPreformatted">dbDefType standard storageOptionCollectedAtSnapshot true hostname 127.0.0.0 port 8080 </p>
+        <p class="HTMLPreformatted">instanceName test_instance applicationName test_app</p>
+        <p class="NormalWeb">There is no need to submit a username and password when you use Azure Active Directory Authentication.</p>
+        <p class="NormalWeb">If you do not have the Datical DB project, create it with the <span class="HTMLCode_1">project_creator.groovy</span> script. The <span class="HTMLCode_1">project_creator.groovy</span> script reads information from a set of input files and generates a project directory in your workspace containing the required configuration files. Use the <span class="HTMLCode_1">hammer</span> command to execute the <span class="HTMLCode_1">project_creator.groovy</span> script with the files located in the Datical DB installation package: <span class="HTMLCode_1">hammer groovy project_creator.groovy &lt;jdbc_drivers_dir&gt; &lt;provisioning_files_dir&gt; &lt;datical_workspace_dir&gt; &lt;project_name&gt; [replace] [zip] [testConnections]</span>.</p>
+        <p class="NormalWeb_1">You can find all arguments for the <span class="HTMLCode_1">newDbDef</span> command by executing <span class="HTMLCode_1">hammer help newDbDef</span> or following <a href="../../../database-admin/cli-commands/cli-commands.htm" class="Hyperlink">CLI Commands</a> documentation.</p>
+        <p>
+            <img src="../../../../Resources/Images/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process/Azure REST API for the Ephemeral_1.png" class="img_2" /><span class="expand-control-text">GUI Usage</span> </p>
+        <p class="NormalWeb">To use Azure Active Directory Client Authentication in the Datical DB GUI, follow these steps:</p>
+        <ol start="1" class="ol_1">
+            <li class="NormalWeb">
+                <p class="NormalWeb">Open Datical DB and select your deployment plan.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select the <span class="Strong">Azure SQL Managed Instance</span> connection type and enter your hostname, port, application name, database name, instance name, username, and password.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select the <span class="Strong">Test Connection</span> button to check the connection to your database.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select the <span class="Strong">View &amp; Configure Settings</span> button, choose <span class="Strong">Client Secret Authentication</span> in the Client Authentication dropdown, and then enter all values.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select <span class="Strong">OK</span> to set the connection.</p>
+            </li>
+        </ol>
+        <p class="NormalWeb">Now you can use Datical DB functionalities like the Deploy Packager backup and restore processes. For more information, see <a href="../azure-sql-setup/packager-backup-restore-process.htm" class="Hyperlink">Packager backup and restore process for SQL Server and Azure SQL Managed Instance</a>.</p>
+        <h3 class="Heading3">Client Certificate Authentication </h3>
+        <p class="NormalWeb">Client Certificate Authentication requires the Azure SQL Managed Instance information and the service principal attribute – <span class="HTMLCode_1">Client ID</span>. To use a certificate authentication mechanism, you also need:</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="HTMLCode_1">X509</span> certificates.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">A private key in a <span class="HTMLCode_1">pks8</span> format. You should decrypt it and use it without a password<span class="Strong">.</span></p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Environment variables:</p>
+                <ul class="ul_2">
+                    <li class="NormalWeb">
+                        <p class="NormalWeb"><span class="HTMLCode_1">DDB_AZURE_CLIENT_CERT</span> is an absolute path to the client certificate.</p>
+                    </li>
+                    <li class="NormalWeb">
+                        <p class="NormalWeb"><span class="HTMLCode_1">DDB_AZURE_CERT_KEY</span> is an absolute path to the private key for the client certificate.</p>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <h4 class="Heading4">Creating a Service Principal</h4>
+        <p class="NormalWeb">An Azure service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources. The roles assigned to the service principal have control over which resources can be accessed and at which level. For more information, see <a href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" class="Hyperlink">Create an Azure service principal with the Azure CLI</a> or <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" class="Hyperlink">Create a service principal using the Azure portal</a>.</p>
+        <p class="NormalWeb">You can create a service principal through the <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" class="Hyperlink">Azure portal</a> or <a href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" class="Hyperlink">CLI</a>. You must have an <span class="HTMLCode_1">Owner</span> role and specify it along with the resource group.</p>
+        <p>
+            <img src="../../../../Resources/Images/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process/Azure REST API for the Ephemeral_1.png" class="img_2" /><span class="expand-control-text">An example of the CLI commands and output for creating a service principal:</span> </p>
+        <p class="HTMLPreformatted">az login</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">az ad sp create-for-rbac -n "service_principal_name" --role Owner --scopes </p>
+        <p class="HTMLPreformatted">/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">Changing "service_principal_name" to a valid URI of </p>
+        <p class="HTMLPreformatted">"http://service_principal_name", which is the required format used for </p>
+        <p class="HTMLPreformatted">service principal names</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">Creating 'Owner' role assignment under scope '/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev'</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">The output includes credentials that you must protect. Be sure that you do not include</p>
+        <p class="HTMLPreformatted">these credentials in your code or check the credentials into your source control. </p>
+        <p class="HTMLPreformatted">For more information, see https://aka.ms/azadsp-cli</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">{</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "appId": "et78acie-some-id",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "displayName": "service_principal_MI",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "name": "http://service_principal_MI",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "password": "bth6-some-password",</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">&#160; "tenant": "fd564a-some-tenant"</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">}</p>
+        <p class="NormalWeb">Once a service principal is successfully created, ensure the <span class="HTMLCode_1">appId</span> (<span class="HTMLCode_1">Client ID</span>) attribute is available.</p>
+        <h4 class="Heading4"><span class="inline-comment-marker">Creating a Client Certificate and Private Key Using the OpenSSL Utility</span>
+        </h4>
+        <p class="NormalWeb">If you have the existing certificates, you can skip the following steps.</p>
+        <p class="NormalWeb">To create an <span class="HTMLCode_1">X509</span> certificate and private key, follow these steps:</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb">In your OpenSSL, run the command by replacing values from the example with the values you use:</p>
+            </li>
+        </ul>
+        <p class="HTMLPreformatted">openssl req -x509 -days 365 -nodes -newkey rsa:4096 -keyout azure_test_pk.key </p>
+        <p class="HTMLPreformatted">-out azure_test_certificate.crt -subj "/C=USA/ST=Texas/L=Austin/CN=www.liquibase.com/emailAddress=example@liquibase.com"</p>
+        <p class="NormalWeb_2">The command will create the <span class="HTMLCode_1">azure_test_certificate.crt</span> certificate file and <span class="HTMLCode_1">azure_test_pk.key</span> private key file without a password.</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb">Change the format of a private key file from <span class="HTMLCode_1">PEM</span> to <span class="HTMLCode_1">pks8</span> and decrypt it by running the following command and using your values:</p>
+            </li>
+        </ul>
+        <p class="HTMLPreformatted">openssl pkcs8 -topk8 -inform PEM -outform DER -in azure_test_pk.key </p>
+        <p class="HTMLPreformatted">-out azure_test_pk_decrypted.key -nocrypt</p>
+        <p class="NormalWeb_2">The command will create <span class="HTMLCode_1">azure_test_pk_decrypted.key</span>, which you can use for Azure Active Directory Client Certificate Authentication in Datical DB.&#160;</p>
+        <h4 class="Heading4">Uploading a Client Certificate to Azure App Registrations</h4>
+        <ol start="1" class="ol_1">
+            <li class="NormalWeb">
+                <p class="NormalWeb">Log in to your <a href="https://portal.azure.com/#home" class="Hyperlink">Microsoft Azure</a> account.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Go to <span class="Strong">Azure Active Directory</span> and select <span class="Strong">App registrations</span> on the left side of the page<span class="Strong">.</span></p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select <span class="Strong">All applications</span> and choose an app that you want to use for the Azure SQL Managed Instance deployment.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">On the left side of the page, select <span class="Strong">Certificates &amp; secrets.</span></p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select <span class="Strong">Upload certificate</span> and upload the generated certificate.</p>
+            </li>
+        </ol>
+        <p class="NormalWeb">Once you have the certificate and private key, you can use Azure Active Directory Client Certificate Authentication and run Deploy Packager.</p>
+        <h3 class="Heading3"><span class="inline-comment-marker">Using Client Certificate Authentication&#160;</span>
+        </h3>
+        <p>
+            <img src="../../../../Resources/Images/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process/Azure REST API for the Ephemeral_1.png" class="img_2" /><span class="expand-control-text">CLI Usage</span> </p>
+        <p class="NormalWeb">To use Azure Active Directory Client Certificate Authentication in the CLI, you need to:</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb">Set the following environment variables on the system using certificate authentication with Datical DB:</p>
+                <ul class="ul_2">
+                    <li class="NormalWeb">
+                        <p class="NormalWeb"><span class="HTMLCode_1">DDB_AZURE_CLIENT_CERT=absolute/path/to/the/client/certificate</span>
+                        </p>
+                    </li>
+                    <li class="NormalWeb">
+                        <p class="NormalWeb"><span class="HTMLCode_1">DDB_AZURE_CERT_KEY=absolute/path/to/the/private/key/for/the/client/certificate</span>
+                        </p>
+                    </li>
+                </ul>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Run the <span class="HTMLCode_1">newDbDef</span> command with the Azure REST API authentication option called <span class="HTMLCode_1">azureRestAuthenticationOption</span> and the <span class="HTMLCode_1">certificate</span> value. The <span class="HTMLCode_1">newDbDef</span> command creates a new <span class="HTMLCode_1">dbDef</span> based on the key and value pairs specified as arguments:</p>
+            </li>
+        </ul>
+        <p class="HTMLPreformatted">hammer newDbDef DbDefClass SqlServerDbDef dbType AZ_SQLMI </p>
+        <p class="HTMLPreformatted">azureRestAuthenticationOption certificate name Source username username_example </p>
+        <p class="HTMLPreformatted">password password_example databaseName DA defaultSchemaName dbo defaultCatalogName </p>
+        <p class="HTMLPreformatted">catalog_example contexts some_context labels some_label </p>
+        <p class="HTMLPreformatted">dbDefType standard storageOptionCollectedAtSnapshot true hostname 127.0.0.0 port 8080 </p>
+        <p class="HTMLPreformatted">instanceName test_instance applicationName test_app</p>
+        <p class="NormalWeb">There is no need to submit a username and password when you use Azure Active Directory Authentication.</p>
+        <p class="NormalWeb">If you do not have the Datical DB project, create it with the <span class="HTMLCode_1">project_creator.groovy</span> script. The <span class="HTMLCode_1">project_creator.groovy</span> script reads information from a set of input files and generates a project directory in your workspace containing the required configuration files. Use the <span class="HTMLCode_1">hammer</span> command to execute the <span class="HTMLCode_1">project_creator.groovy</span> script with the files located in the Datical DB installation package: <span class="HTMLCode_1">hammer groovy project_creator.groovy &lt;jdbc_drivers_dir&gt; &lt;provisioning_files_dir&gt; &lt;datical_workspace_dir&gt; &lt;project_name&gt; [replace] [zip] [testConnections]</span>.</p>
+        <p class="NormalWeb_1">You can find all arguments for the <span class="HTMLCode_1">newDbDef</span> command by executing <span class="HTMLCode_1">hammer help newDbDef</span> or following <a href="../../../database-admin/cli-commands/cli-commands.htm" class="Hyperlink">CLI Commands</a> documentation.</p>
+        <p class="NormalWeb">After running the <span class="HTMLCode_1">newDbDef</span> command with the certificate value, you will see <span class="HTMLCode_1">azureRestAuthenticationOption=certificate</span> in your <span class="HTMLCode_1">datical.project</span> file.</p>
+        <p>
+            <img src="../../../../Resources/Images/Azure+REST+API+for+the+Ephemeral+Deploy+Packager+Process/Azure REST API for the Ephemeral_1.png" class="img_2" /><span class="expand-control-text">GUI Usage</span> </p>
+        <p class="NormalWeb">Before you start using Datical DB GUI and configure Azure REST API settings to perform a point-in-time restore during packaging for Azure SQL Managed Instances, set the following environment variables on the system using certificate authentication with Datical DB:</p>
+        <ul class="ul_3">
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="HTMLCode_1">DDB_AZURE_CLIENT_CERT=absolute/path/to/the/client/certificate</span>
+                </p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="HTMLCode_1">DDB_AZURE_CERT_KEY=absolute/path/to/the/private/key/for/the/client/certificate</span>
+                </p>
+            </li>
+        </ul>
+        <p class="NormalWeb">To use Client Certificate Authentication in the Datical DB GUI, follow these steps:</p>
+        <ol start="1" class="ol_1">
+            <li class="NormalWeb">
+                <p class="NormalWeb">Open Datical DB and select your deployment plan.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select the <span class="Strong">Azure SQL Managed Instance</span> connection type and enter your hostname, port, application name, database name, instance name, username, and password.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select the <span class="Strong">Test Connection</span> button to check the connection to your database.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select the <span class="Strong">View &amp; Configure Settings</span> button, choose <span class="Strong">Certificate Authentication</span> in the Client Authentication dropdown, and then enter all values.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Select <span class="Strong">OK</span> to set the connection.</p>
+            </li>
+        </ol>
+        <p class="NormalWeb">Now you can use Datical DB functionalities like the Deploy Packager backup and restore processes. For more information, see <a href="../azure-sql-setup/packager-backup-restore-process.htm" class="Hyperlink">Packager backup and restore process for SQL Server and Azure SQL Managed Instance</a>.</p>
+    </body>
+</html>
