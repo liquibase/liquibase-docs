@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
+    <body>
+        <h1>Azure REST API for the Ephemeral Deploy Packager Process</h1>
+        <p>Liquibase Enterprise uses the Azure REST API to perform a point-in-time restore during packaging for Azure SQL Managed Instances. The Deployment Packager uses the Azure REST API to manage backup and restore operations for the reference database.</p>
+        <p><span class="inline-comment-marker">You can authenticate with the Azure SQL Database REST API using certificates </span>and a <code>Client Secret</code>. In your Azure REST API settings, you can choose <strong>Certificate Authentication</strong> or <strong>Client Secret Authentication</strong>. Also, the following attributes are available in the Datical DB GUI:</p>
+        <ul>
+            <li>Azure Client ID</li>
+            <li>Azure Tenant ID</li>
+            <li>Azure Client Secret (for Client Secret Authentication only)</li>
+            <li>Azure Resource Group</li>
+            <li>Azure Subscription ID</li>
+        </ul>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>The REST API Client Secret is a sensitive credential. For this reason, it is strongly recommended that this credential be provided at runtime in an environment variable and not stored in the GUI. For more information, see the <a href="../datical-projects-defining-the-release-pipeline/Providing_Runtime_Credentials.htm">Runtime Credentials</a> documentation.</p>
+            </div>
+        </div><span class="confluence-embedded-file-wrapper image-left-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-left" width="374" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2244771861/Azure%20SQL%20Managed%20Instance%201.png?version=1&amp;modificationDate=1614172252618&amp;cacheVersion=1&amp;api=v2&amp;width=374&amp;height=421" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/2244771861/Azure%20SQL%20Managed%20Instance%201.png?version=1&amp;modificationDate=1614172252618&amp;cacheVersion=1&amp;api=v2&amp;width=748&amp;height=842 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/2244771861/Azure%20SQL%20Managed%20Instance%201.png?version=1&amp;modificationDate=1614172252618&amp;cacheVersion=1&amp;api=v2&amp;width=374&amp;height=421 1x" /></span>
+        <h2 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-AzureRESTAPISettings">Azure REST API Settings</h2>
+        <p>Azure REST API settings contain the information about Azure SQL Managed Instance (<code>subscriptionId</code>, <code>tenantId</code>, and <code>resourceGroup</code>) and service principal (<code>password</code> and <code>appId</code>, which are <code>Azure Client Secret</code> and <code>Client ID</code>).</p>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>Azure REST API settings are only required for <code>Packager</code> processes to support restore and backup operations. You don’t need to configure the Azure REST API settings to execute other commands such as <code>Deploy</code>, <code>Forecast</code>, and others.</p>
+            </div>
+        </div>
+        <h3 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-ClientSecretAuthentication">Client Secret Authentication  </h3>
+        <p>A Client Secret Authentication requires two service principal attributes and the Azure SQL Managed Instance information – <code>Azure Client Authentication</code> and <code>Client ID</code>. Thus, you need to create a service principal to get a bearer token and initiate a point-in-time backup for Azure SQL Managed Instance.</p>
+        <ul>
+            <li>An Azure service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources. The roles assigned to the service principal have control over which resources can be accessed and at which level. For more information, see <a class="external-link" href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" rel="nofollow">Create an Azure service principal with the Azure CLI</a> or <a class="external-link" href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" rel="nofollow">Create a service principal using the Azure portal</a>.</li>
+            <li>A bearer token is a security token that grants access to a protected resource. For more information, see <a class="external-link" href="https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols" rel="nofollow">OAuth 2.0 and OpenID Connect protocols on the Microsoft identity platform</a>.</li>
+        </ul>
+        <p>You can create a service principal through the <a class="external-link" href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" rel="nofollow">Azure portal</a> or <a class="external-link" href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" rel="nofollow">CLI</a>. You must have an <code>Owner</code> role and specify it along with the resource group.</p>
+        <div class="expand-container conf-macro output-block" id="expander-235018369">
+            <div id="expander-control-235018369" class="expand-control"><span class="expand-control-text">An example of the CLI commands and output for creating a service principal:</span>
+            </div>
+            <div id="expander-content-235018369" class="expand-content expand-hidden">
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">az login
+az ad sp create-for-rbac -n "service_principal_name" --role Owner --scopes 
+/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev
+Changing "service_principal_name" to a valid URI of 
+"http://service_principal_name", which is the required format used for 
+service principal names
+Creating 'Owner' role assignment under scope '/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev'
+The output includes credentials that you must protect. Be sure that you do not include
+these credentials in your code or check the credentials into your source control. 
+For more information, see https://aka.ms/azadsp-cli
+{
+&#160; "appId": "et78acie-some-id",
+&#160; "displayName": "service_principal_MI",
+&#160; "name": "http://service_principal_MI",
+&#160; "password": "bth6-some-password",
+&#160; "tenant": "fd564a-some-tenant"}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p>Once a service principal is successfully created, ensure the following attributes are available:</p>
+        <ul>
+            <li>
+                <p>appId (Client ID)</p>
+            </li>
+            <li>
+                <p>password (Client Secret)</p>
+            </li>
+        </ul>
+        <p>This configuration focuses on a single-tenant application run within only one organization. You must have your permissions set to register an application with your Azure AD tenant and assign a role to the application in your Azure subscription. Also, when you register an application through the Azure portal, an application object and service principal is automatically created in your home directory or tenant.</p>
+        <h3 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-UsingClientSecretAuthentication"><span class="inline-comment-marker">Using Client Secret Authentication</span>
+        </h3>
+        <div class="expand-container conf-macro output-block" id="expander-1292241352">
+            <div id="expander-control-1292241352" class="expand-control"><span class="expand-control-text">CLI Usage</span>
+            </div>
+            <div id="expander-content-1292241352" class="expand-content expand-hidden">
+                <p>To use Azure Active Directory Client Authentication in the CLI, you need to run the <code>newDbDef</code> command. The <code>newDbDef</code> command creates a new <code>dbDef</code> based on the key and value pairs specified as arguments. The <code>newDbDef</code> command includes the Azure REST API authentication option called <code>azureRestAuthenticationOption</code>, which is required for Azure Active Directory Client Authentication (Azure SQL Managed Instance). The needed value for <code>azureRestAuthenticationOption</code> is <code>clientSecret</code>:</p>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer newDbDef DbDefClass SqlServerDbDef dbType AZ_SQLMI 
+azureRestAuthenticationOption clientSecret name Source username username_example 
+password password_example databaseName DA defaultSchemaName dbo defaultCatalogName 
+catalog_example contexts some_context labels some_label 
+dbDefType standard storageOptionCollectedAtSnapshot true hostname 127.0.0.0 port 8080 
+instanceName test_instance applicationName test_app</pre>
+                    </div>
+                </div>
+                <p>There is no need to submit a username and password when you use Azure Active Directory Authentication.</p>
+                <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+                    <div class="confluence-information-macro-body">
+                        <p>If you do not have the Datical DB project, create it with the <code>project_creator.groovy</code> script. The <code>project_creator.groovy</code> script reads information from a set of input files and generates a project directory in your workspace containing the required configuration files. Use the <code>hammer</code> command to execute the <code>project_creator.groovy</code> script with the files located in the Datical DB installation package: <code>hammer groovy project_creator.groovy &lt;jdbc_drivers_dir&gt; &lt;provisioning_files_dir&gt; &lt;datical_workspace_dir&gt; &lt;project_name&gt; [replace] [zip] [testConnections]</code>.</p>
+                    </div>
+                </div>
+                <div class="panel conf-macro output-block" style="background-color: #EAE6FF;border-color: #998DD9;border-width: 1px;">
+                    <div class="panelContent" style="background-color: #EAE6FF;">
+                        <p>You can find all arguments for the <code>newDbDef</code> command by executing <code>hammer help newDbDef</code> or following <a href="../../../zz_sandbox/Enterprise Documentation/datical-db-documentation/reference/CLI_Commands.htm">CLI Commands</a> documentation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="expand-container conf-macro output-block" id="expander-2078292452">
+            <div id="expander-control-2078292452" class="expand-control"><span class="expand-control-text">GUI Usage</span>
+            </div>
+            <div id="expander-content-2078292452" class="expand-content expand-hidden">
+                <p>To use Azure Active Directory Client Authentication in the Datical DB GUI, follow these steps:</p>
+                <ol>
+                    <li>Open Datical DB and select your deployment plan.</li>
+                    <li>Select the <strong>Azure SQL Managed Instance</strong> connection typeand enter your hostname, port, application name, database name, instance name, username, and password.</li>
+                    <li>Select the <strong>Test Connection</strong> button to check the connection to your database.</li>
+                    <li>Select the <strong>View &amp; Configure Settings</strong> button, choose <strong>Client Secret Authentication</strong> in the Client Authentication dropdown, and then enter all values.</li>
+                    <li>Select <strong>OK</strong> to set the connection.</li>
+                </ol>
+                <p>Now you can use Datical DB functionalities like the Deploy Packager backup and restore processes. For more information, see <a href="../../../zz_sandbox/Enterprise Documentation/datical-db-documentation/configure-databases-for-datical-db-release-pipelines/Packager_backup_and_restore_process_for_SQL_Server_and_Azure_SQL_Managed_Instance.htm">Packager backup and restore process for SQL Server and Azure SQL Managed Instance</a>.</p>
+            </div>
+        </div>
+        <h3 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-ClientCertificateAuthentication">Client Certificate Authentication  </h3>
+        <p>Client Certificate Authentication requires the Azure SQL Managed Instance information and the service principal attribute – <code>Client ID</code>. To use a certificate authentication mechanism, you also need:</p>
+        <ul>
+            <li><code>X509</code> certificates.</li>
+            <li>A private key in a <code>pks8</code> format. You should decrypt it and use it without a password<strong>.</strong></li>
+            <li>Environment variables:<ul><li><code>DDB_AZURE_CLIENT_CERT</code> is an absolute path to the client certificate.</li><li><code>DDB_AZURE_CERT_KEY</code> is an absolute path to the private key for the client certificate.</li></ul></li>
+        </ul>
+        <h4 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-CreatingaServicePrincipal">Creating a Service Principal</h4>
+        <p>An Azure service principal is an identity created for use with applications, hosted services, and automated tools to access Azure resources. The roles assigned to the service principal have control over which resources can be accessed and at which level. For more information, see <a class="external-link" href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" rel="nofollow">Create an Azure service principal with the Azure CLI</a> or <a class="external-link" href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" rel="nofollow">Create a service principal using the Azure portal</a>.</p>
+        <p>You can create a service principal through the <a class="external-link" href="https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#app-registration-app-objects-and-service-principals" rel="nofollow">Azure portal</a> or <a class="external-link" href="https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli" rel="nofollow">CLI</a>. You must have an <code>Owner</code> role and specify it along with the resource group.</p>
+        <div class="expand-container conf-macro output-block" id="expander-1879164923">
+            <div id="expander-control-1879164923" class="expand-control"><span class="expand-control-text">An example of the CLI commands and output for creating a service principal:</span>
+            </div>
+            <div id="expander-content-1879164923" class="expand-content expand-hidden">
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">az login
+az ad sp create-for-rbac -n "service_principal_name" --role Owner --scopes 
+/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev
+Changing "service_principal_name" to a valid URI of 
+"http://service_principal_name", which is the required format used for 
+service principal names
+Creating 'Owner' role assignment under scope '/subscriptions/a365ee0452e-67hr-497d/resourceGroups/dev'
+The output includes credentials that you must protect. Be sure that you do not include
+these credentials in your code or check the credentials into your source control. 
+For more information, see https://aka.ms/azadsp-cli
+{
+&#160; "appId": "et78acie-some-id",
+&#160; "displayName": "service_principal_MI",
+&#160; "name": "http://service_principal_MI",
+&#160; "password": "bth6-some-password",
+&#160; "tenant": "fd564a-some-tenant"}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p>Once a service principal is successfully created, ensure the <code>appId</code> (<code>Client ID</code>) attribute is available.</p>
+        <h4 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-CreatingaClientCertificateandPrivateKeyUsingtheOpenSSLUtility"><span class="inline-comment-marker">Creating a Client Certificate and Private Key Using the OpenSSL Utility</span>
+        </h4>
+        <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+            <div class="confluence-information-macro-body">
+                <p>If you have the existing certificates, you can skip the following steps.</p>
+            </div>
+        </div>
+        <p>To create an <code>X509</code> certificate and private key, follow these steps:</p>
+        <ul>
+            <li>In your OpenSSL, run the command by replacing values from the example with the values you use:</li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">openssl req -x509 -days 365 -nodes -newkey rsa:4096 -keyout azure_test_pk.key 
+-out azure_test_certificate.crt -subj "/C=USA/ST=Texas/L=Austin/CN=www.liquibase.com/emailAddress=example@liquibase.com"</pre>
+            </div>
+        </div>
+        <p style="margin-left: 30.0px;">The command will create the <code>azure_test_certificate.crt</code> certificate file and <code>azure_test_pk.key</code> private key file without a password.</p>
+        <ul>
+            <li>Change the format of a private key file from <code>PEM</code> to <code>pks8</code> and decrypt it by running the following command and using your values:</li>
+        </ul>
+        <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+            <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">openssl pkcs8 -topk8 -inform PEM -outform DER -in azure_test_pk.key 
+-out azure_test_pk_decrypted.key -nocrypt</pre>
+            </div>
+        </div>
+        <p style="margin-left: 30.0px;">The command will create <code>azure_test_pk_decrypted.key</code>, which you can use for Azure Active Directory Client Certificate Authentication in Datical DB.&#160;</p>
+        <h4 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-UploadingaClientCertificatetoAzureAppRegistrations">Uploading a Client Certificate to Azure App Registrations</h4>
+        <ol>
+            <li>Log in to your <a class="external-link" href="https://portal.azure.com/#home" rel="nofollow">Microsoft Azure</a> account.</li>
+            <li>Go to <strong>Azure Active Directory</strong> and select <strong>App registrations</strong> on the left side of the page<strong>.</strong></li>
+            <li>Select <strong>All applications</strong> and choose an app that you want to use for the Azure SQL Managed Instance deployment.</li>
+            <li>On the left side of the page, select <strong>Certificates &amp; secrets.</strong></li>
+            <li>Select <strong>Upload certificate</strong> and upload the generated certificate.</li>
+        </ol>
+        <p>Once you have the certificate and private key, you can use Azure Active Directory Client Certificate Authentication and run Deploy Packager.</p>
+        <h3 id="AzureRESTAPIfortheEphemeralDeployPackagerProcess-UsingClientCertificateAuthentication"><span class="inline-comment-marker">Using Client Certificate Authentication&#160;</span>
+        </h3>
+        <div class="expand-container conf-macro output-block" id="expander-1888572342">
+            <div id="expander-control-1888572342" class="expand-control"><span class="expand-control-text">CLI Usage</span>
+            </div>
+            <div id="expander-content-1888572342" class="expand-content expand-hidden">
+                <p>To use Azure Active Directory Client Certificate Authentication in the CLI, you need to:</p>
+                <ul>
+                    <li>Set the following environment variables on the system using certificate authentication with Datical DB:<ul><li><code>DDB_AZURE_CLIENT_CERT=absolute/path/to/the/client/certificate</code></li><li><code>DDB_AZURE_CERT_KEY=absolute/path/to/the/private/key/for/the/client/certificate</code></li></ul></li>
+                    <li>Run the <code>newDbDef</code> command with the Azure REST API authentication option called <code>azureRestAuthenticationOption</code> and the <code>certificate</code> value. The <code>newDbDef</code> command creates a new <code>dbDef</code> based on the key and value pairs specified as arguments:</li>
+                </ul>
+                <div class="code panel pdl conf-macro output-block" style="border-width: 1px;">
+                    <div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer newDbDef DbDefClass SqlServerDbDef dbType AZ_SQLMI 
+azureRestAuthenticationOption certificate name Source username username_example 
+password password_example databaseName DA defaultSchemaName dbo defaultCatalogName 
+catalog_example contexts some_context labels some_label 
+dbDefType standard storageOptionCollectedAtSnapshot true hostname 127.0.0.0 port 8080 
+instanceName test_instance applicationName test_app</pre>
+                    </div>
+                </div>
+                <p>There is no need to submit a username and password when you use Azure Active Directory Authentication.</p>
+                <div class="confluence-information-macro confluence-information-macro-information conf-macro output-block">
+                    <div class="confluence-information-macro-body">
+                        <p>If you do not have the Datical DB project, create it with the <code>project_creator.groovy</code> script. The <code>project_creator.groovy</code> script reads information from a set of input files and generates a project directory in your workspace containing the required configuration files. Use the <code>hammer</code> command to execute the <code>project_creator.groovy</code> script with the files located in the Datical DB installation package: <code>hammer groovy project_creator.groovy &lt;jdbc_drivers_dir&gt; &lt;provisioning_files_dir&gt; &lt;datical_workspace_dir&gt; &lt;project_name&gt; [replace] [zip] [testConnections]</code>.</p>
+                    </div>
+                </div>
+                <div class="panel conf-macro output-block" style="background-color: #EAE6FF;border-color: #998DD9;border-width: 1px;">
+                    <div class="panelContent" style="background-color: #EAE6FF;">
+                        <p>You can find all arguments for the <code>newDbDef</code> command by executing <code>hammer help newDbDef</code> or following <a href="../../../zz_sandbox/Enterprise Documentation/datical-db-documentation/reference/CLI_Commands.htm">CLI Commands</a> documentation.</p>
+                    </div>
+                </div>
+                <p>After running the <code>newDbDef</code> command with the certificate value, you will see <code>azureRestAuthenticationOption=certificate</code> in your <code>datical.project</code> file.</p>
+            </div>
+        </div>
+        <div class="expand-container conf-macro output-block" id="expander-866535287">
+            <div id="expander-control-866535287" class="expand-control"><span class="expand-control-text">GUI Usage</span>
+            </div>
+            <div id="expander-content-866535287" class="expand-content expand-hidden">
+                <p>Before you start using Datical DB GUI and configure Azure REST API settings to perform a point-in-time restore during packaging for Azure SQL Managed Instances, set the following environment variables on the system using certificate authentication with Datical DB:</p>
+                <ul>
+                    <li><code>DDB_AZURE_CLIENT_CERT=absolute/path/to/the/client/certificate</code>
+                    </li>
+                    <li><code>DDB_AZURE_CERT_KEY=absolute/path/to/the/private/key/for/the/client/certificate</code>
+                    </li>
+                </ul>
+                <p>To use Client Certificate Authentication in the Datical DB GUI, follow these steps:</p>
+                <ol>
+                    <li>Open Datical DB and select your deployment plan.</li>
+                    <li>Select the <strong>Azure SQL Managed Instance</strong> connection typeand enter your hostname, port, application name, database name, instance name, username, and password.</li>
+                    <li>Select the <strong>Test Connection</strong> button to check the connection to your database.</li>
+                    <li>Select the <strong>View &amp; Configure Settings</strong> button, choose <strong>Certificate Authentication</strong> in the Client Authentication dropdown, and then enter all values.</li>
+                    <li>Select <strong>OK</strong> to set the connection.</li>
+                </ol>
+                <p>Now you can use Datical DB functionalities like the Deploy Packager backup and restore processes. For more information, see <a href="../../../zz_sandbox/Enterprise Documentation/datical-db-documentation/configure-databases-for-datical-db-release-pipelines/Packager_backup_and_restore_process_for_SQL_Server_and_Azure_SQL_Managed_Instance.htm">Packager backup and restore process for SQL Server and Azure SQL Managed Instance</a>.</p>
+            </div>
+        </div>
+    </body>
+</html>

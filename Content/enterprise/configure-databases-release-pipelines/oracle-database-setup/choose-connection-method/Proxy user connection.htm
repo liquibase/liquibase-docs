@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us">
+    <head><title>Liquibase Enterprise Documentation</title>
+        <link href="../../../../Resources/Stylesheets/EZCONNECT+Connection+to+an+Oracle+Database.css" rel="stylesheet" />
+    </head>
+    <body>
+        <h1 class="Heading1">Proxy user connection</h1>
+        <p class="NormalWeb">A proxy connection allows you to connect to a database as one user account and operate with the access and privileges of a different account.<br />It is typically used to share one database account that has required privileges to other database users without sharing its password. An example of this type of account sharing means that you can allow help desk support personnel to connect to the database using a "helpdesk" account that has correct roles and privileges without sharing the password for this account with them.<br />There are two terms you need to know when setting up the proxy connection<span class="span_2">—</span>proxy user and client user.</p>
+        <ul class="ul_2">
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="Strong">A</span> <span class="Strong">proxy user</span> is a user who connects to the database on behalf of another user. This user connects with the username and password set up for him without knowing the client user password.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="Strong">A client user</span> is a user on behalf of whom the proxy user connects.</p>
+            </li>
+        </ul>
+        <p class="NormalWeb">Let's imagine that you connect to the database as the owner and want your employee who has limited privileges to work with the same schemas and database links. Instead of granting all the permissions one by one, you can set up a proxy connection. <br />In this way, your employee signs into the database under your account with his credentials or by specifying the properties that depend on the connection type.<br />In this topic, we will discuss the following types:</p>
+        <ul class="ul_2">
+            <li class="NormalWeb">
+                <p class="NormalWeb">Basic and proxy connection</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">TNS/LDAP and proxy connection</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">Kerberos and proxy connection</p>
+            </li>
+        </ul>
+        <h2 class="Heading2">Setting up a proxy connection with BASIC and TNS/LDAP</h2>
+        <p class="NormalWeb">Before setting up any proxy connection, you need to have two users:</p>
+        <ul class="ul_2">
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="Strong">The proxy</span> <span class="Strong">user</span> - the user that will initiate the connection under the proxy client user account.</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="Strong">The</span> <span class="Strong">proxy</span> <span class="Strong">client</span> <span class="Strong">user</span> - the user whose privileges, schema, and objects will be available for the session.</p>
+            </li>
+        </ul>
+        <p class="NormalWeb">To set up a proxy connection with <span class="Strong">BASIC</span> and <span class="Strong">TNS/LDAP</span>, enter the following at the command prompt or terminal but mention your information:</p>
+        <ol start="1" class="ol_1">
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="HTMLCode_1">create user proxyuser_test identified by proxypassword</span>&#160;to create a database user account</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="HTMLCode_1">grant create session to proxyuser_test</span>&#160;to grant the permissions to create session</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb"><span class="HTMLCode_1">alter user daticaltest grant connect through proxyuser_test</span>&#160;to enable the client user, which is <span class="span_3">daticaltest</span> account, to connect to the database using the proxy account.</p>
+            </li>
+        </ol>
+        <h2 class="Heading2">Setting up a proxy connection with Kerberos</h2>
+        <p class="NormalWeb">As an authentication method, Kerberos is handled by a different mechanism. To set up a proxy connection with Kerberos, you need to connect to your database and get an authentication ticket first. Pay attention to the expiration date and of the ticket and whether it is valid.<br />Also, make sure that one of the following environment variables is set—<span class="Strong">DDB_KRB5_CONFIG</span> or <span class="Strong">KRB5_CONFIG</span>. They contain Kerberos configuration information and indicate the location.<br />Here is the example of connecting to an Oracle database and getting a Kerberos ticket: Create the <span class="Strong">tnsnames.ora</span> file</p>
+        <h3 class="Heading3">1.&#160;Example 'tnsnames.ora' file</h3>
+        <p class="HTMLPreformatted">KRB=</p>
+        <p class="HTMLPreformatted">(DESCRIPTION =</p>
+        <p class="HTMLPreformatted">&#160; (ADDRESS =</p>
+        <p class="HTMLPreformatted">&#160;&#160;&#160; (PROTOCOL = TCP)</p>
+        <p class="HTMLPreformatted">&#160;&#160;&#160; (HOST = oracle-ee-kerberos.example.us-east-1.rds.amazonaws.com)</p>
+        <p class="HTMLPreformatted">&#160;&#160;&#160; (PORT = 1521))</p>
+        <p class="HTMLPreformatted">&#160; (CONNECT_DATA =</p>
+        <p class="HTMLPreformatted">&#160;&#160;&#160; (SERVER = DEDICATED)</p>
+        <p class="HTMLPreformatted">&#160;&#160;&#160; (SERVICE_NAME = KRB)</p>
+        <p class="HTMLPreformatted">&#160; )</p>
+        <p class="HTMLPreformatted">)</p>
+        <p class="NormalWeb">&#160;</p>
+        <h3 class="Heading3">2.&#160;Example&#160;<span class="Strong">sqlnet.ora</span> file</h3>
+        <p class="HTMLPreformatted">SQLNET.KERBEROS5_CC_NAME=/tmp/kerbache</p>
+        <p class="HTMLPreformatted">SQLNET.AUTHENTICATION_SERVICES=(KERBEROS5PRE,KERBEROS5)</p>
+        <p class="HTMLPreformatted">SQLNET.KERBEROS5_CONF=/tmp/kerberos/krb5.conf</p>
+        <p class="HTMLPreformatted">TRACE_LEVEL_CLIENT=16</p>
+        <p class="HTMLPreformatted">SQLNET.KERBEROS5_CONF_MIT = TRUE</p>
+        <p class="HTMLPreformatted">NAMES.DIRECTORY_PATH=(TNSNAMES)</p>
+        <p class="NormalWeb"><span class="Strong_1">NOTE:&#160;</span><span class="Emphasis_1">WINDOWS use following services in sqlnet.ora: SQLNET.AUTHENTICATION_SERVICES=(BEQ,KERBEROS5)</span>
+        </p>
+        <h3 class="Heading3">3. Example&#160;<span class="Strong">krb5.conf</span> file</h3>
+        <p class="HTMLPreformatted">[libdefaults]</p>
+        <p class="HTMLPreformatted">default_realm = TEST.DATICAL.NET</p>
+        <p class="HTMLPreformatted">default_ccache_name = /tmp/kerbcache</p>
+        <p class="HTMLPreformatted">[realms]</p>
+        <p class="HTMLPreformatted">TEST.DATICAL.NET = {</p>
+        <p class="HTMLPreformatted">kdc = test.datical.net</p>
+        <p class="HTMLPreformatted">admin_server = test.datical.net</p>
+        <p class="HTMLPreformatted">}</p>
+        <p class="HTMLPreformatted">[domain_realm]</p>
+        <p class="HTMLPreformatted">.test.datical.net = TEST.DATICAL.NET</p>
+        <p class="HTMLPreformatted">test.datical.net = TEST.DATICAL.NET</p>
+        <h3 class="Heading3">4. Get a Kerberos authentication ticket</h3>
+        <p class="HTMLPreformatted">kinit &lt;ADusername&gt;@TEST.DATICAL.NET</p>
+        <p class="HTMLPreformatted">example: kinit jnew@TEST.DATICAL.NET</p>
+        <p class="NormalWeb"><span class="Strong_1">NOTE:&#160;</span><span class="Emphasis_1">For dblinks, you will need forwardable ticket, so use</span> <span class="Emphasis_2">kinit -f</span> <span class="Emphasis_1">instead.</span></p>
+        <h3 class="Heading3">
+            <br />5. Set up a proxy connection with Kerberos</h3>
+        <p class="NormalWeb">Add the AD user to the database by first connecting as the client user. Enter the following in your command prompt or terminal by putting your information:</p>
+        <p class="HTMLPreformatted">CREATE USER "JNEW@TEST.DATICAL.NET" IDENTIFIED EXTERNALLY; </p>
+        <p class="HTMLPreformatted">GRANT CREATE SESSION TO "JNEW@ADTEST.DATICAL.NET";</p>
+        <p class="NormalWeb">&#160;</p>
+        <h2 class="Heading2">Using proxy connection</h2>
+        <p class="NormalWeb">There are four options you can choose to connect to your database:</p>
+        <ul class="ul_2">
+            <li class="NormalWeb">
+                <p class="NormalWeb">BASIC proxy connection</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">BASIC and Kerberos proxy connection</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">TNS/LDAP proxy connection</p>
+            </li>
+            <li class="NormalWeb">
+                <p class="NormalWeb">TNS/LDAP and Kerberos proxy connection</p>
+            </li>
+        </ul>
+        <p class="NormalWeb">The following table provides the format of credentials for each authentication method.</p>
+        <table class="table_1">
+            <col class="col_3" />
+            <col class="col_4" />
+            <col class="col_4" />
+            <col class="col_5" />
+            <tr>
+                <td class="td_1">
+                    <p class="NormalWeb">&#160;</p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb"><span class="Strong">BASIC</span>
+                    </p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb"><span class="Strong">TNS/LDAP</span>
+                    </p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb"><span class="Strong">Kerberos</span>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td class="td_1">
+                    <p class="NormalWeb">Username</p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb">proxy_user[proxy_client_user]</p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb">proxy_user[proxy_client_user]</p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb">[proxy_client_user]</p>
+                </td>
+            </tr>
+            <tr>
+                <td class="td_1">
+                    <p class="NormalWeb">Password</p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb">proxypass</p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb">proxypass</p>
+                </td>
+                <td class="td_1">
+                    <p class="NormalWeb">&lt;none&gt;</p>
+                </td>
+            </tr>
+        </table>
+        <p class="NormalWeb">
+            <br />Here is the example of one of the ways to connect to your database:<br /><img src="../../../../Resources/Images/Oracle+Proxy+User+Connections/Proxy user connection.png" class="img_1" /><br />By selecting Kerberos, you don't have to specify the proxy_user [proxy_client_user] format and can just enter [proxy_client_user]. If you clear the check box for <span class="Strong">Kerberos</span>, you have to specify the username and password, so it takes the form proxy_user [proxy_client_user].</p>
+    </body>
+</html>

@@ -12,18 +12,26 @@
         <ul>
             <li>5.0</li>
         </ul>
+        <h2>Verification level</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/database-verification-level-compatible.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/database-verification-levels.flsnp" />
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
         <p>To use <MadCap:variable name="General.Liquibase" /> and MongoDB, you need  two JAR&#160;files:</p>
         <ul>
-            <li>The <a href="https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver">JDBC driver</a></li>
+            <li>The <a href="https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver">JDBC driver</a> (<a href="https://mvnrepository.com/artifact/org.mongodb/mongodb-jdbc">Maven download</a>)</li>
             <li>The <a href="https://github.com/liquibase/liquibase-mongodb/releases/"><MadCap:variable name="General.Liquibase" /> MongoDB&#160;extension</a></li>
         </ul>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[&quot;DatabaseTutorialsDriver.Not pre-installed&quot;]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;org.mongodb&lt;/groupId&gt;
     &lt;artifactId&gt;mongodb-jdbc&lt;/artifactId&gt;
     &lt;version&gt;2.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+    &lt;artifactId&gt;liquibase-mongodb&lt;/artifactId&gt;
+    &lt;version&gt;<MadCap:variable name="General.CurrentLiquibaseVersion" />&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
         <h2>Test your connection</h2>
         <ol>
@@ -33,7 +41,7 @@
             </li><pre xml:space="preserve"><code class="language-html">url: mongodb://hostname:27017/myDatabase</code></pre>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you are unsure about how to configure the <code>url</code> property, refer to <a href="https://docs.mongodb.com/manual/reference/connection-string/">Connection String URI Format</a>.</p>
             <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
-            <li>Create a text file called <a href="../../concepts/changelogs/working-with-changelogs.html">changelog</a> (<code>.xml</code>, <code>.sql</code>, <code>.json</code>, or <code>.yaml</code>) in your project directory and add a <a href="../../concepts/changelogs/changelog-formats.html">changeset</a>.</li>
+            <li>Create a text file called <a href="../../concepts/changelogs/working-with-changelogs.html">changelog</a> (<code>.xml</code>) in your project directory and add a <a href="../../concepts/changelogs/changelog-formats.html">changeset</a>.</li>
             <MadCap:dropDown>
                 <MadCap:dropDownHead>
                     <MadCap:dropDownHotspot>XML&#160;example</MadCap:dropDownHotspot>
@@ -70,10 +78,9 @@
 &lt;/databaseChangeLog&gt;</code></pre>
                 </MadCap:dropDownBody>
             </MadCap:dropDown>
-            <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/status/status.htm">status --verbose</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve"><code class="language-text">liquibase --username=test --password=test --changelog-file=&lt;changelog.xml&gt; status</code></pre>
+            <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/status/status.htm">status</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve"><code class="language-text">liquibase --username=test --password=test --changelog-file=&lt;changelog.xml&gt; status</code></pre>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can pass arguments in the&#160;CLI&#160;or keep them in the <MadCap:variable name="General.Liquibase" /> properties file.</p>
-            <li>Inspect the SQL&#160;with  the <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref> command. Then make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command.</li><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=&lt;changelog.xml&gt; update-sql
-liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
+            <li>Make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command.</li><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
             <li>From a database UI&#160;tool, ensure that your database contains <code>myCollection</code> along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</li>
             <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">You can use <a href="https://www.mongodb.com/products/compass">MongoDB Compass</a> to easily view collections in your database. For example, run the commands <code>use myDatabase</code> and <code>db.myCollection.find()</code>.</p>
         </ol>
@@ -252,7 +259,7 @@ liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
                     </col>
                     <thead>
                         <tr class="TableStyle-TableStyles-Head-Header1">
-                            <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes"></MadCap:variable>
+                            <th class="TableStyle-TableStyles-HeadE-Column1-Header1"><MadCap:variable name="General.changetypes" />
                             </th>
                             <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Supported</th>
                         </tr>
@@ -880,7 +887,7 @@ liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
                         </tr>
                         <tr class="TableStyle-TableStyles-Body-Body2">
                             <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
-                                <MadCap:xref href="../../commands/status/status.htm">status --verbose</MadCap:xref>
+                                <MadCap:xref href="../../commands/status/status.htm">status</MadCap:xref>
                             </td>
                             <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
                         </tr>
@@ -918,7 +925,7 @@ liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
                             <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
                                 <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref>
                             </td>
-                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
                         </tr>
                         <tr class="TableStyle-TableStyles-Body-Body1">
                             <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
@@ -930,7 +937,7 @@ liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
                             <td class="TableStyle-TableStyles-BodyE-Column1-Body2" style="font-family: Arial;">
                                 <MadCap:xref href="../../commands/update/update-count-sql.html">update-count-sql</MadCap:xref>
                             </td>
-                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Supported</td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body2" style="font-family: Arial;">Not Supported</td>
                         </tr>
                         <tr class="TableStyle-TableStyles-Body-Body1">
                             <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
@@ -948,7 +955,7 @@ liquibase --changelog-file=&lt;changelog.xml&gt; update</code></pre>
                             <td class="TableStyle-TableStyles-BodyE-Column1-Body1" style="font-family: Arial;">
                                 <MadCap:xref href="../../commands/update/update-to-tag-sql.html">update-to-tag-sql</MadCap:xref>
                             </td>
-                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Supported</td>
+                            <td class="TableStyle-TableStyles-BodyD-Column1-Body1" style="font-family: Arial;">Not Supported</td>
                         </tr>
                         <tr class="TableStyle-TableStyles-Body-Body2">
                             <td class="TableStyle-TableStyles-BodyB-Column1-Body2">

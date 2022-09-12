@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1><code>variables </code>and <code>include</code> feature</h1>
+        <p>
+            <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" />  <MadCap:snippetText src="../../../Resources/Snippets/images/Labs Icon.flsnp" /> </p>
+        <p>Liquibase Flow files incorporate variables and include other Flow files or YAML&#160;files. These can be placed in the Flow file Header above <code>stages</code> as depicted in the image below.</p>
+        <p>
+            <img src="../../../Z_Resources/Images/Diagrams/flowfile.png" />
+        </p>
+        <h2>globalVariables</h2>
+        <p><code>globalVariables</code> must be defined at the top of the Flow File with the syntax shown in the example Flow File. Each Action specified in the Flow File can reference a <code>globalVariable</code> as a command argument. This saves you time and keeps your Flow File tidy.</p>
+        <h3>Example globalVariable</h3><pre><code class="language-yaml">offlineRefUrl: "offline:postgres?snapshot=refSnapshot.json"</code></pre>
+        <h3>Example of globalVariable in use</h3><pre xml:space="preserve"><code class="language-yaml">cmdArgs: { url: "${offlineRefUrl}"}</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example Flow File with globalVariables</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>This flow file has <code>cmdArgs</code>, <code>globalArgs</code> and global variables. For this example, the user will need to update the <code>url</code>, <code>user</code>, and <code>password</code> variables to be valid for their environment.</p>
+                <p>(Place Flow File text here once the YAML formatting can be preserved.)</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h3>Reference System Environment Variables through globalVariables</h3>
+        <p>globalVariables can reference System Environment Variables to provide values within a Flow file. Within the Flow file example below, notice that the command echos <code>"Running Liquibase from $(LIQUIBASE_HOME)"</code>. This allows you to change environment variables as desired without changing the Flow file.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">&#160;Place the environment variable you would like to reference between the parenthesis like so:<code>"Running Liquibase from $(INSERT&#160;ENVIRONMENT&#160;VARIABLE&#160;HERE)"</code></p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">stages:
+	systemEnvironmentVariableSample:
+		actions:
+		- type: shell
+			command: echo "Running Liquibase from ${LIQUIBASE_HOME}"</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>stageVariables</h2>
+        <p><code>stageVariables</code> work exactly like <code>globalVariables</code> except they are declared inside of each stage group. If you have the same variable declared as a <code>globalVariable</code>, the <code>stageVariables</code> are applied, not the <code>globalVariable</code>. For example, if you have a <MadCap:variable name="General.changelog" />&#160;<code>globalVariable</code> but need to specify a different <MadCap:variable name="General.changelog" />, you can apply that via a <code>stageVariable</code>. <code>stageVariables</code> always override <code>globalVariables</code>.</p>
+        <p>All variables, especially labels and context, must be specified in the Flow File with quotations to operate properly. If you want to run all <MadCap:variable name="General.changeset" />s with or without labels, you must leave the label names quotes empty so you do not have to list all labels individually.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>Label Example 1</MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">Default:
+    stageVariables:
+      LABELNAMES: ""</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>Label Example 2</MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">#
+# Run the update
+#
+- type: liquibase
+  command: update
+  cmdArgs: {labels: "${LABELNAMES}"}</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Include configured YAML files within a Flow File</h2>
+        <p>Flow Files can include references to other YAML files with configuration by using the include section of the file. You need only create a variable name for the referenced YAML file and then reference the file title so that the Flow File can locate it.</p>
+        <h3>The <code>include</code> variable should be in the following format:</h3><pre><code class="language-text">username: actual-Username</code></pre>
+        <p>The key is <code>username</code> and the value is <code>actual-Username</code>. To use the values defined in the included file in the Flow File, you need to reference the namespace and the key. For example:</p><pre xml:space="preserve"><code class="language-yaml">cmdArgs: {username: "${username}"}</code></pre>
+        <p>When the <code>flow</code> command executes, it will read the included file, locate the username key and substitute the value for that key into the Liquibase action. In the case of the <code>key:value</code> example here, the substitution results in <code>${postgresNamespace.user}</code> becoming <code>actual-Username</code>. The <MadCap:variable name="General.Liquibase" /> action executes using <code>actual-Username</code> as the user property.</p>
+        <h3>Example of Flow File include functionality:</h3><pre><code class="language-yaml">include:
+- postgresNamespace: postgres-vars.yaml</code></pre>
+        <p>To enable the functionality, you will then add the created variable name to the <code>cmdArgs</code> section or your <MadCap:variable name="General.changelog" />.</p><pre><code class="language-yaml">cmdArgs: { url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example Flow File includes cmdArgs, globalArgs, and a referenced include file(YAML)</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetCaption><code>flow-with-include-global</code>
+                    </MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">##########           LIQUIBASE FLOW FILE               ##########
+##########  learn more http://docs.liquibase.com/flow  ##########
+
+## NOTE: This is an advanced example flowfile, compared to the other sample at examples/liquibase.flowfile.yaml
+## Advanced options show in this file include:
+## non-default name of 'liquibase.advanced.flow' (use by setting flowfile property to this name)
+#### example for CLI: liquibase flow --flow-file=liquibase.advanced.flow
+#### example for ENV Var: LIQUIBASE_FLOW_FLOW_FILE=liquibase.advanced.flow
+## use of 'include' to inject namespaced yaml files of key:val variables
+## use of globalVariables and stageVariables
+## use of globalArgs and cmdArgs
+## use of property substitution
+## use of a nested flowfile (in this case in the endStage, but could be elsewhere)
+
+## Bring in and namespace an external file with yaml 'key: val' pairs for use in this file
+## The variables will be used as ${namespace.variablename}, seen in this example as $(DATES.THISDATE)
+include:
+  DATES: liquibase.flowvariables.yaml
+
+## Set up some global variables for property substitution in ANY stage
+globalVariables:
+  PROJNAME: "MyFlowProject"
+
+## Start the stages. There can be more than one, if desired.
+stages:  
+  
+  ## The first stage. There can be more than one if desired.
+  stage1:
+
+    ## set up vars for property substitution in THIS stage only
+    stageVariables:
+      VERBOSESTATE: TRUE
+
+    actions:
+    
+   #
+   # Do a validate command 
+   #
+    - type: liquibase
+      command: validate
+
+   #
+   # tell me what is pending a deployment
+   #
+    - type: liquibase
+      command: status
+      cmdArgs: {verbose: "${VERBOSESTATE}"}
+
+   #
+   # And then save a version in detail
+   #
+    - type: liquibase
+      command: updatesql
+      globalArgs: {outputfile: "${PROJNAME}-${DATES.THISDATE}-updatesql.log"}
+
+   #
+   # Quality Checks for changelog 
+   #
+    - type: liquibase
+      command: checks run
+      cmdArgs: {checks-scope: changelog}
+   #
+   # Run update
+   #
+    - type: liquibase
+      command: update
+      
+   #
+   # Quality Checks for database
+   #
+    - type: liquibase
+      command: checks run
+      cmdArgs: {checks-scope: database}
+    
+    ## Put your clean up and other actions for this stage in the afterActions
+    afterActions:
+    - type: liquibase
+      command: history
+      globalArgs: {outputfile: "${PROJNAME}-${DATES.THISDATE}-history.log"}
+
+## Put your clean up and other actions for after success in all stage(s) above in the endStage
+endStage:
+  actions:
+    - type: liquibase
+      command: flow
+      cmdArgs: {flowfile: liquibase.endstage.flow}
+      
+  afterActions: null</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <p>&#160;</p>
+    </body>
+</html>
