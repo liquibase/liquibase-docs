@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html>
+    <head><title>Liquibase Enterprise Documentation</title>
+        <meta name="description" content="Liquibase Enterprise Documentation" />
+    </head>
+    <body>
+        <h1>Creating Database Links in an Oracle schema with a non-owner account</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /><p>Specifying <code>CREATE DATABASE LINK</code> statements in the <code>SQL_DIRECT</code> folder for a Single-Schema project creates the database link in the Oracle schema. However, this does not work in a Multi-Schema project because the SQL statements are executed as the <code>DATICAL_USER</code> and Oracle does not allow creating database links in another schema.</p><p>As the <code>CREATE DATABASE LINK</code> statements for a Multi-Schema project are currently not supported, you can use a workaround where the procedure is run as the <code>OWNER</code> so it creates the <code>DBLINK</code> in the managed schema.</p><h2 id="CreatingDatabaseLinksinanOracleschemawithanon-owneraccount-Prerequisites">Prerequisites</h2><p>You can create a database link in <code>anotheruser's</code> schema only if <code>anotheruser</code> has the <code>CREATE DATABASE LINK</code> privilege and the user you are connected as has the <code>CREATE ANY PROCEDURE</code> privilege. For information on granting privileges, see <a class="external-link" href="https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_9013.htm" rel="nofollow">Oracle documentation</a>.</p><h2 id="CreatingDatabaseLinksinanOracleschemawithanon-owneraccount-Howtocreatedatabaselinks">How to create database links</h2><p>To create a database link in an Oracle schema with a non-owner account, follow the example:</p><div class="code panel pdl conf-macro output-block" style="border-width: 1px;"><div class="codeContent panelContent pdl"><pre class="syntaxhighlighter-pre" xml:space="preserve">create procedure anotheruser."tmp_doit_200906121431"is
+begin
+execute immediate '
+create database link remote_db_link
+connect to remote_user
+identified by remote_password
+using ''remote_db'' ';
+end;
+/
+begin
+anotheruser."tmp_doit_200906121431";
+end;
+/
+drop procedure anotheruser."tmp_doit_200906121431"/</pre></div></div><p>Create a procedure in the <code>anotherusers's</code> schema that contains the <code>CREATE DATABASE LINK</code> statement. When the procedure is being executed, it runs as the owner so that the <code>CREATE DATABASE LINK</code> statement is executed by <code>anotheruser</code>.</p><div class="confluence-information-macro confluence-information-macro-information conf-macro output-block"><div class="confluence-information-macro-body"><p>The name of the procedure is not important, however, make sure that it doesn't have conflicts with any existing object names. You can run a query of <code>DBA_OBJECTS</code> to check that a matching <code>object_name</code> does not exist.</p></div></div></body>
+</html>
