@@ -1,88 +1,79 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title>Managing Database Objects using Oracle | Liquibase Docs</title>
         <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/tutorial-using-oracle.html" />
-        <link href="../../Z_Resources/Stylesheets/TableStyles.css" rel="stylesheet" MadCap:stylesheetType="table" />
         <meta name="description" content="This page is a Liquibase tutorial that shows you how to manage your database object using the Oracle database and some Oracle tools." />
     </head>
     <body>
         <h1>Managing Database Objects using Oracle</h1>
         <p>This is a <MadCap:variable name="General.Liquibase" /> tutorial that shows you how to manage your database objects using the Oracle database and some Oracle tools. It also shows how branching and merging is performed using Subversion. The tutorial incorporates several best practices. This makes it realistic for the needs of a software development shop. If your needs are simpler, you can just use the best practices and conventions that apply to your situation.</p>
         <p>The scenario we will be using for the tutorial assumes we are developing an application for two customers named Solo and Duplex. Each customer has their own upgrade timing.</p>
-        <table style="margin-left: 0;margin-right: auto;width: 65%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
+        <table>
             <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Time </th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1"> Solo </th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1"> Duplex </th>
+                <tr>
+                    <th>Time </th>
+                    <th> Solo </th>
+                    <th> Duplex </th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">t1 </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"> install r1.0    </td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> </td>
+                <tr>
+                    <td>t1 </td>
+                    <td> install r1.0    </td>
+                    <td> </td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">t2 </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"> patch to r1.1   </td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> </td>
+                <tr>
+                    <td>t2 </td>
+                    <td> patch to r1.1   </td>
+                    <td> </td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">t3 </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"> upgrade to r2.0 </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1"> install r2.0   </td>
+                <tr>
+                    <td>t3 </td>
+                    <td> upgrade to r2.0 </td>
+                    <td> install r2.0   </td>
                 </tr>
             </tbody>
         </table>
         <p>During the life cycle of an application, the development team may produce thousands of database changes. Periodically, we will want to consolidate these changes so that a fresh install can be done rapidly (also essential for the continuous integration environment), and so that we can ship a smaller set of changes to customers for upgrading.</p>
         <p>The chosen strategy is to clean up the <MadCap:variable name="General.changelog" /> for every major release. This means that customers will have to upgrade to major releases separately. I.e. to upgrade from release 1.0 to release 3.0 they will also have to install 2.0. A delivery for version X (this includes versions X.y) always consists of 3 parts:</p>
-        <table style="margin-left: 0;margin-right: auto;width: 65%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
+        <table>
             <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Script</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Description</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Create</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Upgrade from X-1</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Apply latest changes to version</th>
+                <tr>
+                    <th>Script</th>
+                    <th>Description</th>
+                    <th>Create</th>
+                    <th>Upgrade from X-1</th>
+                    <th>Apply latest changes to version</th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>lb_install</code>
+                <tr>
+                    <td><code>lb_install</code>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Perform fresh install for version X</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">X</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                    <td>Perform fresh install for version X</td>
+                    <td>X</td>
+                    <td>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">X</td>
+                    <td>X</td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1"><code>lb_upgrade_to_major</code>
+                <tr>
+                    <td><code>lb_upgrade_to_major</code>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Upgrade from (X-1) to X</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">
+                    <td>Upgrade from (X-1) to X</td>
+                    <td>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">X</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">X</td>
+                    <td>X</td>
+                    <td>X</td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1"><code>lb_update</code>
+                <tr>
+                    <td><code>lb_update</code>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">Upgrade within same major version, such as 1.1 to 1.5</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">
+                    <td>Upgrade within same major version, such as 1.1 to 1.5</td>
+                    <td>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">
+                    <td>
                     </td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">X</td>
+                    <td>X</td>
                 </tr>
             </tbody>
         </table>
@@ -126,17 +117,15 @@
         <p>Oracle JDeveloper is another free tool available from the <a href="http://www.oracle.com/technology" title="http://www.oracle.com/technology" rel="nofollow">Oracle Technology Network</a>. It has many features, including the <acronym title="Extensible Markup Language">XML</acronym> editor. This editor is schema-aware, and makes it easy to author your <MadCap:variable name="General.changelog" />s.</p>
         <p>After downloading and installing, start JDeveloper. If you are behind a proxy, configure the proxy using Tools &gt; Preferences &gt; Web Browser and Proxy.</p>
         <p>Next we will add the <MadCap:variable name="General.Liquibase" /> <acronym title="XML (Extensible Markup Language) Schema Definition">XSD</acronym> so that the editor becomes aware of the <MadCap:variable name="General.Liquibase" /> schema. Choose Tools &gt; Preferences &gt; <acronym title="Extensible Markup Language">XML</acronym> Schemas. Select <code>add</code>. Enter:</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
+        <table>
             <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Schema:</th>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd</td>
+                <tr>
+                    <th>Schema:</th>
+                    <td>http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd</td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <th class="TableStyle-TableStyles-BodyB-Column1-Body1">Extension:</th>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">xml</td>
+                <tr>
+                    <th>Extension:</th>
+                    <td>xml</td>
                 </tr>
             </tbody>
         </table>
@@ -157,18 +146,16 @@ mkdir D:\projects\lbdemo\repo</code></pre>
   +- trunk</code></pre>
         <p>Close the repository browser.</p>
         <p>Return to Windows Explorer, navigate to directory <code>D:\projects\lbdemo</code> and right-click in the right panel. Choose <b>SVN Checkout</b>. In the panel that appears, enter:</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">
+        <table>
+            <tr>
+                <th>
                     <acronym title="Uniform Resource Locator">URL</acronym> of repository: </th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>file:///D:/projects/lbdemo/repo/trunk</code>
+                <td><code>file:///D:/projects/lbdemo/repo/trunk</code>
                 </td>
             </tr>
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Checkout directory: </th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>D:\projects\lbdemo\trunk</code>
+            <tr>
+                <th>Checkout directory: </th>
+                <td><code>D:\projects\lbdemo\trunk</code>
                 </td>
             </tr>
         </table>
@@ -626,28 +613,24 @@ Unexpected Sequences: NONE</code></pre>
         <p>Right-click on the <code>trunk</code> and choose <b>TortoiseSVN &gt; Repo-browser</b>. Select <code>trunk</code> in the left pane. By default we are selecting the <code>HEAD</code>, which is correct. But if someone else commited a change on the trunk in the meantime, you would want to select the revision in which you finalized 1.x.</p>
         <p>Right-click on <code>trunk</code> and choose <code>copy to ..</code>.</p>
         <p>Fill in:</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">New Name:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>file:///D:/projects/lbdemo/repo/branches/1.x</code>
+        <table>
+            <tr>
+                <th>New Name:</th>
+                <td><code>file:///D:/projects/lbdemo/repo/branches/1.x</code>
                 </td>
             </tr>
         </table>
         <p>Enter log message "Branched 1.x" and press OK.</p>
         <p>In the left pan,e under <code>branches</code>, you will now see a folder named 1.x. Right-click on <code>branches/1.x</code> and choose <b>Checkout</b>.</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">
+        <table>
+            <tr>
+                <th>
                     <acronym title="Uniform Resource Locator">URL</acronym> of repository:   </th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>file:///D:/projects/lbdemo/repo/branches/1.x</code><![CDATA[    ]]></td>
+                <td><code>file:///D:/projects/lbdemo/repo/branches/1.x</code><![CDATA[    ]]></td>
             </tr>
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Checkout directory:  </th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>D:\projects\lbdemo\branch_1.x</code> </td>
+            <tr>
+                <th>Checkout directory:  </th>
+                <td><code>D:\projects\lbdemo\branch_1.x</code> </td>
             </tr>
         </table>
         <p>The new directory will be created, containing the files in this branch. The system test can start, to verify that this version is fit to ship.</p>
@@ -738,27 +721,23 @@ ID   ENAME     DPT_ID    FIXED_SALARY   BONUS
         <h4><a>Perform the merge</a>
         </h4>
         <p>Right-click on directory <code>branch_1.x</code> and choose <b>TortoiseSVN &gt; Merge</b>.</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Merge type:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> Merge a range of revisions</td>
+        <table>
+            <tr>
+                <th>Merge type:</th>
+                <td> Merge a range of revisions</td>
             </tr>
         </table>
         <p>Press Next.</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">
+        <table>
+            <tr>
+                <th>
                     <acronym title="Uniform Resource Locator">URL</acronym> to merge from:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code> file:///D:/projects/lbdemo/repo/trunk</code>
+                <td><code> file:///D:/projects/lbdemo/repo/trunk</code>
                 </td>
             </tr>
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Revision range to merge:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"> Use the <code>[Show log]</code> button to display the list of revisions. Select the change for bug 102.</td>
+            <tr>
+                <th>Revision range to merge:</th>
+                <td> Use the <code>[Show log]</code> button to display the list of revisions. Select the change for bug 102.</td>
             </tr>
         </table>
         <p>Press Next, then Merge, and then press OK to close the results window.</p>
@@ -772,44 +751,40 @@ lb_update</code></pre>
         <h4><a>Tag this revision as 1.0</a>
         </h4>
         <p>The acceptance test has now been completed, so we can label this version as our "1.0" release. Right-click on <code>branch_1.x</code> and choose <b>TortoiseSVN &gt; Branch/Tag</b>. Fill out the dialogue as shown below:</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">From WC at <acronym title="Uniform Resource Locator">URL</acronym>:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>file:///D:/projects/lbdemo/repo/branches/1.x</code>
+        <table>
+            <tr>
+                <th>From WC at <acronym title="Uniform Resource Locator">URL</acronym>:</th>
+                <td><code>file:///D:/projects/lbdemo/repo/branches/1.x</code>
                 </td>
             </tr>
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">To <acronym title="Uniform Resource Locator">URL</acronym>:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>file:///D:/projects/lbdemo/repo/tags/1.0</code>
+            <tr>
+                <th>To <acronym title="Uniform Resource Locator">URL</acronym>:</th>
+                <td><code>file:///D:/projects/lbdemo/repo/tags/1.0</code>
                 </td>
             </tr>
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Create copy in the repository from:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1">(leave as default)</td>
+            <tr>
+                <th>Create copy in the repository from:</th>
+                <td>(leave as default)</td>
             </tr>
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Log message:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Tagged as 1.0</td>
+            <tr>
+                <th>Log message:</th>
+                <td>Tagged as 1.0</td>
             </tr>
         </table>
         <p>Press OK and close the repository browser. We can now deliver version 1.0 to the customer.</p>
         <h2><a>Step 9: Install 1.0 for Solo</a>
         </h2>
         <p>We can now deliver version 1.0 to our customer Solo. Create directory <code>D:\projects\lbdemo\solo</code>. Right-click on this directory and choose TortoiseSVN &gt; Export. Fill out the dialogue as shown below:</p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">
+        <table>
+            <tr>
+                <th>
                     <acronym title="Uniform Resource Locator">URL</acronym> of repository:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>file:///D:/projects/lbdemo/repo/tags/1.0</code>
+                <td><code>file:///D:/projects/lbdemo/repo/tags/1.0</code>
                 </td>
             </tr>
-            <tr class="TableStyle-TableStyles-Body-Body1">
-                <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Export directory:</th>
-                <td class="TableStyle-TableStyles-BodyD-Column1-Body1"><code>D:\projects\lbdemo\solo</code>
+            <tr>
+                <th>Export directory:</th>
+                <td><code>D:\projects\lbdemo\solo</code>
                 </td>
             </tr>
         </table>
@@ -950,49 +925,45 @@ call liquibase --changelog-file=update.xml update</code></pre>
         <h3><a>Database refactorings</a>
         </h3>
         <p>The default action is to create a change file named <code>&lt;date&gt;-IssueNr&gt;.xml</code> in directory <code>vXXX</code> and specify the change in this file. Example filename: <code>v002/2009-12-25-305.xml</code></p>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;mc-table-style: url('../../Z_Resources/Stylesheets/TableStyles.css');" class="TableStyle-TableStyles" cellspacing="0">
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
-            <col class="TableStyle-TableStyles-Column-Column1" />
+        <table>
             <thead>
-                <tr class="TableStyle-TableStyles-Head-Header1">
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">&#160;</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Create</th>
-                    <th class="TableStyle-TableStyles-HeadE-Column1-Header1">Modify</th>
-                    <th class="TableStyle-TableStyles-HeadD-Column1-Header1">Delete</th>
+                <tr>
+                    <th>&#160;</th>
+                    <th>Create</th>
+                    <th>Modify</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Table</th>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Default</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Default</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Default</td>
+                <tr>
+                    <th>Table</th>
+                    <td>Default</td>
+                    <td>Default</td>
+                    <td>Default</td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Sequence</th>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Default</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Default</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">Default</td>
+                <tr>
+                    <th>Sequence</th>
+                    <td>Default</td>
+                    <td>Default</td>
+                    <td>Default</td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <th class="TableStyle-TableStyles-BodyE-Column1-Body1">View</th>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Create new file in directory <code>latest/vw</code>. Include this file in the change file.</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Modify file in directory <code>latest/vw</code>. Include this file in the change file.</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">See below</td>
+                <tr>
+                    <th>View</th>
+                    <td>Create new file in directory <code>latest/vw</code>. Include this file in the change file.</td>
+                    <td>Modify file in directory <code>latest/vw</code>. Include this file in the change file.</td>
+                    <td>See below</td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <th class="TableStyle-TableStyles-BodyE-Column1-Body1">Trigger</th>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Create new file in directory <code>latest/trg</code>. Include this file in the change file.</td>
-                    <td class="TableStyle-TableStyles-BodyE-Column1-Body1">Modify file in directory <code>latest/trg</code>. Include this file in the change file.</td>
-                    <td class="TableStyle-TableStyles-BodyD-Column1-Body1">See below</td>
+                <tr>
+                    <th>Trigger</th>
+                    <td>Create new file in directory <code>latest/trg</code>. Include this file in the change file.</td>
+                    <td>Modify file in directory <code>latest/trg</code>. Include this file in the change file.</td>
+                    <td>See below</td>
                 </tr>
-                <tr class="TableStyle-TableStyles-Body-Body1">
-                    <th class="TableStyle-TableStyles-BodyB-Column1-Body1">Package</th>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">Create new file in directory <code>latest/pck</code>. Include this file in the change file.</td>
-                    <td class="TableStyle-TableStyles-BodyB-Column1-Body1">Modify file in directory <code>latest/pck</code>. Include this file in the change file.</td>
-                    <td class="TableStyle-TableStyles-BodyA-Column1-Body1">See below</td>
+                <tr>
+                    <th>Package</th>
+                    <td>Create new file in directory <code>latest/pck</code>. Include this file in the change file.</td>
+                    <td>Modify file in directory <code>latest/pck</code>. Include this file in the change file.</td>
+                    <td>See below</td>
                 </tr>
             </tbody>
         </table>
