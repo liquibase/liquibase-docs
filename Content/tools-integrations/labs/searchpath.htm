@@ -4,14 +4,13 @@
     </head>
     <body>
         <h1>searchpath</h1>
-        <p>Searchpath is a property that is set within the <MadCap:variable name="General.liquiPropFile" /> file that <b>finds</b> the path in which the <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor conf files are stored. Searchpath allows you to find files that cannot specify an absolute path. It is a convenient way to quickly call on those files without specifying the path each time. </p>
-        <p>If you set your changelogfile to a file stored on s3, you will set the globalVariable like so:</p>
+        <p>Searchpath is a property that <b>finds</b> the path in which the <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor configuration files are stored. This property allows you to find files that cannot be found by an absolute path. It is a convenient way to quickly call on those files without specifying the path each time. Searchpath can be  set in the CLI, within the <MadCap:variable name="General.liquiPropFile" /> file, as an environment variable, or in the Defaults File.</p>
+        <h2>Enable searchpath</h2>
+        <p>If you store your changelogfile on S3, you will set their globalVariable like so:</p>
         <p><code>globalVariables:<br />CHANGELOGFILE:&#160;"example-changelog.sql"</code>
         </p>
-        <p>Then you will also establish the s3 path in the CLI&#160;to ensure it is found successfully.</p>
-        <p>command:&#160;bash <code>-c "liquibase --searchpath 's3://mys3bucket/example-changelog.sql'</code></p>
-        <h2>searchPath use case example:</h2>
-        <p>The <MadCap:variable name="General.changelog" />is stored here:<code>&#160;“/lb-files/release1”</code>. It is tedious to write that out each time a <MadCap:variable name="General.changelog" />is specified. You can place <code>searchPath:&#160;“/lb-files/release1”</code> in the <MadCap:variable name="General.liquiPropFile" />file </p>
+        <p>Then you will also establish the s3 path in the CLI&#160;to ensure it is found successfully. To do this, you must specify the bucket and then the globalVariable set in the step above. <br />Specify the S3 searchpath and the changelog file together like so:</p>
+        <p> <code>liquibase --searchpath=s3://myS3bucket/demo --changelogfile=example-changelog.sql'</code></p>
         <h2>Learn how to find the <MadCap:variable name="General.changelog" /> file by relative path, absolute path, local path, or remote path.</h2>
         <p>There are several ways to find the <MadCap:variable name="General.changelog" /> file. You can look by absolute path, relative path, remote location, or local location. See how each searchpath option is found below.</p>
         <p><b>Relative Path:</b>
@@ -24,13 +23,25 @@
             <br />Set the search path to a local environment instead of a remote S3 path like so:<br /><code>“./" or “users/myname/Documents/liquibase/example/” </code></p>
         <p><b>Remote Path:</b>
         </p>
-        <p>&#160;</p>
-        <p>Searchpath Rules:</p>
-        <p><b>Multiple Searchpath</b>(Unsure if this is how we want to teach this. I&#160;think we want to teach users to specify each set of files individually.)<br />If searchpath is set, it is used and Liquibase will not look in other locations for searchpath. This indicates if some files are located on S3 and some are local, both locations are required in the search path. Each location is separated by a period.</p>
+        <p>What dis? </p>
+        <h2>Searchpath Rules:</h2>
+        <p>Below are all of the rules that apply to searchpath. Review the example use cases and instructions to ensure it is the right avenue for your project.</p>
+        <h3>Multiple Searchpath</h3>
+        <p>Multiple Searchpath (Unsure if this is how we want to teach this. I&#160;think we want to teach users to specify each set of files individually.)<br />If searchpath is set, it is used and Liquibase will not look in other locations for searchpath. This indicates if some files are located on S3 and some are local, both locations are required in the search path. Each location is separated by a period.</p>
         <p>Multiple Searchpath example:</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>s3://mybucket/path,</code> is the first location and<code> .localfiles</code> is the second location that searchpath will find the files.</p>
         <p><code>--searchpath=s3://mybucket/path,.localfiles</code>
         </p>
+        <h3>Default Searchpath</h3>
+        <p>If searchpath is not set, Liquibase assumes the searchpath is in the current working directory. That means the default searchpath is the current working directory unless the searchpath is defined.</p>
+        <h3>Duplicate File Mode</h3>
+        <p>If duplicate files are found with <code>searchpath</code>, the DuplicateFileMode property tells the user it found two files of the same title and it will have one of two responses. It can be set in the CLI, <MadCap:variable name="General.liquiPropFile" /> file, as an Environment Variable, or the Defaults file.</p>
+        <p>The <b>ERROR&#160;Response</b> states two files are found and Liquibase will not use either file. It will then suggest you rename the file or correct your searchpath, and then re-run the command. </p>
+        <p>The <b>WARN&#160;Response</b> states two files are found and it will automatically use the first file found. That means that if searchpath is set like this:</p>
+        <p><code>searchpath=".lb-files/release1, s3://sharedservices/resources/liquibase/"</code>
+        </p>
+        <p>Liquibase will use <code>.lb-files/release1</code> as the searchpath and <code>ignore  s3://sharedservices/resources/liquibase/</code></p>
+        <h3>Configure check-settings (Not sure this belongs here.)</h3>
         <p>The <a href="../../commands/quality-checks/using-the-checks-settings-configuration-file.htm">check-settings</a> file is created locally <b>unless</b> the absolute path is available by typing <code>init project --project-dir=s3://somebucket</code> into the CLI.</p>
     </body>
 </html>
