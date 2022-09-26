@@ -22,31 +22,41 @@
         <p>Export the key like so in the CLI:</p>
         <p><code>export LIQUIBASE_LICENSE+_KEY="Enter Key Here"</code>
         </p>
-        <p>3. Run <code>liquibase --changelog-file=sample.changelog.xml update-sql</code> to ensure that the S3 connection is working as expected.</p>
-        <p>&#160;</p>
+        <p>Once the AWS&#160;keys and <MadCap:variable name="General.LBPro" /> license key are configured, you are ready to begin using S3 with <MadCap:variable name="General.Liquibase" />.</p>
         <h2>File Path Rules:</h2>
         <p>Below are all of the rules that apply to Liquibase using S3. Review the example use cases and instructions to ensure it is the right avenue for your project.</p>
-        <h3>1. Full Path</h3>
-        <p>You must specify the full path of any file other than a changelog file, snapshot files, or native executor configuration files located in your S3 bucket for <MadCap:variable name="General.Liquibase" /> to find it successfully.  </p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Paths for changelog files, snapshot files, or native executor configuration files must be split over <a href="searchpath.htm">searchpath</a>.</p>
-        <h4>Full Path Example:</h4>
-        <p><code>globalVariables:<br></br>DEFAULTSFILE:&#160;"s3://mys3bucket/<MadCap:variable name="General.liquiPropFile"></MadCap:variable></code>
-        </p>
-        <h3>2. S3 Files Reference Other S3 Files</h3>
+        <h3>1. S3 Files Reference Other S3 Files</h3>
         <p> One S3 file can reference another distinct S3. In this example, a Flow file located in a S3 bucket is referenced by a separate s3 bucket. </p>
         <p>See the example below:</p>
         <p><code>flow --flowfile=s3://myS3bucket/liquibase.s3.flowfile.yaml</code>
         </p>
-        <h3>Call Bash scripts from a Flow File (ignore for now?)</h3>
-        <p>&#160;</p>
-        <h3>3. Use multiple S3 locations in the same command</h3>
+        <h3>2. Use multiple S3 locations in the same command</h3>
         <p>Resources are often stored in different S3 locations and Liquibase allows you to find those separate locations in one command. </p>
         <p>For example, Let's say the <code>checks-settings.conf</code> you need is in the DBA’s resources bucket and the <code>flowfile.yaml</code> is in the DevOps Orchestration Team’s bucket. Simultaneously, the <code>changelog</code> is stored locally while you are in dev, but then is relocated to the deploy sub-directory of the DevOps team. You should put the direct full path on the <MadCap:variable name="General.liquiPropFile" /> file as shown below. </p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The file exceptions to this rule are changelog files, snapshot files, or native executor configuration files which must be split over <a href="searchpath.htm">searchpath</a>.</p>
         <p>
-        Example of multiple S3 locations called on in the same command:<br /><br /><code>liquibase --searchpath=s3://devopsteam/deploy --changelogfile=mychangelog.sql flow --flowfile=s3://devopsteam/orchestration/liquibase.production.flowfile.yaml </code><br /></p>
+        Example of multiple S3 locations called on in the same command:<br /><br /><code>liquibase --searchpath=s3://devopsteam/deploy --changelogfile=mychangelog.sql flow --flowfile=s3://devopsteam/orchestration/liquibase.production.flowfile.yaml </code></p>
+        <h3>3. Relative path and absolute path</h3>
+        <p>There are two ways to find  files via S3. You can look by absolute path or relative path. </p>
+        <p><b>Absolute Path:</b>
+            <br>
+            </br>
+        </p>
+        <p>An absolute path is set as a property in the <MadCap:variable name="General.liquiPropFile" /> file.  It must include the full, direct path to the S3 file to find the file successfully. Absolute paths can be set for any file type except <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor configuration files. When an absolute path to a file  is provided, Liquibase uses the file specified in the absolute path without checking searchpath.</p>
+        <p>Absolute Path Example:<br />the absolute path to the flow file is located in S3.</p>
+        <p><code>liquibase --flow-file s3:/[myDirectory]/flow.yaml</code>
+        </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Paths for changelog files, snapshot files, or native executor configuration files must be split over a relative path using <a href="searchpath.htm">searchpath</a>.</p>
+        <p><b>Relative Path:</b>
+        </p>
+        <p>Relative Path is enabled with <a href="searchpath.htm">searchpath</a> and a <MadCap:variable name="General.liquiPropFile" /> file property. Relative Path is the only way to successfully find <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor configuration files.</p>
+        <p>In this example, searchpath is set:<br /><code>liquibase --searchpath=s3://myS3bucket/demo --changelogfile=example-changelog.sql</code></p>
+        <p><MadCap:variable name="General.Liquibase" />will look in the <code>s3://myS3bucket/demo</code> folder for the file titled:<code>example-changelog.sql</code>.</p>
+        <p>
+            <br />
+        </p>
         <h3>4. Use S3 Files Locally</h3>
-        <p>Files must be in the same directory structure as they are on S3 to use them locally.  (In what scenario do users need to work locally?)</p>
+        <p>You may need to work offline and with local docker databases with the same operational files located in your S3 bucket. To do this, you can  download S3 files to work with them locally. In some cases, you will need to download an entire directory or a single file. Learn how to download objects from S3 <a href="searchpath.htm#https://docs.aws.amazon.com/AmazonS3/latest/userguide/download-objects.html">here</a>. It is important to note that Liquibase will not automatically sync the local files with S3 files. Learn how to sync local files with S3 <a href="searchpath.htm#https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-sync.html">here</a>. Files must be in the same directory structure as they are on S3 to use them locally. </p>
         <h4>&#160;</h4>
         <h4>Related Content:</h4>
         <ul>
