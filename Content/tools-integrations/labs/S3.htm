@@ -3,12 +3,59 @@
     <head>
     </head>
     <body>
-        <h1>S3</h1>
-        <p><MadCap:variable name="General.Liquibase" />can integrate the use of Amazon S3 to store and retrieve data from anywhere. </p>
-        <h2>Use S3 Files Locally</h2>
-        <p>- In what scenario do users need to work locally?&#160;(Is this something that we need to answer or will users already know they should work locally?)</p>
-        <p>Files must be in the same directory structure as they are on S3 </p>
-        <h3>URI&#160;Rules:</h3>
+        <h1>desS3 <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /> <MadCap:snippetText src="../../Resources/Snippets/images/Labs Icon.flsnp" /></h1>
+        <p><MadCap:variable name="General.Liquibase" /> integrates the use of Amazon S3 to store and retrieve data from anywhere. Extending <MadCap:variable name="General.Liquibase" /> to use remote file locations enables secure, centralized file management. <MadCap:variable name="General.Liquibase" /> files include changelogs, snapshots, SQL files, liquibase.properties files, native executor configuration files, checks settings configuration files, and flow files. Remote file location access allows you to build a reusable repository of <MadCap:variable name="General.Liquibase" /> files. It also removes the need for all developers to have local copies of Liquibase files, which ensures files are always accurate.</p>
+        <h2>Setup S3 with <MadCap:variable name="General.CompanyName" /></h2>
+        <p>1. Before using S3 in conjunction with Liquibase, you must configure your AWS&#160;keys via environment variables, configuration files, <MadCap:variable name="General.liquiPropFile" /> file, or Defaults file. That includes the following:<br /></p>
+        <p>AWS_SECRET_ACCESS_KEY</p>
+        <p>AWS_ACCESS_KEY_ID</p>
+        <p>AWS_SESSION_TOKEN</p>
+        <p>AWS_REGION</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The AWS_REGION&#160;must be set to the region of your bucket by environment variable, on the CLI, or in the AWS configure file. You should also set a default AWS Region to access AWS with your application. For the best network performance, select a Region that is geographically near to you or your customers.</p>
+        <p>2. After  the AWS keys are set up, set up your Pro license key as an environment variable that contains the key, or export the key.
+        </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><b>Pro license keys</b> can not be stored in the <MadCap:variable name="General.liquiPropFile" />file if the properties file is stored in S3. This is because you have to have the Pro license key to access the S3 files, so you would not be able to access the S3 files if your key was inaccessible. It is best practice to set up an environment variable that contains the key, or export the key.</p>
+        <p>Set the <a href="../../concepts/connections/liquibase-environment-variables.htm">environment variable</a> like so:</p>
+        <p><code>LIQUIBASE_PRO_LICENSE_KEY=Enter Key Here</code>
+            <br />
+        </p>
+        <p>Export the key like so in the CLI:</p>
+        <p><code>export LIQUIBASE_LICENSE+_KEY="Enter Key Here"</code>
+        </p>
+        <p>Once the AWS&#160;keys and <MadCap:variable name="General.LBPro" /> license key are configured, you are ready to begin using S3 with <MadCap:variable name="General.Liquibase" />.</p>
+        <h2>File Path Rules:</h2>
+        <p>Below are all of the rules that apply to Liquibase using S3. Review the example use cases and instructions to ensure it is the right avenue for your project.</p>
+        <h3>1. S3 Files Reference Other S3 Files</h3>
+        <p> One S3 file can reference another distinct S3. In this example, a Flow file located in a S3 bucket is referenced by a separate s3 bucket. </p>
+        <p>See the example below:</p>
+        <p><code>flow --flowfile=s3://myS3bucket/liquibase.s3.flowfile.yaml</code>
+        </p>
+        <h3>2. Use multiple S3 locations in the same command</h3>
+        <p>Resources are often stored in different S3 locations and Liquibase allows you to find those separate locations in one command. </p>
+        <p>For example, Let's say the <code>checks-settings.conf</code> you need is in the DBA’s resources bucket and the <code>flowfile.yaml</code> is in the DevOps Orchestration Team’s bucket. Simultaneously, the <code>changelog</code> is stored locally while you are in dev, but then is relocated to the deploy sub-directory of the DevOps team. You should put the direct full path on the <MadCap:variable name="General.liquiPropFile" /> file as shown below. </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The file exceptions to this rule are changelog files, snapshot files, or native executor configuration files which must be split over <a href="searchpath.htm">searchpath</a>.</p>
+        <p>
+        Example of multiple S3 locations called on in the same command:<br /><br /><code>liquibase --searchpath=s3://devopsteam/deploy --changelogfile=mychangelog.sql flow --flowfile=s3://devopsteam/orchestration/liquibase.production.flowfile.yaml </code></p>
+        <h3>3. Relative path and absolute path</h3>
+        <p>There are two ways to find  files via S3. You can look by absolute path or relative path. </p>
+        <p><b>Absolute Path:</b>
+            <br>
+            </br>An absolute path is set as a property in the <MadCap:variable name="General.liquiPropFile" /> file.  It must include the full, direct path to the S3 file to find the file successfully. Absolute paths can be set for any file type except <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor configuration files. When an absolute path to a file  is provided, Liquibase uses the file specified in the absolute path without checking searchpath.</p>
+        <p>Absolute Path Example:<br />the absolute path to the flow file is located in S3.</p>
+        <p><code>liquibase --flow-file s3:/[myDirectory]/flow.yaml</code>
+        </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Paths for changelog files, snapshot files, or native executor configuration files must be split over a relative path using <a href="searchpath.htm">searchpath</a>.</p>
+        <p><b>Relative Path:</b>
+        </p>
+        <p>Relative Path is enabled with <a href="searchpath.htm">searchpath</a> and a <MadCap:variable name="General.liquiPropFile" /> file property. Relative Path is the only way to successfully find <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor configuration files.</p>
+        <p>In this example, searchpath is set:<br /><code>liquibase --searchpath=s3://myS3bucket/demo --changelogfile=example-changelog.sql</code></p>
+        <p><MadCap:variable name="General.Liquibase" />will look in the <code>s3://myS3bucket/demo</code> folder for the file titled:<code>example-changelog.sql</code>.</p>
+        <p>
+            <br />
+        </p>
+        <h3>4. Use S3 Files Locally</h3>
+        <p>You may need to work offline and with local docker databases with the same operational files located in your S3 bucket. To do this, you can  download S3 files to work with them locally. In some cases, you will need to download an entire directory or a single file. Learn how to download objects from S3 <a href="searchpath.htm#https://docs.aws.amazon.com/AmazonS3/latest/userguide/download-objects.html">here</a>. It is important to note that Liquibase will not automatically sync the local files with S3 files. Learn how to sync local files with S3 <a href="searchpath.htm#https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-sync.html">here</a>. Files must be in the same directory structure as they are on S3 to use them locally. </p>
+        <h4>&#160;</h4>
         <h4>Related Content:</h4>
         <ul>
             <li><a href="../../enterprise/developer-get-started-guide/overview-packaging-developer.htm#https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html">AWS Bucket naming rules</a>
