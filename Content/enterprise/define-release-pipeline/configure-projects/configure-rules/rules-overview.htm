@@ -1,33 +1,160 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>Rules Overview</h1> <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Rules are used to enforce policies for changes to databases.</p><p>Use the three-stage forecasting process to determine if changesets comply with your requirements.&#160;If the changesets fail the rules during forecasting, you can fix them before you deploy the changesets to your databases. &#160;</p><p>Some rules are provided with <MadCap:variable name="General.DaticalDB" /> software. They are described in <a href="rules-library.htm">Rules Library</a>. You can also write your own rules, either by copying and editing the provided rules or by writing them yourself.</p><p>Each project includes a Rules directory where you place the rules that you want to apply to that project.</p><p>The rules engine is implemented using the open-source <a class="external-link" href="http://www.drools.org" rel="nofollow"><strong>Drools</strong> </a>Business Rules Management System.</p><p>The rules engine contains models of objects for <MadCap:variable name="General.DaticalDB" /> and the database you are working with. Rules consist of expressions that evaluate selected objects and specify a response.</p><h1 id="RulesOverview-RulesLocationandNaming">Rules Location and Naming</h1> <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2 id="RulesOverview-Location">Location</h2><p>To use rules in a project, you place rules files (.drl) in the Rules directory hierarchy under the project.</p><pre xml:space="preserve">&lt;project&gt;/
-   Rules/
-      Forecast/
-      PostForecast/
-      PreForecast/
-      SqlRules/</pre><ul><li>Files that contain one or more rules</li><li>Sub folders containing individual or bundled rules</li></ul><h2 id="RulesOverview-RulesFileNamingConventions">Rules File Naming Conventions</h2><p>Give each rule a short, meaningful name. All rules files must have a .drl file extension. Rule files without the extension are not picked up for forecasting.</p><pre xml:space="preserve">&lt;rule_name&gt;.drl</pre><h1 id="RulesOverview-WhereRulesAreApplied">Where Rules Are Applied</h1> <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Rules are available to be applied during packing and during each phase of the forecasting process.</p><h2 id="RulesOverview-ScriptFileExtensionRequirements">Script File Extension Requirements</h2><p>Rules only check SQL scripts<span style="color: rgb(23,43,77);">&#160;with the following extensions by default: <code>.sql, .dml, .ddl</code></span></p><p><span style="color: rgb(23,43,77);">To optionally add other SQL script extensions for other file types to be checked by SqlRules, change the <span style="color: rgb(23,43,77);"><code>sqlRules.supportedScriptExtensions</code> property in the&#160;<span style="color: rgb(23,43,77);"><code>daticaldb.properties</code> file, which is located in the root directory for the project (<code>&lt;project&gt;</code>).</span></span></span></p><p>Example:</p><pre class="syntaxhighlighter-pre" xml:space="preserve">sqlRules.supportedScriptExtensions=.pkg,.trg,.prc,.proc,.ddl,.sql,.dml</pre><h2 id="RulesOverview-PackagingRules">Packaging Rules</h2><p>Rules in the <code>SqlRules</code> directory are applied by Deployment Packager when packaging SQL scripts into changesets. They are <strong>not</strong> part of the forecasting process.</p><p>Use these rules to test the SQL statements in all SQL scripts before they are packaged. Typically they are used to test for disallowed statements, such as grants.</p><ul><li>SqlRules&#160;</li></ul><h2 id="RulesOverview-ForecastingRules">Forecasting Rules</h2><p>The forecasting process allows to test the impact of changesets on the target database. You can apply rules during each stage of forecasting. Each stage of forecasting has its own directory of rules.</p><ul><li>PreForecast - applied immediately before a forecast</li><li>Forecast - applied to produce a forecast of the impact of changes on the database schema</li><li>PostForecast - applied to assess the results of a forecast and to perform further tests</li></ul><p>The available object data models for forecasting rules vary&#160;by stage.</p><h1 id="RulesOverview-RulesTypes">Rules Types</h1> <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2 id="RulesOverview-SqlRules">SqlRules</h2><p>These rules are executed by the Deployment Packager at the beginning of the packaging process. When the script <code>deployPackager.groovy</code> is run, tests all of the SQL scripts being packaged against the rules located in the <code>SqlRules</code> folder.</p><p>The Deployment Packager runs the <code>runRules</code> command to run rules on the SQL scripts slated for packaging. This is run in both <code>preview</code> and <code>active</code> mode. You can run the command outside of Deployment Packager as follows.</p><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer runRules [SQL file | List of SQL files | SQL files folder]</pre><p>Rules are read from the <strong>SqlRules</strong> folder.</p><p>The rules engine is <strong>fired once for each script.</strong></p><p>Use commas or semicolons to separate lists of files passed to the command. <strong>If semicolons are used, the list should surrounded by double quotes.</strong></p><h2 id="RulesOverview-PreForecast">PreForecast</h2><p>PreForecast rules run before forecasting starts. They can be used to test conditions of <MadCap:variable name="General.DaticalDB" /> objects and client objects that are required in order for forecasting to be performed.</p><p>This is the best place to perform validation to ensure:</p><ul><li>Changelog Creator, timestamps, and comments exist</li><li>Developers and DBAs follow best practices for changeset management</li></ul><p>Rules are read from the <strong>PreForecast</strong> folder.</p><p>In this phase, the rules engine is <strong>fired once.</strong></p><h2 id="RulesOverview-Forecast">Forecast</h2><p>Forecast rules are run during the forecast process. During forecasting, <MadCap:variable name="General.DaticalDB" /> builds a model of the database as it currently exists, and then simulates what would happen to that model as each change is applied to the database. The changes are not applied to the database. The results of a forecast help you determine if there would be undesired effects caused by the changes before you run them.</p><p>Most rules are written to run&#160;<strong>during the forecast</strong>. These rules validate the change model as well and determine how the changes affect the target database schema.</p><p>Some of the most common classes of rules:</p><ul><li>Verify or Enforce Corporate DDL Standards</li><li>Assess the validity of DDL changes</li><li>Protect against DDL changes that could have a negative impact on data</li><li>Limit ability to deploy certain types of DDL (especially, grants)</li></ul><p>Processing proceeds in two steps:</p><ol><li>Run <a href="built-forecast-checks.htm">built-in forecast checks</a>. These automatic tests basic semantic integrity. For example, when a script renames a column in a database, a built-in rule checks that both the table and the column exist.</li><li>Run rules in the Forecast folder.</li></ol><p>Rules are read from the <strong>Forecast</strong> folder.</p><p>In this phase, the rules engine is <strong>fired once FOR EACH CHANGE</strong><strong>to be deployed.</strong></p><h2 id="RulesOverview-PostForecast">PostForecast</h2><p>PostForecast rules are run after the forecasting process finishes.&#160;You can use the rules to examine the final forecasted state of the database or parts of the Forecast object itself. For example, you could test whether a forecast threw more than a specified number of warnings.</p><p>Rules are written to <strong>execute after forecast</strong> but before deployment.</p><p>Rules in this stage typically:</p><ul><li>Validate rules on the database using the forecasted database model</li><li>Look for DDL drift before applying additional changes</li></ul><p>Rules are read from the <strong>PostForecast</strong> folder.</p><p>In this phase, the rules engine is <strong>fired once.</strong></p><h1 id="RulesOverview-OrganizingRules">Organizing Rules</h1> <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2 id="RulesOverview-DirectoryStructure">Directory Structure</h2><p>Rules are executed according to phase: sqlrules, pre-forecast, forecast, and post-forecast. Rules are applied to the appropriate phase based on their location in the rules subfolder:</p><pre xml:space="preserve">&lt;<MadCap:variable name="General.DaticalDB" /> Project&gt;/Rules/
-                           SQLRules
-                           PreForecast
-                           Forecast
-                           PostForecast
-</pre><p>In addition to these standard folders, you can also specify sub-folders to better organize your rules.</p><p>Minimally, you will want to specify company specific directories so you can keep your rules separate from the <MadCap:variable name="General.DaticalDB" /> supplied rules.</p><p>As you have more rules, consider adding additional sub-folders where needed to keep the rules from getting overwhelming. Some ideal categories are:</p><ul><li><strong>&lt;rule goal&gt;</strong>: Security, Access Control, Dependency Validation, Data Safety, Corporate Standards, Audit and Compliance, etc.</li><li><strong>&lt;rule db object&gt;</strong>: group the rules by the primary object type we're writing the rule about (<em>Table, Column, Index, StoredProcedure, Trigger, etc</em>)</li></ul><p>An example of this directory structure looks as follows:</p><pre xml:space="preserve">&lt;<MadCap:variable name="General.DaticalDB" /> Project&gt;/
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>Rules Overview</h1>
+		<MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>Rules are used to enforce policies for changes to databases.</p>
+		<p>Use the three-stage forecasting process to determine if changesets comply with your requirements.&#160;If the changesets fail the rules during forecasting, you can fix them before you deploy the changesets to your databases.</p>
+		<p>
+			Some rules are provided with 
+			<MadCap:variable name="General.DaticalDB" />
+			software. They are described in <a href="rules-library.htm">Rules Library</a>. You can also write your own rules, either by copying and editing the provided rules or by writing them yourself.
+		</p>
+		<p>Each project includes a Rules directory where you place the rules that you want to apply to that project.</p>
+		<p>The rules engine is implemented using the open-source <a class="external-link" href="http://www.drools.org" rel="nofollow"><strong>Drools</strong> </a>Business Rules Management System.</p>
+		<p>
+			The rules engine contains models of objects for 
+			<MadCap:variable name="General.DaticalDB" />
+			and the database you are working with. Rules consist of expressions that evaluate selected objects and specify a response.
+		</p>
+		<h1 id="RulesOverview-RulesLocationandNaming">Rules Location and Naming</h1>
+		<MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2 id="RulesOverview-Location">Location</h2>
+		<p>To use rules in a project, you place rules files (.drl) in the Rules directory hierarchy under the project.</p>
+		<pre xml:space="preserve">&lt;project&gt;/
+    Rules/
+        Forecast/
+        PostForecast/
+        PreForecast/
+        SqlRules/</pre>
+		<ul>
+			<li>Files that contain one or more rules</li>
+			<li>Sub folders containing individual or bundled rules</li>
+		</ul>
+		<h2 id="RulesOverview-RulesFileNamingConventions">Rules File Naming Conventions</h2>
+		<p>Give each rule a short, meaningful name. All rules files must have a .drl file extension. Rule files without the extension are not picked up for forecasting.</p>
+		<pre xml:space="preserve">&lt;rule_name&gt;.drl</pre>
+		<h1 id="RulesOverview-WhereRulesAreApplied">Where Rules Are Applied</h1>
+		<MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>Rules are available to be applied during packing and during each phase of the forecasting process.</p>
+		<h2 id="RulesOverview-ScriptFileExtensionRequirements">Script File Extension Requirements</h2>
+		<p>Rules only check SQL scripts<span style="color: rgb(23,43,77);">&#160;with the following extensions by default: <code>.sql, .dml, .ddl</code></span></p>
+		<p><span style="color: rgb(23,43,77);">To optionally add other SQL script extensions for other file types to be checked by SqlRules, change the <span style="color: rgb(23,43,77);"><code>sqlRules.supportedScriptExtensions</code> property in the&#160;<span style="color: rgb(23,43,77);"><code>daticaldb.properties</code> file, which is located in the root directory for the project (<code>&lt;project&gt;</code>).</span></span></span></p>
+		<p>Example:</p>
+		<pre class="syntaxhighlighter-pre" xml:space="preserve">sqlRules.supportedScriptExtensions=.pkg,.trg,.prc,.proc,.ddl,.sql,.dml</pre>
+		<h2 id="RulesOverview-PackagingRules">Packaging Rules</h2>
+		<p>Rules in the <code>SqlRules</code> directory are applied by Deployment Packager when packaging SQL scripts into changesets. They are <strong>not</strong> part of the forecasting process.</p>
+		<p>Use these rules to test the SQL statements in all SQL scripts before they are packaged. Typically they are used to test for disallowed statements, such as grants.</p>
+		<ul>
+			<li>SqlRules&#160;</li>
+		</ul>
+		<h2 id="RulesOverview-ForecastingRules">Forecasting Rules</h2>
+		<p>The forecasting process allows to test the impact of changesets on the target database. You can apply rules during each stage of forecasting. Each stage of forecasting has its own directory of rules.</p>
+		<ul>
+			<li>PreForecast - applied immediately before a forecast</li>
+			<li>Forecast - applied to produce a forecast of the impact of changes on the database schema</li>
+			<li>PostForecast - applied to assess the results of a forecast and to perform further tests</li>
+		</ul>
+		<p>The available object data models for forecasting rules vary&#160;by stage.</p>
+		<h1 id="RulesOverview-RulesTypes">Rules Types</h1>
+		<MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2 id="RulesOverview-SqlRules">SqlRules</h2>
+		<p>These rules are executed by the Deployment Packager at the beginning of the packaging process. When the script <code>deployPackager.groovy</code> is run, tests all of the SQL scripts being packaged against the rules located in the <code>SqlRules</code> folder.</p>
+		<p>The Deployment Packager runs the <code>runRules</code> command to run rules on the SQL scripts slated for packaging. This is run in both <code>preview</code> and <code>active</code> mode. You can run the command outside of Deployment Packager as follows.</p>
+		<pre class="syntaxhighlighter-pre" xml:space="preserve">hammer runRules [SQL file | List of SQL files | SQL files folder]</pre>
+		<p>Rules are read from the <strong>SqlRules</strong> folder.</p>
+		<p>The rules engine is <strong>fired once for each script.</strong></p>
+		<p>Use commas or semicolons to separate lists of files passed to the command. <strong>If semicolons are used, the list should surrounded by double quotes.</strong></p>
+		<h2 id="RulesOverview-PreForecast">PreForecast</h2>
+		<p>
+			PreForecast rules run before forecasting starts. They can be used to test conditions of 
+			<MadCap:variable name="General.DaticalDB" />
+			objects and client objects that are required in order for forecasting to be performed.
+		</p>
+		<p>This is the best place to perform validation to ensure:</p>
+		<ul>
+			<li>Changelog Creator, timestamps, and comments exist</li>
+			<li>Developers and DBAs follow best practices for changeset management</li>
+		</ul>
+		<p>Rules are read from the <strong>PreForecast</strong> folder.</p>
+		<p>In this phase, the rules engine is <strong>fired once.</strong></p>
+		<h2 id="RulesOverview-Forecast">Forecast</h2>
+		<p>
+			Forecast rules are run during the forecast process. During forecasting, 
+			<MadCap:variable name="General.DaticalDB" />
+			builds a model of the database as it currently exists, and then simulates what would happen to that model as each change is applied to the database. The changes are not applied to the database. The results of a forecast help you determine if there would be undesired effects caused by the changes before you run them.
+		</p>
+		<p>Most rules are written to run&#160;<strong>during the forecast</strong>. These rules validate the change model as well and determine how the changes affect the target database schema.</p>
+		<p>Some of the most common classes of rules:</p>
+		<ul>
+			<li>Verify or Enforce Corporate DDL Standards</li>
+			<li>Assess the validity of DDL changes</li>
+			<li>Protect against DDL changes that could have a negative impact on data</li>
+			<li>Limit ability to deploy certain types of DDL (especially, grants)</li>
+		</ul>
+		<p>Processing proceeds in two steps:</p>
+		<ol>
+			<li>Run <a href="built-forecast-checks.htm">built-in forecast checks</a>. These automatic tests basic semantic integrity. For example, when a script renames a column in a database, a built-in rule checks that both the table and the column exist.</li>
+			<li>Run rules in the Forecast folder.</li>
+		</ol>
+		<p>Rules are read from the <strong>Forecast</strong> folder.</p>
+		<p>In this phase, the rules engine is <strong>fired once FOR EACH CHANGE</strong><strong>to be deployed.</strong></p>
+		<h2 id="RulesOverview-PostForecast">PostForecast</h2>
+		<p>PostForecast rules are run after the forecasting process finishes.&#160;You can use the rules to examine the final forecasted state of the database or parts of the Forecast object itself. For example, you could test whether a forecast threw more than a specified number of warnings.</p>
+		<p>Rules are written to <strong>execute after forecast</strong> but before deployment.</p>
+		<p>Rules in this stage typically:</p>
+		<ul>
+			<li>Validate rules on the database using the forecasted database model</li>
+			<li>Look for DDL drift before applying additional changes</li>
+		</ul>
+		<p>Rules are read from the <strong>PostForecast</strong> folder.</p>
+		<p>In this phase, the rules engine is <strong>fired once.</strong></p>
+		<h1 id="RulesOverview-OrganizingRules">Organizing Rules</h1>
+		<MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2 id="RulesOverview-DirectoryStructure">Directory Structure</h2>
+		<p>Rules are executed according to phase: sqlrules, pre-forecast, forecast, and post-forecast. Rules are applied to the appropriate phase based on their location in the rules subfolder:</p>
+		<pre xml:space="preserve">&lt;<MadCap:variable name="General.DaticalDB" />Project&gt;/Rules/
+    SQLRules
+    PreForecast
+    Forecast
+    PostForecast
+		</pre>
+		<p>In addition to these standard folders, you can also specify sub-folders to better organize your rules.</p>
+		<p>
+			Minimally, you will want to specify company specific directories so you can keep your rules separate from the 
+			<MadCap:variable name="General.DaticalDB" />
+			supplied rules.
+		</p>
+		<p>As you have more rules, consider adding additional sub-folders where needed to keep the rules from getting overwhelming. Some ideal categories are:</p>
+		<ul>
+			<li><strong>&lt;rule goal&gt;</strong>: Security, Access Control, Dependency Validation, Data Safety, Corporate Standards, Audit and Compliance, etc.</li>
+			<li><strong>&lt;rule db object&gt;</strong>: group the rules by the primary object type we're writing the rule about (<em>Table, Column, Index, StoredProcedure, Trigger, etc</em>)</li>
+		</ul>
+		<p>An example of this directory structure looks as follows:</p>
+		<pre xml:space="preserve">&lt;<MadCap:variable name="General.DaticalDB" />Project&gt;/
 Rules/
-   Forecast/
-      com.datical/
-      com.my_company/
-         Security/
-         Table/
-         Stored Logic/
-         Index/
-   PostForecast/
-      com.datical/
-      com.my_company/
-   PreForecast/
-      com.datical/
-      com.my_company/
-   SqlRules
-      com.datical/
-      com.my_company</pre><h2 class="auto-cursor-target" id="RulesOverview-CentralizedRules">Centralized Rules</h2><p>If you have many projects that all use the same set of rules, you can optionally centralize the rules by creating a rules repository in source control.</p><p>See this page for more details: <a href="../../../how-to-guides/how-to-guides/create-common-rules-repository.htm" rel="nofollow">How to Create a Common Rules Repository</a></p></body>
+    Forecast/
+        com.datical/
+        com.my_company/
+            Security/
+            Table/
+            Stored Logic/
+            Index/
+    PostForecast/
+        com.datical/
+        com.my_company/
+    PreForecast/
+        com.datical/
+        com.my_company/
+    SqlRules
+        com.datical/
+        com.my_company</pre>
+		<h2 id="RulesOverview-CentralizedRules">Centralized Rules</h2>
+		<p>If you have many projects that all use the same set of rules, you can optionally centralize the rules by creating a rules repository in source control.</p>
+		<p>See this page for more details: <a href="../../../how-to-guides/how-to-guides/create-common-rules-repository.htm" rel="nofollow">How to Create a Common Rules Repository</a></p>
+	</body>
 </html>
