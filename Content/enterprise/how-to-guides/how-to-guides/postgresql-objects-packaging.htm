@@ -1,6 +1,351 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>PostgreSQL Server Database Objects and Packaging</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2 id="PostgreSQLServerDatabaseObjectsandPackaging-QualifyingObjectNames">Qualifying Object Names</h2><ul><li><p>Do not qualify objects with the database name as PostgreSQL connections represent one database at a time.</p></li><li><p>For a <strong>Single-Schema</strong> project, you don't need to qualify object names with the schema name. If they are not qualified, <MadCap:variable name="General.DaticalDB" /> DB uses the default schema if it is specified.</p></li><li><p>For a <strong>Multi-Schema</strong> project, you must qualify object names with the schema name so they get deployed to the correct schema during packaging.</p></li><li><p>You can use the <code>schemaName</code> attribute in the <code>metadata.properties</code> file to specify the default schema. See <a href="metadata-properties-file.htm">Using the metadata.properties file</a>.</p></li></ul><h2 id="PostgreSQLServerDatabaseObjectsandPackaging-PostgreSQLSCMPackagingPatterns">PostgreSQL SCM Packaging Patterns</h2><p><MadCap:variable name="General.DaticalDB" /> DB packages non-transient files differently from transient files. Place scripts for PostgreSQL objects in packaging folders as follows:</p><p>Non-transient—In-place editing, packaging, and no archiving of database changes so they can be managed similar to application code. This applies to the following object types:</p><ul><li><p>Procedures (when scripts are placed in the <code>procedure</code> folder)</p></li><li><p>Views (when scripts are placed in the <code>view</code> folder)</p></li><li><p>Triggers (when scripts are placed in the <code>trigger</code> folder)</p></li></ul><p>Transient—Database changes are archived after packaging (all other folders).</p><p>PostgreSQL packaging doesn't support <code>ssis/ssis_project</code>, <code>package</code>, <code>packagebody</code>, and <code>sqlplus</code> folders.</p><p>Packager requires that stored logic scripts (<code>procedure</code>, <code>view</code>, <code>trigger</code>) have only one object or statement per file with nothing preceding or following the object definition. No additional statements.</p><h2 id="PostgreSQLServerDatabaseObjectsandPackaging-ObjectsandPackagingFolders">Objects and Packaging Folders</h2><p>Use the specified folder for listed PostgreSQL database operations.</p><table><colgroup><col style="width: 166.0px;" /><col style="width: 170.0px;" /><col style="width: 139.0px;" /><col style="width: 145.0px;" /><col style="width: 140.0px;" /></colgroup><tbody><tr><th><p><strong>Operation and Object Type</strong></p></th><th><p><strong>Packaging Folders (fixed folders)</strong></p></th><th><p><strong>Package Methods (flexible folders)</strong></p></th><th><p><strong>Archived</strong></p></th><th><p><strong>Notes</strong></p></th></tr><tr><td><p>CREATE/ALTER/DROP <strong>DATABASE LINK</strong></p></td><td><p><code>sql_direct</code></p></td><td><p>direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>FUNCTION</strong></p></td><td><p><code>sql_direct</code></p></td><td><p>direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>INDEX</strong></p></td><td><p><code>ddl</code>, <code>ddl_direct</code>,&#160;<code>sql_direct</code>,</p></td><td><p>convert, ddl_direct, direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>PROCEDURE</strong></p></td><td><p><code>procedure</code></p></td><td><p>storedlogic</p></td><td><p>No</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>QUEUE</strong></p></td><td><p><code>sql_direct</code></p></td><td><p>direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>SEQUENCE</strong></p></td><td><p><code>ddl</code>, <code>ddl_direct</code>,&#160;<code>sql_direct</code></p></td><td><p>convert, ddl_direct, direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>SYNONYM</strong></p></td><td><p><code>ddl</code>,&#160;<code>ddl_direct</code>, <code>sql_direct</code></p></td><td><p>convert, ddl_direct, direct</p></td><td><p>Yes</p></td><td><p>For ALTER and CREATE OR REPLACE synonym use ddl_direct or sql_direct/direct. (Do not use ddl/convert with ALTER and CREATE OR REPLACE synonym.)</p></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>TABLE</strong></p></td><td><p><code>ddl</code>,&#160;<code>ddl_direct</code>, <code>sql_direct</code></p></td><td><p>convert, ddl_direct, direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>TRIGGER</strong></p></td><td><p><code>trigger</code></p></td><td><p>storedlogic</p></td><td><p>No</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>TYPE</strong></p></td><td><p><code>sql_direct</code></p></td><td><p>direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>VIEW</strong></p></td><td><p><code>view</code></p></td><td><p>storedlogic</p></td><td><p>No</p></td><td></td></tr><tr><td><p>CREATE/ALTER/DROP <strong>VIEW INDEX</strong></p></td><td><p><code>ddl</code>,&#160;<code>ddl_direct</code>, <code>sql_direct</code></p></td><td><p>convert, ddl_direct, direct</p></td><td><p>Yes</p></td><td></td></tr><tr><td><p>RENAME<strong>&#160;&lt;DB_OBJECT&gt;</strong></p></td><td><p><code>sql_direct</code></p></td><td><p>direct</p></td><td><p>Yes</p></td><td></td></tr></tbody></table><table><colgroup><col style="width: 206.0px;" /><col style="width: 207.0px;" /><col style="width: 161.0px;" /><col style="width: 186.0px;" /></colgroup><tbody><tr><th><p><strong>Operation</strong></p></th><th><p><strong>Packaging Folder (fixed folders)</strong></p></th><th><p><strong>Package Method (flexible folders)</strong></p></th><th><p><strong>Archived</strong></p></th></tr><tr><td><p>INSERT, UPDATE, DELETE, SELECT</p></td><td><p>data_dml</p></td><td><p>data_dml</p></td><td><p>Yes</p></td></tr><tr><td><p>GRANT, REVOKE</p></td><td><p>sql_direct</p></td><td><p>direct</p></td><td><p>Yes</p></td></tr></tbody></table><h2 id="PostgreSQLServerDatabaseObjectsandPackaging-ErrorHandling">Error Handling</h2><p>Do not put error-handling statements in the SQL scripts.</p><p><MadCap:variable name="General.DaticalDB" /> DB has its own error-handling that wraps SQL scripts. Specifying error-handling within the statements is not necessary.</p><p>Deployment Packager fails with an error if it encounters statements before an object definition.</p><p>For more information about packaging workflows, packaging methods, and folders for specific types of changes, see the following pages:</p><ul><li><p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569925/Overview+of+Packaging" rel="nofollow">Overview of Packaging</a></p></li><li><p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896570004/Writing+SQL+Scripts+for+Datical+DB" rel="nofollow">Writing SQL Scripts for Datical DB</a></p></li><li><p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569969/Fixed+Folder+Names" rel="nofollow">Fixed Folder Names</a></p></li><li><p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569975/Flexible+Folder+Names" rel="nofollow">Flexible Folder Names</a></p></li></ul></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>PostgreSQL Server Database Objects and Packaging</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2 id="PostgreSQLServerDatabaseObjectsandPackaging-QualifyingObjectNames">Qualifying Object Names</h2>
+		<ul>
+			<li>
+				<p>Do not qualify objects with the database name as PostgreSQL connections represent one database at a time.</p>
+			</li>
+			<li>
+				<p>
+					For a <strong>Single-Schema</strong> project, you don't need to qualify object names with the schema name. If they are not qualified, 
+					<MadCap:variable name="General.DaticalDB" />
+					DB uses the default schema if it is specified.
+				</p>
+			</li>
+			<li>
+				<p>For a <strong>Multi-Schema</strong> project, you must qualify object names with the schema name so they get deployed to the correct schema during packaging.</p>
+			</li>
+			<li>
+				<p>You can use the <code>schemaName</code> attribute in the <code>metadata.properties</code> file to specify the default schema. See <a href="metadata-properties-file.htm">Using the metadata.properties file</a>.</p>
+			</li>
+		</ul>
+		<h2 id="PostgreSQLServerDatabaseObjectsandPackaging-PostgreSQLSCMPackagingPatterns">PostgreSQL SCM Packaging Patterns</h2>
+		<p>
+			<MadCap:variable name="General.DaticalDB" />
+			DB packages non-transient files differently from transient files. Place scripts for PostgreSQL objects in packaging folders as follows:
+		</p>
+		<p>Non-transient—In-place editing, packaging, and no archiving of database changes so they can be managed similar to application code. This applies to the following object types:</p>
+		<ul>
+			<li>
+				<p>Procedures (when scripts are placed in the <code>procedure</code> folder)</p>
+			</li>
+			<li>
+				<p>Views (when scripts are placed in the <code>view</code> folder)</p>
+			</li>
+			<li>
+				<p>Triggers (when scripts are placed in the <code>trigger</code> folder)</p>
+			</li>
+		</ul>
+		<p>Transient—Database changes are archived after packaging (all other folders).</p>
+		<p>PostgreSQL packaging doesn't support <code>ssis/ssis_project</code>, <code>package</code>, <code>packagebody</code>, and <code>sqlplus</code> folders.</p>
+		<p>Packager requires that stored logic scripts (<code>procedure</code>, <code>view</code>, <code>trigger</code>) have only one object or statement per file with nothing preceding or following the object definition. No additional statements.</p>
+		<h2 id="PostgreSQLServerDatabaseObjectsandPackaging-ObjectsandPackagingFolders">Objects and Packaging Folders</h2>
+		<p>Use the specified folder for listed PostgreSQL database operations.</p>
+		<table>
+			<colgroup>
+				<col style="width: 166.0px;" />
+				<col style="width: 170.0px;" />
+				<col style="width: 139.0px;" />
+				<col style="width: 145.0px;" />
+				<col style="width: 140.0px;" />
+			</colgroup>
+			<tbody>
+				<tr>
+					<th>
+						<p><strong>Operation and Object Type</strong></p>
+					</th>
+					<th>
+						<p><strong>Packaging Folders (fixed folders)</strong></p>
+					</th>
+					<th>
+						<p><strong>Package Methods (flexible folders)</strong></p>
+					</th>
+					<th>
+						<p><strong>Archived</strong></p>
+					</th>
+					<th>
+						<p><strong>Notes</strong></p>
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>DATABASE LINK</strong></p>
+					</td>
+					<td>
+						<p><code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>FUNCTION</strong></p>
+					</td>
+					<td>
+						<p><code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>INDEX</strong></p>
+					</td>
+					<td>
+						<p><code>ddl</code>, <code>ddl_direct</code>,&#160;<code>sql_direct</code>,</p>
+					</td>
+					<td>
+						<p>convert, ddl_direct, direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>PROCEDURE</strong></p>
+					</td>
+					<td>
+						<p><code>procedure</code></p>
+					</td>
+					<td>
+						<p>storedlogic</p>
+					</td>
+					<td>
+						<p>No</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>QUEUE</strong></p>
+					</td>
+					<td>
+						<p><code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>SEQUENCE</strong></p>
+					</td>
+					<td>
+						<p><code>ddl</code>, <code>ddl_direct</code>,&#160;<code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>convert, ddl_direct, direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>SYNONYM</strong></p>
+					</td>
+					<td>
+						<p><code>ddl</code>,&#160;<code>ddl_direct</code>, <code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>convert, ddl_direct, direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td>
+						<p>For ALTER and CREATE OR REPLACE synonym use ddl_direct or sql_direct/direct. (Do not use ddl/convert with ALTER and CREATE OR REPLACE synonym.)</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>TABLE</strong></p>
+					</td>
+					<td>
+						<p><code>ddl</code>,&#160;<code>ddl_direct</code>, <code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>convert, ddl_direct, direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>TRIGGER</strong></p>
+					</td>
+					<td>
+						<p><code>trigger</code></p>
+					</td>
+					<td>
+						<p>storedlogic</p>
+					</td>
+					<td>
+						<p>No</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>TYPE</strong></p>
+					</td>
+					<td>
+						<p><code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>VIEW</strong></p>
+					</td>
+					<td>
+						<p><code>view</code></p>
+					</td>
+					<td>
+						<p>storedlogic</p>
+					</td>
+					<td>
+						<p>No</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>CREATE/ALTER/DROP <strong>VIEW INDEX</strong></p>
+					</td>
+					<td>
+						<p><code>ddl</code>,&#160;<code>ddl_direct</code>, <code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>convert, ddl_direct, direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>
+						<p>RENAME<strong>&#160;&lt;DB_OBJECT&gt;</strong></p>
+					</td>
+					<td>
+						<p><code>sql_direct</code></p>
+					</td>
+					<td>
+						<p>direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+		<table>
+			<colgroup>
+				<col style="width: 206.0px;" />
+				<col style="width: 207.0px;" />
+				<col style="width: 161.0px;" />
+				<col style="width: 186.0px;" />
+			</colgroup>
+			<tbody>
+				<tr>
+					<th>
+						<p><strong>Operation</strong></p>
+					</th>
+					<th>
+						<p><strong>Packaging Folder (fixed folders)</strong></p>
+					</th>
+					<th>
+						<p><strong>Package Method (flexible folders)</strong></p>
+					</th>
+					<th>
+						<p><strong>Archived</strong></p>
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<p>INSERT, UPDATE, DELETE, SELECT</p>
+					</td>
+					<td>
+						<p>data_dml</p>
+					</td>
+					<td>
+						<p>data_dml</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>GRANT, REVOKE</p>
+					</td>
+					<td>
+						<p>sql_direct</p>
+					</td>
+					<td>
+						<p>direct</p>
+					</td>
+					<td>
+						<p>Yes</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<h2 id="PostgreSQLServerDatabaseObjectsandPackaging-ErrorHandling">Error Handling</h2>
+		<p>Do not put error-handling statements in the SQL scripts.</p>
+		<p>
+			<MadCap:variable name="General.DaticalDB" />
+			DB has its own error-handling that wraps SQL scripts. Specifying error-handling within the statements is not necessary.
+		</p>
+		<p>Deployment Packager fails with an error if it encounters statements before an object definition.</p>
+		<p>For more information about packaging workflows, packaging methods, and folders for specific types of changes, see the following pages:</p>
+		<ul>
+			<li>
+				<p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569925/Overview+of+Packaging" rel="nofollow">Overview of Packaging</a></p>
+			</li>
+			<li>
+				<p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896570004/Writing+SQL+Scripts+for+Datical+DB" rel="nofollow">Writing SQL Scripts for Datical DB</a></p>
+			</li>
+			<li>
+				<p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569969/Fixed+Folder+Names" rel="nofollow">Fixed Folder Names</a></p>
+			</li>
+			<li>
+				<p><a class="external-link" href="http://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569975/Flexible+Folder+Names" rel="nofollow">Flexible Folder Names</a></p>
+			</li>
+		</ul>
+	</body>
 </html>
