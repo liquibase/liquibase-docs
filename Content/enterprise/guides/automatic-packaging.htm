@@ -1,15 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>Implementation Guide: Automatic Packaging</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2 id="ImplementationGuide:AutomaticPackaging-Overview">Overview</h2><p>As a database script developer, once you have reached a stable state with your .sql scripts, you will check them in your company Source Code Management system (<a class="unresolved" href="#">SCM</a>) like TFS, SVN, Git Stash, BitBucket, ...</p><p>Once those scripts are checked in the SCM, a job to package them and deploy them in the REF Database will be started automatically (<a class="unresolved" href="#">CI</a>) or manually.</p><p>As part of this job the following actions will happen:</p><ol><li>Checkout the SQL code from the appropriate branch</li><li>Checkout the <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project from the main branch</li><li>Run the deployer through the Command Line Interface (<a class="unresolved" href="#">CLI</a>) "hammer groovy deployPackager.groovy", this will includes:<br /><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="641" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/image2017-7-25_15-21-17.png?version=1&amp;modificationDate=1501014080208&amp;cacheVersion=1&amp;api=v2&amp;width=641&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/image2017-7-25_15-21-17.png?version=1&amp;modificationDate=1501014080208&amp;cacheVersion=1&amp;api=v2&amp;width=1282&amp;height=498 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/image2017-7-25_15-21-17.png?version=1&amp;modificationDate=1501014080208&amp;cacheVersion=1&amp;api=v2&amp;width=641&amp;height=249 1x" /></span></li><li>Create an artifact ( comprised of the <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project directory)</li><li>After the artifact has been created, the process will be the same in each environment:<ol><li>download the artifact</li><li>run the CLI to do a forecast</li><li>run the CLI to execute the deployment itself</li></ol></li></ol><h2>Checking your code into SCM</h2> <h3>File structure</h3><p>The file structure is typically as follow:</p><p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/857420/image2017-12-21_10-52-44.png?version=1&amp;modificationDate=1513875166797&amp;cacheVersion=1&amp;api=v2" /></span></p><p>where:</p><ul><li>portal_sql is the name of your repository,</li><li>sql_code is the name of the directory where the packager will look for new/modified .sql files to package, this directory is reference in the deployPackager.properties in your <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project</li><li>the sub-directories represent the different kinds of SQL scripts to package</li><li>the process order for a commit when using <a href="../package-sql-scripts-for-deployment/place-files-scm-repo/fixed-folder-names.htm" rel="nofollow">fixed folder names</a> is: ddl, ddl_direct, view, function, procedure, package, packagebody, trigger, sql, sql_direct and finally data_dml folder</li><li>the process order for a commit when using <a href="../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">flexible folders</a> is: convert, ddl_direct, storedlogic, sqlfile, direct, and finally data_dml packageMethod</li><li>more details cane be found at <a href="automatic-packaging.htm">Placing Files in the SCM Repository</a></li></ul><h3>metadata.properties</h3><p>In each directory under the top level one (sql_code in this example), you can create configuration file named metadata, where you can pass some additional directives to the packager (like additional label or context).</p><h3>Git</h3><p>For a complete understanding of Git please refer to the <a class="external-link" href="https://git-scm.com/documentation" rel="nofollow">official documentation</a>.</p><ol><li>Get the latest version for the code<ol><li>"git clone" (the first time)</li><li>or "git pull" if your local repository already exist</li></ol></li><li>change to the correct branch<ol><li>"git checkout branch_name"</li></ol></li><li>create files in the correct subdirectories (you may have to create the subdirectory first) as required</li><li>add the files to your upcoming commit with: "git add <em>&lt;filename&gt;</em> ..." or "git add ." to commit the whole current directory and its children.</li><li>Commit the files you have added with :<br />git commit -m "Commit message"&#160;<br />if the commit message contains some text between square bracket like "Create employee table&#160;[JIRA-1234]", a "label" will be automatically created by <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> during the deployer phase. This allows you to add additional label for specific jira, feature, story, ... for a more granular deployment process</li><li>if you need to insert some kind of orders to process you files (i.e. CREATE the table before the ALTER statement), you can split you git add and git commit as in<ol><li>git add createEmployeeTable.sql</li><li>git commit -m "Create employee table"</li><li>git add AlterEmployeeTable.sql</li><li>git commit -m "Add a column to the employee table&#160;[JIRA-2345]"</li></ol></li><li>Push your changes to the git server so the packager (and your colleagues) can have access to the changes:<ol><li>git push</li></ol></li></ol><h2>TFS</h2><h1 id="ImplementationGuide:AutomaticPackaging-BuildSystems">Build Systems</h1> <p>You will find below more specific instructions on how to setup your packager job in each major build system, if yours is not explicitely explained below, feel free to use those instructions to create your own process or <a class="external-link" href="mailto:support@liquibase.com" rel="nofollow">contact us</a> to get some help from a team of seasoned professionals.</p><h2 id="ImplementationGuide:AutomaticPackaging-Jenkins">Jenkins</h2><p>Those instructions are based on GitHub.com server and a Linux environment.</p><p>We use the 2017-july branch for the SQL repo</p><h3 id="ImplementationGuide:AutomaticPackaging-SourceCodeManagement">Source Code Management</h3><p>We usually set up our build to be a multiple SCMs one. TO avoid to have to deal with passwords (you need to be sure you will not be queried for password or it will hung the job), we simply use the SSK key mechanism provided by GitHub.</p><h4 id="ImplementationGuide:AutomaticPackaging-SQLRepo">SQL Repo</h4><p>We also use 2 additional behaviors for that step:</p><ol><li>check out to a sub-directory: portal_sql</li><li>Check out to specific local branch: 2017-july</li><li>(optional): Polling ignore commits from certain users:<ol><li>the idea behind this is simply to ignore changes create by the check in at the end of the packager. If you choose this option you will add your jenkins user in the "Excluded Users" field</li></ol></li></ol><p>That step should look like:</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="361" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_git_sql_config.png?version=1&amp;modificationDate=1501020243262&amp;cacheVersion=1&amp;api=v2&amp;width=361&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_git_sql_config.png?version=1&amp;modificationDate=1501020243262&amp;cacheVersion=1&amp;api=v2&amp;width=722&amp;height=498 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_git_sql_config.png?version=1&amp;modificationDate=1501020243262&amp;cacheVersion=1&amp;api=v2&amp;width=361&amp;height=249 1x" /></span></p><h4 id="ImplementationGuide:AutomaticPackaging-DaticalDBprojectrepo"><MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project repo</h4><p>At the same level than the SQL repo, we have anothe repo that contains the <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project (this is where all you DB Refs are stored, as well as your pipeline information, the change sets, ...). This is the core <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" />.</p><p>For this step as well, we&#160;use 3 additional behaviors for that step:</p><ol><li>check out to a sub-directory: portal_ddb</li><li>Don't trigger a build on commit notification (if you have a CI, you do not want to start a new build when the <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project is modified)</li><li>Check out to specific local branch: main (as the changes are cumulative, there is no need for a branch)</li></ol><p>That step should look like:</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="337" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_config_ddb.png?version=2&amp;modificationDate=1501020612773&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_config_ddb.png?version=2&amp;modificationDate=1501020612773&amp;cacheVersion=1&amp;api=v2&amp;width=674&amp;height=498 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_config_ddb.png?version=2&amp;modificationDate=1501020612773&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=249 1x" /></span></p><h3 id="ImplementationGuide:AutomaticPackaging-BuildTriggers">Build Triggers</h3><p>You can use this section to transform your manual job into a CI one by "building when a change is pushed to (insert favorite SCM here)"</p><h3 id="ImplementationGuide:AutomaticPackaging-BuildEnvironment">Build Environment</h3><p>Check "Delete workspace before build starts", repo is usually small so the cost of cloning it the whole project is negligible compare t to the benefit of a clean environment</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="68" width="254" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_Jenkins_cleanEnvironment.png?version=1&amp;modificationDate=1501075386584&amp;cacheVersion=1&amp;api=v2&amp;width=254&amp;height=68" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_Jenkins_cleanEnvironment.png?version=1&amp;modificationDate=1501075386584&amp;cacheVersion=1&amp;api=v2&amp;width=254&amp;height=68 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_Jenkins_cleanEnvironment.png?version=1&amp;modificationDate=1501075386584&amp;cacheVersion=1&amp;api=v2&amp;width=254&amp;height=68 1x" /></span></p><h3 id="ImplementationGuide:AutomaticPackaging-Build">Build</h3><p>This is where the real work is done for the deployer</p><h4 id="ImplementationGuide:AutomaticPackaging-Setupbranches">Set up branches</h4><p>this first step is necessary to match the local and upstream branches . We notices that without it, the deployer has trouble pushing back the files into the Git repo.</p><b>Set up branches</b><pre class="syntaxhighlighter-pre" xml:space="preserve">cd portal_ddb
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>Implementation Guide: Automatic Packaging</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2 id="ImplementationGuide:AutomaticPackaging-Overview">Overview</h2>
+		<p>As a database script developer, once you have reached a stable state with your .sql scripts, you will check them in your company Source Code Management system (<a class="unresolved" href="#">SCM</a>) like TFS, SVN, Git Stash, BitBucket, ...</p>
+		<p>Once those scripts are checked in the SCM, a job to package them and deploy them in the REF Database will be started automatically (<a class="unresolved" href="#">CI</a>) or manually.</p>
+		<p>As part of this job the following actions will happen:</p>
+		<ol>
+			<li>Checkout the SQL code from the appropriate branch</li>
+			<li>
+				Checkout the 
+				<MadCap:variable name="General.CompanyName" />
+				project from the main branch
+			</li>
+			<li>Run the deployer through the Command Line Interface (<a class="unresolved" href="#">CLI</a>) "hammer groovy deployPackager.groovy", this will includes:<br /><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="641" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/image2017-7-25_15-21-17.png?version=1&amp;modificationDate=1501014080208&amp;cacheVersion=1&amp;api=v2&amp;width=641&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/image2017-7-25_15-21-17.png?version=1&amp;modificationDate=1501014080208&amp;cacheVersion=1&amp;api=v2&amp;width=1282&amp;height=498 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/image2017-7-25_15-21-17.png?version=1&amp;modificationDate=1501014080208&amp;cacheVersion=1&amp;api=v2&amp;width=641&amp;height=249 1x" /></span></li>
+			<li>
+				Create an artifact ( comprised of the 
+				<MadCap:variable name="General.CompanyName" />
+				project directory)
+			</li>
+			<li>
+				After the artifact has been created, the process will be the same in each environment:
+				<ol>
+					<li>download the artifact</li>
+					<li>run the CLI to do a forecast</li>
+					<li>run the CLI to execute the deployment itself</li>
+				</ol>
+			</li>
+		</ol>
+		<h2>Checking your code into SCM</h2>
+		<h3>File structure</h3>
+		<p>The file structure is typically as follow:</p>
+		<p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/857420/image2017-12-21_10-52-44.png?version=1&amp;modificationDate=1513875166797&amp;cacheVersion=1&amp;api=v2" /></span></p>
+		<p>where:</p>
+		<ul>
+			<li>portal_sql is the name of your repository,</li>
+			<li>
+				sql_code is the name of the directory where the packager will look for new/modified .sql files to package, this directory is reference in the deployPackager.properties in your 
+				<MadCap:variable name="General.CompanyName" />
+				project
+			</li>
+			<li>the sub-directories represent the different kinds of SQL scripts to package</li>
+			<li>the process order for a commit when using <a href="../package-sql-scripts-for-deployment/place-files-scm-repo/fixed-folder-names.htm" rel="nofollow">fixed folder names</a> is: ddl, ddl_direct, view, function, procedure, package, packagebody, trigger, sql, sql_direct and finally data_dml folder</li>
+			<li>the process order for a commit when using <a href="../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">flexible folders</a> is: convert, ddl_direct, storedlogic, sqlfile, direct, and finally data_dml packageMethod</li>
+			<li>more details cane be found at <a href="automatic-packaging.htm">Placing Files in the SCM Repository</a></li>
+		</ul>
+		<h3>metadata.properties</h3>
+		<p>In each directory under the top level one (sql_code in this example), you can create configuration file named metadata, where you can pass some additional directives to the packager (like additional label or context).</p>
+		<h3>Git</h3>
+		<p>For a complete understanding of Git please refer to the <a class="external-link" href="https://git-scm.com/documentation" rel="nofollow">official documentation</a>.</p>
+		<ol>
+			<li>
+				Get the latest version for the code
+				<ol>
+					<li>"git clone" (the first time)</li>
+					<li>or "git pull" if your local repository already exist</li>
+				</ol>
+			</li>
+			<li>
+				change to the correct branch
+				<ol>
+					<li>"git checkout branch_name"</li>
+				</ol>
+			</li>
+			<li>create files in the correct subdirectories (you may have to create the subdirectory first) as required</li>
+			<li>add the files to your upcoming commit with: "git add <em>&lt;filename&gt;</em> ..." or "git add ." to commit the whole current directory and its children.</li>
+			<li>
+				Commit the files you have added with :<br />git commit -m "Commit message"&#160;<br />if the commit message contains some text between square bracket like "Create employee table&#160;[JIRA-1234]", a "label" will be automatically created by 
+				<MadCap:variable name="General.CompanyName" />
+				during the deployer phase. This allows you to add additional label for specific jira, feature, story, ... for a more granular deployment process
+			</li>
+			<li>
+				if you need to insert some kind of orders to process you files (i.e. CREATE the table before the ALTER statement), you can split you git add and git commit as in
+				<ol>
+					<li>git add createEmployeeTable.sql</li>
+					<li>git commit -m "Create employee table"</li>
+					<li>git add AlterEmployeeTable.sql</li>
+					<li>git commit -m "Add a column to the employee table&#160;[JIRA-2345]"</li>
+				</ol>
+			</li>
+			<li>
+				Push your changes to the git server so the packager (and your colleagues) can have access to the changes:
+				<ol>
+					<li>git push</li>
+				</ol>
+			</li>
+		</ol>
+		<h2>TFS</h2>
+		<h1 id="ImplementationGuide:AutomaticPackaging-BuildSystems">Build Systems</h1>
+		<p>You will find below more specific instructions on how to setup your packager job in each major build system, if yours is not explicitely explained below, feel free to use those instructions to create your own process or <a class="external-link" href="mailto:support@liquibase.com" rel="nofollow">contact us</a> to get some help from a team of seasoned professionals.</p>
+		<h2 id="ImplementationGuide:AutomaticPackaging-Jenkins">Jenkins</h2>
+		<p>Those instructions are based on GitHub.com server and a Linux environment.</p>
+		<p>We use the 2017-july branch for the SQL repo</p>
+		<h3 id="ImplementationGuide:AutomaticPackaging-SourceCodeManagement">Source Code Management</h3>
+		<p>We usually set up our build to be a multiple SCMs one. TO avoid to have to deal with passwords (you need to be sure you will not be queried for password or it will hung the job), we simply use the SSK key mechanism provided by GitHub.</p>
+		<h4 id="ImplementationGuide:AutomaticPackaging-SQLRepo">SQL Repo</h4>
+		<p>We also use 2 additional behaviors for that step:</p>
+		<ol>
+			<li>check out to a sub-directory: portal_sql</li>
+			<li>Check out to specific local branch: 2017-july</li>
+			<li>
+				(optional): Polling ignore commits from certain users:
+				<ol>
+					<li>the idea behind this is simply to ignore changes create by the check in at the end of the packager. If you choose this option you will add your jenkins user in the "Excluded Users" field</li>
+				</ol>
+			</li>
+		</ol>
+		<p>That step should look like:</p>
+		<p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="361" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_git_sql_config.png?version=1&amp;modificationDate=1501020243262&amp;cacheVersion=1&amp;api=v2&amp;width=361&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_git_sql_config.png?version=1&amp;modificationDate=1501020243262&amp;cacheVersion=1&amp;api=v2&amp;width=722&amp;height=498 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_git_sql_config.png?version=1&amp;modificationDate=1501020243262&amp;cacheVersion=1&amp;api=v2&amp;width=361&amp;height=249 1x" /></span></p>
+		<h4 id="ImplementationGuide:AutomaticPackaging-DaticalDBprojectrepo">
+			<MadCap:variable name="General.CompanyName" />
+			project repo
+		</h4>
+		<p>
+			At the same level than the SQL repo, we have anothe repo that contains the 
+			<MadCap:variable name="General.CompanyName" />
+			project (this is where all you DB Refs are stored, as well as your pipeline information, the change sets, ...). This is the core 
+			<MadCap:variable name="General.CompanyName" />
+			.
+		</p>
+		<p>For this step as well, we&#160;use 3 additional behaviors for that step:</p>
+		<ol>
+			<li>check out to a sub-directory: portal_ddb</li>
+			<li>
+				Don't trigger a build on commit notification (if you have a CI, you do not want to start a new build when the 
+				<MadCap:variable name="General.CompanyName" />
+				project is modified)
+			</li>
+			<li>Check out to specific local branch: main (as the changes are cumulative, there is no need for a branch)</li>
+		</ol>
+		<p>That step should look like:</p>
+		<p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="337" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_config_ddb.png?version=2&amp;modificationDate=1501020612773&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_config_ddb.png?version=2&amp;modificationDate=1501020612773&amp;cacheVersion=1&amp;api=v2&amp;width=674&amp;height=498 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_config_ddb.png?version=2&amp;modificationDate=1501020612773&amp;cacheVersion=1&amp;api=v2&amp;width=337&amp;height=249 1x" /></span></p>
+		<h3 id="ImplementationGuide:AutomaticPackaging-BuildTriggers">Build Triggers</h3>
+		<p>You can use this section to transform your manual job into a CI one by "building when a change is pushed to (insert favorite SCM here)"</p>
+		<h3 id="ImplementationGuide:AutomaticPackaging-BuildEnvironment">Build Environment</h3>
+		<p>Check "Delete workspace before build starts", repo is usually small so the cost of cloning it the whole project is negligible compare t to the benefit of a clean environment</p>
+		<p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="68" width="254" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_Jenkins_cleanEnvironment.png?version=1&amp;modificationDate=1501075386584&amp;cacheVersion=1&amp;api=v2&amp;width=254&amp;height=68" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_Jenkins_cleanEnvironment.png?version=1&amp;modificationDate=1501075386584&amp;cacheVersion=1&amp;api=v2&amp;width=254&amp;height=68 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/857420/userGuidePackager_Jenkins_cleanEnvironment.png?version=1&amp;modificationDate=1501075386584&amp;cacheVersion=1&amp;api=v2&amp;width=254&amp;height=68 1x" /></span></p>
+		<h3 id="ImplementationGuide:AutomaticPackaging-Build">Build</h3>
+		<p>This is where the real work is done for the deployer</p>
+		<h4 id="ImplementationGuide:AutomaticPackaging-Setupbranches">Set up branches</h4>
+		<p>this first step is necessary to match the local and upstream branches . We notices that without it, the deployer has trouble pushing back the files into the Git repo.</p>
+		<b>Set up branches</b>
+		<pre class="syntaxhighlighter-pre" xml:space="preserve">cd portal_ddb
 echo "Current Directory: " `pwd` 
 git branch --set-upstream-to=origin/main main
 git status
 cd ../portal_sql
 echo "Current Directory: " `pwd` 
 git branch --set-upstream-to=origin/2017-july 2017-july
-git status</pre><h4 id="ImplementationGuide:AutomaticPackaging-Packager">Packager</h4><p>This is the step that calls the packager itself. A few explanations:</p><ul><li>If the PATH is not set in the profile of the "jenkins user", set it up there.</li><li>Also point to PATH to the directory containing the DB client (Oracle in this case) so the backup and restore commands can be executed</li><li>cd in the <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project directory</li><li>Invoke the groovy&#160;deployPackager.groovy script with hammer<ul><li>scm=true indicates to the Deployer that the files to package are to be found in a SCM. Additional configuration is done through the deployPackager.properties file in the <MadCap:variable name="General.CompanyName" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /> project directory</li></ul></li></ul><b>Packager</b><pre class="syntaxhighlighter-pre" xml:space="preserve"># specify path to "hammer" - <MadCap:variable name="General.DaticalDB" />'s CLI tool
+git status</pre>
+		<h4 id="ImplementationGuide:AutomaticPackaging-Packager">Packager</h4>
+		<p>This is the step that calls the packager itself. A few explanations:</p>
+		<ul>
+			<li>If the PATH is not set in the profile of the "jenkins user", set it up there.</li>
+			<li>Also point to PATH to the directory containing the DB client (Oracle in this case) so the backup and restore commands can be executed</li>
+			<li>
+				cd in the 
+				<MadCap:variable name="General.CompanyName" />
+				project directory
+			</li>
+			<li>
+				Invoke the groovy&#160;deployPackager.groovy script with hammer
+				<ul>
+					<li>
+						scm=true indicates to the Deployer that the files to package are to be found in a SCM. Additional configuration is done through the deployPackager.properties file in the 
+						<MadCap:variable name="General.CompanyName" />
+						project directory
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<b>Packager</b>
+		<pre class="syntaxhighlighter-pre" xml:space="preserve"># specify path to "hammer" - <MadCap:variable name="General.DaticalDB" />'s CLI tool
 # specify path to Oracle client
 export PATH=$PATH:/opt/datical/DaticalDB/repl:/home/datical/app/datical/product/11.2.0/client_1/bin
 export ORACLE_HOME=/home/datical/app/datical/product/11.2.0/client_1/
@@ -27,13 +194,50 @@ echo ==== Creating ddb-packager-${BUILD_NUMBER}.zip ====
 zip -q -r ddb-packager-${BUILD_NUMBER}.zip *
 mv *.zip ..
 echo
-echo =====FINISHED====
-</pre><h3 id="ImplementationGuide:AutomaticPackaging-Post-buildActions">Post-build Actions</h3><h4 id="ImplementationGuide:AutomaticPackaging-LogAccess">Log Access</h4><p>In jenkins to be able to access the logs and reports, use the "archive the artifacts" action:</p><p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/857420/image2017-12-21_10-56-47.png?version=1&amp;modificationDate=1513875410084&amp;cacheVersion=1&amp;api=v2" /></span></p><h4 id="ImplementationGuide:AutomaticPackaging-ArtifactCreation">Artifact Creation</h4><p>Like for a CI build, you may want to create an artifact C in Jenkins, or an external Artifact Repository like ElectricCloud Artifact Repository, IBM CodeStation, ... that you will use later on for deployment.</p><h2 id="ImplementationGuide:AutomaticPackaging-IBMuBuild">IBM uBuild</h2><h2 id="ImplementationGuide:AutomaticPackaging-AtlassianBamboo">Atlassian Bamboo</h2><h2 id="ImplementationGuide:AutomaticPackaging-ElectricCloudElectricCommander">ElectricCloud ElectricCommander</h2><h1 id="ImplementationGuide:AutomaticPackaging-ArtifactRepositories">Artifact Repositories</h1> <h2 id="ImplementationGuide:AutomaticPackaging-IBMCodeStation">IBM CodeStation</h2><h2 id="ImplementationGuide:AutomaticPackaging-JFrogArtifactory">JFrog Artifactory</h2><h3 id="ImplementationGuide:AutomaticPackaging-Jenkins.1">Jenkins&#160;</h3><ol><li>First install the Artifactory plugins<ol><li>Setup the connection in the "Manage Jenkins/Configure System" section</li></ol></li><li>Create a generic repository on the Artifactory server</li><li>Select the "Generic-Artifactory integration" in your Jenkins build<ol><li>select your artifactory server</li><li><p>Insert a spec that looks like</p><pre class="syntaxhighlighter-pre" xml:space="preserve">{
-  "files": [
-    {
-      "pattern": "*.zip",
-      "target": "${PROJECT}/${Pipeline}/",
-      "flat" : "false"    }
-  ]
-}</pre></li></ol></li></ol><h2 id="ImplementationGuide:AutomaticPackaging-ElectricCloudArtifactRepository">ElectricCloud Artifact Repository</h2><h1 id="ImplementationGuide:AutomaticPackaging-DeploymentSystems">Deployment Systems</h1> <h2 id="ImplementationGuide:AutomaticPackaging-IBMUDeploy">IBM UDeploy</h2><h2 id="ImplementationGuide:AutomaticPackaging-ElectricCloudElectricFlow">ElectricCloud ElectricFlow</h2></body>
+echo =====FINISHED====</pre>
+		<h3 id="ImplementationGuide:AutomaticPackaging-Post-buildActions">Post-build Actions</h3>
+		<h4 id="ImplementationGuide:AutomaticPackaging-LogAccess">Log Access</h4>
+		<p>In jenkins to be able to access the logs and reports, use the "archive the artifacts" action:</p>
+		<p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/attachments/857420/image2017-12-21_10-56-47.png?version=1&amp;modificationDate=1513875410084&amp;cacheVersion=1&amp;api=v2" /></span></p>
+		<h4 id="ImplementationGuide:AutomaticPackaging-ArtifactCreation">Artifact Creation</h4>
+		<p>Like for a CI build, you may want to create an artifact C in Jenkins, or an external Artifact Repository like ElectricCloud Artifact Repository, IBM CodeStation, ... that you will use later on for deployment.</p>
+		<h2 id="ImplementationGuide:AutomaticPackaging-IBMuBuild">IBM uBuild</h2>
+		<h2 id="ImplementationGuide:AutomaticPackaging-AtlassianBamboo">Atlassian Bamboo</h2>
+		<h2 id="ImplementationGuide:AutomaticPackaging-ElectricCloudElectricCommander">ElectricCloud ElectricCommander</h2>
+		<h1 id="ImplementationGuide:AutomaticPackaging-ArtifactRepositories">Artifact Repositories</h1>
+		<h2 id="ImplementationGuide:AutomaticPackaging-IBMCodeStation">IBM CodeStation</h2>
+		<h2 id="ImplementationGuide:AutomaticPackaging-JFrogArtifactory">JFrog Artifactory</h2>
+		<h3 id="ImplementationGuide:AutomaticPackaging-Jenkins.1">Jenkins&#160;</h3>
+		<ol>
+			<li>
+				First install the Artifactory plugins
+				<ol>
+					<li>Setup the connection in the "Manage Jenkins/Configure System" section</li>
+				</ol>
+			</li>
+			<li>Create a generic repository on the Artifactory server</li>
+			<li>
+				Select the "Generic-Artifactory integration" in your Jenkins build
+				<ol>
+					<li>select your artifactory server</li>
+					<li>
+						<p>Insert a spec that looks like</p>
+						<pre class="syntaxhighlighter-pre" xml:space="preserve">{
+    "files": [
+        {
+            "pattern": "*.zip",
+            "target": "${PROJECT}/${Pipeline}/",
+            "flat" : "false"
+        }
+    ]
+}</pre>
+					</li>
+				</ol>
+			</li>
+		</ol>
+		<h2 id="ImplementationGuide:AutomaticPackaging-ElectricCloudArtifactRepository">ElectricCloud Artifact Repository</h2>
+		<h1 id="ImplementationGuide:AutomaticPackaging-DeploymentSystems">Deployment Systems</h1>
+		<h2 id="ImplementationGuide:AutomaticPackaging-IBMUDeploy">IBM UDeploy</h2>
+		<h2 id="ImplementationGuide:AutomaticPackaging-ElectricCloudElectricFlow">ElectricCloud ElectricFlow</h2>
+	</body>
 </html>
