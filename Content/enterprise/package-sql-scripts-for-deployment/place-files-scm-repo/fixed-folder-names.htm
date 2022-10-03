@@ -1,26 +1,484 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title>
-        <meta name="description" content="Liquibase Enterprise Documentation" />
-    </head>
-    <body>
-        <h1>Fixed Folder Names</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h1 id="FixedFolderNames-Fixed-NameDirectoriesintheSCMRepository">Fixed-Name Directories in the SCM Repository</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Use the following structure and naming. You can create sub-directories as desired.</p><pre class="conf-macro output-block" xml:space="preserve">&lt;sql_code_dir&gt; # for example, sql_scripts
-   archive
-   data_dml
-   ddl
-   ddl_direct
-   function
-   package
-   packagebody
-   procedure
-   sql_direct
-   ssis
-   ssis_project
-   trigger
-   view</pre><h2 id="FixedFolderNames-ScriptDirectories">Script Directories</h2><table><tbody><tr><th><p><span><strong>SCM Directory Name</strong></span></p></th><th><p><span><strong>Description</strong></span></p></th></tr><tr><td><p><strong>&lt;sql_code_dir&gt;</strong></p></td><td><p>User-defined directory in SCM to use as the root for SQL scripts. Subdirectories are provided for different types of SQL. Example: <code>sql_code</code>.</p></td></tr><tr><td><p><strong>archive</strong></p></td><td><p>The archive directory is created and managed by the Deployment Packager. Files added in the <strong>ddl</strong>, <strong>sql</strong>, <strong>sqlplus, sql_direct,</strong> and <strong>data_dml</strong> directories will be copied here after successful Packaging to prevent post Packaging modification. The user does not need to create this directory.</p></td></tr><tr><td><p><strong>data_dml</strong></p></td><td><p>Contains scripts that load, manipulate or delete data.</p></td></tr><tr><td><p><strong>ddl</strong></p></td><td><p>Contains scripts that make ddl changes such as creating, modifying, and dropping tables, indexes, sequences, and other database objects that are not one of the other types.</p></td></tr><tr><td><span><strong>ddl_direct</strong></span></td><td><p><span>The scripts are run directly using the database's native client. The changesets are database-specific. They cannot be deployed to other database platforms.</span></p><ul><li><p><span>DB2 - Command Line Processor Plus (clpplus)</span></p></li><li><span>Oracle - SQL*Plus (sqlplus)</span></li><li><span>EDB Postgres - EDB*Plus (edbplus)</span></li><li><span style="color: rgb(255,102,0);"><span>SQL Server - SQLCMD (sqlcmd)</span><br /><br /></span></li></ul><p><span>The&#160;<code>ddl_direct</code>&#160;and <code>sql_direct</code> package methods are identical except for the order in which they are processed in packaging:&#160;<code>ddl</code>, <code>ddl_direct</code>, <code>data_dml</code>, <code>sql_direct</code>.</span></p><p>The ddl_direct folder is available with 7.15 and higher.</p></td></tr><tr><td><p><strong>function</strong></p></td><td><p>Contains scripts that create or replace one function.</p></td></tr><tr><td><p><strong>package</strong></p></td><td><p>Contains scripts that create or replace one package definition.</p></td></tr><tr><td><p><strong>packagebody</strong></p></td><td><p>Contains scripts that create new or replace existing package bodies.</p></td></tr><tr><td><strong>procedure</strong></td><td>Contains scripts that create or replace one procedure.</td></tr><tr><td><p><strong><span>sql</span></strong></p></td><td><p><span>Limited Use.</span></p><p><span>Creates a <code>sqlFile</code> changeset. When deployed, an internal SQL processor to run the script. These changesets can be deployed to any database platform. This is useful if you have a multi-platform project (e.g., Oracle and SQL Server).</span></p><p><span>It's strongly suggested to use&#160;<code>sql_direct</code> if you use the same database platform in all steps in a project.</span></p></td></tr><tr><td><p><span style="color: rgb(153,153,153);"><strong>sqlplus</strong></span></p></td><td><p><span style="color: rgb(153,153,153);">Deprecated.</span></p><p><span style="color: rgb(153,153,153);">Use <code>sql_direct</code> instead.</span></p></td></tr><tr><td><p><strong>sql_direct</strong></p></td><td><p>The scripts are run directly using the database's native client. The changesets are database-specific. They cannot be deployed to other database platforms.</p><ul><li><p>DB2 - Command Line Processor Plus (clpplus)</p></li><li>Oracle - SQL*Plus (sqlplus)</li><li>EDB Postgres - EDB*Plus (edbplus)</li><li>SQL Server - SQLCMD (sqlcmd)</li></ul></td></tr><tr><td><strong>ssis</strong></td><td>Contains .dtsx files (SSIS Package) and other support files used in ETL processes.</td></tr><tr><td><strong>ssis_project</strong></td><td>Contains .ispac files (SSIS Project)</td></tr><tr><td><p><strong>trigger</strong></p></td><td><p>Contains SQL scripts that create or replace one trigger.</p></td></tr><tr><td><strong>view</strong></td><td>Contains SQL scripts that create or replace one view.</td></tr></tbody></table><h2 id="FixedFolderNames-AdditionalGuidelinesforObjects">Additional Guidelines for Objects</h2><table style="width: 1551.0px;"><colgroup></colgroup><tbody><tr><th>Object Type</th><th>Notes</th></tr><tr><td>Databases and Schema</td><td><p>Create databases, schema, tablespaces, users and roles outside of Datical. Datical is typically used to manage objects and data once the environment has been setup.</p></td></tr><tr><td><p>Inserts, Updates and Deletes (DML)</p></td><td><p>Place DML scripts into the <code>/data_dml</code> folder.</p></td></tr><tr><td><p>Procedures, Packages, Functions, Views and Triggers (Stored Logic)</p></td><td><p><span class="inline-comment-marker">Objects</span> are managed as non-transient/rerunnable changes by default in the stored logic folders. Scripts remain in their folders after packaging. They are not moved to the archive directory. This behavior supports managing database changes like application source code: the same code is updated in place as changes are needed. (By contrast, after DDL changes are made the script is moved to the archive directory.) </p><p>When the changes are committed, Datical repackages the file and increments the version of the change set (datical:version). See <a href="../workflow-deploy-changesets/changeset-version-strategy.htm">Changeset Versioning: version and versionStrategy</a>.</p><p>For stored logic scripts, only use the CREATE command (such as "CREATE PROCEDURE"). When you update and deploy the file again, Datical automatically converts the CREATE to an ALTER as needed. (Do not use "CREATE OR REPLACE" or "CREATE OR ALTER".)</p><p>Permissions are maintained on the object when deployed.</p><p class="title">Note</p><p>Scripts in the stored logic folders should only create one object per script.</p></td></tr><tr><td><p>Complex and Interdependent Database Changes</p></td><td><p>Normally DDL changes are placed in the /<code>ddl</code> directory (which by default uses the CONVERT packaging method).</p><p>However, when you need to package complex and interdependent changes, place them in the <code>/sql_direct</code> folder (which by default uses the DIRECT packaging method).</p><p>If the order that the multiple statements are listed in the single script is critical to the success of the script, then put it in the&#160;<code>/sql_direct</code> folder. The&#160;<code>/sql_direct</code> folder will preserve the order of the statements in the script. (The&#160;/<code>ddl</code> directory may not preserve the order because the CONVERT packaging method creates the change sets by doing a diff of before and after snapshots, and that comparison process does not know the original order of the statements.)</p><p>Examples of sets of statements in a single sql script that need to be placed into&#160;<code>/sql_direct</code>:</p><pre class="syntaxhighlighter-pre" xml:space="preserve">create table
-move data from old table to new table
-drop old table</pre><pre class="syntaxhighlighter-pre" xml:space="preserve">alter table drop pk constraint
-alter table drop column (a column that the pk constraint depends on)
-alter table add column (a column that the pk constraint depends on)
-alter table add pk constraint</pre></td></tr><tr><td>Rename any object</td><td>Place SQL scripts into the <code>/sql</code> or <code>/sql_direct</code> folder. When you do, they are processed as a rename operation (rather than a DROP and CREATE).</td></tr><tr><td>Using Changelog Properties</td><td><p>All sql scripts can take advantage of properties.</p><p>Property key/value pairs are set directly in the changelog. See <a href="../../define-release-pipeline/set-prop-project-changelog.htm">Setting Properties in the Project Changelog</a>.</p></td></tr></tbody></table><h1 id="FixedFolderNames-SQLTypesandChangesetProcessing">SQL Types and Changeset Processing</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><table><tbody><tr><th>Description</th><th>SQL Statements</th><th>Process Type for Packaging</th></tr><tr><td><p>DDL - Data Definition Language</p></td><td><pre xml:space="preserve">CREATE, ALTER, DROP, COMMENT</pre></td><td>Transient</td></tr><tr><td><p>DML - Data Manipulation Language</p></td><td><pre xml:space="preserve">INSERT, UPDATE, DELETE, TRUNCATE, MERGE, SELECT</pre></td><td>Transient</td></tr><tr><td><p>DCL - Data Control Language</p></td><td><pre xml:space="preserve">GRANT, REVOKE</pre></td><td>Transient</td></tr><tr><td><p>Stored Logic</p></td><td><pre xml:space="preserve">CREATE (OR REPLACE) / DROP PACKAGE, PACKAGE BODY, PROCEDURE, FUNCTION, TRIGGER&#160;</pre></td><td>Non-transient</td></tr></tbody></table><h2 id="FixedFolderNames-ProcessingChanges">Processing Changes</h2><p>The process type drives the type of processing used, the type changeset produced and determines if the original scripts are archived.</p><h3 id="FixedFolderNames-TransientversusNon-transientprocessing">Transient versus Non-transient processing</h3><table><tbody><tr><th>Process Type</th><th>Processing</th><th>Directories</th></tr><tr><td>Transient</td><td><ul><li><strong>Archived</strong>: After the changes are processed, the SQL script is moved to the archive directory.</li><li>SQL scripts with the same name in the same directory cannot be re-packaged</li></ul></td><td><p>ddl</p><p><span>ddl_direct</span></p><p>sql_direct</p><p>data_dml</p></td></tr><tr><td>Non-transient</td><td><ul><li><strong>Not archived</strong>: The SQL script remains in the directory and is versioned.</li><li>SQL scripts can be repackaged</li></ul></td><td>all other directories</td></tr></tbody></table><h3 id="FixedFolderNames-DifferentPackagingFolders/Methodsprocessing">Different Packaging Folders/Methods processing</h3><table><colgroup><col style="width: 85.0px;" /><col style="width: 784.0px;" /><col style="width: 539.0px;" /></colgroup><tbody><tr><th>Process Type</th><th>Processing</th><th>Directories</th></tr><tr><td>Convert SQL</td><td><ul><li><strong>Converts SQL</strong>&#160;code to produce changesets into an object model (based on the differences when comparing before and after states of REF)</li><li>Full Forecasting and Rules</li><li>Typically slower than other folders/methods</li><li>The actual script is NOT run during the final deploy (therefore certain statements or the ordering of statements in the original script may not be applied)</li></ul></td><td><p>ddl folder (CONVERT packaging method)</p></td></tr><tr><td>Native SQL</td><td><ul><li><strong>Runs SQL</strong>&#160;to produce the changes and embeds native SQL calls in the changesets</li><li>Limited Forecasting and Rules if not using SQL Parser (Oracle customers can optionally enable <a href="../configure-packaging/sql-parser.htm" rel="nofollow">SQL Parser for Oracle</a> for forecasting)</li><li>Faster than ddl folder (when ddl folder is using its default CONVERT packaging method)</li><li>The actual sql script IS run</li><li>The native script timeout setting that we recommend setting for your REF environments IS applicable because it uses the native SQL client tools (SQLPlus, SQLCmd, ClpPlus, EDBPlus)</li><li>Cannot use passwords that contain spaces or these special characters&#160;<strong>@ &amp; / : &lt; &gt; " ' ` | ^ ! = , \</strong></li></ul></td><td><p>ddl_direct, data_dml,&#160;and sql_direct folders (<span>DDL_DIRECT,&#160;</span>DATA_DML,&#160;and DIRECT packaging methods)</p></td></tr><tr><td>Stored Logic</td><td><ul><li>Uses <strong>JDBC </strong>to create, modify, or delete stored logic objects</li><li>Limited Forecasting and Rules (Oracle, SQL Server, and DB2 customers can optionally enable the <a href="../../how-to-guides/how-to-guides/configure-project-settings.htm" rel="nofollow">Stored Logic Validity Check</a>&#160;project setting)</li><li>Faster than ddl folder (when ddl folder is using its default CONVERT packaging method)</li><li>The actual sql script IS run</li><li>Only include one statement per script</li><li>Files should be UTF-8 in stored logic folders</li><li>The native script timeout setting that we recommend setting for your REF environments is NOT applicable because JDBC connection is used</li></ul></td><td>function, package, packagebody, procedure, trigger, and view folders (STOREDLOGIC packaging method)</td></tr><tr><td>SQLFILE</td><td><ul><li>Uses <strong>JDBC&#160;</strong></li><li>If you have multiple statements, they must be semicolon-delimited</li><li>You cannot have semicolons within the statement itself</li><li>The native script timeout setting that we recommend setting for your REF environments is NOT applicable because JDBC connection is used</li></ul></td><td>sql folder (SQLFILE packaging method)</td></tr></tbody></table><p>Please see <a href="../overview-packaging/overview-packaging.htm">Overview of Packaging</a>&#160;for more information about packaging workflows and Convert SQL method (ddl folder) versus Native SQL methods.</p><h2 id="FixedFolderNames-ProcessingOrder">Processing Order</h2><p>Deployment Packager in SCM Mode follows 3 ordering tiers for automating the execution order of new SQL scripts:</p><ol><li><strong>Tier 1: Commit Sequence</strong><ol><li>The group of files in a single commit is processed as a unit. Within a commit, files are processed within the file type sequence and then within the filename sequence.</li><li>Groups of commits are processed in order of checkin time. The earliest commit is processed first, then the next, and so on.</li><li>If you commit a file as part of a group and then later commit it again with changes (with a group), it is processed with the later commit group.</li></ol></li><li><strong>Tier 2: File Type Sequence</strong><ol><li>ddl</li><li><span>ddl_direct (available in 7.15 and higher)</span></li><li>view</li><li>ssis/ssis_project</li><li>function</li><li>procedure</li><li>package</li><li>packagebody</li><li>trigger</li><li>sql</li><li>sqlplus (deprecated)</li><li>sql_direct</li><li>data_dml</li></ol></li><li><strong>Tier 3: Filename Sequence<br /></strong>If multiple files are included in the same commit, and in the same directory, then files will be executed in alphabetical filename order</li></ol><p><strong>NOTE</strong>: You may need to perform separate commits in cases where objects are created and accessed in different steps in the execution order. For example, you may want to commit views for tables that are not created until the sql_direct step. In that case, commit the view separately <em>after</em> you have committed the steps that create the tables.</p><p>If this default processing order is different than your goals, you might consider using a <a href="custom-packaging-order.htm" rel="nofollow">Custom Packaging Order</a> instead.</p><h1 id="FixedFolderNames-SourceControlOperationsandPackagingEffects">Source Control Operations and Packaging Effects</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><table><tbody><tr><th>SCM Operation</th><th>Effect on Packaging</th></tr><tr><td><p>Check In New File</p></td><td><p>Processed as a new file. The changes are packaged as a changeset to be added to the changelog.xml file.</p></td></tr><tr><td><p>Rename File</p></td><td><p>Packaging processes the script with the new filename as a new changeset.</p></td></tr><tr><td>Move File</td><td><p>Moving a file more than once may cause errors.</p></td></tr><tr><td><p>Delete File</p></td><td><p>Deleting a file has no effect on the changelog.xml file.</p></td></tr></tbody></table><h2 id="FixedFolderNames-DefiningLabelsinSCMCheckInComments">Defining Labels in SCM Check In Comments</h2><p>The packager parses the source control commit message. Strings enclosed by square brackets are treated as labels for the changeset generated by packaging sql scripts.</p><p>For example, if a developer checked in a SQL script with the following comment:</p><pre xml:space="preserve">Add a new column foo to the table bar [label1,label2] [label3]</pre><p>The packager adds labels to all changesets generated from the SQL script:</p><pre xml:space="preserve">label1 label2 label3</pre><p>See also these pages for an overview of packager workflows, guidelines for writing scripts, and when to use which folder or packaging method:</p><p><a href="../overview-packaging/overview-packaging.htm">Overview of Packaging</a></p><p><a href="../../developer-get-started-guide/write-sql-scripts/write-sql-scripts.htm">Writing SQL Scripts for <MadCap:variable name="General.DaticalDB" /></a></p><p style="margin-left: 30.0px;"><a href="oracle-packaging.htm">Oracle Database Objects and Packaging</a></p><p style="margin-left: 30.0px;"><a href="sql-objects-packaging.htm">SQL Server Database Objects and Packaging</a></p><p><a href="flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a></p><p><a href="../../how-to-guides/app-dev-how-to-guides/choose-btw-CONVERT-ddl-packaging.htm">How To: Choose Between CONVERT (ddl) and DDL_DIRECT (ddl_direct) Packaging Methods</a></p><p><a href="../../troubleshoot/difference-between-ddl-sql-folders.htm">What is the difference between "ddl" and "sql_direct" folders?</a></p></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>Fixed Folder Names</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2 id="FixedFolderNames-Fixed-NameDirectoriesintheSCMRepository">Fixed-Name Directories in the SCM Repository</h2>
+		<p>Use the following structure and naming. You can create sub-directories as desired.</p>
+		<pre class="conf-macro output-block" xml:space="preserve">&lt;sql_code_dir&gt; # for example, sql_scripts
+    archive
+    data_dml
+    ddl
+    ddl_direct
+    function
+    package
+    packagebody
+    procedure
+    sql_direct
+    ssis
+    ssis_project
+    trigger
+    view</pre>
+		<h3 id="FixedFolderNames-ScriptDirectories">Script Directories</h3>
+		<table>
+			<tbody>
+				<tr>
+					<th>
+						<p><span><strong>SCM Directory Name</strong></span></p>
+					</th>
+					<th>
+						<p><span><strong>Description</strong></span></p>
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>&lt;sql_code_dir&gt;</strong></p>
+					</td>
+					<td>
+						<p>User-defined directory in SCM to use as the root for SQL scripts. Subdirectories are provided for different types of SQL. Example: <code>sql_code</code>.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>archive</strong></p>
+					</td>
+					<td>
+						<p>The archive directory is created and managed by the Deployment Packager. Files added in the <strong>ddl</strong>, <strong>sql</strong>, <strong>sqlplus, sql_direct,</strong> and <strong>data_dml</strong> directories will be copied here after successful Packaging to prevent post Packaging modification. The user does not need to create this directory.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>data_dml</strong></p>
+					</td>
+					<td>
+						<p>Contains scripts that load, manipulate or delete data.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>ddl</strong></p>
+					</td>
+					<td>
+						<p>Contains scripts that make ddl changes such as creating, modifying, and dropping tables, indexes, sequences, and other database objects that are not one of the other types.</p>
+					</td>
+				</tr>
+				<tr>
+					<td><span><strong>ddl_direct</strong></span></td>
+					<td>
+						<p><span>The scripts are run directly using the database's native client. The changesets are database-specific. They cannot be deployed to other database platforms.</span></p>
+						<ul>
+							<li>
+								<p><span>DB2 - Command Line Processor Plus (clpplus)</span></p>
+							</li>
+							<li><span>Oracle - SQL*Plus (sqlplus)</span></li>
+							<li><span>EDB Postgres - EDB*Plus (edbplus)</span></li>
+							<li><span style="color: rgb(255,102,0);"><span>SQL Server - SQLCMD (sqlcmd)</span><br /><br /></span></li>
+						</ul>
+						<p><span>The&#160;<code>ddl_direct</code>&#160;and <code>sql_direct</code> package methods are identical except for the order in which they are processed in packaging:&#160;<code>ddl</code>, <code>ddl_direct</code>, <code>data_dml</code>, <code>sql_direct</code>.</span></p>
+						<p>The ddl_direct folder is available with 7.15 and higher.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>function</strong></p>
+					</td>
+					<td>
+						<p>Contains scripts that create or replace one function.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>package</strong></p>
+					</td>
+					<td>
+						<p>Contains scripts that create or replace one package definition.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>packagebody</strong></p>
+					</td>
+					<td>
+						<p>Contains scripts that create new or replace existing package bodies.</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>procedure</strong></td>
+					<td>Contains scripts that create or replace one procedure.</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong><span>sql</span></strong></p>
+					</td>
+					<td>
+						<p><span>Limited Use.</span></p>
+						<p><span>Creates a <code>sqlFile</code> changeset. When deployed, an internal SQL processor to run the script. These changesets can be deployed to any database platform. This is useful if you have a multi-platform project (e.g., Oracle and SQL Server).</span></p>
+						<p><span>It's strongly suggested to use&#160;<code>sql_direct</code> if you use the same database platform in all steps in a project.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span style="color: rgb(153,153,153);"><strong>sqlplus</strong></span></p>
+					</td>
+					<td>
+						<p><span style="color: rgb(153,153,153);">Deprecated.</span></p>
+						<p><span style="color: rgb(153,153,153);">Use <code>sql_direct</code> instead.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>sql_direct</strong></p>
+					</td>
+					<td>
+						<p>The scripts are run directly using the database's native client. The changesets are database-specific. They cannot be deployed to other database platforms.</p>
+						<ul>
+							<li>
+								<p>DB2 - Command Line Processor Plus (clpplus)</p>
+							</li>
+							<li>Oracle - SQL*Plus (sqlplus)</li>
+							<li>EDB Postgres - EDB*Plus (edbplus)</li>
+							<li>SQL Server - SQLCMD (sqlcmd)</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>ssis</strong></td>
+					<td>Contains .dtsx files (SSIS Package) and other support files used in ETL processes.</td>
+				</tr>
+				<tr>
+					<td><strong>ssis_project</strong></td>
+					<td>Contains .ispac files (SSIS Project)</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>trigger</strong></p>
+					</td>
+					<td>
+						<p>Contains SQL scripts that create or replace one trigger.</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>view</strong></td>
+					<td>Contains SQL scripts that create or replace one view.</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3 id="FixedFolderNames-AdditionalGuidelinesforObjects">Additional Guidelines for Objects</h3>
+		<table style="width: 1551.0px;">
+			<colgroup></colgroup>
+			<tbody>
+				<tr>
+					<th>Object Type</th>
+					<th>Notes</th>
+				</tr>
+				<tr>
+					<td>Databases and Schema</td>
+					<td>
+						<p>Create databases, schema, tablespaces, users and roles outside of Datical. Datical is typically used to manage objects and data once the environment has been setup.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Inserts, Updates and Deletes (DML)</p>
+					</td>
+					<td>
+						<p>Place DML scripts into the <code>/data_dml</code> folder.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Procedures, Packages, Functions, Views and Triggers (Stored Logic)</p>
+					</td>
+					<td>
+						<p><span class="inline-comment-marker">Objects</span> are managed as non-transient/rerunnable changes by default in the stored logic folders. Scripts remain in their folders after packaging. They are not moved to the archive directory. This behavior supports managing database changes like application source code: the same code is updated in place as changes are needed. (By contrast, after DDL changes are made the script is moved to the archive directory.) </p>
+						<p>When the changes are committed, Datical repackages the file and increments the version of the change set (datical:version). See <a href="../workflow-deploy-changesets/changeset-version-strategy.htm">Changeset Versioning: version and versionStrategy</a>.</p>
+						<p>For stored logic scripts, only use the CREATE command (such as "CREATE PROCEDURE"). When you update and deploy the file again, Datical automatically converts the CREATE to an ALTER as needed. (Do not use "CREATE OR REPLACE" or "CREATE OR ALTER".)</p>
+						<p>Permissions are maintained on the object when deployed.</p>
+						<p class="title">Note</p>
+						<p>Scripts in the stored logic folders should only create one object per script.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Complex and Interdependent Database Changes</p>
+					</td>
+					<td>
+						<p>Normally DDL changes are placed in the /<code>ddl</code> directory (which by default uses the CONVERT packaging method).</p>
+						<p>However, when you need to package complex and interdependent changes, place them in the <code>/sql_direct</code> folder (which by default uses the DIRECT packaging method).</p>
+						<p>If the order that the multiple statements are listed in the single script is critical to the success of the script, then put it in the&#160;<code>/sql_direct</code> folder. The&#160;<code>/sql_direct</code> folder will preserve the order of the statements in the script. (The&#160;/<code>ddl</code> directory may not preserve the order because the CONVERT packaging method creates the change sets by doing a diff of before and after snapshots, and that comparison process does not know the original order of the statements.)</p>
+						<p>Examples of sets of statements in a single sql script that need to be placed into&#160;<code>/sql_direct</code>:</p>
+						<pre class="syntaxhighlighter-pre" xml:space="preserve">create table
+							move data from old table to new table
+						drop old table</pre>
+						<pre class="syntaxhighlighter-pre" xml:space="preserve">alter table drop pk constraint
+							alter table drop column (a column that the pk constraint depends on)
+							alter table add column (a column that the pk constraint depends on)
+						alter table add pk constraint</pre>
+					</td>
+				</tr>
+				<tr>
+					<td>Rename any object</td>
+					<td>Place SQL scripts into the <code>/sql</code> or <code>/sql_direct</code> folder. When you do, they are processed as a rename operation (rather than a DROP and CREATE).</td>
+				</tr>
+				<tr>
+					<td>Using Changelog Properties</td>
+					<td>
+						<p>All sql scripts can take advantage of properties.</p>
+						<p>Property key/value pairs are set directly in the changelog. See <a href="../../define-release-pipeline/set-prop-project-changelog.htm">Setting Properties in the Project Changelog</a>.</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<h2 id="FixedFolderNames-SQLTypesandChangesetProcessing">SQL Types and Changeset Processing</h2>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<table>
+			<tbody>
+				<tr>
+					<th>Description</th>
+					<th>SQL Statements</th>
+					<th>Process Type for Packaging</th>
+				</tr>
+				<tr>
+					<td>
+						<p>DDL - Data Definition Language</p>
+					</td>
+					<td>
+						<pre xml:space="preserve">CREATE, ALTER, DROP, COMMENT</pre>
+					</td>
+					<td>Transient</td>
+				</tr>
+				<tr>
+					<td>
+						<p>DML - Data Manipulation Language</p>
+					</td>
+					<td>
+						<pre xml:space="preserve">INSERT, UPDATE, DELETE, TRUNCATE, MERGE, SELECT</pre>
+					</td>
+					<td>Transient</td>
+				</tr>
+				<tr>
+					<td>
+						<p>DCL - Data Control Language</p>
+					</td>
+					<td>
+						<pre xml:space="preserve">GRANT, REVOKE</pre>
+					</td>
+					<td>Transient</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Stored Logic</p>
+					</td>
+					<td>
+						<pre xml:space="preserve">CREATE (OR REPLACE) / DROP PACKAGE, PACKAGE BODY, PROCEDURE, FUNCTION, TRIGGER&#160;</pre>
+					</td>
+					<td>Non-transient</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3 id="FixedFolderNames-ProcessingChanges">Processing Changes</h3>
+		<p>The process type drives the type of processing used, the type changeset produced and determines if the original scripts are archived.</p>
+		<h4 id="FixedFolderNames-TransientversusNon-transientprocessing">Transient versus Non-transient processing</h4>
+		<table>
+			<tbody>
+				<tr>
+					<th>Process Type</th>
+					<th>Processing</th>
+					<th>Directories</th>
+				</tr>
+				<tr>
+					<td>Transient</td>
+					<td>
+						<ul>
+							<li><strong>Archived</strong>: After the changes are processed, the SQL script is moved to the archive directory.</li>
+							<li>SQL scripts with the same name in the same directory cannot be re-packaged</li>
+						</ul>
+					</td>
+					<td>
+						<p>ddl</p>
+						<p><span>ddl_direct</span></p>
+						<p>sql_direct</p>
+						<p>data_dml</p>
+					</td>
+				</tr>
+				<tr>
+					<td>Non-transient</td>
+					<td>
+						<ul>
+							<li><strong>Not archived</strong>: The SQL script remains in the directory and is versioned.</li>
+							<li>SQL scripts can be repackaged</li>
+						</ul>
+					</td>
+					<td>all other directories</td>
+				</tr>
+			</tbody>
+		</table>
+		<h4 id="FixedFolderNames-DifferentPackagingFolders/Methodsprocessing">Different Packaging Folders/Methods processing</h4>
+		<table>
+			<colgroup>
+				<col style="width: 85.0px;" />
+				<col style="width: 784.0px;" />
+				<col style="width: 539.0px;" />
+			</colgroup>
+			<tbody>
+				<tr>
+					<th>Process Type</th>
+					<th>Processing</th>
+					<th>Directories</th>
+				</tr>
+				<tr>
+					<td>Convert SQL</td>
+					<td>
+						<ul>
+							<li><strong>Converts SQL</strong>&#160;code to produce changesets into an object model (based on the differences when comparing before and after states of REF)</li>
+							<li>Full Forecasting and Rules</li>
+							<li>Typically slower than other folders/methods</li>
+							<li>The actual script is NOT run during the final deploy (therefore certain statements or the ordering of statements in the original script may not be applied)</li>
+						</ul>
+					</td>
+					<td>
+						<p>ddl folder (CONVERT packaging method)</p>
+					</td>
+				</tr>
+				<tr>
+					<td>Native SQL</td>
+					<td>
+						<ul>
+							<li><strong>Runs SQL</strong>&#160;to produce the changes and embeds native SQL calls in the changesets</li>
+							<li>Limited Forecasting and Rules if not using SQL Parser (Oracle customers can optionally enable <a href="../configure-packaging/sql-parser.htm" rel="nofollow">SQL Parser for Oracle</a> for forecasting)</li>
+							<li>Faster than ddl folder (when ddl folder is using its default CONVERT packaging method)</li>
+							<li>The actual sql script IS run</li>
+							<li>The native script timeout setting that we recommend setting for your REF environments IS applicable because it uses the native SQL client tools (SQLPlus, SQLCmd, ClpPlus, EDBPlus)</li>
+							<li>Cannot use passwords that contain spaces or these special characters&#160;<strong>@ &amp; / : &lt; &gt; " ' ` | ^ ! = , \</strong></li>
+						</ul>
+					</td>
+					<td>
+						<p>ddl_direct, data_dml,&#160;and sql_direct folders (<span>DDL_DIRECT,&#160;</span>DATA_DML,&#160;and DIRECT packaging methods)</p>
+					</td>
+				</tr>
+				<tr>
+					<td>Stored Logic</td>
+					<td>
+						<ul>
+							<li>Uses <strong>JDBC</strong> to create, modify, or delete stored logic objects</li>
+							<li>Limited Forecasting and Rules (Oracle, SQL Server, and DB2 customers can optionally enable the <a href="../../how-to-guides/how-to-guides/configure-project-settings.htm" rel="nofollow">Stored Logic Validity Check</a>&#160;project setting)</li>
+							<li>Faster than ddl folder (when ddl folder is using its default CONVERT packaging method)</li>
+							<li>The actual sql script IS run</li>
+							<li>Only include one statement per script</li>
+							<li>Files should be UTF-8 in stored logic folders</li>
+							<li>The native script timeout setting that we recommend setting for your REF environments is NOT applicable because JDBC connection is used</li>
+						</ul>
+					</td>
+					<td>function, package, packagebody, procedure, trigger, and view folders (STOREDLOGIC packaging method)</td>
+				</tr>
+				<tr>
+					<td>SQLFILE</td>
+					<td>
+						<ul>
+							<li>Uses <strong>JDBC&#160;</strong></li>
+							<li>If you have multiple statements, they must be semicolon-delimited</li>
+							<li>You cannot have semicolons within the statement itself</li>
+							<li>The native script timeout setting that we recommend setting for your REF environments is NOT applicable because JDBC connection is used</li>
+						</ul>
+					</td>
+					<td>sql folder (SQLFILE packaging method)</td>
+				</tr>
+			</tbody>
+		</table>
+		<p>Please see <a href="../overview-packaging/overview-packaging.htm">Overview of Packaging</a>&#160;for more information about packaging workflows and Convert SQL method (ddl folder) versus Native SQL methods.</p>
+		<h3 id="FixedFolderNames-ProcessingOrder">Processing Order</h3>
+		<p>Deployment Packager in SCM Mode follows 3 ordering tiers for automating the execution order of new SQL scripts:</p>
+		<ol>
+			<li>
+				<strong>Tier 1: Commit Sequence</strong>
+				<ol>
+					<li>The group of files in a single commit is processed as a unit. Within a commit, files are processed within the file type sequence and then within the filename sequence.</li>
+					<li>Groups of commits are processed in order of checkin time. The earliest commit is processed first, then the next, and so on.</li>
+					<li>If you commit a file as part of a group and then later commit it again with changes (with a group), it is processed with the later commit group.</li>
+				</ol>
+			</li>
+			<li>
+				<strong>Tier 2: File Type Sequence</strong>
+				<ol>
+					<li>ddl</li>
+					<li><span>ddl_direct (available in 7.15 and higher)</span></li>
+					<li>view</li>
+					<li>ssis/ssis_project</li>
+					<li>function</li>
+					<li>procedure</li>
+					<li>package</li>
+					<li>packagebody</li>
+					<li>trigger</li>
+					<li>sql</li>
+					<li>sqlplus (deprecated)</li>
+					<li>sql_direct</li>
+					<li>data_dml</li>
+				</ol>
+			</li>
+			<li><strong>Tier 3: Filename Sequence<br /></strong>If multiple files are included in the same commit, and in the same directory, then files will be executed in alphabetical filename order</li>
+		</ol>
+		<p><strong>NOTE</strong>: You may need to perform separate commits in cases where objects are created and accessed in different steps in the execution order. For example, you may want to commit views for tables that are not created until the sql_direct step. In that case, commit the view separately <em>after</em> you have committed the steps that create the tables.</p>
+		<p>If this default processing order is different than your goals, you might consider using a <a href="custom-packaging-order.htm" rel="nofollow">Custom Packaging Order</a> instead.</p>
+		<h2 id="FixedFolderNames-SourceControlOperationsandPackagingEffects">Source Control Operations and Packaging Effects</h2>
+		<table>
+			<tbody>
+				<tr>
+					<th>SCM Operation</th>
+					<th>Effect on Packaging</th>
+				</tr>
+				<tr>
+					<td>
+						<p>Check In New File</p>
+					</td>
+					<td>
+						<p>Processed as a new file. The changes are packaged as a changeset to be added to the changelog.xml file.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Rename File</p>
+					</td>
+					<td>
+						<p>Packaging processes the script with the new filename as a new changeset.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>Move File</td>
+					<td>
+						<p>Moving a file more than once may cause errors.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Delete File</p>
+					</td>
+					<td>
+						<p>Deleting a file has no effect on the changelog.xml file.</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3 id="FixedFolderNames-DefiningLabelsinSCMCheckInComments">Defining Labels in SCM Check In Comments</h3>
+		<p>The packager parses the source control commit message. Strings enclosed by square brackets are treated as labels for the changeset generated by packaging sql scripts.</p>
+		<p>For example, if a developer checked in a SQL script with the following comment:</p>
+		<pre xml:space="preserve">Add a new column foo to the table bar [label1,label2] [label3]</pre>
+		<p>The packager adds labels to all changesets generated from the SQL script:</p>
+		<pre xml:space="preserve">label1 label2 label3</pre>
+		<p>See also these pages for an overview of packager workflows, guidelines for writing scripts, and when to use which folder or packaging method:</p>
+		<p><a href="../overview-packaging/overview-packaging.htm">Overview of Packaging</a></p>
+		<p>
+			<a href="../../developer-get-started-guide/write-sql-scripts/write-sql-scripts.htm">
+				Writing SQL Scripts for <MadCap:variable name="General.DaticalDB" />
+			</a>
+		</p>
+		<p><a href="oracle-packaging.htm">Oracle Database Objects and Packaging</a></p>
+		<p><a href="sql-objects-packaging.htm">SQL Server Database Objects and Packaging</a></p>
+		<p><a href="flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a></p>
+		<p><a href="../../how-to-guides/app-dev-how-to-guides/choose-btw-CONVERT-ddl-packaging.htm">How To: Choose Between CONVERT (ddl) and DDL_DIRECT (ddl_direct) Packaging Methods</a></p>
+		<p><a href="../../troubleshoot/difference-between-ddl-sql-folders.htm">What is the difference between "ddl" and "sql_direct" folders?</a></p>
+	</body>
 </html>

@@ -1,12 +1,419 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>Using the Required deployPackager.properties File</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>A project must have a deployPackager.properties file in order for SQL scripts to be packaged for it.</p><h1 id="UsingtheRequireddeployPackager.propertiesFile-deployPackager.propertiesConfiguration">deployPackager.properties Configuration</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Before using the Deployment Packager, a deployPackager.properties will need to be created in the top level of your <MadCap:variable name="General.DaticalDB" /> project directory. This property file contains a variety of configuration information used by the Deployment Packager to interact with SCM solutions and to perform database backups and restorations.</p><p><strong>Note</strong>: there is a sample deployPackager.properties file provided in DaticalDB/repl/scripts.</p><h2 id="UsingtheRequireddeployPackager.propertiesFile-PropertiesPrefixesforSQLCodeandDaticalProjectFiles">Properties Prefixes for SQL Code and <MadCap:variable name="General.DaticalDB" /> Project Files</h2><p>The property prefix indicates the type of files it affects and the location of those files.</p><ul><li><strong>sqlScm</strong> prefix - SQL code files (in predetermined subdirectories)</li><li><strong>ddbScm</strong> prefix - Datical project files (in a predetermined hierarchy)</li></ul><p>When properties for the project are not specified (<strong>ddbScm</strong> prefix), the values typically default to the properties for the SQL code (<strong>sqlScm</strong> prefix)&#160;</p><h2 id="UsingtheRequireddeployPackager.propertiesFile-PipelineandDbDefBranchSettings">Pipeline and DbDef Branch Settings</h2><p>In order for the Deployment Packager to process the appropriate scripts for a specific dbdef or pipeline, the SCM branch name and the ID for the last import processed need to be tracked separately in the deployPackager.properties files. These properties should take the following form:</p><ul><li>Branch name:<ul><li>{<em>PipelineName</em>}.sqlScmBranch</li><li>{<em>DbDefName</em>}.sqlScmBranch for the branch name</li></ul></li><li>Last&#160;<ul><li>{<em>PipelineName</em>}.sqlScmLastImportID</li><li>{<em>DbDefName</em>}.sqlScmLastImportID.</li></ul></li></ul><p>Refer to the properties in the bottom section of the file below for an example of the Deployment Pipeline specific properties.</p><h1 id="UsingtheRequireddeployPackager.propertiesFile-PropertyListfordeployPackager.properties">Property List for deployPackager.properties</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>The following properties can be set in the <code>deployPackager.properties</code> file: (note that these properties are NOT in alphabetical order)</p><table><tbody><tr><th><p><span style="color: rgb(255,255,255);"><strong><span>Name</span></strong></span></p></th><th>Applies to</th><th><p><span><strong>Description</strong></span></p></th></tr><tr><td><p><span><strong>databaseBackupRestoreLocation</strong></span></p></td><td>Backup</td><td><p><span>Location to use for packager-driven backups of the database. During processing, Deployment Packager makes backups of the database that are normally stored on the database server itself.</span></p><p><span>Depending on your DBMS, the location may need to be specified as directory or a specific file.</span></p><ul><li><span><strong>Oracle, MSSQL,</strong>&#160;and <strong>DB2 - </strong>the directory is on the server host, so the path expression is OS-specific. ('/' on Linux, '\' on Windows.)</span></li><li><span><strong>Postgres - </strong>valid path on the server running hammer packaging<strong><br /></strong></span></li><li><span><strong>DB2</strong> - include a trailing slash</span></li><li><strong>Windows hosts</strong> - Double the backslashes in the path. The backslash ( \ ) is an escape character in Java properties files, so you must write '\\' to stand for '\'.&#160;<ul><li>Example:&#160;<code><span>C:\\Program Files\\Microsoft SQL Server\\MSSQL14.MyInstance\\DaticalBackups</span></code></li></ul></li></ul></td></tr><tr><td><p><span><strong>db2BackupDir.&lt;referenceDBName&gt;=0</strong></span></p></td><td>Backup</td><td><p><span><strong>DB2 Only</strong>: Set automatically after the first execution of Deployment Packager. The warning from the first execution of packager on a given database can be ignored.</span></p></td></tr><tr><td><strong>ddlExcludeList</strong></td><td>Compares</td><td><p>SQL code types to exclude from a compare, typically to improve performance. When packaging DDL scripts, Deployment Packager compares the before and after state of the reference database. Use this property to exclude object types from the comparison. Values can be:</p><ul><li><strong>none</strong> (the default)</li><li><strong>all</strong></li><li>Comma-separated list of these values:&#160;<span><strong>procedure</strong>, <strong>package</strong>, <strong>packagebody</strong>, <strong>function, trigger, view</strong>. Excluding non-ddl objects can improve performance, especially with large databases.</span><ul><li><span>The preferred style is to separate by comma only. However, spaces and tabs are trimmed if they are encountered. </span></li><li><span>The values list may be enclosed in double quotes or not.</span></li></ul></li></ul><b>Example ddlExcludeList property setting</b><pre class="syntaxhighlighter-pre" xml:space="preserve">ddlExcludeList="package,packagebody,procedure,function,trigger,view"ddlExcludeList=package,packagebody,procedure,function,trigger,view</pre></td></tr><tr><td><p><span><strong>ddbScmBranch</strong></span></p></td><td>Project files</td><td><p><span>The SCM branch to use. If not specified, Deployment Packager uses the value from <strong>sqlScmBranch</strong>.</span></p></td></tr><tr><td><p><strong>ddbScmDoCheckout</strong></p></td><td>Project files</td><td><p><span>If this is not present or is set to <code>true</code>, Deployment Packager ensures that the local repository is up to date before packaging. To skip this operation, set to <code>false</code>.</span></p><ul><li>Git - equivalent to <code>git pull</code></li><li>SVN - equivalent to <code>svn update</code></li><li>TFS - equivalent to <code>tf get</code></li></ul></td></tr><tr><td><p><span><strong>ddbScmLastImportID</strong></span></p></td><td>Project files</td><td><p><span>The SCM system ID for the most recently</span><em>processed </em>SQL code check in. It is automatically updated when the Deployment Packager completes successfully.</p><p><span><strong>Note:</strong></span><span>Do not leave blank. Do not use the most recent check-in. For first time use, use an ID from an earlier check-in.</span></p><ul><li><span>Git - first 8 digits of the hash</span></li><li>SVN - revision number</li><li>TFS - changeset number</li></ul></td></tr><tr><td><p><span><strong>ddbScmPath</strong></span></p></td><td>Project files</td><td><p><span>Path to the local copy of the SCM repository. If this is not present, Deployment Packager will use the value from <strong>sqlScmPath</strong>.</span></p></td></tr><tr><td><p><span><strong>ddbScmSystem</strong></span></p></td><td>Project files</td><td><p>SCM type – one of&#160;<strong>git</strong>, <strong>svn</strong>,&#160;<strong>tfs</strong></p><p><span>May be different than the <strong>sqlScmSystem</strong>. If not specified, Deployment Packager uses the value from <strong>sqlScmSystem</strong>.</span></p></td></tr><tr><td><p><span><strong>enableBackupRestore</strong></span></p></td><td>Backup</td><td><p><span>When the Packager is run in 'dbdef=' mode, the backup and restore routines can be skipped for certain sensitive environments. The value of this property is a comma separated list of the environments in which the Packager should perform backup and restore tasks.</span><span><strong>NOTE:</strong> Backup and restore tasks are NOT recommended for environments beyond development &amp; test.</span></p></td></tr><tr><td><p><span><strong>scmBranchHandling</strong></span></p></td><td>SCM</td><td><p><span>Specifies how to handle branches in a multiple-branch project, one of two methods:</span></p><ul><li><span><strong>scmswitch</strong> – use SCM-specific commands to switch branches in <strong>sqlScmPath</strong></span></li><li><span><strong>directory</strong></span><span>–</span><span>use a specified directory.</span><ul><li><p><span>When run against a pipeline, a pipeline-specific <strong>sqlScmPath</strong></span><span>is checked:</span></p><pre xml:space="preserve">&lt;pipeline&gt;.sqlScmPath=&lt;path&gt;</pre><p></p></li><li><p><span>When run against a dbdef, a dbdef-specific <strong>sqlScmPath</strong> is checked:</span></p><pre xml:space="preserve">&lt;dbdef&gt;.sqlScmPath=&lt;path&gt; </pre></li><li><span>If a pipeline-specific or dbdef-specific path&#160;</span><span>is not provided, <strong>sqlScmPath</strong> is used. If <strong>sqlScmPath</strong> is also not specified, an error is returned.</span></li></ul></li></ul><p><span>See&#160;"Pipeline and DbDef Branch Settings" below.</span></p></td></tr><tr><td><p><span><strong>sqlScmBranch</strong></span></p></td><td>SQL code files</td><td><p><span>The repository branch to be used for SQL code. Format varies by SCM:</span></p><ul><li><span>Git - branch name only</span></li><li><span>SVN - full branch URL, such as&#160;<code><span>svn://servername/projectname/branches/branchname</span></code></span></li><li><span>TFS - full branch specifier, such as&#160;<code><span>$/repo/project/branch</span></code></span></li></ul></td></tr><tr><td><p><strong>sqlScmDoCheckout</strong></p></td><td>SQL code files</td><td><p><span>If this is not present or is set to <code>true</code>, Deployment Packager ensures that the local repository is up to date before packaging. To skip this operation, set to <code>false</code>. (Note that when setting this property to&#160;<span><code>false</code></span>&#160;that the DDB repo status will still be checked to make sure there aren't any uncommitted changes, but a pull/update/skip will not be performed.)</span></p><ul><li>Git - equivalent to <code>git pull</code></li><li>SVN - equivalent to <code>svn update</code></li><li>TFS - equivalent to <code>tf get</code></li></ul></td></tr><tr><td><p><span><strong>sqlScmLastImportID</strong></span></p></td><td>SQL code files</td><td><p><span>The SCM system ID for the most recently</span><em>processed </em>SQL code check in. It is automatically updated when the Deployment Packager completes successfully.</p><p><span><strong>Note:</strong></span><span>Do not leave blank. Do not use the most recent check-in. For first time use, use an ID from an earlier check-in.</span></p><ul><li><span>Git - first 8 digits of the hash</span></li><li>SVN - revision number</li><li>TFS - changeset number</li></ul></td></tr><tr><td><p><span><strong>sqlScmPath</strong></span></p></td><td>SQL code files</td><td><p><span>Path to the directory for SQL code in the local copy of the SCM repository. Can be an absolute path or path relative to the project directory.</span></p><p><span>When packager determines the location of SQL code, it builds the location from&#160;<strong>sqlSCMPath</strong> and <strong>sqlScmSQLBaseDir</strong>.</span></p><p><span>On Windows, backslashes must be doubled. Example:<br /></span></p><pre xml:space="preserve">sqlScmPath=c:\\users\\username\\scmworkdir\\projectname</pre><p></p></td></tr><tr><td><p><span><strong>sqlScmSQLBaseDir</strong></span></p></td><td>SQL code files</td><td><div class="line number41 index40 alt2">Top level directory for SQL code stored in the local copy of the repository. This is a name only, not a path.&#160;If set to '.' uses the value of <strong>sqlScmPath</strong>. This directory contains:<ul><li class="line number41 index40 alt2">Set of fixed-name sub-directories needed by Deployment Packager (ddl,data_dml,sql, and so on)</li><li class="line number41 index40 alt2">Specially configured directories (See <a href="../place-files-scm-repo/flexible-folder-names.htm">Flexible Folder Names</a>.)</li><li class="line number41 index40 alt2">Combination of fixed-name and flexible-name directories</li></ul><p>If not specified, a default directory name <code>sql_code</code> is used.</p><p><span>When packager determines the location of SQL code, it builds the location from&#160;<strong>sqlSCMPath</strong> and <strong>sqlScmSQLBaseDir</strong>.</span></p></td></tr><tr><td><p><span><strong>sqlScmSystem</strong></span></p></td><td>SQL code files</td><td><p><span>SCM type – one of&#160;<strong>git</strong>, <strong>svn</strong>,&#160;<strong>tfs</strong></span></p></td></tr><tr><td><p><strong><span class="code">commitMsgLabelRegexp</span></strong></p></td><td>SQL code files</td><td><p>By default, the Deploy Packager will scan the commit messages in your SQL code repo for values in square brackets. These values will be added as labels to the change sets that are produced by the files in that commit. For example:</p><pre xml:space="preserve">Commit Message: Adding column to hold area code information for [JIRA-1234]
-Change Set Label: JIRA-1234	</pre><p><br />If there is another pattern you would like to use for the designation of change set labels you can specify the regular expression for that pattern using this property. For example:</p><pre xml:space="preserve">commitMsgLabelRegexp=JIRA (\\d{6})
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>Using the Required deployPackager.properties File</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>A project must have a deployPackager.properties file in order for SQL scripts to be packaged for it.</p>
+		<h1 id="UsingtheRequireddeployPackager.propertiesFile-deployPackager.propertiesConfiguration">deployPackager.properties Configuration</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>Before using the Deployment Packager, a deployPackager.properties will need to be created in the top level of your <MadCap:variable name="General.DaticalDB" /> project directory. This property file contains a variety of configuration information used by the Deployment Packager to interact with SCM solutions and to perform database backups and restorations.</p>
+		<p><strong>Note</strong>: there is a sample deployPackager.properties file provided in DaticalDB/repl/scripts.</p>
+		<h2 id="UsingtheRequireddeployPackager.propertiesFile-PropertiesPrefixesforSQLCodeandDaticalProjectFiles">
+			Properties Prefixes for SQL Code and <MadCap:variable name="General.DaticalDB" /> Project Files</h2>
+		<p>The property prefix indicates the type of files it affects and the location of those files.</p>
+		<ul>
+			<li><strong>sqlScm</strong> prefix - SQL code files (in predetermined subdirectories)</li>
+			<li><strong>ddbScm</strong> prefix - Datical project files (in a predetermined hierarchy)</li>
+		</ul>
+		<p>When properties for the project are not specified (<strong>ddbScm</strong> prefix), the values typically default to the properties for the SQL code (<strong>sqlScm</strong> prefix)&#160;</p>
+		<h2 id="UsingtheRequireddeployPackager.propertiesFile-PipelineandDbDefBranchSettings">Pipeline and DbDef Branch Settings</h2>
+		<p>In order for the Deployment Packager to process the appropriate scripts for a specific dbdef or pipeline, the SCM branch name and the ID for the last import processed need to be tracked separately in the deployPackager.properties files. These properties should take the following form:</p>
+		<ul>
+			<li>Branch name:
+				<ul>
+					<li>{<em>PipelineName</em>}.sqlScmBranch</li>
+					<li>{<em>DbDefName</em>}.sqlScmBranch for the branch name</li>
+				</ul>
+			</li>
+			<li>Last&#160;
+				<ul>
+					<li>{<em>PipelineName</em>}.sqlScmLastImportID</li>
+					<li>{<em>DbDefName</em>}.sqlScmLastImportID.</li>
+				</ul>
+			</li>
+		</ul>
+		<p>Refer to the properties in the bottom section of the file below for an example of the Deployment Pipeline specific properties.</p>
+		<h1 id="UsingtheRequireddeployPackager.propertiesFile-PropertyListfordeployPackager.properties">Property List for deployPackager.properties</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>The following properties can be set in the <code>deployPackager.properties</code> file: (note that these properties are NOT in alphabetical order)</p>
+		<table>
+			<tbody>
+				<tr>
+					<th>
+						<p><span style="color: rgb(255,255,255);"><strong><span>Name</span></strong></span></p>
+					</th>
+					<th>Applies to</th>
+					<th>
+						<p><span><strong>Description</strong></span></p>
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>databaseBackupRestoreLocation</strong></span></p>
+					</td>
+					<td>Backup</td>
+					<td>
+						<p><span>Location to use for packager-driven backups of the database. During processing, Deployment Packager makes backups of the database that are normally stored on the database server itself.</span></p>
+						<p><span>Depending on your DBMS, the location may need to be specified as directory or a specific file.</span></p>
+						<ul>
+							<li><span><strong>Oracle, MSSQL,</strong>&#160;and <strong>DB2 - </strong>the directory is on the server host, so the path expression is OS-specific. ('/' on Linux, '\' on Windows.)</span></li>
+							<li><span><strong>Postgres - </strong>valid path on the server running hammer packaging<strong><br /></strong></span></li>
+							<li><span><strong>DB2</strong> - include a trailing slash</span></li>
+							<li>
+								<strong>Windows hosts</strong> - Double the backslashes in the path. The backslash ( \ ) is an escape character in Java properties files, so you must write '\\' to stand for '\'.&#160;
+								<ul>
+									<li>Example:&#160;<code><span>C:\\Program Files\\Microsoft SQL Server\\MSSQL14.MyInstance\\DaticalBackups</span></code></li>
+								</ul>
+							</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>db2BackupDir.&lt;referenceDBName&gt;=0</strong></span></p>
+					</td>
+					<td>Backup</td>
+					<td>
+						<p><span><strong>DB2 Only</strong>: Set automatically after the first execution of Deployment Packager. The warning from the first execution of packager on a given database can be ignored.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>ddlExcludeList</strong></td>
+					<td>Compares</td>
+					<td>
+						<p>SQL code types to exclude from a compare, typically to improve performance. When packaging DDL scripts, Deployment Packager compares the before and after state of the reference database. Use this property to exclude object types from the comparison. Values can be:</p>
+						<ul>
+							<li><strong>none</strong> (the default)</li>
+							<li><strong>all</strong></li>
+							<li>Comma-separated list of these values:&#160;<span><strong>procedure</strong>, <strong>package</strong>, <strong>packagebody</strong>, <strong>function, trigger, view</strong>. Excluding non-ddl objects can improve performance, especially with large databases.</span>
+								<ul>
+									<li><span>The preferred style is to separate by comma only. However, spaces and tabs are trimmed if they are encountered.</span></li>
+									<li><span>The values list may be enclosed in double quotes or not.</span></li>
+								</ul>
+							</li>
+						</ul>
+						<b>Example ddlExcludeList property setting</b>
+						<pre class="syntaxhighlighter-pre" xml:space="preserve">ddlExcludeList="package,packagebody,procedure,function,trigger,view"ddlExcludeList=package,packagebody,procedure,function,trigger,view</pre>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>ddbScmBranch</strong></span></p>
+					</td>
+					<td>Project files</td>
+					<td>
+						<p><span>The SCM branch to use. If not specified, Deployment Packager uses the value from <strong>sqlScmBranch</strong>.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>ddbScmDoCheckout</strong></p>
+					</td>
+					<td>Project files</td>
+					<td>
+						<p><span>If this is not present or is set to <code>true</code>, Deployment Packager ensures that the local repository is up to date before packaging. To skip this operation, set to <code>false</code>.</span></p>
+						<ul>
+							<li>Git - equivalent to <code>git pull</code></li>
+							<li>SVN - equivalent to <code>svn update</code></li>
+							<li>TFS - equivalent to <code>tf get</code></li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>ddbScmLastImportID</strong></span></p>
+					</td>
+					<td>Project files</td>
+					<td>
+						<p><span>The SCM system ID for the most recently</span><em>processed </em>SQL code check in. It is automatically updated when the Deployment Packager completes successfully.</p>
+						<p><span><strong>Note:</strong></span><span>Do not leave blank. Do not use the most recent check-in. For first time use, use an ID from an earlier check-in.</span></p>
+						<ul>
+							<li><span>Git - first 8 digits of the hash</span></li>
+							<li>SVN - revision number</li>
+							<li>TFS - changeset number</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>ddbScmPath</strong></span></p>
+					</td>
+					<td>Project files</td>
+					<td>
+						<p><span>Path to the local copy of the SCM repository. If this is not present, Deployment Packager will use the value from <strong>sqlScmPath</strong>.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>ddbScmSystem</strong></span></p>
+					</td>
+					<td>Project files</td>
+					<td>
+						<p>SCM type – one of&#160;<strong>git</strong>, <strong>svn</strong>,&#160;<strong>tfs</strong></p>
+						<p><span>May be different than the <strong>sqlScmSystem</strong>. If not specified, Deployment Packager uses the value from <strong>sqlScmSystem</strong>.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>enableBackupRestore</strong></span></p>
+					</td>
+					<td>Backup</td>
+					<td>
+						<p><span>When the Packager is run in 'dbdef=' mode, the backup and restore routines can be skipped for certain sensitive environments. The value of this property is a comma separated list of the environments in which the Packager should perform backup and restore tasks.</span><span><strong>NOTE:</strong> Backup and restore tasks are NOT recommended for environments beyond development &amp; test.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>scmBranchHandling</strong></span></p>
+					</td>
+					<td>SCM</td>
+					<td>
+						<p><span>Specifies how to handle branches in a multiple-branch project, one of two methods:</span></p>
+						<ul>
+							<li><span><strong>scmswitch</strong> – use SCM-specific commands to switch branches in <strong>sqlScmPath</strong></span></li>
+							<li>
+								<span><strong>directory</strong></span><span>–</span><span>use a specified directory.</span>
+								<ul>
+									<li>
+										<p><span>When run against a pipeline, a pipeline-specific <strong>sqlScmPath</strong></span><span>is checked:</span></p>
+										<pre xml:space="preserve">&lt;pipeline&gt;.sqlScmPath=&lt;path&gt;</pre>
+										<p></p>
+									</li>
+									<li>
+										<p><span>When run against a dbdef, a dbdef-specific <strong>sqlScmPath</strong> is checked:</span></p>
+										<pre xml:space="preserve">&lt;dbdef&gt;.sqlScmPath=&lt;path&gt; </pre>
+									</li>
+									<li><span>If a pipeline-specific or dbdef-specific path&#160;</span><span>is not provided, <strong>sqlScmPath</strong> is used. If <strong>sqlScmPath</strong> is also not specified, an error is returned.</span></li>
+								</ul>
+							</li>
+						</ul>
+						<p><span>See&#160;"Pipeline and DbDef Branch Settings" below.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>sqlScmBranch</strong></span></p>
+					</td>
+					<td>SQL code files</td>
+					<td>
+						<p><span>The repository branch to be used for SQL code. Format varies by SCM:</span></p>
+						<ul>
+							<li><span>Git - branch name only</span></li>
+							<li><span>SVN - full branch URL, such as&#160;<code><span>svn://servername/projectname/branches/branchname</span></code></span></li>
+							<li><span>TFS - full branch specifier, such as&#160;<code><span>$/repo/project/branch</span></code></span></li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong>sqlScmDoCheckout</strong></p>
+					</td>
+					<td>SQL code files</td>
+					<td>
+						<p><span>If this is not present or is set to <code>true</code>, Deployment Packager ensures that the local repository is up to date before packaging. To skip this operation, set to <code>false</code>. (Note that when setting this property to&#160;<span><code>false</code></span>&#160;that the DDB repo status will still be checked to make sure there aren't any uncommitted changes, but a pull/update/skip will not be performed.)</span></p>
+						<ul>
+							<li>Git - equivalent to <code>git pull</code></li>
+							<li>SVN - equivalent to <code>svn update</code></li>
+							<li>TFS - equivalent to <code>tf get</code></li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>sqlScmLastImportID</strong></span></p>
+					</td>
+					<td>SQL code files</td>
+					<td>
+						<p><span>The SCM system ID for the most recently</span><em>processed </em>SQL code check in. It is automatically updated when the Deployment Packager completes successfully.</p>
+						<p><span><strong>Note:</strong></span><span>Do not leave blank. Do not use the most recent check-in. For first time use, use an ID from an earlier check-in.</span></p>
+						<ul>
+							<li><span>Git - first 8 digits of the hash</span></li>
+							<li>SVN - revision number</li>
+							<li>TFS - changeset number</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>sqlScmPath</strong></span></p>
+					</td>
+					<td>SQL code files</td>
+					<td>
+						<p><span>Path to the directory for SQL code in the local copy of the SCM repository. Can be an absolute path or path relative to the project directory.</span></p>
+						<p><span>When packager determines the location of SQL code, it builds the location from&#160;<strong>sqlSCMPath</strong> and <strong>sqlScmSQLBaseDir</strong>.</span></p>
+						<p><span>On Windows, backslashes must be doubled. Example:<br /></span></p>
+						<pre xml:space="preserve">sqlScmPath=c:\\users\\username\\scmworkdir\\projectname</pre>
+						<p></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>sqlScmSQLBaseDir</strong></span></p>
+					</td>
+					<td>SQL code files</td>
+					<td>
+						Top level directory for SQL code stored in the local copy of the repository. This is a name only, not a path.&#160;If set to '.' uses the value of <strong>sqlScmPath</strong>. This directory contains:
+						<ul>
+							<li>Set of fixed-name sub-directories needed by Deployment Packager (ddl,data_dml,sql, and so on)</li>
+							<li>Specially configured directories (See <a href="../place-files-scm-repo/flexible-folder-names.htm">Flexible Folder Names</a>.)</li>
+							<li>Combination of fixed-name and flexible-name directories</li>
+						</ul>
+						<p>If not specified, a default directory name <code>sql_code</code> is used.</p>
+						<p><span>When packager determines the location of SQL code, it builds the location from&#160;<strong>sqlSCMPath</strong> and <strong>sqlScmSQLBaseDir</strong>.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>sqlScmSystem</strong></span></p>
+					</td>
+					<td>SQL code files</td>
+					<td>
+						<p><span>SCM type – one of&#160;<strong>git</strong>, <strong>svn</strong>,&#160;<strong>tfs</strong></span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong><span class="code">commitMsgLabelRegexp</span></strong></p>
+					</td>
+					<td>SQL code files</td>
+					<td>
+						<p>By default, the Deploy Packager will scan the commit messages in your SQL code repo for values in square brackets. These values will be added as labels to the change sets that are produced by the files in that commit. For example:</p>
+						<pre xml:space="preserve">Commit Message: Adding column to hold area code information for [JIRA-1234]
+						Change Set Label: JIRA-1234	</pre>
+						<p><br />If there is another pattern you would like to use for the designation of change set labels you can specify the regular expression for that pattern using this property. For example:</p>
+						<pre xml:space="preserve">commitMsgLabelRegexp=JIRA (\\d{6})
 
-Commit Message: Adding column to hold area code information for JIRA 4321 which requires phone number separation
-Change Set Label: 4321	</pre><p><strong>NOTE:&#160;</strong>If you provide a different pattern for matching desired label values, the values in square brackets will no longer be included as labels on change sets.</p></td></tr><tr><td><strong>databaseBackupRestoreMethod</strong></td><td>Backup</td><td><p><span>Class name to use for custom backup and restore. The class is implemented in a .groovy script.</span></p><ul><li><span>Class name <strong>BackupRestoreOracleDatapump</strong> is reserved. When set to this value, Deployment Packager uses Oracle Datapump API rather than the Oracle client and expdp/impdp utilities to perform the backups and restores during packaging. See <a href="configure-deployment-packager.htm">Configuring Deployment Packager to Use the Oracle Datapump API for Backup and Restore</a>.</span></li></ul></td></tr><tr><td><strong>extensionsPath</strong></td><td>Backup</td><td><span>Path to directory containing .groovy files that implement a custom backup and restore method. If not specified, the following directory is used:&#160;</span><br style="text-align: left;" /><code style="text-align: left;">&lt;datical-install&gt;/repl/scripts/extensions</code><span>.</span></td></tr><tr><td><strong>databaseBackupMode</strong></td><td>Backup</td><td><p>Specifies how to manage reference database backups that are required for deployments.</p><ul><li><strong>always</strong> - (Default) Back up the database for every change deployment. The schema to be backed up may be limited by using the <code>schemaName</code> property in <code>metatdata.properties</code>. This is the most commonly used mode.</li><li><strong>on_demand</strong> - Back up the database only when a <code>deployPackager.groovy</code> command line option is used: <code>createDatabaseBackup=true</code>. <em>This mode always backs up <strong>all </strong>managed schema and the tracking schema.&#160;</em>&#160;This mode is intended as a special case for use with large databases that take a very long time to back up.</li></ul></td></tr><tr><td><p><strong><span class="code">oracleRestoreErrorWhitelist</span></strong></p></td><td>Restore (Oracle Only)</td><td><p>A comma separated list of Oracle error codes to be ignored when evaluating&#160;<code>impdp</code>&#160;import/restore output for errors. (This property is only available with versions 7.3 and higher.) During an Oracle restore that uses local <span class="code">expdp</span> / <span class="code">impdp</span> clients OR the DATAPUMP API on the server, error messages are compared to the white-list:</p><ul class="ak-ul" style="text-align: left;"><li><p>If any errors are found that <strong>do not</strong> exist in the white-list&#160;<strong>restore fails</strong></p></li><li><p>If the only errors found <strong>do exist</strong> in the white-list, <strong>restore completes successfully</strong></p></li></ul><p>Example:</p><pre xml:space="preserve">oracleRestoreErrorWhitelist=ORA-31684,ORA-39111,ORA-39151</pre></td></tr><tr><td><strong>parallel</strong></td><td>Backup</td><td><strong>Oracle only</strong>. Maximum of parallel threads for expdp and impdp to use during backup and restore.</td></tr><tr><td><span style="color: rgb(128,128,128);"><strong>archive</strong></span></td><td><span style="color: rgb(128,128,128);">Processing</span></td><td><p><span style="color: rgb(128,128,128);">Archive SQL scripts in the archive directory after processing. This is done for SQL code in the <strong>ddl, sql_direct, data_dml</strong>&#160;directories.&#160;Archiving is done by default.</span></p><p><span style="color: rgb(128,128,128);">Set to <strong>false</strong> to override the default behavior.</span></p><p><span style="color: rgb(128,128,128);">If not set or if set to <strong>true</strong>, archiving is done as usual.</span></p><p><span style="color: rgb(128,128,128);">The archive property has been deprecated. Instead it is preferable to set the newer rerunnable property in the metadata.properties of each relevant folder.</span></p></td></tr><tr><td><strong>validateRollback</strong></td><td>SQL code files</td><td><p>Test the rollback script provided for a SQL script (-rollback), unless set to <strong>none</strong>. The rollback script must be able to restore the database to its state before the SQL script was run. During testing, packager runs a test rollback and a test deploy from the rolled-back state. The test operations performed by packager are not logged to the Deployment Monitoring Console database (DMCDB). Available with Datical version 5.1 or higher.</p><ul><li><strong>none&#160;</strong>- Do not test rollback scripts.</li><li><strong>withCompare</strong> - Test rollback scripts and their effect. During packaging, take a snapshot of the REF database to use for comparing database states to validate the rollback script. If the test fails, packager continues and shows a WARNING message in the log.</li><li><strong>withoutCompare</strong> - Test rollback scripts only to see if they run. Does not test their effects. If the test fails, packager exits with an ERROR. <br /><br /></li></ul><p class="title">Note</p><p>If you enable rollback validation, you must provide rollback files (-rollback) for all SQL scripts <em>starting from when you enable it</em>. You do not need to provide files for SQL scripts that have already been packaged and deployed.</p><p>See <a href="../../best-practices/app-dev-b-p/rollback-validation-during-packaging.htm">Rollback File Validation During Packaging</a>.</p></td></tr><tr><td><strong>disableTraceFile</strong></td><td>SQL code files</td><td><p><strong>Oracle only</strong>. Controls whether the Oracle trace file is used. Default value is false. The option to disable trace file is only available in Datical versions 5.3 and higher.</p><ul><li><strong>true</strong> - disables the use of the trace file</li><li><strong>false</strong> - enables the use of the trace file</li></ul><p>With tracefile turned on, Datical is able to detect and include the following additional SQL statement types during the CONVERT process (for Oracle Only):&#160;"create type", "create or replace type",&#160;"alter type", "drop type", "create materialized view",&#160;"alter materialized view",&#160;"drop materialized view",&#160;"create database link", "create shared database link",&#160;"create public database link",&#160;"create shared public database link",&#160;"drop database link",&#160;"drop public database link", "grant", "revoke",&#160;"insert", "update",&#160; "delete",&#160;select".</p></td></tr><tr><td><strong>packageOrderStrategy</strong></td><td>SQL code files</td><td><p>Specifies a custom package order, one of:</p><ul><li>DEFAULT - use the default ordering of commit order, then packageMethod, then alphanumeric</li><li>PACKAGEMETHOD - use ordering by packageMethod, then alphanumeric</li><li>ALPHANUMERIC - use ordering by alphanumeric only</li></ul></td></tr><tr><td><strong><span style="color: rgb(3,47,98);">skipCheckin</span></strong></td><td>Project files, SQL code files</td><td>If this is not present or is set to <code>false</code>, Deployment Packager performs the final SCM operation to send changes from the local repository to the SCM server. To skip this operation, set to <code>true</code>.<br /><ul><li>Git - skip the final <code>git push</code> (but still do the add and the commit)</li><li>SVN - skip the final <code>svn commit</code> (but still do the add)</li><li>TFS - skip the final <code>tf checkin</code> (but still do the add)</li></ul></td></tr><tr><td><strong><span style="color: rgb(23,43,77);">ephemeralConnectionRetryTimeout</span></strong></td><td>Backup (Azure SQL Managed Instance &amp; Azure SQL DB only)</td><td><span style="color: rgb(23,43,77);">This setting defines an overall time (in minutes) that a Deploy Packager job should try to get a connection to the e</span><span class="code" style="color: rgb(23,43,77);">phemeral</span><span style="color: rgb(23,43,77);"> database instance copy created for use in Azure SQL Managed Instance packaging. If the time expires and a successful connection cannot be made, Deploy Packager will fail. For more information see <a href="../../how-to-guides/how-to-guides/ephemeralConnectionRetryTimeout-azure-sql.htm">The ephemeralConnectionRetryTimeout property for Azure SQL Managed Instance</a></span></td></tr></tbody></table><h1 id="UsingtheRequireddeployPackager.propertiesFile-SampledeployPackager.propertiesfiles">Sample deployPackager.properties files</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2 id="UsingtheRequireddeployPackager.propertiesFile-DocumentedexampledeployPackager.propertiesfile">Documented example deployPackager.properties file</h2><b>deployPackager.properties</b><pre class="syntaxhighlighter-pre" xml:space="preserve"># This properties file controls the Datical DB deployPackager
+							Commit Message: Adding column to hold area code information for JIRA 4321 which requires phone number separation
+						Change Set Label: 4321	</pre>
+						<p><strong>NOTE:&#160;</strong>If you provide a different pattern for matching desired label values, the values in square brackets will no longer be included as labels on change sets.</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>databaseBackupRestoreMethod</strong></td>
+					<td>Backup</td>
+					<td>
+						<p><span>Class name to use for custom backup and restore. The class is implemented in a .groovy script.</span></p>
+						<ul>
+							<li><span>Class name <strong>BackupRestoreOracleDatapump</strong> is reserved. When set to this value, Deployment Packager uses Oracle Datapump API rather than the Oracle client and expdp/impdp utilities to perform the backups and restores during packaging. See <a href="configure-deployment-packager.htm">Configuring Deployment Packager to Use the Oracle Datapump API for Backup and Restore</a>.</span></li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>extensionsPath</strong></td>
+					<td>Backup</td>
+					<td>Path to directory containing .groovy files that implement a custom backup and restore method. If not specified, the following directory is used:<br style="text-align: left;" /><code style="text-align: left;">&lt;datical-install&gt;/repl/scripts/extensions</code>.</td>
+				</tr>
+				<tr>
+					<td><strong>databaseBackupMode</strong></td>
+					<td>Backup</td>
+					<td>
+						<p>Specifies how to manage reference database backups that are required for deployments.</p>
+						<ul>
+							<li><strong>always</strong> - (Default) Back up the database for every change deployment. The schema to be backed up may be limited by using the <code>schemaName</code> property in <code>metatdata.properties</code>. This is the most commonly used mode.</li>
+							<li><strong>on_demand</strong> - Back up the database only when a <code>deployPackager.groovy</code> command line option is used: <code>createDatabaseBackup=true</code>. <em>This mode always backs up <strong>all</strong> managed schema and the tracking schema.&#160;</em>&#160;This mode is intended as a special case for use with large databases that take a very long time to back up.</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><strong><span class="code">oracleRestoreErrorWhitelist</span></strong></p>
+					</td>
+					<td>Restore (Oracle Only)</td>
+					<td>
+						<p>A comma separated list of Oracle error codes to be ignored when evaluating&#160;<code>impdp</code>&#160;import/restore output for errors. (This property is only available with versions 7.3 and higher.) During an Oracle restore that uses local <span class="code">expdp</span> / <span class="code">impdp</span> clients OR the DATAPUMP API on the server, error messages are compared to the white-list:</p>
+						<ul>
+							<li>
+								<p>If any errors are found that <strong>do not</strong> exist in the white-list&#160;<strong>restore fails</strong></p>
+							</li>
+							<li>
+								<p>If the only errors found <strong>do exist</strong> in the white-list, <strong>restore completes successfully</strong></p>
+							</li>
+						</ul>
+						<p>Example:</p>
+						<pre xml:space="preserve">oracleRestoreErrorWhitelist=ORA-31684,ORA-39111,ORA-39151</pre>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>parallel</strong></td>
+					<td>Backup</td>
+					<td><strong>Oracle only</strong>. Maximum of parallel threads for expdp and impdp to use during backup and restore.</td>
+				</tr>
+				<tr>
+					<td><span style="color: rgb(128,128,128);"><strong>archive</strong></span></td>
+					<td><span style="color: rgb(128,128,128);">Processing</span></td>
+					<td>
+						<p><span style="color: rgb(128,128,128);">Archive SQL scripts in the archive directory after processing. This is done for SQL code in the <strong>ddl, sql_direct, data_dml</strong>&#160;directories.&#160;Archiving is done by default.</span></p>
+						<p><span style="color: rgb(128,128,128);">Set to <strong>false</strong> to override the default behavior.</span></p>
+						<p><span style="color: rgb(128,128,128);">If not set or if set to <strong>true</strong>, archiving is done as usual.</span></p>
+						<p><span style="color: rgb(128,128,128);">The archive property has been deprecated. Instead it is preferable to set the newer rerunnable property in the metadata.properties of each relevant folder.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>validateRollback</strong></td>
+					<td>SQL code files</td>
+					<td>
+						<p>Test the rollback script provided for a SQL script (-rollback), unless set to <strong>none</strong>. The rollback script must be able to restore the database to its state before the SQL script was run. During testing, packager runs a test rollback and a test deploy from the rolled-back state. The test operations performed by packager are not logged to the Deployment Monitoring Console database (DMCDB). Available with Datical version 5.1 or higher.</p>
+						<ul>
+							<li><strong>none&#160;</strong>- Do not test rollback scripts.</li>
+							<li><strong>withCompare</strong> - Test rollback scripts and their effect. During packaging, take a snapshot of the REF database to use for comparing database states to validate the rollback script. If the test fails, packager continues and shows a WARNING message in the log.</li>
+							<li><strong>withoutCompare</strong> - Test rollback scripts only to see if they run. Does not test their effects. If the test fails, packager exits with an ERROR. <br /><br /></li>
+						</ul>
+						<p class="title">Note</p>
+						<p>If you enable rollback validation, you must provide rollback files (-rollback) for all SQL scripts <em>starting from when you enable it</em>. You do not need to provide files for SQL scripts that have already been packaged and deployed.</p>
+						<p>See <a href="../../best-practices/app-dev-b-p/rollback-validation-during-packaging.htm">Rollback File Validation During Packaging</a>.</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>disableTraceFile</strong></td>
+					<td>SQL code files</td>
+					<td>
+						<p><strong>Oracle only</strong>. Controls whether the Oracle trace file is used. Default value is false. The option to disable trace file is only available in Datical versions 5.3 and higher.</p>
+						<ul>
+							<li><strong>true</strong> - disables the use of the trace file</li>
+							<li><strong>false</strong> - enables the use of the trace file</li>
+						</ul>
+						<p>With tracefile turned on, Datical is able to detect and include the following additional SQL statement types during the CONVERT process (for Oracle Only):&#160;"create type", "create or replace type",&#160;"alter type", "drop type", "create materialized view",&#160;"alter materialized view",&#160;"drop materialized view",&#160;"create database link", "create shared database link",&#160;"create public database link",&#160;"create shared public database link",&#160;"drop database link",&#160;"drop public database link", "grant", "revoke",&#160;"insert", "update",&#160; "delete",&#160;select".</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>packageOrderStrategy</strong></td>
+					<td>SQL code files</td>
+					<td>
+						<p>Specifies a custom package order, one of:</p>
+						<ul>
+							<li>DEFAULT - use the default ordering of commit order, then packageMethod, then alphanumeric</li>
+							<li>PACKAGEMETHOD - use ordering by packageMethod, then alphanumeric</li>
+							<li>ALPHANUMERIC - use ordering by alphanumeric only</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td><strong><span style="color: rgb(3,47,98);">skipCheckin</span></strong></td>
+					<td>Project files, SQL code files</td>
+					<td>
+						If this is not present or is set to <code>false</code>, Deployment Packager performs the final SCM operation to send changes from the local repository to the SCM server. To skip this operation, set to <code>true</code>.<br />
+						<ul>
+							<li>Git - skip the final <code>git push</code> (but still do the add and the commit)</li>
+							<li>SVN - skip the final <code>svn commit</code> (but still do the add)</li>
+							<li>TFS - skip the final <code>tf checkin</code> (but still do the add)</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+				<td><strong>ephemeralConnectionRetryTimeout</strong></td>
+                    <td>Backup (Azure SQL Managed Instance &amp; Azure SQL DB only)</td>
+                    <td>This setting defines an overall time (in minutes) that a Deploy Packager job should try to get a connection to the <span class="code" style="color: rgb(23,43,77);">ephemeral</span> database instance copy created for use in Azure SQL Managed Instance packaging. If the time expires and a successful connection cannot be made, Deploy Packager will fail. For more information see <a href="../../how-to-guides/how-to-guides/ephemeralConnectionRetryTimeout-azure-sql.htm">The ephemeralConnectionRetryTimeout property for Azure SQL Managed Instance</a></td>
+                </tr>
+            </tbody>
+        </table>
+        <h2 id="UsingtheRequireddeployPackager.propertiesFile-SampledeployPackager.propertiesfiles">Sample deployPackager.properties files</h2>
+        <h3 id="UsingtheRequireddeployPackager.propertiesFile-DocumentedexampledeployPackager.propertiesfile">Documented example deployPackager.properties file</h3>
+        <b>deployPackager.properties</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve"># This properties file controls the Datical DB deployPackager
 sqlScmSystem=git
 sqlScmLastImportID=421541c
 sqlScmBranch=master
@@ -27,7 +434,10 @@ AUG_2016.sqlScmLastImportID=49628d
 
 #Settings for the PROD_STAGING Database Definition
 PROD_STAGING.sqlScmBranch=AUG_2016_SQL
-PROD_STAGING.sqlScmLastImportID=69371n</pre><h2 id="UsingtheRequireddeployPackager.propertiesFile-SampledeployPackager.propertiesfileincludedintheproduct">Sample deployPackager.properties file included in the product</h2><p>A sample deployPackager.properties file is included in the DaticalDB installation in directory <code>&lt;datical-install&gt;\DaticalDB\repl\scripts\</code>. You can copy it to each of your project directories and edit it for each project.</p><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source<pre class="syntaxhighlighter-pre" xml:space="preserve"># This is a sample deployPackager properties file. 
+PROD_STAGING.sqlScmLastImportID=69371n</pre>
+        <h2 id="UsingtheRequireddeployPackager.propertiesFile-SampledeployPackager.propertiesfileincludedintheproduct">Sample deployPackager.properties file included in the product</h2>
+        <p>A sample deployPackager.properties file is included in the DaticalDB installation in directory <code>&lt;datical-install&gt;\DaticalDB\repl\scripts\</code>. You can copy it to each of your project directories and edit it for each project.</p>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve"># This is a sample deployPackager properties file. 
 #
 # There are two sets of SCM information that can be supplied. The first specifies 
 # the location of the SQL files that will be packaged - these start with "sqlScm". 
@@ -292,7 +702,6 @@ packageOrderStrategy=
 skipCheckin=
 commitMsgLabelRegexp=
 oracleRestoreErrorWhitelist=
-ephemeralConnectionRetryTimeout=
-
-</pre></body>
+ephemeralConnectionRetryTimeout=</pre>
+    </body>
 </html>

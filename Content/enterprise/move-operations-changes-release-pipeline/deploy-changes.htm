@@ -1,6 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>Deploying Changes</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><MadCap:snippetBlock src="../../Z_Resources/Snippets/enterprise/DBA.flsnp" /><p>Deploying changes to a step in the release pipeline applies the changes to the database at that step. </p><h2>Overriding Project Options</h2> <p>You can override project settings by specifying different options, either in a GUI dialog or by specifying options on the CLI.</p><h2 id="DeployingChanges-DeployUsingtheGUI">Deploy Using the GUI</h2><p>You can deploy directly or deploy with options.</p><h3 id="DeployingChanges-DeployOnly">Deploy Only</h3><ol><li>Open the project in the GUI</li><li>Click the <strong>Plan</strong> tab.</li><li>Click <strong>Deploy</strong>.</li></ol><h3 id="DeployingChanges-DeploywithOptions">Deploy with Options</h3><p>A dialog presents options to override.</p><ol><li>Open the project in the GUI</li><li>Click the <strong>Plan</strong> tab.</li><li>Click <strong>Deploy with Options</strong></li><li>In Deploy Options, specify additional options, then click <strong>Finish</strong>.</li></ol><table style="width: 100.0%;"><colgroup><col style="width: 17.0831%;" /><col style="width: 15.3036%;" /><col style="width: 67.4781%;" /></colgroup><tbody><tr><th>Option</th><th>Default</th><th>Description</th></tr><tr><td><ul><li>Use Contexts</li></ul></td><td>None - no contexts are specified for deployment.</td><td>List of contexts to use. Use <strong>$all</strong> to specify all contexts configured on the project.</td></tr><tr><td><ul><li>Use Labels</li></ul></td><td>None - no labels are specified for deployment.</td><td>List of labels to use. Use <strong>$all</strong> to specify all labels configured on the project.</td></tr><tr><td colspan="3"><strong>Deployment Mode</strong></td></tr><tr><td><ul><li>Full Deploy</li><li>Quick Deploy</li></ul></td><td>Full Deploy</td><td><p>Full Deploy includes a forecast (rules and change simulation).</p><p>Quick Deploy deploys changesets without a forecast.</p></td></tr><tr><td colspan="3"><strong>SQL Generation</strong></td></tr><tr><td><ul><li>Generate Deploy SQL Script</li></ul></td><td>False</td><td>Generate and save the SQL script used to deploy these changes.</td></tr><tr><td><ul><li>Generate Rollback SQL Script for this Deployment</li></ul></td><td>False</td><td>Generate and save the SQL script to use to roll back these changes.</td></tr><tr><td colspan="3"><strong>Collect Row Counts During Forecast and Deploy</strong></td></tr><tr><td><ul><li><span style="color: rgb(9,30,66);">Exact </span></li></ul></td><td>False</td><td><p>Collect accurate row counts using table scan. This method may be time consuming for large tables</p></td></tr><tr><td><ul><li><span style="color: rgb(9,30,66);">Approximate</span></li></ul></td><td>False</td><td><p><span style="color: rgb(23,43,77);">Collect estimated row counts using statistics.&#160;<span style="color: rgb(23,43,77);">Uses database statistics as the source of information. You need to make sure the statistics are available and updated. The time saved varies, but can be significant for very large tables.</p><p><span style="color: rgb(23,43,77);"><span style="color: rgb(23,43,77);">See <a href="../troubleshoot/improve-performance/collect-row-counts.htm" rel="nofollow">Settings for Collecting Row Counts</a>.</p></td></tr><tr><td><ul><li>Disabled</li></ul></td><td>True</td><td>Do not collect row counts.</td></tr><tr><td colspan="3"><strong>Limited Forecast</strong></td></tr><tr><td><ul><li>Limit</li></ul></td><td>False</td><td><p>If set to true, limit forecasting to only those objects affected by the changes. Otherwise profile all objects in the target database schema.</p><p>Note that some forecast and post-forecast rules may be skipped when this is true.</p></td></tr><tr><td colspan="3"><strong>Stored Logic Validity Check</strong></td></tr><tr><td><ul><li>Fail Deployments that produce new invalid object errors.</li></ul></td><td>True (fail)</td><td><p>Determines what to do when the Stored Logic Validity Check fails.</p><p>Both existing objects already in the database and new objects being deployed are checked.</p><ul><li><strong>warn</strong> - print WARN message and continue<ul><li>New objects that fail - print WARN message</li><li>Existing objects that fail - print WARN message</li></ul></li><li><strong>fail</strong> - print WARN or ERROR message, depending on objects<ul><li>New objects that fail - print ERROR message</li><li>Existing objects that fail that <strong>were not</strong> targeted by a changeset in the deploy operation - print WARN message</li><li>(7.7 &amp; later) Existing objects that fail that <strong>were</strong> targeted by a changeset in the deploy operation - print ERROR message</li></ul></li></ul></td></tr></tbody></table><p>See also <a href="../define-release-pipeline/configure-projects/configure-project-settings/configure-settings.htm" rel="nofollow">Configuring Project Settings</a>.</p><h2 id="DeployingChanges-DeployUsingtheCLI">Deploy Using the CLI</h2><p>To run a deployment, use the deploy command. See the <code>deploy</code> command listing in <a href="../cli-commands/cli-commands.htm" rel="nofollow">CLI Commands</a>&#160;for the options you can specify.</p><p>The command requires a step argument. The example uses <strong>Dev</strong>.</p><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer deploy Dev</pre><h2>Deploy Results</h2> <p>Deploy reports are placed in <code>datical/&lt;project&gt;/Reports</code>, sorted by date.</p><p>See <a href="../troubleshoot/use-logs-and-reports/log-files-reports.htm" rel="nofollow">Available Log Files and Reports</a>.</p></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>Deploying Changes</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<MadCap:snippetBlock src="../../Z_Resources/Snippets/enterprise/DBA.flsnp" />
+		<p>Deploying changes to a step in the release pipeline applies the changes to the database at that step.</p>
+		<h2>Overriding Project Options</h2>
+		<p>You can override project settings by specifying different options, either in a GUI dialog or by specifying options on the CLI.</p>
+		<h2 id="DeployingChanges-DeployUsingtheGUI">Deploy Using the GUI</h2>
+		<p>You can deploy directly or deploy with options.</p>
+		<h3 id="DeployingChanges-DeployOnly">Deploy Only</h3>
+		<ol>
+			<li>Open the project in the GUI</li>
+			<li>Click the <strong>Plan</strong> tab.</li>
+			<li>Click <strong>Deploy</strong>.</li>
+		</ol>
+		<h3 id="DeployingChanges-DeploywithOptions">Deploy with Options</h3>
+		<p>A dialog presents options to override.</p>
+		<ol>
+			<li>Open the project in the GUI</li>
+			<li>Click the <strong>Plan</strong> tab.</li>
+			<li>Click <strong>Deploy with Options</strong></li>
+			<li>In Deploy Options, specify additional options, then click <strong>Finish</strong>.</li>
+		</ol>
+		<table style="width: 100.0%;">
+			<colgroup>
+				<col style="width: 17.0831%;" />
+				<col style="width: 15.3036%;" />
+				<col style="width: 67.4781%;" />
+			</colgroup>
+			<tbody>
+				<tr>
+					<th>Option</th>
+					<th>Default</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Use Contexts</li>
+						</ul>
+					</td>
+					<td>None - no contexts are specified for deployment.</td>
+					<td>List of contexts to use. Use <strong>$all</strong> to specify all contexts configured on the project.</td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Use Labels</li>
+						</ul>
+					</td>
+					<td>None - no labels are specified for deployment.</td>
+					<td>List of labels to use. Use <strong>$all</strong> to specify all labels configured on the project.</td>
+				</tr>
+				<tr>
+					<td colspan="3"><strong>Deployment Mode</strong></td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Full Deploy</li>
+							<li>Quick Deploy</li>
+						</ul>
+					</td>
+					<td>Full Deploy</td>
+					<td>
+						<p>Full Deploy includes a forecast (rules and change simulation).</p>
+						<p>Quick Deploy deploys changesets without a forecast.</p>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3"><strong>SQL Generation</strong></td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Generate Deploy SQL Script</li>
+						</ul>
+					</td>
+					<td>False</td>
+					<td>Generate and save the SQL script used to deploy these changes.</td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Generate Rollback SQL Script for this Deployment</li>
+						</ul>
+					</td>
+					<td>False</td>
+					<td>Generate and save the SQL script to use to roll back these changes.</td>
+				</tr>
+				<tr>
+					<td colspan="3"><strong>Collect Row Counts During Forecast and Deploy</strong></td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Exact</span></li>
+						</ul>
+					</td>
+					<td>False</td>
+					<td>
+						<p>Collect accurate row counts using table scan. This method may be time consuming for large tables</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Approximate</span></li>
+						</ul>
+					</td>
+					<td>False</td>
+					<td>
+						<p>Collect estimated row counts using statistics.&#160;Uses database statistics as the source of information. You need to make sure the statistics are available and updated. The time saved varies, but can be significant for very large tables.</p>
+						<p>See <a href="../troubleshoot/improve-performance/collect-row-counts.htm" rel="nofollow">Settings for Collecting Row Counts</a>.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Disabled</li>
+						</ul>
+					</td>
+					<td>True</td>
+					<td>Do not collect row counts.</td>
+				</tr>
+				<tr>
+					<td colspan="3"><strong>Limited Forecast</strong></td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Limit</li>
+						</ul>
+					</td>
+					<td>False</td>
+					<td>
+						<p>If set to true, limit forecasting to only those objects affected by the changes. Otherwise profile all objects in the target database schema.</p>
+						<p>Note that some forecast and post-forecast rules may be skipped when this is true.</p>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3"><strong>Stored Logic Validity Check</strong></td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							<li>Fail Deployments that produce new invalid object errors.</li>
+						</ul>
+					</td>
+					<td>True (fail)</td>
+					<td>
+						<p>Determines what to do when the Stored Logic Validity Check fails.</p>
+						<p>Both existing objects already in the database and new objects being deployed are checked.</p>
+						<ul>
+							<li>
+								<strong>warn</strong> - print WARN message and continue
+								<ul>
+									<li>New objects that fail - print WARN message</li>
+									<li>Existing objects that fail - print WARN message</li>
+								</ul>
+							</li>
+							<li>
+								<strong>fail</strong> - print WARN or ERROR message, depending on objects
+								<ul>
+									<li>New objects that fail - print ERROR message</li>
+									<li>Existing objects that fail that <strong>were not</strong> targeted by a changeset in the deploy operation - print WARN message</li>
+									<li>(7.7 &amp; later) Existing objects that fail that <strong>were</strong> targeted by a changeset in the deploy operation - print ERROR message</li>
+								</ul>
+							</li>
+						</ul>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p>See also <a href="../define-release-pipeline/configure-projects/configure-project-settings/configure-settings.htm" rel="nofollow">Configuring Project Settings</a>.</p>
+		<h2 id="DeployingChanges-DeployUsingtheCLI">Deploy Using the CLI</h2>
+		<p>To run a deployment, use the deploy command. See the <code>deploy</code> command listing in <a href="../cli-commands/cli-commands.htm" rel="nofollow">CLI Commands</a>&#160;for the options you can specify.</p>
+		<p>The command requires a step argument. The example uses <strong>Dev</strong>.</p>
+		<pre class="syntaxhighlighter-pre" xml:space="preserve">hammer deploy Dev</pre>
+		<h2>Deploy Results</h2>
+		<p>Deploy reports are placed in <code>datical/&lt;project&gt;/Reports</code>, sorted by date.</p>
+		<p>See <a href="../troubleshoot/use-logs-and-reports/log-files-reports.htm" rel="nofollow">Available Log Files and Reports</a>.</p>
+	</body>
 </html>
