@@ -4,8 +4,7 @@
     </head>
     <body>
         <h1>Use searchpath with S3 <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /> </h1>
-        <p><a href="../../concepts/changelogs/how-liquibase-finds-files.htm">Searchpath</a> can <b>find</b> the path to S3 that contains <MadCap:variable name="General.changelog" /> files or snapshot files. This property allows you to find files that cannot be found by an absolute path. It is a convenient way to quickly call on those files without specifying the path each time. Searchpath can be  set in the CLI, within the <MadCap:variable name="General.liquiPropFile" /> file, or as an environment variable. </p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <MadCap:variable name="General.liquiPropFile" /> file and the Defaults File are the same file. The default name for the Defaults file is <MadCap:variable name="General.liquiPropFile" />. If you don't specify a defaults file argument, then <MadCap:variable name="General.Liquibase" /> assumes it is <MadCap:variable name="General.liquiPropFile" /></p>
+        <p>The <MadCap:xref href="../../concepts/changelogs/how-liquibase-finds-files.htm">searchpath</MadCap:xref> property is used to store the base elements of the path to changelog files or snapshot files. Changelog files (and a few others) cannot be specified by an absolute path on the file property itself, so the searchpath is combined with the relative path of the file’s property to <b>find</b> these files stored remotely on S3. Searchpath can be set in the CLI, within the liquibase.properties file, as an environment variable, or any other standard method for setting a property.</p>
         <h2>Use search-path to Locate Changelogs on S3</h2>
         <p>Both an S3 directory in the searchpath and a relative path are required to find <MadCap:variable name="General.changelog" /> files or snapshot files. Follow the steps below to learn how to set both of these and configure them.</p>
         <ol>
@@ -22,20 +21,19 @@
         <h2>Searchpath Rules:</h2>
         <p>Below are all of the rules that apply to searchpath. Review the example use cases and instructions to ensure it is the right avenue for your project.</p>
         <h3>Multiple Searchpath</h3>
-        <p>If searchpath is set, it is used and <MadCap:variable name="General.Liquibase" /> will not look in other locations for searchpath. This indicates if some files are located on S3 and some are local, both locations are required in the search path. </p>
+        <p>If searchpath is set, it is used and <MadCap:variable name="General.Liquibase" /> will not look in other locations for changelog or snapshot files. Therefore, if some necessary files are located on S3 and some are local, both locations are required in the search path. </p>
         <ul>
-            <li>The default searchpath is the current working directory of the local machine.</li>
-            <li>When not specifically configured, searchpath looks for changelogs in the current working directory of the local machine.</li>
+            <li>When not specifically configured, by default searchpath looks for changelogs in the current working directory.</li>
             <li>When searchpath is configured, only the locations explicitly defined in searchpath are used to locate <MadCap:variable name="General.changelog"></MadCap:variable>s.</li>
-            <li>Searchpath locations are comma-separated.
+            <li>Multiple searchpath locations are comma-separated and processed in order.
 <br />			Example: <code>search-path s3://myS3Bucket/demo,C:\Users\Me\demo</code></li>
             <li>
-                <p><MadCap:variable name="General.Liquibase" /> collects the list of files from all locations in the searchpath prior to executing a command. This can result in <MadCap:variable name="General.Liquibase" /> locating two or more changelog files with the same name. To determine how <MadCap:variable name="General.Liquibase" /> behaves in this case, see the Duplicate File Mode section below.</p>
+                <p>If multiple searchpath locations are specified, <MadCap:variable name="General.Liquibase" /> may find two or more changelog files with the same name. To determine how <MadCap:variable name="General.Liquibase" /> behaves in this case, see the Duplicate File Mode section below.</p>
                 <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the changelog references resource files in multiple directories, it may be easier to define the searchpath as an environment variable. This prevents the searchpath property from making the command line unreadable. The searchpath environment variable is LIQUIBASE_SEARCH_PATH.</p>
             </li>
         </ul>
         <p>Multiple Searchpath example:</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>s3://mybucket/path,</code> is the first location and<code> .localfiles</code> is the second location that searchpath will find the files.</p><pre><code class="language-text">--searchpath=s3://mybucket/path,.localfiles</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>s3://mybucket/path</code> is the first location and<code> .localfiles</code> is the second location that searchpath will find the files.</p><pre><code class="language-text">--searchpath=s3://mybucket/path,.localfiles</code></pre>
         <h3>Duplicate File Mode</h3>
         <p>The duplicate-file-mode property determines how <MadCap:variable name="General.Liquibase" /> behaves when multiple changelogs of the same name are located in a search-path with multiple locations specified. By default, <MadCap:variable name="General.Liquibase" /> will throw an error when duplicate files are found. It can be set in the CLI, <MadCap:variable name="General.liquiPropFile" /> file or as an Environment Variable. <MadCap:variable name="General.Liquibase" /> can be configured to warn when duplicate files are located on the aggregate search-path. Configuring the duplicate mode causes <MadCap:variable name="General.Liquibase" /> to execute the command using the first occurrence of the duplicate changelog located in the search-path locations.</p>
         <h4>Error Response:</h4>
