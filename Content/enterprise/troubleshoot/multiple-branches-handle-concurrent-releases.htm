@@ -1,6 +1,156 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>Implementation Guide: Multiple Branches (to handle concurrent releases)</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>This section describes how to setup <MadCap:variable name="General.DaticalDB" /> project when you are using multiple branches in your development. You have developers working on multiple releases at the same time. You may have a branch called "release/1.0". You may also have another parallel branch called "release/2.0".</p><h2 id="ImplementationGuide:MultipleBranches(tohandleconcurrentreleases)-Step-by-stepguide">Step-by-step guide</h2><p>You will need to create multiple pipelines in your <MadCap:variable name="General.DaticalDB" /> project. For example, you will call them "pipeline1" and "pipeline2".</p><ol><li>Each pipeline will have it's own REF database. You may also have dedicated DEV and QA databases for each pipelne. For example:<ol><li>"pipeline1" will look like this:&#160;REF1&#160;→ DEV1&#160;→ QA1&#160;→ STAGE&#160;→ PROD</li><li>"pipeline2" will look like this: REF2&#160;→ DEV2&#160;→ QA2&#160;→ STAGE&#160;→ PROD</li><li>Notice that STAGE and PROD is where pipelines merge.</li></ol></li><li>You will use these labels for your database environments:<ol><li><table><tbody><tr><th>DB Environment in Datical project</th><th>Label expression for the DB Environment</th><th>Notes</th></tr><tr><td>REF1</td><td><span style="color: rgb(255,102,0);"><em>pipeline1</em></span></td><td>All pipeline1 changes are deployed here</td></tr><tr><td>DEV1</td><td><span style="color: rgb(255,102,0);"><em>pipeline1 AND&#160;!abandoned AND&#160;!hold</em></span></td><td><br /></td></tr><tr><td>QA1</td><td><span style="color: rgb(255,102,0);"><em>pipeline1&#160;<span style="color: rgb(255,102,0);"><em>AND&#160;!abandoned AND&#160;!hold</em></span></em></span></td><td><br /></td></tr><tr><td>REF2</td><td><span style="color: rgb(0,128,128);"><em>pipeline2</em></span></td><td>All pipeline2 changes are deployed here</td></tr><tr><td>DEV2</td><td><span style="color: rgb(0,128,128);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></td><td><br /></td></tr><tr><td>QA2</td><td><span style="color: rgb(255,102,0);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></td><td><br /></td></tr><tr><td>STAGE</td><td><span style="color: rgb(255,102,0);"><em>pipeline1&#160;<span style="color: rgb(255,102,0);"><em>AND&#160;!abandoned AND&#160;!hold,&#160;<span style="color: rgb(0,128,128);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></em></span></em></span></td><td>Both pipeline1 and pipeline2 changes are deployed here</td></tr><tr><td>PROD</td><td><span style="color: rgb(255,102,0);"><em>pipeline1&#160;<span style="color: rgb(255,102,0);"><em>AND&#160;!abandoned AND&#160;!hold,&#160;<span style="color: rgb(0,128,128);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></em></span></em></span></td><td>Both pipeline1 and pipeline2 changes are deployed here</td></tr></tbody></table></li></ol></li><li>Based on the table above, now when you package your scripts in REF1, the resulting changesets will automatically receive the "pipeline1" label.<ol><li>Similarly, when you package scripts in REF2, the resulting changesets will automatically receive the "pipeline2" label.</li><li>Here is an example of how your changelog.xml might look like. Note the highlighted text showing different pipeline labels:</li><li><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="395" width="900" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/154894506/image2017-11-13_10-45-6.png?version=1&amp;modificationDate=1510591508318&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=395" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/154894506/image2017-11-13_10-45-6.png?version=1&amp;modificationDate=1510591508318&amp;cacheVersion=1&amp;api=v2&amp;width=1800&amp;height=790 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/154894506/image2017-11-13_10-45-6.png?version=1&amp;modificationDate=1510591508318&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=395 1x" /></span></p></li></ol></li><li>OBSERVATION:<ol><li>Note that changes going to pipeline1 also have the label "release/oct2017". This label was added by the packaging job and provided at build time by Jenkins or Bamboo.</li><li>Note that changes going to pipeline2 also have the label "release/nov2017". This label was added by the packaging job and provided at build time by Jenkins or Bamboo.</li><li><strong>It is a good practice to apply <u>release labels</u> to your changesets that are independent of pipeline labels.</strong></li></ol></li><li>You artifact your Datical project and publish to your artifacts repository such as Artifactory, Nexus, or artifacts repositories native to your deploy tool. So every time you package a new script, you will create a new Datical artifact.</li><li>When you deploy your database changes using your deploy tool Datical will automatically know what changes to deploy to each target environment. For example, with the list of changes shown in the screenshot above:<ol><li>Deployment to DEV1 and QA1 will receive all changesets that have the label "pipeline1". Any pipeline1 changeset that also has the label "abandoned" or "hold" will not be deployed there.</li><li>Deployment to DEV2 and QA2 will receive all changesets that have the label "pipeline2". Any pipeline2 changeset that also has the label "abandoned" or "hold" will not be deployed there.</li><li>Deployment to STAGE and PROD will receive all changesets that have the label "pipeline1" or "pipeline2". Any pipeline1 or pipeline2 changeset that also has the label "abandoned" or "hold" will not be deployed there.</li></ol></li></ol><h2 id="ImplementationGuide:MultipleBranches(tohandleconcurrentreleases)-FAQ:">FAQ:</h2><ol><li>How does Datical know what labels to deploy to DEV1, DEV2, QA1 and QA2?<ol><li>You artifact the entire Datical project which includes all changesets (in changelog.xml). Datical project also includes environment definitions that include labels and label expressions given to each environment. So when you pull down an artifact and attempt to deploy to a target environment, Datical will know exactly what labels (or label expressions) to apply to that deployment.</li></ol></li><li>What additional labels do I need to specify at deploy time?<ol><li>If you intend to deploy all undeployed changes then at deploy time there is no need to specify additional labels.</li><li>Most likely, however, you intend to deploy specific changes that are tied to a release. You may have in-flight changes with "pipeline1" label that are not yet eligible for deployment to higher environments.<ol><li>For example, you want to deploy only "oct2017" changes. Then, per the screenshot above, you will specify "release/oct2017" label at deploy time.</li></ol></li><li>You may also want to deploy a specific script, so you would provide the script name as a label at deploy time.<ol><li>For example, you want to deploy only "Insert_dml_AAA_TESTA3.sql" script. Then you will specify "Insert_dml_AAA_TESTA3.sql" label at deploy time.</li></ol></li></ol></li><li>How do I merge pipeline1 changes to pipeline2 so that changes deployed from pipeline1 all the way to PROD can now be deployed (or "backfilled") to pipeline2 (REF2, DEV2 and QA2)?<ol><li>This basically involves giving "pipeline2" label to all changes that have already deployed to prod. For example, all "release/oct2017" changes now get a new label that is "pipeline2").</li><li>See this document on how to backfill your pipeline →&#160;<a href="../how-to-guides/how-to-guides/backfil-pipeline.htm">How To: Backfill your pipeline</a>.</li></ol></li></ol><h2 id="ImplementationGuide:MultipleBranches(tohandleconcurrentreleases)-Relatedarticles">Related articles</h2><ul><li><a href="../how-to-guides/how-to-guides/abandon-changes.htm">How To: Abandon changes</a></li><li><a href="../how-to-guides/app-dev-how-to-guides/negate-changes.htm">How To: Negate changes</a></li><li><a href="../how-to-guides/how-to-guides/leverage-metadata-properties.htm">How To: Leverage the "metadata.properties" file</a></li><li><a href="#">Implementation Guide: Multiple Branches (to handle concurrent releases)</a></li></ul></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>Implementation Guide: Multiple Branches (to handle concurrent releases)</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>
+			This section describes how to setup 
+			<MadCap:variable name="General.DaticalDB" />
+			project when you are using multiple branches in your development. You have developers working on multiple releases at the same time. You may have a branch called "release/1.0". You may also have another parallel branch called "release/2.0".
+		</p>
+		<h2 id="ImplementationGuide:MultipleBranches(tohandleconcurrentreleases)-Step-by-stepguide">Step-by-step guide</h2>
+		<p>
+			You will need to create multiple pipelines in your 
+			<MadCap:variable name="General.DaticalDB" />
+			project. For example, you will call them "pipeline1" and "pipeline2".
+		</p>
+		<ol>
+			<li>
+				Each pipeline will have it's own REF database. You may also have dedicated DEV and QA databases for each pipelne. For example:
+				<ol>
+					<li>"pipeline1" will look like this:&#160;REF1&#160;→ DEV1&#160;→ QA1&#160;→ STAGE&#160;→ PROD</li>
+					<li>"pipeline2" will look like this: REF2&#160;→ DEV2&#160;→ QA2&#160;→ STAGE&#160;→ PROD</li>
+					<li>Notice that STAGE and PROD is where pipelines merge.</li>
+				</ol>
+			</li>
+			<li>
+				You will use these labels for your database environments:
+				<ol>
+					<li>
+						<table>
+							<tbody>
+								<tr>
+									<th>DB Environment in Datical project</th>
+									<th>Label expression for the DB Environment</th>
+									<th>Notes</th>
+								</tr>
+								<tr>
+									<td>REF1</td>
+									<td><span style="color: rgb(255,102,0);"><em>pipeline1</em></span></td>
+									<td>All pipeline1 changes are deployed here</td>
+								</tr>
+								<tr>
+									<td>DEV1</td>
+									<td><span style="color: rgb(255,102,0);"><em>pipeline1 AND&#160;!abandoned AND&#160;!hold</em></span></td>
+									<td><br /></td>
+								</tr>
+								<tr>
+									<td>QA1</td>
+									<td><span style="color: rgb(255,102,0);"><em>pipeline1&#160;<span style="color: rgb(255,102,0);"><em>AND&#160;!abandoned AND&#160;!hold</em></span></em></span></td>
+									<td><br /></td>
+								</tr>
+								<tr>
+									<td>REF2</td>
+									<td><span style="color: rgb(0,128,128);"><em>pipeline2</em></span></td>
+									<td>All pipeline2 changes are deployed here</td>
+								</tr>
+								<tr>
+									<td>DEV2</td>
+									<td><span style="color: rgb(0,128,128);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></td>
+									<td><br /></td>
+								</tr>
+								<tr>
+									<td>QA2</td>
+									<td><span style="color: rgb(255,102,0);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></td>
+									<td><br /></td>
+								</tr>
+								<tr>
+									<td>STAGE</td>
+									<td><span style="color: rgb(255,102,0);"><em>pipeline1&#160;<span style="color: rgb(255,102,0);"><em>AND&#160;!abandoned AND&#160;!hold,&#160;<span style="color: rgb(0,128,128);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></em></span></em></span></td>
+									<td>Both pipeline1 and pipeline2 changes are deployed here</td>
+								</tr>
+								<tr>
+									<td>PROD</td>
+									<td><span style="color: rgb(255,102,0);"><em>pipeline1&#160;<span style="color: rgb(255,102,0);"><em>AND&#160;!abandoned AND&#160;!hold,&#160;<span style="color: rgb(0,128,128);"><em>pipeline2 AND&#160;!abandoned AND&#160;!hold</em></span></em></span></em></span></td>
+									<td>Both pipeline1 and pipeline2 changes are deployed here</td>
+								</tr>
+							</tbody>
+						</table>
+					</li>
+				</ol>
+			</li>
+			<li>
+				Based on the table above, now when you package your scripts in REF1, the resulting changesets will automatically receive the "pipeline1" label.
+				<ol>
+					<li>Similarly, when you package scripts in REF2, the resulting changesets will automatically receive the "pipeline2" label.</li>
+					<li>Here is an example of how your changelog.xml might look like. Note the highlighted text showing different pipeline labels:</li>
+					<li>
+						<p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="395" width="900" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/154894506/image2017-11-13_10-45-6.png?version=1&amp;modificationDate=1510591508318&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=395" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/154894506/image2017-11-13_10-45-6.png?version=1&amp;modificationDate=1510591508318&amp;cacheVersion=1&amp;api=v2&amp;width=1800&amp;height=790 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/154894506/image2017-11-13_10-45-6.png?version=1&amp;modificationDate=1510591508318&amp;cacheVersion=1&amp;api=v2&amp;width=900&amp;height=395 1x" /></span></p>
+					</li>
+				</ol>
+			</li>
+			<li>
+				OBSERVATION:
+				<ol>
+					<li>Note that changes going to pipeline1 also have the label "release/oct2017". This label was added by the packaging job and provided at build time by Jenkins or Bamboo.</li>
+					<li>Note that changes going to pipeline2 also have the label "release/nov2017". This label was added by the packaging job and provided at build time by Jenkins or Bamboo.</li>
+					<li><strong>It is a good practice to apply <u>release labels</u> to your changesets that are independent of pipeline labels.</strong></li>
+				</ol>
+			</li>
+			<li>You artifact your Datical project and publish to your artifacts repository such as Artifactory, Nexus, or artifacts repositories native to your deploy tool. So every time you package a new script, you will create a new Datical artifact.</li>
+			<li>
+				When you deploy your database changes using your deploy tool Datical will automatically know what changes to deploy to each target environment. For example, with the list of changes shown in the screenshot above:
+				<ol>
+					<li>Deployment to DEV1 and QA1 will receive all changesets that have the label "pipeline1". Any pipeline1 changeset that also has the label "abandoned" or "hold" will not be deployed there.</li>
+					<li>Deployment to DEV2 and QA2 will receive all changesets that have the label "pipeline2". Any pipeline2 changeset that also has the label "abandoned" or "hold" will not be deployed there.</li>
+					<li>Deployment to STAGE and PROD will receive all changesets that have the label "pipeline1" or "pipeline2". Any pipeline1 or pipeline2 changeset that also has the label "abandoned" or "hold" will not be deployed there.</li>
+				</ol>
+			</li>
+		</ol>
+		<h2 id="ImplementationGuide:MultipleBranches(tohandleconcurrentreleases)-FAQ:">FAQ:</h2>
+		<ol>
+			<li>
+				How does Datical know what labels to deploy to DEV1, DEV2, QA1 and QA2?
+				<ol>
+					<li>You artifact the entire Datical project which includes all changesets (in changelog.xml). Datical project also includes environment definitions that include labels and label expressions given to each environment. So when you pull down an artifact and attempt to deploy to a target environment, Datical will know exactly what labels (or label expressions) to apply to that deployment.</li>
+				</ol>
+			</li>
+			<li>
+				What additional labels do I need to specify at deploy time?
+				<ol>
+					<li>If you intend to deploy all undeployed changes then at deploy time there is no need to specify additional labels.</li>
+					<li>
+						Most likely, however, you intend to deploy specific changes that are tied to a release. You may have in-flight changes with "pipeline1" label that are not yet eligible for deployment to higher environments.
+						<ol>
+							<li>For example, you want to deploy only "oct2017" changes. Then, per the screenshot above, you will specify "release/oct2017" label at deploy time.</li>
+						</ol>
+					</li>
+					<li>
+						You may also want to deploy a specific script, so you would provide the script name as a label at deploy time.
+						<ol>
+							<li>For example, you want to deploy only "Insert_dml_AAA_TESTA3.sql" script. Then you will specify "Insert_dml_AAA_TESTA3.sql" label at deploy time.</li>
+						</ol>
+					</li>
+				</ol>
+			</li>
+			<li>
+				How do I merge pipeline1 changes to pipeline2 so that changes deployed from pipeline1 all the way to PROD can now be deployed (or "backfilled") to pipeline2 (REF2, DEV2 and QA2)?
+				<ol>
+					<li>This basically involves giving "pipeline2" label to all changes that have already deployed to prod. For example, all "release/oct2017" changes now get a new label that is "pipeline2").</li>
+					<li>See this document on how to backfill your pipeline →&#160;<a href="../how-to-guides/how-to-guides/backfil-pipeline.htm">How To: Backfill your pipeline</a>.</li>
+				</ol>
+			</li>
+		</ol>
+		<h2 id="ImplementationGuide:MultipleBranches(tohandleconcurrentreleases)-Relatedarticles">Related articles</h2>
+		<ul>
+			<li><a href="../how-to-guides/how-to-guides/abandon-changes.htm">How To: Abandon changes</a></li>
+			<li><a href="../how-to-guides/app-dev-how-to-guides/negate-changes.htm">How To: Negate changes</a></li>
+			<li><a href="../how-to-guides/how-to-guides/leverage-metadata-properties.htm">How To: Leverage the "metadata.properties" file</a></li>
+			<li><a href="#">Implementation Guide: Multiple Branches (to handle concurrent releases)</a></li>
+		</ul>
+	</body>
 </html>

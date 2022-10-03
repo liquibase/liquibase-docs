@@ -1,6 +1,319 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>SQL Server SSIS Projects and Packages</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h1 id="SQLServerSSISProjectsandPackages-Overview">Overview</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>SQL Server Integration Services (SSIS) is a part of Microsoft SQL Server. It supports data warehousing through ETL (extract, transform, and load) capabilities.</p><p>They provide the means to extract data from a large number of databases and load it to a data warehouse. The data warehouse supports large scale business analysis of data from across the enterprise (or any defined scope).</p><p><MadCap:variable name="General.DaticalDB" /> provides value by automating the manual workflow.&#160;It works in parallel with a release pipeline for database changes. </p><p>Using <MadCap:variable name="General.DaticalDB" /> to manage SSIS files has the following advantages:</p><ul><li>You can manage in parallel:<ul><li>Changes to database schema</li><li>Changes to the ETL processes that depend on the database schema (SSIS)</li></ul></li><li>Reliability - Using an SCM repository for SSIS files</li><li>Automation - Once SSIS files are managed in <MadCap:variable name="General.DaticalDB" />, updated packages &amp; projects can be deployed automatically</li></ul><h2 id="SQLServerSSISProjectsandPackages-ManualWorkflowinNativeSSISTools">Manual Workflow in Native SSIS Tools</h2><p>There are two steps in implementing data warehousing using SSIS. <em>(see&#160;<a class="external-link" href="https://docs.microsoft.com/en-us/sql/integration-services/integration-services-tutorials?view=sql-server-2017" rel="nofollow">https://docs.microsoft.com/en-us/sql/integration-services/integration-services-tutorials?view=sql-server-2017</a>&#160;for more detailed information)</em></p><ol><li>Develop a package that defines how to extract and transform data from source databases. The package is a complex object that defines control flows, data flows, connections, event handling, logging, variables, and configurations.</li><li>Deploy the package to the target environment (host system for the source database). In the target environment, the package is run to perform data collection and loading.</li></ol><p>In data warehousing operations, there may be a large number of packages to extract and transform data from a large number of data sources.</p><p>Deployment is done manually through tools such as the Integration Services Deployment Wizard. SSIS Projects are deployed to the SSISDB catalog on a target instance. SSIS Packages are deployed to the MSDB catalog on a target instance and files that support the individual packages are copied to a file system directory on the target instance.</p><p>Over time, data needs and sources change. Packages are refactored and redeployed manually.</p><h3 id="SQLServerSSISProjectsandPackages-SSISPackagesandSSISProjects">SSIS Packages and SSIS Projects</h3><ul><li>SSIS package - one package file (.dtsx) and its support files.</li><li>SSIS project - an archive (.ispac) of one or more SSIS packages and their support files. (supported in SQL Server 2012 and later).</li></ul><h2 id="SQLServerSSISProjectsandPackages-AutomatedWorkflowthroughDatical">Automated Workflow through <MadCap:variable name="General.DaticalDB" /></h2><p><MadCap:variable name="General.DaticalDB" /> provides an automated workflow to deliver the packages to the target environment and trigger deployment.</p><p>Configuration</p><ul><li><MadCap:variable name="General.DaticalDB" /> analysts (typically DB administrators or DevOps staff) configure <MadCap:variable name="General.DaticalDB" /> projects that define what SSIS items to deploy.</li><li>SCM Repository structure</li><li><MadCap:variable name="General.DaticalDB" /> project configuration, including the target environment</li></ul><p>Operations</p><ul><li>Developers check projects or packages into a repository in a Source Code Management (SCM) tool.</li><li>An automated process runs to create changesets for the packages.</li><li>Analysts deploy the changesets: <MadCap:variable name="General.DaticalDB" /> deploys the SSIS files to the target environment.</li></ul><p>Changes</p><ul><li>Developers check out projects and packages from the SCM repository and check in the changes.</li><li>The same automated process runs. A new version of the changeset is produced.</li><li>Analysts deploy the changesets. During deployment the files are transferred to the target database server and run.</li></ul><h1 id="SQLServerSSISProjectsandPackages-QuickStart">Quick Start</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><ol><li>Confirm that the <MadCap:variable name="General.DaticalDB" /> Client Machine responsible for deploying SSIS packages has MS SQL Server Utilities for SSIS Package &amp; Project Deployments installed. If not, install it:</li><ol><li>From CMD: Run 'dtutil.exe'</li><li>From CMD: Run 'isdeploymentwizard.exe'</li><li>If one or both are not installed, follow install these instructions - <a href="#SQLServerSSISProjectsandPackages-SystemSetup">SystemSetup</a></li></ol><li>Confirm that Database Environments receiving SSIS deployments have Integration Services enabled in the target database</li><li>Update <MadCap:variable name="General.DaticalDB" /> Users with privileges required to manage SSIS Packages &amp; Projects - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-DatabaseSetup">Database Setup</a></li><li>Add ssis &amp; ssis_project folders to SQL code repositories - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-DeveloperSourceControlDirectorySetup">Developer Source Control Directory Setup</a></li><li>Configure metadata.properties in ssis &amp; ssis_project folders - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-Setupthemetadata.propertiesFiles">Setup the metadata.properties Files</a></li><li>Package and Deploy a test SSIS package and/or project - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-SSISPackageFiles">SSIS Package Files</a></li></ol><h1 id="SQLServerSSISProjectsandPackages-UsingDaticaltoManageSSISFiles">Using <MadCap:variable name="General.DaticalDB" /> to Manage SSIS Files</h1> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2 id="SQLServerSSISProjectsandPackages-ConfigureDaticalSSISSupport">Configure <MadCap:variable name="General.DaticalDB" /> SSIS Support</h2><h3 id="SQLServerSSISProjectsandPackages-DatabaseConfiguration">Database Configuration</h3><h4 id="SQLServerSSISProjectsandPackages-DatabasePrerequisites">Database Prerequisites</h4><ul><li>A SQL Server database needs to be available for deployment of SSIS packages &amp; projects. Supported versions are: SQL Server 2008, 2012, 2014, 2016.</li><li>Integration Services must be installed on the database.<ul><li>Make note of the standard locations for SSIS package files configured in Integration Services (it will be needed later).</li></ul></li></ul><h4 id="SQLServerSSISProjectsandPackages-DatabaseSetup">Database&#160;Setup</h4><p>The following SQL Server roles are available to allow access to manage SSIS files.</p><table><tbody><tr><th>Role</th><th>Permissions</th></tr><tr><td><strong>db_ssisadmin</strong></td><td>SSIS: list, view, run, export all packages. Import, delete, and change all packages and package roles.</td></tr><tr><td><strong>db_ssisltduser</strong></td><td>SSIS: list all packages; view, run, export own packages. Import packages, change and delete own packages.</td></tr><tr><td><strong>db_ssisoperator</strong></td><td>SSIS: list, view, run, export all packages. Run all packages in SQL Server Agent.</td></tr></tbody></table><ul><li><p>For each database in the project pipeline, add the above roles<em> (db_ssisadmin,&#160;db_ssisltduser,&#160;db_ssisoperator)</em> to the <MadCap:variable name="General.DMCProductShortName" /> User <em>(<em>the complete list of SQL Server database permissions required to run Datical can be found here:</em> <a href="../configure-databases-release-pipelines/sql-server-database-setup/roles-permissions-sql-server.htm" rel="nofollow">SQL Server Roles and Permissions for <MadCap:variable name="General.DaticalDB" /></a>)</em></p><ul><li><p>Note: Any additional roles necessary to perform ETL operations on the source databases and warehouse databases are specified in the SSIS packages.</p></li></ul></li><li><MadCap:variable name="General.DMCProductShortName" /> user must have SQLAgent permissions.<ul><li><span>To configure a user to create or execute Microsoft SQL Server Agent jobs, you must first associate an existing SQL Server login or msdb role to one of the following SQL Server Agent fixed database roles in the msdb database:</span><ul><li><span>SQLAgentUserRole</span></li><li><span>SQLAgentReaderRole</span></li><li><span>SQLAgentOperatorRole</span></li></ul></li></ul></li></ul><h3 id="SQLServerSSISProjectsandPackages-SystemConfiguration">System Configuration</h3><h4 id="SQLServerSSISProjectsandPackages-SystemPrerequisites">System Prerequisites</h4><ul><li>Datical packaging and deployment must be executed from a Windows system.</li></ul><h4 id="SQLServerSSISProjectsandPackages-SystemSetup">System Setup</h4><ul><li>The Windows systems where Datical is executed must have the required utilities available.<ul><li><p>SQL Server Data Tools w/Integration Services</p><ul><li>dtutil.exe&#160;(included with SQL Integration Services)</li><li><p>ISDeploymentWizard.exe (included with SQL Integration Services)</p><div class="panel conf-macro output-block" style="border-width: 1px;"><div class="panelHeader" style="border-bottom-width: 1px;"><b>SQL Server Install Data Tools w/Integration Services</b><ul><li>Download and install instructions for&#160;SQL Server Data Tools:&#160;<a class="external-link" href="https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-2017" rel="nofollow">https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-2017</a></li><li>Uncheck all options except SQL Server Integration Services</li></ul></li></ul></li><li><p>Already installed on Windows systems</p><ul><li>robocopy.exe</li></ul></li></ul></li></ul><h3 id="SQLServerSSISProjectsandPackages-DeveloperSourceControlDirectorySetup">Developer Source Control Directory Setup</h3><p>Create the following directories under &lt;sql_code&gt; as the location for checking in SSIS related files into source control:</p><ul><li><code>ssis</code> - SSIS package files (.dtsx), plus all support files required for the package. The support files must be checked into the same directory alongside the .dtsx file.</li><li><code>ssis_project</code> - SSIS project files (.ispac)</li><li><code>sql_direct</code> - SQL Agent Job script to be run by the <code>sqlcmd</code> utility.</li></ul><h3 id="SQLServerSSISProjectsandPackages-Setupthemetadata.propertiesFiles">Setup the metadata.properties Files</h3><p>Several properties are supported for SSIS projects and can be used in the corresponding SSIS packaging folder</p><p><strong>For SSIS Packages (&lt;sql_code&gt;/ssis):</strong></p><ul><li><strong>ssisPkgName</strong> - Name of the SSIS package file. Use this to specify the name of dtsx package. If the name is not specified, the file name of .dtsx will be used as package name.</li><li><strong>ssisDestType</strong> - How the deployed files are stored on the target system.<ul><li><strong>SQL</strong> (default) - store in the SQL Server database on the destination server</li></ul></li><li><strong>ssisSupportFileDestPath</strong> - (required if there are any support files along with the dtsx file). Windows shared drive destination&#160;for the files. (example: <code>\\SSIS-TEST\SSIS_SHARED</code>)</li></ul><p><strong>For SSIS Projects (&lt;sql_code&gt;/ssis_project):</strong></p><ul><li><strong>ssisProjectName</strong> - Name of the SSIS project file. Use this to specify the name of ispac project. If the name is not specified, the file name of .ispac will be used as the project name.</li><li><strong>ssisDestPath</strong> - Destination directory for the SSIS project under <code>SSISDB</code> in the SQL Server database. Example: if <code>ssisDestPath=MY_SSIS_DEST_DIR </code>and <code>ssisProjectName=MyProject,&#160;</code>then the project is deployed to <code>/SSISDB/MY_SSIS_DEST_DIR/MyProject</code> in the SQL Server database.</li></ul><h2 id="SQLServerSSISProjectsandPackages-CreateSSISFiles">Create SSIS Files</h2><h3 id="SQLServerSSISProjectsandPackages-SSISPackageFiles">SSIS Package Files</h3><p>Construct the following files to create an SSIS Package or SSIS Project<em> (samples files from Microsoft can be found here:&#160;<a class="external-link" href="https://archive.codeplex.com/?p=msftisprodsamples" rel="nofollow">https://archive.codeplex.com/?p=msftisprodsamples</a>)</em></p><ul><li>SSIS package file (.dtsx) - Defines the ETL process, including connections to source and target data stores, data transformations to be performed, and configuration settings.</li><li>SSIS Configuration File (.dtsConfig) - Provides environment-specific configuration information, including:<ul><li>Data source locations</li><li>File locations</li></ul></li><li>Data Source Files - When a data source is a file (text, XML, CSV), the file needs to be included with the package and placed in a known location.</li><li>Other files - Typically configuration files that contain information on accessing and transforming data source files</li></ul><h3 id="SQLServerSSISProjectsandPackages-SSISProjectFiles">SSIS Project Files</h3><p>Construct the following files to create an SSIS Project:</p><ul><li>SSIS Project file (.ispac) - for SQL Server 2012 and later, an archive consisting of one or more SSIS package files and their supporting files.</li></ul><h3 id="SQLServerSSISProjectsandPackages-DeploymentJobFiles">Deployment Job Files</h3><p>In addition, construct job control files that control the deployment of the SSIS package.</p><ul><li>SQL Agent Job file (.sql) - executes an SSIS package. SQL Agent Jobs are Transact-SQL (T-SQL) scripts.</li></ul><h2 id="SQLServerSSISProjectsandPackages-PackageSSISFiles">Package SSIS Files</h2><ol><li>Create an SSIS package or project using SSIS tools.</li><li>Check SSIS projects and SSIS packages (and supporting files and metadata) into their respective folders in the SQL code repository. Each Package or Project should be checked into a sub-directory that corresponds to the Package or Project's name.&#160;<ol><li>Given a Project named "DataTransfer.ispac": &lt;sql_code&gt;\ssis_project\DataTransfer\DataTransfer.ispac</li><li>Given a Package named "TransactionOffload":&#160;&lt;sql_code&gt;\ssis_project\TransactionOffload\TransactionOffload.dtsx</li></ol></li><li>Run Datical packager.</li><li>Create and store new deployment artifact in artifact repository</li></ol><p>During packaging, Datical manages the checked-in SSIS files.</p><ul><li>Copies the package files or project to the Resources directory in the project.</li><li>Creates a change set that is used to deploy the packages. The change set consists of pointers to support files and deployment configuration files.</li><li>The metadata.properties file identifies SSIS files for packaging.</li></ul><h2 id="SQLServerSSISProjectsandPackages-DeploySSISFiles">Deploy SSIS Files</h2><ol><li>Retrieve deployment artifact created during packaging from artifact repository</li><li>Run Datical Deploy on retrieved artifact</li></ol><p>During Deployment, Datical uses Microsoft utilities to deploy SSIS packages or projects to the target server and run them. These utilities are expected to be available in PATH.</p><p><strong>SSIS Packages:</strong></p><ol><li><code>Robocopy.exe</code> is used to copy the support files if there are any. It is run once for all the files with the following configuration:<ul><li>number of retries = 4</li><li>wait times between retries = 30 seconds</li><li>overwrite same file on destination (/is flag)</li></ul></li><li>If the supportFiles are copied successfully, the dtsx file is deployed using <code>dtutil.exe</code>.</li></ol><p><strong>SSIS Projects:</strong></p><ol><li><code>ISDeploymentWizard.exe</code> is used to deploy the SSIS project files (.ispac).</li></ol><p>Forecast, snapshot, and compare are not supported for SSIS operations.</p></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>SQL Server SSIS Projects and Packages</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h1 id="SQLServerSSISProjectsandPackages-Overview">Overview</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>SQL Server Integration Services (SSIS) is a part of Microsoft SQL Server. It supports data warehousing through ETL (extract, transform, and load) capabilities.</p>
+		<p>They provide the means to extract data from a large number of databases and load it to a data warehouse. The data warehouse supports large scale business analysis of data from across the enterprise (or any defined scope).</p>
+		<p>
+			<MadCap:variable name="General.DaticalDB" />
+			provides value by automating the manual workflow.&#160;It works in parallel with a release pipeline for database changes. 
+		</p>
+		<p>
+			Using 
+			<MadCap:variable name="General.DaticalDB" />
+			to manage SSIS files has the following advantages:
+		</p>
+		<ul>
+			<li>
+				You can manage in parallel:
+				<ul>
+					<li>Changes to database schema</li>
+					<li>Changes to the ETL processes that depend on the database schema (SSIS)</li>
+				</ul>
+			</li>
+			<li>Reliability - Using an SCM repository for SSIS files</li>
+			<li>
+				Automation - Once SSIS files are managed in 
+				<MadCap:variable name="General.DaticalDB" />
+				, updated packages &amp; projects can be deployed automatically
+			</li>
+		</ul>
+		<h2 id="SQLServerSSISProjectsandPackages-ManualWorkflowinNativeSSISTools">Manual Workflow in Native SSIS Tools</h2>
+		<p>There are two steps in implementing data warehousing using SSIS. <em>(see&#160;<a class="external-link" href="https://docs.microsoft.com/en-us/sql/integration-services/integration-services-tutorials?view=sql-server-2017" rel="nofollow">https://docs.microsoft.com/en-us/sql/integration-services/integration-services-tutorials?view=sql-server-2017</a>&#160;for more detailed information)</em></p>
+		<ol>
+			<li>Develop a package that defines how to extract and transform data from source databases. The package is a complex object that defines control flows, data flows, connections, event handling, logging, variables, and configurations.</li>
+			<li>Deploy the package to the target environment (host system for the source database). In the target environment, the package is run to perform data collection and loading.</li>
+		</ol>
+		<p>In data warehousing operations, there may be a large number of packages to extract and transform data from a large number of data sources.</p>
+		<p>Deployment is done manually through tools such as the Integration Services Deployment Wizard. SSIS Projects are deployed to the SSISDB catalog on a target instance. SSIS Packages are deployed to the MSDB catalog on a target instance and files that support the individual packages are copied to a file system directory on the target instance.</p>
+		<p>Over time, data needs and sources change. Packages are refactored and redeployed manually.</p>
+		<h3 id="SQLServerSSISProjectsandPackages-SSISPackagesandSSISProjects">SSIS Packages and SSIS Projects</h3>
+		<ul>
+			<li>SSIS package - one package file (.dtsx) and its support files.</li>
+			<li>SSIS project - an archive (.ispac) of one or more SSIS packages and their support files. (supported in SQL Server 2012 and later).</li>
+		</ul>
+		<h2 id="SQLServerSSISProjectsandPackages-AutomatedWorkflowthroughDatical">
+			Automated Workflow through 
+			<MadCap:variable name="General.DaticalDB" />
+		</h2>
+		<p>
+			<MadCap:variable name="General.DaticalDB" />
+			provides an automated workflow to deliver the packages to the target environment and trigger deployment.
+		</p>
+		<p>Configuration</p>
+		<ul>
+			<li>
+				<MadCap:variable name="General.DaticalDB" />
+				analysts (typically DB administrators or DevOps staff) configure 
+				<MadCap:variable name="General.DaticalDB" />
+				projects that define what SSIS items to deploy.
+			</li>
+			<li>SCM Repository structure</li>
+			<li>
+				<MadCap:variable name="General.DaticalDB" />
+				project configuration, including the target environment
+			</li>
+		</ul>
+		<p>Operations</p>
+		<ul>
+			<li>Developers check projects or packages into a repository in a Source Code Management (SCM) tool.</li>
+			<li>An automated process runs to create changesets for the packages.</li>
+			<li>
+				Analysts deploy the changesets: 
+				<MadCap:variable name="General.DaticalDB" />
+				deploys the SSIS files to the target environment.
+			</li>
+		</ul>
+		<p>Changes</p>
+		<ul>
+			<li>Developers check out projects and packages from the SCM repository and check in the changes.</li>
+			<li>The same automated process runs. A new version of the changeset is produced.</li>
+			<li>Analysts deploy the changesets. During deployment the files are transferred to the target database server and run.</li>
+		</ul>
+		<h1 id="SQLServerSSISProjectsandPackages-QuickStart">Quick Start</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<ol>
+			<li>
+				Confirm that the 
+				<MadCap:variable name="General.DaticalDB" />
+				Client Machine responsible for deploying SSIS packages has MS SQL Server Utilities for SSIS Package &amp; Project Deployments installed. If not, install it:
+			</li>
+			<ol>
+				<li>From CMD: Run 'dtutil.exe'</li>
+				<li>From CMD: Run 'isdeploymentwizard.exe'</li>
+				<li>If one or both are not installed, follow install these instructions - <a href="#SQLServerSSISProjectsandPackages-SystemSetup">SystemSetup</a></li>
+			</ol>
+			<li>Confirm that Database Environments receiving SSIS deployments have Integration Services enabled in the target database</li>
+			<li>
+				Update 
+				<MadCap:variable name="General.DaticalDB" />
+				Users with privileges required to manage SSIS Packages &amp; Projects - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-DatabaseSetup">Database Setup</a>
+			</li>
+			<li>Add ssis &amp; ssis_project folders to SQL code repositories - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-DeveloperSourceControlDirectorySetup">Developer Source Control Directory Setup</a></li>
+			<li>Configure metadata.properties in ssis &amp; ssis_project folders - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-Setupthemetadata.propertiesFiles">Setup the metadata.properties Files</a></li>
+			<li>Package and Deploy a test SSIS package and/or project - <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570016#SQLServerSSISProjectsandPackages-SSISPackageFiles">SSIS Package Files</a></li>
+		</ol>
+		<h1 id="SQLServerSSISProjectsandPackages-UsingDaticaltoManageSSISFiles">
+			Using 
+			<MadCap:variable name="General.DaticalDB" />
+			to Manage SSIS Files
+		</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2 id="SQLServerSSISProjectsandPackages-ConfigureDaticalSSISSupport">
+			Configure 
+			<MadCap:variable name="General.DaticalDB" />
+			SSIS Support
+		</h2>
+		<h3 id="SQLServerSSISProjectsandPackages-DatabaseConfiguration">Database Configuration</h3>
+		<h4 id="SQLServerSSISProjectsandPackages-DatabasePrerequisites">Database Prerequisites</h4>
+		<ul>
+			<li>A SQL Server database needs to be available for deployment of SSIS packages &amp; projects. Supported versions are: SQL Server 2008, 2012, 2014, 2016.</li>
+			<li>
+				Integration Services must be installed on the database.
+				<ul>
+					<li>Make note of the standard locations for SSIS package files configured in Integration Services (it will be needed later).</li>
+				</ul>
+			</li>
+		</ul>
+		<h4 id="SQLServerSSISProjectsandPackages-DatabaseSetup">Database&#160;Setup</h4>
+		<p>The following SQL Server roles are available to allow access to manage SSIS files.</p>
+		<table>
+			<tbody>
+				<tr>
+					<th>Role</th>
+					<th>Permissions</th>
+				</tr>
+				<tr>
+					<td><strong>db_ssisadmin</strong></td>
+					<td>SSIS: list, view, run, export all packages. Import, delete, and change all packages and package roles.</td>
+				</tr>
+				<tr>
+					<td><strong>db_ssisltduser</strong></td>
+					<td>SSIS: list all packages; view, run, export own packages. Import packages, change and delete own packages.</td>
+				</tr>
+				<tr>
+					<td><strong>db_ssisoperator</strong></td>
+					<td>SSIS: list, view, run, export all packages. Run all packages in SQL Server Agent.</td>
+				</tr>
+			</tbody>
+		</table>
+		<ul>
+			<li>
+				<p>
+					For each database in the project pipeline, add the above roles<em> (db_ssisadmin,&#160;db_ssisltduser,&#160;db_ssisoperator)</em> to the 
+					<MadCap:variable name="General.DMCProductShortName" />
+					User 
+					<em>
+						(<em>the complete list of SQL Server database permissions required to run Datical can be found here:</em> 
+						<a href="../configure-databases-release-pipelines/sql-server-database-setup/roles-permissions-sql-server.htm" rel="nofollow">
+							SQL Server Roles and Permissions for 
+							<MadCap:variable name="General.DaticalDB" />
+						</a>
+						)
+					</em>
+				</p>
+				<ul>
+					<li>
+						<p>Note: Any additional roles necessary to perform ETL operations on the source databases and warehouse databases are specified in the SSIS packages.</p>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<MadCap:variable name="General.DMCProductShortName" />
+				user must have SQLAgent permissions.
+				<ul>
+					<li>
+						<span>To configure a user to create or execute Microsoft SQL Server Agent jobs, you must first associate an existing SQL Server login or msdb role to one of the following SQL Server Agent fixed database roles in the msdb database:</span>
+						<ul>
+							<li><span>SQLAgentUserRole</span></li>
+							<li><span>SQLAgentReaderRole</span></li>
+							<li><span>SQLAgentOperatorRole</span></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<h3 id="SQLServerSSISProjectsandPackages-SystemConfiguration">System Configuration</h3>
+		<h4 id="SQLServerSSISProjectsandPackages-SystemPrerequisites">System Prerequisites</h4>
+		<ul>
+			<li>Datical packaging and deployment must be executed from a Windows system.</li>
+		</ul>
+		<h4 id="SQLServerSSISProjectsandPackages-SystemSetup">System Setup</h4>
+		<ul>
+			<li>
+				The Windows systems where Datical is executed must have the required utilities available.
+				<ul>
+					<li>
+						<p>SQL Server Data Tools w/Integration Services</p>
+						<ul>
+							<li>dtutil.exe&#160;(included with SQL Integration Services)</li>
+							<li>
+								<p>ISDeploymentWizard.exe (included with SQL Integration Services)</p>
+								<b>SQL Server Install Data Tools w/Integration Services</b>
+								<ul>
+									<li>Download and install instructions for&#160;SQL Server Data Tools:&#160;<a class="external-link" href="https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-2017" rel="nofollow">https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-2017</a></li>
+									<li>Uncheck all options except SQL Server Integration Services</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<p>Already installed on Windows systems</p>
+						<ul>
+							<li>robocopy.exe</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<h3 id="SQLServerSSISProjectsandPackages-DeveloperSourceControlDirectorySetup">Developer Source Control Directory Setup</h3>
+		<p>Create the following directories under &lt;sql_code&gt; as the location for checking in SSIS related files into source control:</p>
+		<ul>
+			<li><code>ssis</code> - SSIS package files (.dtsx), plus all support files required for the package. The support files must be checked into the same directory alongside the .dtsx file.</li>
+			<li><code>ssis_project</code> - SSIS project files (.ispac)</li>
+			<li><code>sql_direct</code> - SQL Agent Job script to be run by the <code>sqlcmd</code> utility.</li>
+		</ul>
+		<h3 id="SQLServerSSISProjectsandPackages-Setupthemetadata.propertiesFiles">Setup the metadata.properties Files</h3>
+		<p>Several properties are supported for SSIS projects and can be used in the corresponding SSIS packaging folder</p>
+		<p><strong>For SSIS Packages (&lt;sql_code&gt;/ssis):</strong></p>
+		<ul>
+			<li><strong>ssisPkgName</strong> - Name of the SSIS package file. Use this to specify the name of dtsx package. If the name is not specified, the file name of .dtsx will be used as package name.</li>
+			<li>
+				<strong>ssisDestType</strong> - How the deployed files are stored on the target system.
+				<ul>
+					<li><strong>SQL</strong> (default) - store in the SQL Server database on the destination server</li>
+				</ul>
+			</li>
+			<li><strong>ssisSupportFileDestPath</strong> - (required if there are any support files along with the dtsx file). Windows shared drive destination&#160;for the files. (example: <code>\\SSIS-TEST\SSIS_SHARED</code>)</li>
+		</ul>
+		<p><strong>For SSIS Projects (&lt;sql_code&gt;/ssis_project):</strong></p>
+		<ul>
+			<li><strong>ssisProjectName</strong> - Name of the SSIS project file. Use this to specify the name of ispac project. If the name is not specified, the file name of .ispac will be used as the project name.</li>
+			<li><strong>ssisDestPath</strong> - Destination directory for the SSIS project under <code>SSISDB</code> in the SQL Server database. Example: if <code>ssisDestPath=MY_SSIS_DEST_DIR </code>and <code>ssisProjectName=MyProject,&#160;</code>then the project is deployed to <code>/SSISDB/MY_SSIS_DEST_DIR/MyProject</code> in the SQL Server database.</li>
+		</ul>
+		<h2 id="SQLServerSSISProjectsandPackages-CreateSSISFiles">Create SSIS Files</h2>
+		<h3 id="SQLServerSSISProjectsandPackages-SSISPackageFiles">SSIS Package Files</h3>
+		<p>Construct the following files to create an SSIS Package or SSIS Project<em> (samples files from Microsoft can be found here:&#160;<a class="external-link" href="https://archive.codeplex.com/?p=msftisprodsamples" rel="nofollow">https://archive.codeplex.com/?p=msftisprodsamples</a>)</em></p>
+		<ul>
+			<li>SSIS package file (.dtsx) - Defines the ETL process, including connections to source and target data stores, data transformations to be performed, and configuration settings.</li>
+			<li>
+				SSIS Configuration File (.dtsConfig) - Provides environment-specific configuration information, including:
+				<ul>
+					<li>Data source locations</li>
+					<li>File locations</li>
+				</ul>
+			</li>
+			<li>Data Source Files - When a data source is a file (text, XML, CSV), the file needs to be included with the package and placed in a known location.</li>
+			<li>Other files - Typically configuration files that contain information on accessing and transforming data source files</li>
+		</ul>
+		<h3 id="SQLServerSSISProjectsandPackages-SSISProjectFiles">SSIS Project Files</h3>
+		<p>Construct the following files to create an SSIS Project:</p>
+		<ul>
+			<li>SSIS Project file (.ispac) - for SQL Server 2012 and later, an archive consisting of one or more SSIS package files and their supporting files.</li>
+		</ul>
+		<h3 id="SQLServerSSISProjectsandPackages-DeploymentJobFiles">Deployment Job Files</h3>
+		<p>In addition, construct job control files that control the deployment of the SSIS package.</p>
+		<ul>
+			<li>SQL Agent Job file (.sql) - executes an SSIS package. SQL Agent Jobs are Transact-SQL (T-SQL) scripts.</li>
+		</ul>
+		<h2 id="SQLServerSSISProjectsandPackages-PackageSSISFiles">Package SSIS Files</h2>
+		<ol>
+			<li>Create an SSIS package or project using SSIS tools.</li>
+			<li>
+				Check SSIS projects and SSIS packages (and supporting files and metadata) into their respective folders in the SQL code repository. Each Package or Project should be checked into a sub-directory that corresponds to the Package or Project's name.&#160;
+				<ol>
+					<li>Given a Project named "DataTransfer.ispac": &lt;sql_code&gt;\ssis_project\DataTransfer\DataTransfer.ispac</li>
+					<li>Given a Package named "TransactionOffload":&#160;&lt;sql_code&gt;\ssis_project\TransactionOffload\TransactionOffload.dtsx</li>
+				</ol>
+			</li>
+			<li>Run Datical packager.</li>
+			<li>Create and store new deployment artifact in artifact repository</li>
+		</ol>
+		<p>During packaging, Datical manages the checked-in SSIS files.</p>
+		<ul>
+			<li>Copies the package files or project to the Resources directory in the project.</li>
+			<li>Creates a change set that is used to deploy the packages. The change set consists of pointers to support files and deployment configuration files.</li>
+			<li>The metadata.properties file identifies SSIS files for packaging.</li>
+		</ul>
+		<h2 id="SQLServerSSISProjectsandPackages-DeploySSISFiles">Deploy SSIS Files</h2>
+		<ol>
+			<li>Retrieve deployment artifact created during packaging from artifact repository</li>
+			<li>Run Datical Deploy on retrieved artifact</li>
+		</ol>
+		<p>During Deployment, Datical uses Microsoft utilities to deploy SSIS packages or projects to the target server and run them. These utilities are expected to be available in PATH.</p>
+		<p><strong>SSIS Packages:</strong></p>
+		<ol>
+			<li>
+				<code>Robocopy.exe</code> is used to copy the support files if there are any. It is run once for all the files with the following configuration:
+				<ul>
+					<li>number of retries = 4</li>
+					<li>wait times between retries = 30 seconds</li>
+					<li>overwrite same file on destination (/is flag)</li>
+				</ul>
+			</li>
+			<li>If the supportFiles are copied successfully, the dtsx file is deployed using <code>dtutil.exe</code>.</li>
+		</ol>
+		<p><strong>SSIS Projects:</strong></p>
+		<ol>
+			<li><code>ISDeploymentWizard.exe</code> is used to deploy the SSIS project files (.ispac).</li>
+		</ol>
+		<p>Forecast, snapshot, and compare are not supported for SSIS operations.</p>
+	</body>
 </html>

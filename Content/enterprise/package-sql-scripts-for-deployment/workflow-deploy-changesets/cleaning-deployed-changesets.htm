@@ -1,6 +1,72 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>Cleaning Up Deployed Changesets: cleanup</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><div class="module toggle-wrap"><div class="user-content-block"><p>Use a cleanup script to reverse the effects of a deployed changeset.</p><p>Sometimes database changes (changesets) need to be abandoned. This can occur if a change fails testing in a later stage environment. The work required to get the database back to the desired state may be simple or complex:</p><ul><li><p>Simple - only the changes introduced by the original SQL script need to be undone. In this case, a -cleanup script can be applied to undo the changes introduced by the original script. When a -cleanup script is supplied, it will be deployed to eligible environments where the original script has already been deployed. Neither the original SQL script nor the cleanup script will be deployed to environments where the original SQL script has yet to be deployed.<br /><br /></p><p class="title">Note</p><p>If you are using artifacts for deployment, a new artifact must be created after packaging the -cleanup script to effect this behavior.</p></li><li>Complex - other subsequent changes have been deployed that interact with the changes in the original script. In this case, it is recommended to introduce a brand new script (with a different filename) to correct the original SQL script. Note that when doing so, the original script and the new script will both be deployed in all eligible environments. </li></ul><p>The cleanup capability allows you to deploy a changeset that is specially marked for undoing prior changes. During processing, the original changeset gets the attribute <code>ignore=true</code> to prevent it from being deployed further.</p><h1 id="CleaningUpDeployedChangesets:cleanup-ComparisontoRollbackScripts">Comparison to Rollback Scripts</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>While a cleanup script and a rollback script may contain identical SQL, a cleanup script behaves differently than a rollback script.</p><ul><li>When you roll back changesets, they are still eligible for deployment in the pipeline.</li><li>When a cleanup script is provided for a script, the original script is marked as ignored so that it is no longer deployed.</li></ul><p>If you have written a custom rollback script for a change, it may be appropriate to use the contents of the custom rollback script in a cleanup script.</p><p>See <a href="../../best-practices/app-dev-b-p/roll-back-changes.htm" rel="nofollow">Rolling Back Changes</a>.</p><h1 id="CleaningUpDeployedChangesets:cleanup-PairingaCleanupScriptwithaReplaceScript">Pairing a Cleanup Script with a Replace Script</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>If you need to replace the original script as well as clean up its original effects, provide a -replace script as well.</p><p>A cleanup script and a replace script can be packaged in the same packaging run.</p><p>If you update a replace script but do not update the accompanying cleanup script, the previous version of the cleanup script is pulled forward automatically.</p><p>See <a href="../../best-practices/app-dev-b-p/replace-deployed-changesets.htm">Replacing Deployed Changesets: replace</a>.</p><h1 id="CleaningUpDeployedChangesets:cleanup-TypesofChangeEligibleforCleanupScripts">Types of Change Eligible for Cleanup Scripts</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Cleanup scripts work for different types "non-rerunnable" changes:</p><ul><li>DDL folder or packageMethod=CONVERT</li><li><span>DDL_DIRECT folder or packageMethod=DDL_DIRECT</span></li><li>DATA_DML folder or packageMethod=DATA_DML</li><li>SQL_DIRECT folder or packageMethod=DIRECT</li><li>SQL folder or packageMethod=SQLFILE</li><li>Liquibase changelogs</li></ul><p><br />Cleanup and/or Replace are <strong>NOT</strong> recommended for stored logic (code: package, packagebody, procedure, function, trigger, view folders). Use the provided versioning capability with stored logic instead.</p><h1 id="CleaningUpDeployedChangesets:cleanup-CleaningUpAfteraChange">Cleaning Up After a Change</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>For a file named<code>mychanges.sql</code>, create a cleanup file that contains all of the needed changes. Use one of the following forms:</p><p><code>mychanges-cleanup.sql</code></p><p><code>mychanges_cleanup.sql</code>&#160;</p><p>The file may use any extension (e.g. .sql) or no extension.</p><h2 id="CleaningUpDeployedChangesets:cleanup-Re-UsingaCleanupScript">Re-Using a Cleanup Script</h2><p>If you need to change a replace script but do not need to change its associated cleanup script, you can package just the updated replace script. The associated cleanup script is pulled forward.&#160;</p><h1 id="CleaningUpDeployedChangesets:cleanup-Processing">Processing</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Deployment Packager processes the files during packaging, as follows:</p><ol><li>Searches the changelog for matching changesets based on filename. Packager will error if there are no matching changesets in the changelog that were previously packaged with the same filename in the same path relative to the root folder. Changesets must match these attributes:<ul><li>origFilePath</li><li>origFileName</li></ul></li><li>Sets&#160;<code>ignore=true</code> attribute on all matching changesets (same orgFilePath and origFileName) that pertain to the most recent / highest version</li><li>Produces new changeset(s) and positions them in the changelog.immediately following the most recent changeset(s)&#160;<ol><li>Applies a datical:cleanup preCondition to the resulting changeset(s), which will prevent it from deploying to environments where the most recent version has not been deployed.</li></ol></li><li>Archives the cleanup file as appropriate.</li></ol></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>Cleaning Up Deployed Changesets: cleanup</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>Use a cleanup script to reverse the effects of a deployed changeset.</p>
+		<p>Sometimes database changes (changesets) need to be abandoned. This can occur if a change fails testing in a later stage environment. The work required to get the database back to the desired state may be simple or complex:</p>
+		<ul>
+			<li>
+				<p>Simple - only the changes introduced by the original SQL script need to be undone. In this case, a -cleanup script can be applied to undo the changes introduced by the original script. When a -cleanup script is supplied, it will be deployed to eligible environments where the original script has already been deployed. Neither the original SQL script nor the cleanup script will be deployed to environments where the original SQL script has yet to be deployed.<br /><br /></p>
+				<p class="title">Note</p>
+				<p>If you are using artifacts for deployment, a new artifact must be created after packaging the -cleanup script to effect this behavior.</p>
+			</li>
+			<li>Complex - other subsequent changes have been deployed that interact with the changes in the original script. In this case, it is recommended to introduce a brand new script (with a different filename) to correct the original SQL script. Note that when doing so, the original script and the new script will both be deployed in all eligible environments. </li>
+		</ul>
+		<p>The cleanup capability allows you to deploy a changeset that is specially marked for undoing prior changes. During processing, the original changeset gets the attribute <code>ignore=true</code> to prevent it from being deployed further.</p>
+		<h2 id="CleaningUpDeployedChangesets:cleanup-ComparisontoRollbackScripts">Comparison to Rollback Scripts</h2>
+		<p>While a cleanup script and a rollback script may contain identical SQL, a cleanup script behaves differently than a rollback script.</p>
+		<ul>
+			<li>When you roll back changesets, they are still eligible for deployment in the pipeline.</li>
+			<li>When a cleanup script is provided for a script, the original script is marked as ignored so that it is no longer deployed.</li>
+		</ul>
+		<p>If you have written a custom rollback script for a change, it may be appropriate to use the contents of the custom rollback script in a cleanup script.</p>
+		<p>See <a href="../../best-practices/app-dev-b-p/roll-back-changes.htm" rel="nofollow">Rolling Back Changes</a>.</p>
+		<h2 id="CleaningUpDeployedChangesets:cleanup-PairingaCleanupScriptwithaReplaceScript">Pairing a Cleanup Script with a Replace Script</h2>
+		<p>If you need to replace the original script as well as clean up its original effects, provide a -replace script as well.</p>
+		<p>A cleanup script and a replace script can be packaged in the same packaging run.</p>
+		<p>If you update a replace script but do not update the accompanying cleanup script, the previous version of the cleanup script is pulled forward automatically.</p>
+		<p>See <a href="../../best-practices/app-dev-b-p/replace-deployed-changesets.htm">Replacing Deployed Changesets: replace</a>.</p>
+		<h2 id="CleaningUpDeployedChangesets:cleanup-TypesofChangeEligibleforCleanupScripts">Types of Change Eligible for Cleanup Scripts</h2>
+		<p>Cleanup scripts work for different types "non-rerunnable" changes:</p>
+		<ul>
+			<li>DDL folder or packageMethod=CONVERT</li>
+			<li><span>DDL_DIRECT folder or packageMethod=DDL_DIRECT</span></li>
+			<li>DATA_DML folder or packageMethod=DATA_DML</li>
+			<li>SQL_DIRECT folder or packageMethod=DIRECT</li>
+			<li>SQL folder or packageMethod=SQLFILE</li>
+			<li>Liquibase changelogs</li>
+		</ul>
+		<p><br />Cleanup and/or Replace are <strong>NOT</strong> recommended for stored logic (code: package, packagebody, procedure, function, trigger, view folders). Use the provided versioning capability with stored logic instead.</p>
+		<h2 id="CleaningUpDeployedChangesets:cleanup-CleaningUpAfteraChange">Cleaning Up After a Change</h2>
+		<p>For a file named<code>mychanges.sql</code>, create a cleanup file that contains all of the needed changes. Use one of the following forms:</p>
+		<p><code>mychanges-cleanup.sql</code></p>
+		<p><code>mychanges_cleanup.sql</code>&#160;</p>
+		<p>The file may use any extension (e.g. .sql) or no extension.</p>
+		<h2 id="CleaningUpDeployedChangesets:cleanup-Re-UsingaCleanupScript">Re-Using a Cleanup Script</h2>
+		<p>If you need to change a replace script but do not need to change its associated cleanup script, you can package just the updated replace script. The associated cleanup script is pulled forward.&#160;</p>
+		<h2 id="CleaningUpDeployedChangesets:cleanup-Processing">Processing</h2>
+		<p>Deployment Packager processes the files during packaging, as follows:</p>
+		<ol>
+			<li>
+				Searches the changelog for matching changesets based on filename. Packager will error if there are no matching changesets in the changelog that were previously packaged with the same filename in the same path relative to the root folder. Changesets must match these attributes:
+				<ul>
+					<li>origFilePath</li>
+					<li>origFileName</li>
+				</ul>
+			</li>
+			<li>Sets <code>ignore=true</code> attribute on all matching changesets (same orgFilePath and origFileName) that pertain to the most recent / highest version</li>
+			<li>
+				Produces new changeset(s) and positions them in the changelog.immediately following the most recent changeset(s)
+				<ol>
+					<li>Applies a datical:cleanup preCondition to the resulting changeset(s), which will prevent it from deploying to environments where the most recent version has not been deployed.</li>
+				</ol>
+			</li>
+			<li>Archives the cleanup file as appropriate.</li>
+		</ol>
+	</body>
 </html>
