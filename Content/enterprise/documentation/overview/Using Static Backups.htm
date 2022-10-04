@@ -1,151 +1,157 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us" MadCap:conditions="Default.EXCLUDE">
-	<head>
-		<title>Liquibase Enterprise Documentation</title>
-		<link href="../../../Resources/Stylesheets/Managing+Database+Backup+and+Restore.css" rel="stylesheet" />
-	</head>
-	<body>
-		<h1>Using Static Backups</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<p>For large or highly complex database environments, requiring a dynamic database backup for each packaging job may significantly reduce performance. For these cases an alternative is to provide a static backup location and manage database backups directly:</p>
-		<ul>
-			<li>
-				<p>Backups are performed separately and not performed as part of packaging database changes.</p>
-			</li>
-			<li>
-				<p>Deployment Packager uses an existing backup file rather than creating a new one for each run.</p>
-			</li>
-			<li>
-				<p>New backups are performed manually through one of the following methods:</p>
-				<ul>
-					<li>
-						<p>Backup is performed outside of Datical</p>
-					</li>
-					<li>
-						<p>Deployment Packager is run with <span class="HTMLCode_1">createDatabaseBackup=true</span>&#160;and <span class="HTMLCode_1">preview=true&#160;</span>command-line options</p>
-					</li>
-				</ul>
-			</li>
-		</ul>
-		<h2>Additional Database Configuration Requirements</h2>
-		<p>For Oracle, PostgreSQL, and DB2 databases there is no additional configuration required.</p>
-		<p>For SQL Server, enable OLE automation procedures on the target database as follows:</p>
-		<p class="HTMLPreformatted">USE [database to backup]</p>
-		<p class="HTMLPreformatted">GO</p>
-		<p class="HTMLPreformatted">&#160;</p>
-		<p class="HTMLPreformatted">RECONFIGURE;</p>
-		<p class="HTMLPreformatted">&#160;</p>
-		<p class="HTMLPreformatted">EXEC master.dbo.sp_configure 'show advanced options', 1</p>
-		<p class="HTMLPreformatted">RECONFIGURE</p>
-		<p class="HTMLPreformatted">GO</p>
-		<p class="HTMLPreformatted">&#160;</p>
-		<p class="HTMLPreformatted">EXEC master.dbo.sp_configure 'Ole Automation Procedures', 1</p>
-		<p class="HTMLPreformatted">RECONFIGURE</p>
-		<p class="HTMLPreformatted">GO</p>
-		<p></p>
-		<h2>Configuring Deployment Packager Backups</h2>
-		<p>Set <span class="HTMLCode_1">databaseBackupMode</span> in<a href="../../package-sql-scripts-for-deployment/configure-packaging/required-deploy-packager-properties.htm"> <span class="HTMLCode_1">deployPackager.properties</span></a> to control backup behavior.</p>
-		<ul>
-			<li>
-				<p><span class="HTMLCode_1">always</span> - (Default). The REF database is backed up for every packaging job.</p>
-			</li>
-			<li>
-				<p><span class="HTMLCode_1">on_demand</span> - A full backup of the REF database is made when Deployment Packager is run with the following options:</p>
-				<ul>
-					<li>
-						<p><span class="HTMLCode_1">pipeline=&lt;pipelineRef&gt; </span></p>
-					</li>
-					<li>
-						<p><span class="HTMLCode_1">createDatabaseBackup=true</span></p>
-					</li>
-				</ul>
-			</li>
-		</ul>
-		<p>You can run a backup directly using the Deployment Packager command line.</p>
-		<ul>
-			<li>
-				<p><span class="HTMLCode_1">createDatabaseBackup=true</span> - causes a new backup to be created. May be used in preview mode to create a new backup without creating new changesets. If done during packaging, the packaging must be done on a pipeline (using <span class="HTMLCode_1">pipeline=</span>), rather than on a DbDef.</p>
-			</li>
-		</ul>
-		<p class="title">Best Practice</p>
-		<p>The easiest way to get regular database backups to use a consistent naming convention is to run Deployment Packager to do them.&#160;The nightly database backup job is a copy of the Deployment Packager job. The copy runs Deployment Packager but does not create new changesets.</p>
-		<p>Schedule a recurring job that runs Deployment Packager with preview and backup modes set, as shown in the following example:</p>
-		<p><span class="HTMLCode_1">hammer groovy deployPackager.groovy pipeline=MY_PIPELINE_NAME scm=true createDatabaseBackup=true preview=true</span></p>
-		<p></p>
-		<h2>Packaging Behavior</h2>
-		<h3>Always backup</h3>
-		<p>When <span class="HTMLCode_1">databaseBackupMode</span> is set to <span class="HTMLCode_1">always</span>, the database is restored from the backup file in the event of packaging failure.&#160;Deploy Packager performs these operations:</p>
-		<ol>
-			<li>
-				<p>Back up the reference database prior to modifying the database.</p>
-			</li>
-			<li>
-				<p>Deploy new changes.</p>
-			</li>
-			<li>
-				<p>Restore from this backup if a failure occurs.</p>
-			</li>
-		</ol>
-		<h3>On Demand backup</h3>
-		<p>When <span class="HTMLCode_1">databaseBackupMode</span> is set to <span class="HTMLCode_1">on_demand</span>,&#160;the database is restored from the backup file specified in the deployPackager.properties in the event of packaging failure.&#160;Deploy Packager performs these operations:</p>
-		<ol>
-			<li>
-				<p>Check that the appropriate database backup file/path, privileges, and tools are present in the event a restore needs to occur.</p>
-			</li>
-			<li>
-				<p>Deploy new changes.</p>
-			</li>
-			<li>
-				<p>Restore from backup specified in the deployPackager.properies if a failure occurs.</p>
-			</li>
-		</ol>
-		<p></p>
-		<p>For this process, redeployed changes are not tracked in the Deployment Monitoring Console database (DMCDB), because their deployment was already recorded. Only the new deployment creates new records in the DMCDB.</p>
-		<h2>Permissions</h2>
-		<p>See the roles and permissions needed for your database in <a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896566734/Managed+Databases">Managed Databases</a></p>
-		<p>Oracle requires specific backup permissions, as noted in <a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896566889/Roles+and+Permissions+for+Datical+DB+on+Oracle+Database">Roles and Permissions for Datical DB on Oracle Database</a>.</p>
-		<p>Packager checks for the existence of the backup file. If checking fails on a permissions error, the responses depends on the setting of backupRestoreMode:</p>
-		<ul>
-			<li>
-				<p>ALWAYS - warn that permissions may not be set correctly and continue.</p>
-			</li>
-			<li>
-				<p>ON_DEMAND - report an error and halt.</p>
-			</li>
-		</ul>
-		<h2>Impact on Packaging Time</h2>
-		<h3>Performance Comparison</h3>
-		<p>The procedures below shows a comparison of the process in simplified form. Deploy Packager also uses the backup file internally during processing.</p>
-		<p>Normally packaging time when always backing up depends on these operations:</p>
-		<ol>
-			<li>
-				<p>Back up the REF database</p>
-			</li>
-			<li>
-				<p>Package new changes</p>
-			</li>
-			<li>
-				<p>Restore the database from the backup file if an error occurs</p>
-			</li>
-		</ol>
-		<p>When using a managed on_demand backup, packaging time is based on these operations:</p>
-		<ol>
-			<li>
-				<p>Package new changes</p>
-			</li>
-			<li>
-				<p>Restore the database from the backup if an error occurs.</p>
-			</li>
-			<li>
-				<p>Redeploy previous changes if an error occurs - <em>this time grows as additional changes are deployed</em>.</p>
-			</li>
-		</ol>
-		<p>All packaging runs should experience a lower packaging time in this mode. Successful packaging runs potentially see the most performance benefit as in some cases these may now not require a backup or a restore of the REF database.</p>
-		<h3>Troubleshooting Performance</h3>
-		<p>If you have implemented static/on_demand backups&#160;but have not seen a significant improvement in how long your packager jobs take to run, check your configuration. If you have set&#160;<span class="HTMLCode_1">databaseBackupMode=on_demand</span>but are still using&#160;<span class="HTMLCode_1">createDatabaseBackup=true&#160;</span>in your main packager jobs that process scripts, that is an unusual configuration. Packager will work with that configuration but it will still create a new backup file for each packager job that processes scripts, and therefore you would NOT be getting the possible performance benefit that you would have in the more typical configuration of creating a nightly backup separately with a separate packager job in preview mode and re-using that backup file when processing scripts (to avoid running backup each time). To optimize the on_demand backup, do NOT use <span class="HTMLCode_1">createDatabaseBackup=true&#160;</span>with your main packaging job that processes scripts (assuming that the backup file was already created and is in place).</p>
-		<p>You can also see other possible packager performance adjustments here:&#160;<a href="../../how-to-guides/how-to-guides/improve-packager-performance.htm">How To: Improve Packager Performance</a></p>
-		<h2>Risks</h2>
-		<p>Although backing up the reference database during every deployment takes time, it also assures reliability. If packaging fails, the reference database is automatically restored to exactly the state it was in when packaging started. Not taking a backup every time introduces risk to the system.</p>
-		<p><span>In addition, any changes made to the reference database manually (outside of Datical) are not restored when using static backup file. If you make manual changes to the reference database, you should then backup the reference database and replace the backup file that Datical uses during packaging.</span></p>
-	</body>
+    <head><title>Liquibase Enterprise Documentation</title>
+        <link href="../../../Resources/Stylesheets/Managing+Database+Backup+and+Restore.css" rel="stylesheet" />
+    </head>
+    <body>
+        <h1>Using Static Backups</h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>For large or highly complex database environments, requiring a dynamic database backup for each packaging job may significantly reduce performance. For these cases an alternative is to provide a static backup location and manage database backups directly:</p>
+        <ul>
+            <li>
+                <p>Backups are performed separately and not performed as part of packaging database changes.</p>
+            </li>
+            <li>
+                <p>Deployment Packager uses an existing backup file rather than creating a new one for each run.</p>
+            </li>
+            <li>
+                <p>New backups are performed manually through one of the following methods:</p>
+                <ul>
+                    <li>
+                        <p>Backup is performed outside of Datical</p>
+                    </li>
+                    <li>
+                        <p>Deployment Packager is run with <span class="HTMLCode_1">createDatabaseBackup=true</span>&#160;and <span class="HTMLCode_1">preview=true&#160;</span>command-line options</p>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <h2>Additional Database Configuration Requirements</h2>
+        <p>For Oracle, PostgreSQL, and DB2 databases there is no additional configuration required.</p>
+        <p>For SQL Server, enable OLE automation procedures on the target database as follows:</p>
+        <p class="HTMLPreformatted">USE [database to backup]</p>
+        <p class="HTMLPreformatted">GO</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">RECONFIGURE;</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">EXEC master.dbo.sp_configure 'show advanced options', 1</p>
+        <p class="HTMLPreformatted">RECONFIGURE</p>
+        <p class="HTMLPreformatted">GO</p>
+        <p class="HTMLPreformatted">&#160;</p>
+        <p class="HTMLPreformatted">EXEC master.dbo.sp_configure 'Ole Automation Procedures', 1</p>
+        <p class="HTMLPreformatted">RECONFIGURE</p>
+        <p class="HTMLPreformatted">GO</p>
+        <p>
+        </p>
+        <h2>Configuring Deployment Packager Backups</h2>
+        <p>Set <span class="HTMLCode_1">databaseBackupMode</span> in<a href="../../dba/package-sql-scripts-for-deployment/configure-packaging/required-deploy-packager-properties.htm"> <span class="HTMLCode_1">deployPackager.properties</span></a> to control backup behavior.</p>
+        <ul>
+            <li>
+                <p><span class="HTMLCode_1">always</span> - (Default). The REF database is backed up for every packaging job.</p>
+            </li>
+            <li>
+                <p><span class="HTMLCode_1">on_demand</span> - A full backup of the REF database is made when Deployment Packager is run with the following options:</p>
+                <ul>
+                    <li>
+                        <p><span class="HTMLCode_1">pipeline=&lt;pipelineRef&gt; </span>
+                        </p>
+                    </li>
+                    <li>
+                        <p><span class="HTMLCode_1">createDatabaseBackup=true</span>
+                        </p>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p>You can run a backup directly using the Deployment Packager command line.</p>
+        <ul>
+            <li>
+                <p><span class="HTMLCode_1">createDatabaseBackup=true</span> - causes a new backup to be created. May be used in preview mode to create a new backup without creating new changesets. If done during packaging, the packaging must be done on a pipeline (using <span class="HTMLCode_1">pipeline=</span>), rather than on a DbDef.</p>
+            </li>
+        </ul>
+        <p class="title">Best Practice</p>
+        <p>The easiest way to get regular database backups to use a consistent naming convention is to run Deployment Packager to do them.&#160;The nightly database backup job is a copy of the Deployment Packager job. The copy runs Deployment Packager but does not create new changesets.</p>
+        <p>Schedule a recurring job that runs Deployment Packager with preview and backup modes set, as shown in the following example:</p>
+        <p><span class="HTMLCode_1">hammer groovy deployPackager.groovy pipeline=MY_PIPELINE_NAME scm=true createDatabaseBackup=true preview=true</span>
+        </p>
+        <p>
+        </p>
+        <h2>Packaging Behavior</h2>
+        <h3>Always backup</h3>
+        <p>When <span class="HTMLCode_1">databaseBackupMode</span> is set to <span class="HTMLCode_1">always</span>, the database is restored from the backup file in the event of packaging failure.&#160;Deploy Packager performs these operations:</p>
+        <ol>
+            <li>
+                <p>Back up the reference database prior to modifying the database.</p>
+            </li>
+            <li>
+                <p>Deploy new changes.</p>
+            </li>
+            <li>
+                <p>Restore from this backup if a failure occurs.</p>
+            </li>
+        </ol>
+        <h3>On Demand backup</h3>
+        <p>When <span class="HTMLCode_1">databaseBackupMode</span> is set to <span class="HTMLCode_1">on_demand</span>,&#160;the database is restored from the backup file specified in the deployPackager.properties in the event of packaging failure.&#160;Deploy Packager performs these operations:</p>
+        <ol>
+            <li>
+                <p>Check that the appropriate database backup file/path, privileges, and tools are present in the event a restore needs to occur.</p>
+            </li>
+            <li>
+                <p>Deploy new changes.</p>
+            </li>
+            <li>
+                <p>Restore from backup specified in the deployPackager.properies if a failure occurs.</p>
+            </li>
+        </ol>
+        <p>
+        </p>
+        <p>For this process, redeployed changes are not tracked in the Deployment Monitoring Console database (DMCDB), because their deployment was already recorded. Only the new deployment creates new records in the DMCDB.</p>
+        <h2>Permissions</h2>
+        <p>See the roles and permissions needed for your database in <a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896566734/Managed+Databases">Managed Databases</a></p>
+        <p>Oracle requires specific backup permissions, as noted in <a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896566889/Roles+and+Permissions+for+Datical+DB+on+Oracle+Database">Roles and Permissions for Datical DB on Oracle Database</a>.</p>
+        <p>Packager checks for the existence of the backup file. If checking fails on a permissions error, the responses depends on the setting of backupRestoreMode:</p>
+        <ul>
+            <li>
+                <p>ALWAYS - warn that permissions may not be set correctly and continue.</p>
+            </li>
+            <li>
+                <p>ON_DEMAND - report an error and halt.</p>
+            </li>
+        </ul>
+        <h2>Impact on Packaging Time</h2>
+        <h3>Performance Comparison</h3>
+        <p>The procedures below shows a comparison of the process in simplified form. Deploy Packager also uses the backup file internally during processing.</p>
+        <p>Normally packaging time when always backing up depends on these operations:</p>
+        <ol>
+            <li>
+                <p>Back up the REF database</p>
+            </li>
+            <li>
+                <p>Package new changes</p>
+            </li>
+            <li>
+                <p>Restore the database from the backup file if an error occurs</p>
+            </li>
+        </ol>
+        <p>When using a managed on_demand backup, packaging time is based on these operations:</p>
+        <ol>
+            <li>
+                <p>Package new changes</p>
+            </li>
+            <li>
+                <p>Restore the database from the backup if an error occurs.</p>
+            </li>
+            <li>
+                <p>Redeploy previous changes if an error occurs - <em>this time grows as additional changes are deployed</em>.</p>
+            </li>
+        </ol>
+        <p>All packaging runs should experience a lower packaging time in this mode. Successful packaging runs potentially see the most performance benefit as in some cases these may now not require a backup or a restore of the REF database.</p>
+        <h3>Troubleshooting Performance</h3>
+        <p>If you have implemented static/on_demand backups&#160;but have not seen a significant improvement in how long your packager jobs take to run, check your configuration. If you have set&#160;<span class="HTMLCode_1">databaseBackupMode=on_demand</span>but are still using&#160;<span class="HTMLCode_1">createDatabaseBackup=true&#160;</span>in your main packager jobs that process scripts, that is an unusual configuration. Packager will work with that configuration but it will still create a new backup file for each packager job that processes scripts, and therefore you would NOT be getting the possible performance benefit that you would have in the more typical configuration of creating a nightly backup separately with a separate packager job in preview mode and re-using that backup file when processing scripts (to avoid running backup each time). To optimize the on_demand backup, do NOT use <span class="HTMLCode_1">createDatabaseBackup=true&#160;</span>with your main packaging job that processes scripts (assuming that the backup file was already created and is in place).</p>
+        <p>You can also see other possible packager performance adjustments here:&#160;<a href="../../how-to-guides/how-to-guides/improve-packager-performance.htm">How To: Improve Packager Performance</a></p>
+        <h2>Risks</h2>
+        <p>Although backing up the reference database during every deployment takes time, it also assures reliability. If packaging fails, the reference database is automatically restored to exactly the state it was in when packaging started. Not taking a backup every time introduces risk to the system.</p>
+        <p><span>In addition, any changes made to the reference database manually (outside of Datical) are not restored when using static backup file. If you make manual changes to the reference database, you should then backup the reference database and replace the backup file that Datical uses during packaging.</span>
+        </p>
+    </body>
 </html>

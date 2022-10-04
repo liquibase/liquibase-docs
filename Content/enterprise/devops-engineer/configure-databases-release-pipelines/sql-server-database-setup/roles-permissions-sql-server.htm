@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Liquibase Enterprise Documentation</title>
+        <meta name="description" content="Liquibase Enterprise Documentation" />
+    </head>
+    <body>
+        <h1>Roles and Permissions for <MadCap:variable name="General.DaticalDB" /> on SQL Server</h1>
+        <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>See <a href="../overview-db-used/Database Users Roles and Passwords.htm">Database Users, Roles, and Passwords</a> for a general discussion of database setup for <MadCap:variable name="General.DaticalDB" />.</p>
+        <h1 id="RolesandPermissionsforDaticalDBonSQLServer-CreateLoginUser">Create Login User</h1>
+        <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>Ensure the user has access to read the metadata.</p><pre class="syntaxhighlighter-pre" xml:space="preserve">USE [master]
+GO
+CREATE LOGIN [datical_login] WITH PASSWORD=N'password_goes_here', DEFAULT_DATABASE=[datical_db], CHECK_EXPIRATION=OFF, CHECK_POLICY=ON
+GO
+GRANT VIEW ANY DEFINITION TO datical_login
+GO</pre>
+        <h1 id="RolesandPermissionsforDaticalDBonSQLServer-CreateDatabaseUser">Create Database User</h1>
+        <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>Create a user (datical_user) for databases under <MadCap:variable name="General.DaticalDB" /> management. Assign the needed Microsoft SQL Server fixed roles to the user.</p>
+        <h2 id="RolesandPermissionsforDaticalDBonSQLServer-Step1:IdentifytheappropriatepermissionsfortheDaticalUser">
+			Step 1: Identify the appropriate permissions for the <MadCap:variable name="General.DaticalDB" /> User</h2>
+        <h3 id="RolesandPermissionsforDaticalDBonSQLServer-DATICALPERMISSIONS"><strong>DATICAL PERMISSIONS</strong>
+        </h3>
+        <ul>
+            <li><strong>Needed for all environments</strong> (note, some of the permissions are optional depending on criteria shown beside each one).</li>
+        </ul>
+        <table>
+            <colgroup>
+                <col style="width: 12.566845%;" />
+                <col style="width: 28.074867%;" />
+                <col style="width: 59.358288%;" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>Role/Permission</th>
+                    <th>When is this required?</th>
+                    <th>Permissions</th>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>db_ddladmin</strong>
+                        </p>
+                    </td>
+                    <td>This is required if not connecting as the database owner.</td>
+                    <td>
+                        <p>Run any Data Definition Language (DDL) command in a database.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>db_datawriter</strong>
+                        </p>
+                    </td>
+                    <td>This is required if not connecting as the database owner.</td>
+                    <td>
+                        <p>Add, delete, or change data in all user tables.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>db_datareader</strong>
+                        </p>
+                    </td>
+                    <td>This is required if not connecting as the database owner.</td>
+                    <td>
+                        <p>Read all data from all user tables.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>db_securityadmin</strong>
+                    </td>
+                    <td>This is required if grants are allowed in scripts.</td>
+                    <td>Perform grants to all objects in the database.</td>
+                </tr>
+                <tr>
+                    <td><strong>db_ssisadmin</strong>
+                    </td>
+                    <td>
+						This is required if using SSIS via <MadCap:variable name="General.DaticalDB" />.
+					</td>
+                    <td>SSIS: list, view, run, export all packages. Import, delete, and change all packages and package roles.</td>
+                </tr>
+                <tr>
+                    <td><strong>db_ssisltduser</strong>
+                    </td>
+                    <td>
+						This is required if using SSIS via <MadCap:variable name="General.DaticalDB" />.
+					</td>
+                    <td>SSIS: list all packages; view, run, export own packages. Import packages, change and delete own packages.</td>
+                </tr>
+                <tr>
+                    <td><strong>db_ssisoperator</strong>
+                    </td>
+                    <td>
+						This is required if using SSIS via <MadCap:variable name="General.DaticalDB" />.
+					</td>
+                    <td>
+                        <p>SSIS: list, view, run, export all packages. Run all packages in SQL Server Agent.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>VIEW DATABASE STATE</strong>
+                    </td>
+                    <td>
+						This is required for <MadCap:variable name="General.DaticalDB" /> operations.
+					</td>
+                    <td>Read data from dynamic management views scoped to the database.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3 id="RolesandPermissionsforDaticalDBonSQLServer-DATICALPACKAGERPERMISSIONS"><strong>DATICAL PACKAGER PERMISSIONS</strong>
+        </h3>
+        <ul>
+            <li><strong>Required on Reference DB environments only. These permissions are in addition to the above DATICAL_ROLE permissions.</strong>
+            </li>
+        </ul>
+        <table style="width: 98.75666%;">
+            <colgroup>
+                <col style="width: 13.681368%;" />
+                <col style="width: 27.272728%;" />
+                <col style="width: 59.045906%;" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>Role</th>
+                    <th>When is this required?</th>
+                    <th>Permissions</th>
+                </tr>
+                <tr>
+                    <td><strong>db_backupoperator</strong>
+                    </td>
+                    <td>This is required on the Reference Database if not connecting as the database owner.</td>
+                    <td>Perform backups of the database.</td>
+                </tr>
+                <tr>
+                    <td><strong>dbcreator</strong>
+                    </td>
+                    <td>This is required on the Reference Database Server if&#160;<span>you are not a sysadmin or the database owner.</span></td>
+                    <td>
+                        <p>Perform database restores.</p>
+                        <p><em>"If the database being restored does not exist, the user must have CREATE DATABASE permissions to be able to execute RESTORE. If the database exists, RESTORE permissions default to members of the&#160;<strong>sysadmin</strong>&#160;and&#160;<strong>dbcreator</strong>&#160;fixed server roles and the owner (<strong>dbo</strong>) of the database."</em>
+                        </p>
+                        <p><em>"RESTORE permissions are given to roles in which membership information is always readily available to the server. Because fixed database role membership can be checked only when the database is accessible and undamaged, which is not always the case when RESTORE is executed, members of the&#160;<strong>db_owner</strong>&#160;fixed database role do not have RESTORE permissions."</em>
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2 id="RolesandPermissionsforDaticalDBonSQLServer-Step2:GrantTheAppropriatePermissionsAsDefinedAbovetotheDaticalUser">
+			Step 2:&#160;Grant The Appropriate Permissions As Defined Above to the <MadCap:variable name="General.DaticalDB" /> User</h2>
+        <ul>
+            <li>Note, additional permissions are typically added to the Reference DB environments as discussed above.</li>
+        </ul>
+        <p>Example script to assign roles to <code>datical_user</code>.</p><b>DATICAL_USER</b><pre class="syntaxhighlighter-pre" xml:space="preserve">USE [database_1]
+GO
+CREATE USER [datical_user] FOR LOGIN [datical_login]
+GO
+EXEC sp_addrolemember N'db_ddladmin', N'datical_user'
+GO
+EXEC sp_addrolemember N'db_datareader', N'datical_user'
+GO
+EXEC sp_addrolemember N'db_datawriter', N'datical_user'
+GO
+EXEC sp_addrolemember N'db_securityadmin', N'datical_user'
+GO
+GRANT VIEW DATABASE STATE to [datical_user]
+GO
+ALTER SERVER ROLE [dbcreator] ADD MEMBER [datical_user]
+GO</pre>
+        <p>Example script to assign additional roles to <code>datical_user&#160;</code>for the Reference DB (and packaging) environments only.</p><b>DATICAL_USER</b><pre class="syntaxhighlighter-pre" xml:space="preserve">USE [database_1]
+GO
+EXEC sp_addrolemember N'db_backupoperator', N'datical_user'
+GO
+EXEC sp_addrolemember N'dbcreator', N'datical_user'
+GO</pre>
+    </body>
+</html>
