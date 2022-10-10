@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Liquibase Enterprise Documentation</title>
+        <meta name="description" content="Liquibase Enterprise Documentation" />
+    </head>
+    <body>
+        <h1>How To: Generate the cwallet.sso file and Load SSL Certificates</h1>
+        <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p><span>Note: Please make sure that the Oracle Database you are connecting to is the same version as the Oracle version from where you are setting your Datical Oracle wallet project.</span>
+        </p>
+        <ul>
+            <li><span><span>For this tutorial</span>, we are going to create cwallet.sso and add certificates for the following examples:</span>
+                <ol>
+                    <li><span>AWS EC2 with Oracle Database (self-signed)</span><span>certificate.</span>
+                    </li>
+                    <li><span>Oracle RDS certificate.</span>
+                    </li>
+                </ol>
+            </li>
+        </ul>
+        <h2 id="HowTo:Generatethecwallet.ssofileandLoadSSLCertificates-Example1:ConnectingtoanAWSEC2instancewithOracleDatabaseonLinuxOS"><u>Example 1:</u>&#160;Connecting to an AWS EC2 instance with Oracle Database on Linux OS</h2>
+        <h2 id="HowTo:Generatethecwallet.ssofileandLoadSSLCertificates-Step-by-stepguide">Step-by-step guide</h2>
+        <ol>
+            <li>
+                <p>Connect to your&#160;EC2 instance with the desired target database.</p>
+                <ol>
+                    <li><pre xml:space="preserve">For example:&#160;<br />ssh -i ~/.ssh/&lt;ssh_key&gt;&#160;&lt;instance_name&gt;.net</pre>
+                    </li>
+                    <li><pre xml:space="preserve">
+						<span>Login to oracle, for example: <br /></span>su - oracle</pre>
+                    </li>
+                </ol>
+            </li>
+            <li>a.Create a new folder, for example:
+				<pre xml:space="preserve">     mkdir myWallet </pre>
+b.navigate to myWallet<br />cd myWallet<br /><span>Notes:</span><ul><li><span>For this example we are going to use the orapki tool to create and modify our Oracle Wallet. Here is some info about&#160;<a class="external-link" href="https://docs.oracle.com/cd/B28359_01/network.111/b28530/asoappf.htm#i634246" rel="nofollow" style="color: rgb(255,0,0);">orapki Utility</a>&#160;wallet related commands.</span></li><li><span>If you already have an existing cwallet.sso and you just need to add an additional certificate please skip step #3 and continue to step #4</span></li></ul></li>
+            <li>Run the following to <strong>create a cwallet.sso file</strong>. This is where all your certificates will be stored.
+				<ol><li><pre xml:space="preserve">orapki wallet create -wallet wallet_location -auto_login [-pwd password]</pre></li><li><span>You should now notice a new file "cwallet.sso".</span></li></ol></li>
+            <li><strong><span>Self-sign</span></strong><span>and <strong>Add certificate</strong> to cwallet.sso file. Run the following:</span>
+                <ol>
+                    <li><pre xml:space="preserve">orapki wallet add -wallet &lt;path/to/wallet&gt; -dn 'CN=&lt;instance name&gt;,C=US' -keysize 2048 -self_signed -validity 3650</pre>
+                    </li>
+                    <li>Run the following t<span>o view and confirm certificates that are currently stored in cwallet.sso file.</span></li>
+                    <li><pre xml:space="preserve">orapki wallet display -wallet .<br />Here is a sample output showing the self-signed certificate "CN=xxx.yyy.net" you have just added:</pre><b>environment variables</b><pre class="syntaxhighlighter-pre" xml:space="preserve">Oracle PKI Tool : Version 12.1.0.1
+Copyright (c) 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+
+Requested Certificates:
+User Certificates:
+Subject: CN=xxx.yyy.net,OU=,O=Datical Dev
+Trusted Certificates:
+Subject: OU=Class 1 Public Primary Certification Authority,O=VeriSign\, Inc.,C=US
+Subject: CN=xxx.yyy.net,OU=,O=Datical Dev
+Subject: CN=GTE CyberTrust Global Root,OU=GTE CyberTrust Solutions\, Inc.,O=GTE Corporation,C=US
+Subject: OU=Class 3 Public Primary Certification Authority,O=VeriSign\, Inc.,C=US
+Subject: OU=Class 2 Public Primary Certification Authority,O=VeriSign\, Inc.,C=US</pre>
+                    </li>
+                </ol>
+            </li>
+            <li><span>Configure your <strong>Oracle listener with Oracle Wallet.</strong>&#160;</span>
+                <ol>
+                    <li><span>Edit the file <strong>listener.ora</strong> in the following path: $ORACLE_HOME/network/admin a</span><span>nd set parameters for "LISTENER" and "WALLET_LOCATION"</span><span>&#160;(see sample code below).</span>
+                    </li>
+                    <li>
+                        <p><span>For example:&#160;vi $ORACLE_HOME/network/admin/listener.ora</span>
+                        </p><pre class="syntaxhighlighter-pre" xml:space="preserve">USE_SID_AS_SERVICE_LISTENER=on
+LISTENER =
+(DESCRIPTION_LIST =
+(DESCRIPTION =
+(ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1521))
+(ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521))
+(ADDRESS = (PROTOCOL = TCPS)(HOST = localhost)(PORT = 2484))
+)
+)
+WALLET_LOCATION =
+(SOURCE =
+(METHOD = FILE)
+(METHOD_DATA =
+(DIRECTORY = /home/oracle/myWallet)
+)
+)
+SSL_CLIENT_AUTHENTICATION=FALSE</pre>
+                    </li>
+                    <li>
+                        <p>Save the file.</p>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <p><span>To refresh the listener with the new information we have just updated in listener.ora run the following:</span>
+                </p>
+                <ol>
+                    <li><pre xml:space="preserve">lsnrctl stop</pre>
+                    </li>
+                    <li><pre xml:space="preserve">lsnrctl start</pre>
+                    </li>
+                    <li>
+                        <p>lsnrctl status - to check that the listener is running. It takes a minute or two for the databases to re-register with the listener after it is restarted.</p>
+                    </li>
+                    <li>To copy the cwallet.sso file to the machine where your Datical project is, open the command line from where your Datical project is and run the following (secure copy) command:</li>
+                    <li><pre xml:space="preserve">scp -i ~/.ssh/&lt;ssh_key&gt;&#160;&lt;instance_name&gt;.net:/path/to/myWallet/cwallet.sso .</pre>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+        <h2 id="HowTo:Generatethecwallet.ssofileandLoadSSLCertificates-Example2:ConnectingtoanAWSOracleRDSinstance"><u>Example 2:</u> Connecting to an AWS Oracle RDS instance</h2>
+        <h2 id="HowTo:Generatethecwallet.ssofileandLoadSSLCertificates-Step-by-stepguide.1">Step-by-step guide</h2>
+        <ol>
+            <li>
+                <p><span>Login to Oracle with the same database version as your Oracle RDS instance Database version.</span>
+                </p>
+                <ol>
+                    <li>
+                        <p>For example:</p>
+						su - oracle</li>
+                    <li>
+                        <p><span>Create a new folder, for example:</span>
+                        </p>
+						mkdir myWallet</li>
+                    <li><pre xml:space="preserve">
+						<span>navigate to</span>myWallet. For example: <br />cd myWallet</pre>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                <p>Download the appropriate SSL certificate.</p>
+                <ol>
+                    <li>
+                        <p><span>For RDS instance</span><span>, download the AWS SSL certificate from AWS website for example:</span>
+                        </p>
+                        <ol>
+                            <li><pre xml:space="preserve">You can run: wget <a class="external-link" href="https://s3.amazonaws.com/rds-downloads/rds-ca-2015-root.pem" rel="nofollow">https://s3.amazonaws.com/rds-downloads/rds-&lt;cert_name&gt;.pem</a></pre>
+                            </li>
+                            <li>Note: To find out <strong>what certificate you need</strong> you can go to AWS website your RDS instance -&gt; your RDS settings -&gt; Connectivity &amp; security -&gt; Security -&gt; <strong>Certificate authority</strong></li>
+                            <li>
+                                <p>Please find the corresponding RDS SSL certificate in the following link guidelines&#160;<a class="external-link" href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html" rel="nofollow">https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html</a></p>
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </li>
+            <li>Notes:
+				<ul><li><span>For this example we are going to use the orapki tool to create and modify our Oracle Wallet. Here is some info about&#160;<a class="external-link" href="https://docs.oracle.com/cd/B28359_01/network.111/b28530/asoappf.htm#i634246" rel="nofollow">orapki Utility</a>&#160;wallet related commands.</span></li><li><span>If you already have an existing cwallet.sso and you just need to add an additional certificate please skip step #4 and continue to step #5</span></li></ul></li>
+            <li>Run the following to <strong>create a cwallet.sso file</strong>. This is where all your certificates will be stored.
+				<ol><li>orapki wallet create -wallet wallet_location -auto_login [-pwd password]</li><li><span>You should now notice a new file "cwallet.sso".</span></li></ol></li>
+            <li>Run the following to add <span>certificates</span><span>to wallet:</span><ol><li><p><span>orapki wallet add -wallet . -trusted_cert -cert r<a class="external-link" href="https://s3.amazonaws.com/rds-downloads/rds-ca-2015-root.pem" rel="nofollow">rds-&lt;cert_name&gt;.pem</a>&#160;-auto_login_only</span></p></li></ol></li>
+            <li>Run the following t<span>o view and confirm certificates that are currently stored in cwallet.sso file.</span><ol><li><p>orapki wallet display -wallet .<br />Here is a sample output showing the Amazon RDS certificate "CN=Amazon RDS Root CA" you have just added:</p></li></ol></li>
+        </ol><pre class="syntaxhighlighter-pre" xml:space="preserve">Oracle PKI Tool : Version 12.1.0.1
+Copyright (c) 2004, 2012, Oracle and/or its affiliates. All rights reserved.
+Trusted Certificates: 
+Subject:        OU=Class 1 Public Primary Certification Authority,O=VeriSign\, Inc.,C=US
+Subject:        CN=Amazon RDS Root CA,OU=Amazon RDS,O=Amazon Web Services\, Inc.,L=Seattle,ST=Washington,C=US
+Subject:        CN=GTE CyberTrust Global Root,OU=GTE CyberTrust Solutions\, Inc.,O=GTE Corporation,C=US
+Subject:        OU=Class 3 Public Primary Certification Authority,O=VeriSign\, Inc.,C=US
+Subject:        OU=Class 2 Public Primary Certification Authority,O=VeriSign\, Inc.,C=US</pre>
+        <p>To copy the cwallet.sso file to the machine where your Datical project is, open the command line from where your Datical project is and run the following (secure copy) command:</p><pre xml:space="preserve">scp -i ~/.ssh/&lt;ssh_key&gt;&#160;&lt;instance_name&gt;.net:/path/to/myWallet/cwallet.sso .</pre>
+        <h2 id="HowTo:Generatethecwallet.ssofileandLoadSSLCertificates-Relatedarticles">Related articles</h2>
+        <p style="margin-left: 30.0px;" />
+        <p style="margin-left: 30.0px;" />
+        <ul>
+            <li><a href="../troubleshoot/use-logs-and-reports/access-reports-jenkins.htm">How do I get my HTML reports to show up properly in Jenkins?</a>
+            </li>
+            <li><a href="change-default-location.htm">How To: Change Default Location for Datical Projects</a>
+            </li>
+            <li><a href="../developer/app-dev-how-to-guides/set-default-web-browser-gui.htm">How To: Set default web browser in the GUI</a>
+            </li>
+            <li><a href="../developer/app-dev-how-to-guides/update-license.htm">How To: Update Datical License</a>
+            </li>
+        </ul>
+    </body>
+</html>
