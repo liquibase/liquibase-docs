@@ -1,8 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us" MadCap:conditions="Default.EXCLUDE">
-    <head><title>Liquibase Enterprise Documentation</title>
-        <link href="../../../Resources/Stylesheets/Managing+Database+Backup+and+Restore.css" rel="stylesheet" />
-    </head>
-    <body>
-        <h1>Troubleshooting Backup &amp; Restore Issues</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><h2>Recovering from a Backup or Restore Failure</h2><p>Occasionally an error can occur during the backup or restore phase of the Deployment Packager.&#160; Typically this happens early in the implementation process as configuration is being refined, when configuration options for backup or restore change or due to a connectivity or availability issue.&#160; Because the accurate production of new changes and the continuous automation capability of packager relies on accurate database state, the Deployment Packager should not be run until the source of the error has been addressed and the RefDB has been restored to a known good state.</p><p>As of <MadCap:variable name="General.DaticalDB" /> 7.6, execution of subsequent Deployment Packager jobs will be blocked when a backup or restore error was detected during a previous execution of the Deployment Packager.</p><h3>Backup/Restore Lock File</h3><p>When a failure is detected, <MadCap:variable name="General.DaticalDB" /> will create a .lock file in the root directory of your <MadCap:variable name="General.DaticalDB" /> Project and commit that to the Source Code Control repository for your project.&#160;</p><ul><li class="li_1"><p class="p_1">This file follows a naming convention:&#160;<span class="HTMLCode_1">&lt;dbdef name&gt;.lock</span> </p><ul><li class="li_1"><p class="p_1">For example: If your DbDef name is&#160;<span class="HTMLCode_1">RefDB</span>&#160; the file will be named&#160;<span class="HTMLCode_1">RefDb.lock</span></p></li></ul></li><li class="li_1"><p class="p_1">The file contains the error output from the backup or restore that caused it to be created.&#160; The information will also exist in the daticaldb.log file for that Deployment Packager execution.</p></li></ul><p>If you attempt to run the Deployment Packager again, you will get an error similar to the example below.</p><p class="HTMLPreformatted">===============================================================================</p><p class="HTMLPreformatted">DATICAL DB: Packaging SQL Script(s)</p><p class="HTMLPreformatted">===============================================================================</p><p class="HTMLPreformatted">BEGIN: 2020-08-12-13:56:22</p><p class="HTMLPreformatted">ERROR: Run of packager blocked due to:</p><p class="HTMLPreformatted">ERROR: Lock file exists - 'C:\Users\ddb\git\OT_SAMPLE\OT_SAMPLE\OT_REF.lock'</p><p class="HTMLPreformatted">ERROR: A failure has occurred during a backup or restore operation and future runs of deployPackager.groovy will be blocked as a result.</p><p class="HTMLPreformatted">ERROR: Please address the error and run &lt;hammer groovy deployPackager.groovy MAR_2020 scm=true, preview=true, createDatabaseBackup=true clearBackupRestoreLock&gt; to unblock deployPackager.groovy</p><p class="HTMLPreformatted">Command 'groovy deployPackager.groovy MAR_2020 scm=true preview=true createDatabaseBackup=true' exiting with error status 1</p><p><span class="Strong">NOTE:&#160;&#160;</span>&#160;The presence of a lock file should only block future executions of the Deployment Packager for the pipeline where the error occurred as long as each pipeline has a unique RefDB configured.</p><h3>Unlocking a <MadCap:variable name="General.DaticalDB" /> Project after backup/restore issue has been resolved</h3><p>Do not remove the lock until the original backup or restore issue has been investigated and resolved.&#160; Only when the issue that caused the error has been addressed and a new backup for the RefDB has been made, can the lock file be safely removed.&#160;</p><p>After the backup/restore issue is resolved, remove the lock with whichever of these methods you prefer.&#160; Note that the last option includes creating a new backup file:</p><ol><li class="li_1"><p class="p_1">Delete the lock file from the <MadCap:variable name="General.DaticalDB" /> project (example:&#160;<span class="HTMLCode_1">RefDb.lock) a</span>nd commit the deletion to the SCM repository for that project</p></li><li class="li_1"><p class="p_1">Or, run <span class="HTMLCode_1">clearBackupRestoreLock</span> sub command of the&#160;<span class="HTMLCode_1">deployPackager.groovy</span> script with Packager's&#160;<span class="HTMLCode_1">preview</span> mode enabled.&#160; Here are variations of the command, the second command also creates a new backup. </p><ul><li class="li_1"><p class="p_1">Only clear the lock with this command:</p></li></ul></li></ol><p class="HTMLPreformatted">hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true clearBackupRestoreLock</p><ul><li class="auto-cursor-target"><p>Or, you can configure the command to clear the lock and also create a new backup of the RefDB:</p></li></ul><p class="HTMLPreformatted">hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true createDatabaseBackup=true clearBackupRestoreLock</p></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+	</head>
+	<body>
+		<h1>Troubleshooting Backup &amp; Restore Issues</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<h2>Recovering from a Backup or Restore Failure</h2>
+		<p>Occasionally an error can occur during the backup or restore phase of the Deployment Packager. Typically this happens early in the implementation process as configuration is being refined, when configuration options for backup or restore change or due to a connectivity or availability issue. Because the accurate production of new changes and the continuous automation capability of packager relies on accurate database state, the Deployment Packager should not be run until the source of the error has been addressed and the RefDB has been restored to a known good state.</p>
+		<p>As of <MadCap:variable name="General.DaticalDB" /> 7.6, execution of subsequent Deployment Packager jobs will be blocked when a backup or restore error was detected during a previous execution of the Deployment Packager.</p>
+		<h3>Backup/Restore Lock File</h3>
+		<p>When a failure is detected, <MadCap:variable name="General.DaticalDB" /> will create a .lock file in the root directory of your <MadCap:variable name="General.DaticalDB" /> Project and commit that to the Source Code Control repository for your project.</p>
+		<ul>
+			<li>
+				<p>This file follows a naming convention:&#160;<span class="HTMLCode_1">&lt;dbdef name&gt;.lock</span></p>
+				<ul>
+					<li>
+						<p>For example: If your DbDef name is&#160;<span class="HTMLCode_1">RefDB</span> the file will be named&#160;<span class="HTMLCode_1">RefDb.lock</span></p>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<p>The file contains the error output from the backup or restore that caused it to be created. The information will also exist in the daticaldb.log file for that Deployment Packager execution.</p>
+			</li>
+		</ul>
+		<p>If you attempt to run the Deployment Packager again, you will get an error similar to the example below.</p>
+		<p class="HTMLPreformatted">===============================================================================</p>
+		<p class="HTMLPreformatted">DATICAL DB: Packaging SQL Script(s)</p>
+		<p class="HTMLPreformatted">===============================================================================</p>
+		<p class="HTMLPreformatted">BEGIN: 2020-08-12-13:56:22</p>
+		<p class="HTMLPreformatted">ERROR: Run of packager blocked due to:</p>
+		<p class="HTMLPreformatted">ERROR: Lock file exists - 'C:\Users\ddb\git\OT_SAMPLE\OT_SAMPLE\OT_REF.lock'</p>
+		<p class="HTMLPreformatted">ERROR: A failure has occurred during a backup or restore operation and future runs of deployPackager.groovy will be blocked as a result.</p>
+		<p class="HTMLPreformatted">ERROR: Please address the error and run &lt;hammer groovy deployPackager.groovy MAR_2020 scm=true, preview=true, createDatabaseBackup=true clearBackupRestoreLock&gt; to unblock deployPackager.groovy</p>
+		<p class="HTMLPreformatted">Command 'groovy deployPackager.groovy MAR_2020 scm=true preview=true createDatabaseBackup=true' exiting with error status 1</p>
+		<p><strong>NOTE:</strong>&#160;The presence of a lock file should only block future executions of the Deployment Packager for the pipeline where the error occurred as long as each pipeline has a unique RefDB configured.</p>
+		<h3>Unlocking a <MadCap:variable name="General.DaticalDB" /> Project after backup/restore issue has been resolved</h3>
+		<p>Do not remove the lock until the original backup or restore issue has been investigated and resolved. Only when the issue that caused the error has been addressed and a new backup for the RefDB has been made, can the lock file be safely removed.</p>
+		<p>After the backup/restore issue is resolved, remove the lock with whichever of these methods you prefer. Note that the last option includes creating a new backup file:</p>
+		<ol>
+			<li>
+				<p>Delete the lock file from the <MadCap:variable name="General.DaticalDB" /> project (example:&#160;<span class="HTMLCode_1">RefDb.lock) a</span>nd commit the deletion to the SCM repository for that project</p>
+			</li>
+			<li>
+				<p>Or, run <span class="HTMLCode_1">clearBackupRestoreLock</span> sub command of the&#160;<span class="HTMLCode_1">deployPackager.groovy</span> script with Packager's&#160;<span class="HTMLCode_1">preview</span> mode enabled. Here are variations of the command, the second command also creates a new backup.</p>
+				<ul>
+					<li>
+						<p>Only clear the lock with this command:</p>
+					</li>
+				</ul>
+			</li>
+		</ol>
+		<p class="HTMLPreformatted">hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true clearBackupRestoreLock</p>
+		<ul>
+			<li>
+				<p>Or, you can configure the command to clear the lock and also create a new backup of the RefDB:</p>
+			</li>
+		</ul>
+		<p class="HTMLPreformatted">hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true createDatabaseBackup=true clearBackupRestoreLock</p>
+	</body>
 </html>

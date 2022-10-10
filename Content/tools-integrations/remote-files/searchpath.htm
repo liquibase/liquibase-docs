@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="Default.EXCLUDE">
+    <head>
+    </head>
+    <body>
+        <h1>Use searchpath with S3 <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /> </h1>
+        <p><a href="../../concepts/changelogs/how-liquibase-finds-files.htm">Searchpath</a> can <b>find</b> the path to S3 that contains <MadCap:variable name="General.changelog" /> files or snapshot files. This property allows you to find files that cannot be found by an absolute path. It is a convenient way to quickly call on those files without specifying the path each time. Searchpath can be  set in the CLI, within the <MadCap:variable name="General.liquiPropFile" /> file, or as an environment variable. </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <MadCap:variable name="General.liquiPropFile" /> file and the Defaults File are the same file. The default name for the Defaults file is <MadCap:variable name="General.liquiPropFile" />. If you don't specify a defaults file argument, then <MadCap:variable name="General.Liquibase" /> assumes it is <MadCap:variable name="General.liquiPropFile" /></p>
+        <h2>Use search-path to Locate Changelogs on S3</h2>
+        <p>Both an S3 directory in the searchpath and a relative path are required to find <MadCap:variable name="General.changelog" /> files or snapshot files. Follow the steps below to learn how to set both of these and configure them.</p>
+        <ol>
+            <li>Determine the S3 paths necessary to locate the changelog to use. If changelog resources, such as additional included changelogs or SQL files are in a different S3 path, you will have multiple items in the search-path.<br /><br />For example, if a changelog file is in S3 at<code> s3://myS3Bucket/demo</code> and the SQL files referenced by the changelog are in <code>s3://myS3Bucket/demo/sqlFiles</code>, your search path is <code>s3://myS3Bucket/demo,s3://myS3Bucket/demo/sqlFiles</code>.<br /></li>
+            <li>
+                <p>To execute <MadCap:variable name="General.Liquibase" /> commands that read changelogs located in S3, provide the searchpath and a filename or relative path to the file.</p>
+                <p>Example 1:  <code>update-sql</code> command using a changelog-file in S3</p>
+                <p><code>liquibase --search-path s3://myS3Bucket/demo,s3://myS3Bucket/demo/sqlFiles update-sql --changelog-file example-changelog.sql</code>.</p><pre xml:space="preserve"><code class="language-text">liquibase --searchpath=s3://myS3bucket/demo --changelog=example-changelog.sql'</code></pre>
+                <p>Example 2: <code>update-sql</code> command using a relative path to the changelog-file in S3</p>
+                <p>If the changelog is located in subdirectory like s3://myS3Bucket/demo/changelogs, when you use the search-path defined in the previous example, then you must specify the relative path to the changelog:</p><pre xml:space="preserve"><code class="language-text">liquibase --search-path s3://myS3Bucket/demo,s3://myS3Bucket/demo/sqlFiles update-sql --changelog-file changelogs/example-changelog.sql</code></pre>
+            </li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Paths to <MadCap:variable name="General.changelog" />s must always be relative to preserve integrity of the <MadCap:variable name="General.Liquibase" /> <MadCap:variable name="General.databasechangelog" /> tracking table.</p>
+        </ol>
+        <h2>Searchpath Rules:</h2>
+        <p>Below are all of the rules that apply to searchpath. Review the example use cases and instructions to ensure it is the right avenue for your project.</p>
+        <h3>Multiple Searchpath</h3>
+        <p>If searchpath is set, it is used and <MadCap:variable name="General.Liquibase" /> will not look in other locations for searchpath. This indicates if some files are located on S3 and some are local, both locations are required in the search path. </p>
+        <ul>
+            <li>The default searchpath is the current working directory of the local machine.</li>
+            <li>When not specifically configured, searchpath looks for changelogs in the current working directory of the local machine.</li>
+            <li>When searchpath is configured, only the locations explicitly defined in searchpath are used to locate <MadCap:variable name="General.changelog"></MadCap:variable>s.</li>
+            <li>Searchpath locations are comma-separated.
+<br />			Example: <code>search-path s3://myS3Bucket/demo,C:\Users\Me\demo</code></li>
+            <li>
+                <p><MadCap:variable name="General.Liquibase" /> collects the list of files from all locations in the searchpath prior to executing a command. This can result in <MadCap:variable name="General.Liquibase" /> locating two or more changelog files with the same name. To determine how <MadCap:variable name="General.Liquibase" /> behaves in this case, see the Duplicate File Mode section below.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the changelog references resource files in multiple directories, it may be easier to define the searchpath as an environment variable. This prevents the searchpath property from making the command line unreadable. The searchpath environment variable is LIQUIBASE_SEARCH_PATH.</p>
+            </li>
+        </ul>
+        <p>Multiple Searchpath example:</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>s3://mybucket/path,</code> is the first location and<code> .localfiles</code> is the second location that searchpath will find the files.</p><pre><code class="language-text">--searchpath=s3://mybucket/path,.localfiles</code></pre>
+        <h3>Duplicate File Mode</h3>
+        <p>The duplicate-file-mode property determines how <MadCap:variable name="General.Liquibase" /> behaves when multiple changelogs of the same name are located in a search-path with multiple locations specified. By default, <MadCap:variable name="General.Liquibase" /> will throw an error when duplicate files are found. It can be set in the CLI, <MadCap:variable name="General.liquiPropFile" /> file or as an Environment Variable. <MadCap:variable name="General.Liquibase" /> can be configured to warn when duplicate files are located on the aggregate search-path. Configuring the duplicate mode causes <MadCap:variable name="General.Liquibase" /> to execute the command using the first occurrence of the duplicate changelog located in the search-path locations.</p>
+        <h4>Error Response:</h4>
+        <p>The <b>ERROR&#160;Response</b> states two files are found and <MadCap:variable name="General.Liquibase" /> will not use either file. It will then suggest you rename the file or correct your searchpath, and then re-run the command. </p>
+        <p style="font-weight: bold;">Example:&#160;Default behavior of duplicate-file-mode when changelog.xml is located in two search-path directories</p>
+        <p>In this example, a changelog named “changelog.xml” is located in both <code>s3://myS3bucket/demo</code> and in <code>s3://myS3Bucket/demo2</code>.</p>
+        <p><code>liquibase --seach-path s3://myS3Bucket/demo,s3://myS3Bucket/demo2 update-sql --changelog-file changelog.xml</code>
+        </p>
+        <p><MadCap:variable name="General.Liquibase" /> console output shows an error and does not execute the <code>update-sql</code> command.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">Unexpected error running Liquibase: Error changelog.xml
+  - Caused by: Found 2 files with the path 'changelog.xml':
+    - s3://myS3Bucket/demo/changelog.xml
+    - s3://myS3Bucket/demo2/changelog.xml
+  Search Path:
+    - s3://myS3Bucket/demo/changelog.xml
+    - s3://myS3Bucket/demo2/changelog.xml
+  You can limit the search path to remove duplicates with the liquibase.searchPath setting. Or, if you KNOW these are the exact same file you can set liquibase.duplicateFileMode=WARN.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <p><code>liquibase --duplicate-file-mode ERROR --seach-path s3://myS3Bucket/demo,s3://myS3Bucket/demo2 update-sql --changelog-file changelog.xml</code> results in <code>update-sql</code> exiting with an ERROR that duplicate “changelog.xml” file was located.</p>
+        <p style="font-weight: bold;">Example:&#160;Behavior when duplicate-file-mode set to ERROR and changelog.xml is located in two search-path directories</p>
+        <p>Although the default for duplicate-file-mode is error, you can explicitly configure the setting to throw an error. In this example, a changelog named “changelog.xml” is located in both <code>s3://myS3bucket/demo</code> and in <code>s3://myS3Bucket/demo2</code>.</p>
+        <p><code>liquibase --duplicate-file-mode ERROR --seach-path s3://myS3Bucket/demo,s3://myS3Bucket/demo2 update-sql --changelog-file changelog.xml</code>
+        </p>
+        <p><MadCap:variable name="General.Liquibase" /> console output shows an error and does not execute the <code>update-sql</code> command.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">Unexpected error running Liquibase: Error changelog.xml
+  - Caused by: Found 2 files with the path 'changelog.xml':
+    - s3://myS3Bucket/demo/changelog.xml
+    - s3://myS3Bucket/demo2/changelog.xml
+  Search Path:
+    - s3://myS3Bucket/demo/changelog.xml
+    - s3://myS3Bucket/demo2/changelog.xml
+  You can limit the search path to remove duplicates with the liquibase.searchPath setting. Or, if you KNOW these are the exact same file you can set liquibase.duplicateFileMode=WARN.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h4>Warn Response:</h4>
+        <p>The <b>WARN&#160;Response</b> states two files are found and it will automatically use the first file found. </p>
+        <p style="font-weight: bold;">Example:&#160;Behavior when duplicate-file-mode set to WARN and changelog.xml is located in two search-path directories</p>
+        <p>To explicitly ignore duplicate changelogs in the search-path, configure duplicate-file-mode to warn. In this example, a changelog named “changelog.xml” is located in both <code>s3://myS3bucket/demo</code> and in <code>s3://myS3Bucket/demo2</code>.</p>
+        <p><code>liquibase --duplicate-file-mode WARN --seach-path s3://myS3Bucket/demo,s3://myS3Bucket/demo2 update-sql --changelog-file changelog.xml</code>
+        </p>
+        <p><MadCap:variable name="General.Liquibase" /> console output shows a warning. The <code>update-sql</code> command is executed using the changelog in <code>s3://myS3Bucket/demo</code>.</p>
+        <p>
+            <MadCap:codeSnippet>
+                <MadCap:codeSnippetCopyButton />
+                <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">Found 2 files with the path 'changelog.xml':
+    - s3://myS3Bucket/demo/changelog.xml
+    - s3://myS3Bucket/demo2/changelog.xml
+  Search Path:
+    - s3://myS3Bucket/demo/changelog.xml
+    - s3://myS3Bucket/demo2/changelog.xml
+  You can limit the search path to remove duplicates with the liquibase.searchPath setting.
+  To fail when duplicates are found, set liquibase.duplicateFileMode=ERROR
+  Choosing: s3://myS3Bucket/demo/changelog.xml</MadCap:codeSnippetBody>
+            </MadCap:codeSnippet>
+        </p>
+    </body>
+</html>

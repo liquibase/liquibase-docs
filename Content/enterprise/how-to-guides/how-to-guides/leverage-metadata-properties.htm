@@ -1,124 +1,555 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
-    <body>
-        <h1>How To: Leverage the "metadata.properties" file</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><hr /><div class="conf-macro output-block">Use the&#160;<code>metadata.properties</code>&#160;file to specify behavior during packaging.&#160;<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-SampleFile">Sample File</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>A sample <code>metadata.properties</code> file is installed with <MadCap:variable name="General.DaticalDB" /> in <code>&lt;install-dir&gt;/repl/scripts</code>.&#160;</p><h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-PlacementandPrecedence">Placement and Precedence</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>The <code>metadata.properties</code> file applies to all files and subdirectories in the directory where it is found, including the root directory for SQL scripts.&#160; &#160;Additional <code>metadata.properties</code> files can be used in the subdirectories. A property set in a subdirectory overrides the same property set in a parent directory.&#160;</p><h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Properties">Properties</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p><strong>Table: metadata.properties file</strong></p><table class="wrapped confluenceTable"><colgroup><col style="width: 144.0px;" /><col style="width: 98.0px;" /><col style="width: 916.0px;" /></colgroup><tbody><tr><td><p><span style="color: rgb(0,0,0);">Property</span></p></td><td><p><span style="color: rgb(0,0,0);">Values</span></p></td><td><p><span style="color: rgb(0,0,0);">Description</span></p></td></tr><tr><td><strong>disablePropertySubstitution</strong></td><td>true | false</td><td>Turns off interpretation of properties set in the changelog. See&#160;<a href="set-prop-project-changelog.htm">Setting Properties in the Project Changelog</a>.&#160;</td></tr><tr><td><strong>disableSqlParser</strong></td><td>true | false</td><td><div class="content-wrapper"><p>Overrides the project option <code>enableSqlParser=true</code>.&#160; There is no effect if the project-level setting is&#160;<code>enableSqlParser=false</code>.&#160; This property can be used in metadata.properties for folders that use packaging method DIRECT or SQLFILE.&#160; See&#160;<a href="../../package-sql-scripts-for-deployment/configure-packaging/sql-parser.htm">Using SQL Parser</a>.&#160;</p><div class="confluence-information-macro has-no-icon confluence-information-macro-note conf-macro output-block"><p class="title">The SQL Parser and the DATA_DML packaging method </p><p>When using the DATA_DML packaging method, the SQL Parser is disabled by default for DML with versions 7.6 and higher.</p></td></tr><tr><td><p><span style="color: rgb(0,0,10);"><strong>labels</strong></span></p></td><td><p>&#160;<em>labelName</em>[,<em>labelName</em>...]</p></td><td><p><span style="color: rgb(0,0,10);">One or more labels that identify this set of changes so they can be easily identified and deployed as a group. Multiple values must be separated by commas. No expressions are allowed.&#160;</span></p></td></tr><tr><td><p><span style="color: rgb(0,0,10);"><strong>contexts</strong></span></p></td><td><p>&#160;<em>contextName</em>[,<em>contextName</em>...]</p></td><td><p><span style="color: rgb(0,0,10);">One or more context names to associate a changes with specified environments. Multiple values must be separated by commas. No expressions are allowed.&#160;</span></p></td></tr><tr><td><p><span style="color: rgb(153,153,153);"><strong>allowRepackaging</strong></span></p></td><td><p><span style="color: rgb(153,153,153);">true |&#160;<strong>false</strong></span></p></td><td><p><span style="color: rgb(153,153,153);">Deprecated starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use rerunnable instead.&#160;</span></p><p><span style="color: rgb(153,153,153);">Starting with <MadCap:variable name="General.DaticalDB" /> v4.21, this property controls whether you can reuse a filename. The default value is false.</span></p></td></tr><tr><td><p><span style="color: rgb(153,153,153);"><strong>archive</strong></span></p></td><td><p><span style="color: rgb(153,153,153);"><strong>true</strong>&#160;| false</span></p></td><td><p><span style="color: rgb(153,153,153);">Deprecated starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use rerunnable instead.&#160;</span></p><p><span style="color: rgb(153,153,153);">Starting with <MadCap:variable name="General.DaticalDB" /> v4.21, this property controls whether files in the data_dml directory get copied to the archive directory. The default value is true.</span></p></td></tr><tr><td><span style="color: rgb(0,0,10);"><strong>rerunnable</strong></span></td><td>true | false</td><td><p>Starting with <MadCap:variable name="General.DaticalDB" /> v4.37, use this property to classify SQL scripts as rerunnable (true) or non-rerunnable (false). Use it in place of the archive and allowRepackaging properties.&#160;</p><ul><li><em>Rerunnable</em> scripts can be modified in place and repackaged.&#160; They stay in their original directory and are not archived.</li><li><em>Non-rerunnable</em> scripts can be packaged only once. During packaging the original scripts are moved from the original directory to an archive directory.&#160;They cannot be copied back and edited after packaging.&#160; To modify non-rerunnable scripts, use the create / replace workflow. See&#160;<a href="../../guides/app-dev-user-guides/developer-workflow/Developer Workflows Managing.htm" rel="nofollow">Developer Workflows: Managing Changesets During Development and Test</a>.&#160;</li></ul><p>Stored logic scripts are usually rerunnable as they perform CREATE OR REPLACE operations and can therefore be run multiple times and produce the same result (they are <em>idempotent</em>).&#160;</p><p>Set rerunnable to true or false.</p><ul><li>true - SQL code file is not archived. It can be repackaged.</li><li>false - SQL code file is archived. It cannot be repackaged.</li></ul><p>If not set, the value is assigned based on its type (the folder where it is placed in SCM):</p><ul style="text-align: left;"><li>ddl - rerunnable=false</li><li><span style="color: rgb(0,51,102);">ddl_direct - rerunnable=false</span></li><li>data_dml - rerunnable=false</li><li>sql_direct - rerunnable=false</li><li>sql - rerunnable=false</li><li>procedure - rerunnable=true</li><li>package - rerunnable=true</li><li>packagebody - rerunnable=true</li><li>function - rerunnable=true</li><li>trigger - rerunnable=true</li><li>view - rerunnable=true</li></ul><p><strong>Important</strong>: although the use of archive and allowRepackaging are allowed, they are deprecated. In addition, the following combinations of settings now cause an error during packaging:</p><ul><li>archive=true and allowRepackaging=true</li><li>archive=false and allowRepackaging=false</li></ul><p>See also&#160;<span style="color: rgb(51,51,51);"><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a>. When you use flexible folder names it is important to specify <code>rerunnable</code> correctly.&#160;</span></p></td></tr><tr><td><strong>packageMethod</strong></td><td><code>convert |&#160;<code><span style="color: rgb(255,102,0);"><span style="color: rgb(0,51,102);">ddl_direct</span>&#160;</span></code>| direct | data_dml | sqlfile | storedlogic | ssis | changelog</code></td><td><p><span style="color: rgb(9,30,66);">Starting with <MadCap:variable name="General.DaticalDB" /> v5.0, s</span>pecifies how to package the file, one of <code style="color: rgb(51,51,51);">convert</code>, <code>ddl_direct,</code>&#160;<code>direct,&#160;</code><code style="color: rgb(51,51,51);">data_dml</code>, <code style="color: rgb(51,51,51);">sqlfile</code>, <code style="color: rgb(51,51,51);">storedlogic</code>, <code style="color: rgb(51,51,51);">ssis</code>. Packager further parses storedlogic files to determine their type, one of <code style="color: rgb(51,51,51);">function</code>, <code style="color: rgb(51,51,51);">procedure</code>, <code style="color: rgb(51,51,51);">package</code>, <code style="color: rgb(51,51,51);">packagebody</code>, <code style="color: rgb(51,51,51);">trigger</code>, <code style="color: rgb(51,51,51);">view</code>.&#160; See&#160;<a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow" style="color: rgb(51,51,51);">Flexible Folder Names</a>.</p><p><span style="color: rgb(51,51,51);">Use the <code>changelog</code> value when packaging Liquibase changelogs. They are processed differently than SQL scripts. See <a href="../../package-sql-scripts-for-deployment/packaging-changelogs.htm" rel="nofollow">Packaging Liquibase Changelogs</a> and&#160;<span style="color: rgb(51,51,51);"><span style="color: rgb(51,51,51);"><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a>.</span></span></span></p></td></tr><tr><td><strong>ignore</strong></td><td>true | false</td><td><span style="color: rgb(51,51,51);">Do not process files in this directory and all subdirectories.&#160;<span style="color: rgb(51,51,51);">See&#160;<a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a>.</span></span></td></tr><tr><td><p><span style="color: rgb(0,0,10);"><strong>schemaName</strong></span></p></td><td></td><td><div class="content-wrapper"><p><span style="color: rgb(0,0,10);">Schema name or comma-separated list of schema names.&#160;</span></p><p><span style="color: rgb(0,0,10);">Use either a literal value or a property. (If using a property, it must exist in the changelog, see <a href="set-prop-project-changelog.htm">Setting Properties in the Project Changelog</a>). </span></p><p><span style="color: rgb(0,0,10);">If you use fully-qualified object names in SQL scripts, the schema names in the SQL scripts must match the schema names in the project. Packager returns an error if it encounters a schema reference that is not defined in the project.&#160;</span></p><p><span style="color: rgb(0,0,10);">For multi-database projects set, <strong>schemaName</strong> in the form <code>&lt;database&gt;.&lt;schema&gt;</code>.&#160;</span><span style="color: rgb(0,0,10);">Starting in version 5.4, you can use a wildcard for the schema: <code>&lt;database&gt;.*</code>.&#160; This capability allows you to manage all SQL scripts for the database in a single folder.&#160;</span></p><div class="confluence-information-macro has-no-icon confluence-information-macro-note conf-macro output-block"><p class="title">Quoting and Casing Considerations When Setting the 'schemaName' property</p><ul><li>In order to ensure a consistent deployment experience the casing defined for schema names in the Datical Project and the casing used to set this property MUST MATCH.&#160; If they don't match, Deploy Packager will halt with an error</li><li>It is not necessary to quote schemaName values.&#160; Quotes will be removed during Deploy Packager execution.</li></ul><div class="confluence-information-macro confluence-information-macro-warning conf-macro output-block"><p class="title">Warning</p><p>Do not&#160; use <code>schemaName</code> if you are using <code>databaseBackupMode=on_demand</code>&#160;in <code>deployPackager.properties with <MadCap:variable name="General.DaticalDB" /> versions 5.5 and lower</code>.&#160; &#160;(It is okay to use&#160;<code>databaseBackupMode=on_demand</code>&#160;in <code>deployPackager.properties with <MadCap:variable name="General.DaticalDB" /> versions 5.6 and higher.)</code></p></td></tr><tr><td><strong>ssisPkgName</strong></td><td><em>filename</em></td><td>Name of an SSIS package file, including extension (.dtsv)</td></tr><tr><td><strong>ssisConfig</strong></td><td><em>filename</em></td><td>Name of an SSIS configuration file, including extension (.dtsConfig)</td></tr><tr><td><strong>ssisDestPath</strong></td><td><em>path</em></td><td>Destination directory under SSISDB in the SQL Server database.&#160;</td></tr><tr><td><strong>ssisDestType</strong></td><td><code>SQL</code></td><td>How deployed SSIS files are stored on the destination SQL Server. Default is SQL - store the files in the SQL Server database on the destination server.&#160;</td></tr><tr><td><strong>ssisPkgName</strong></td><td><em>name</em></td><td>Name of an SSIS package file (.dtsx).</td></tr><tr><td><strong>ssisProjectName</strong></td><td><em>name</em></td><td>Name of anSSIS project file (.ispac).</td></tr><tr><td><strong>ssisSupportFileDestPath</strong></td><td><em>network-path</em></td><td><p>Windows shared drive destination&#160;for support files that accompany an SSIS package file (.dtsx). (example: <code>\\SSIS-TEST\SSIS_SHARED</code>)&#160;</p></td></tr><tr><td><strong>versionStrategy</strong></td><td><strong>deployAll </strong>|&#160;deployLatest</td><td><p><span style="color: rgb(9,30,66);">S</span>pecifies how to deploy existing versions of rerunnable changesets if multiple versions are available to deploy. Values are not case-sensitive.&#160;</p><ul><li>deployAll - (default) deploy all eligible versions in the order they appear in changelog.xml. This has been the strategy used historically (before versioning).&#160;</li><li>deployLatest - deploy only the latest eligible version.&#160;</li></ul><p>If versionStrategy is set to any other value, processing stops with an error.</p><p>A changeset is eligible to deploy if it meets criteria set in the deploy operation (label expression).</p></td></tr><tr><td><strong>folderOrder</strong></td><td><em>Comma-separated list of folders</em></td><td><p>Specified only in the metadata.properties file at the top of the SQL code tree. That directory must be the one specifed by the&#160;<strong>sqlScmSQLBaseDir</strong>property&#160;in the&#160;<code>deployPackager.properties</code> file.</p><p>Provide a list of directories, in the order you want them packaged. Files from these directories are pulled to the front of the packaging order in front of any other folders in the packaging job. See&#160;<a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/custom-packaging-order.htm" rel="nofollow">Custom Packaging Order</a>.&#160;</p></td></tr></tbody></table><h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Samplemetadata.propertiesfile">Sample metadata.properties file</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><div class="codeHeader panelHeader pdl hide-border-bottom" style="border-bottom-width: 1px;"><b class="code-title">Sample metadata.properties file</b><span class="collapse-source expand-control" style="display: none;"><span class="expand-control-text">Expand source</span></span><pre class="syntaxhighlighter-pre" xml:space="preserve"># 	
-# Placement and Precedence
-#
-# The metadata.properties file applies to all files and subdirectories in the directory where it is found, including the root directory for SQL scripts.
-# Additional metadata.properties files can be used in the subdirectories. A property set in a subdirectory overrides the same property set in a parent directory.
-#
-#
-# The following properties can be set in the metadata.properties file:
-#
-# disablePropertySubstitution - If 'true' - disables variable substitution performed by packager prior to packaging script.  Default value 'false'.
-#
-# disableSqlParser   - This is only for Oracle.  Overrides the project option enableSqlParser=true.  There is no effect if the project-level setting is enableSqlParser=false.  
-#                      This property can be used in metadata.properties for folders that use packaging method DIRECT or SQLFILE.
-#
-# labels             - One or more labels that identify this set of changes so they can be easily identified and deployed as a group
-#                      labelName[,labelName...]
-#
-# contexts           - One or more context names to associate a changes with specified environments.
-#                      contextName[,contextName...]
-#
-# allowRepackaging   - DEPRECATED starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use [rerunnable] instead.
-#                      This property previously controlled whether you can reuse a filename. The default value was 'false', but it is now deprecated.
-#
-# archive            - DEPRECATED starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use rerunnable instead.
-#                      This property previously controlled whether files in the data_dml directory get copied to the archive directory.  
-#                      The default value was 'true', but now it is deprecated.
-#
-# rerunnable         - Classify SQL scripts as rerunnable (true) or non-rerunnable (false). Use it in place of the [archive] and [allowRepackaging] properties.
-#                      Set rerunnable to 'true' or 'false':
-#                          true - SQL code file is not archived. It can be repackaged.
-#                          false - SQL code file is archived. It cannot be repackaged.
-#
-#                      If not set, the value is assigned based on its type (the folder where it is placed in SCM):
-#                          ddl - rerunnable=false
-#                          data_dml - rerunnable=false
-#                          ddl_direct - rerunnable=false
-#                          sql_direct - rerunnable=false
-#                          sql - rerunnable=false
-#                          procedure - rerunnable=true
-#                          package - rerunnable=true
-#                          packagebody - rerunnable=true
-#                          function - rerunnable=true
-#                          trigger - rerunnable=true
-#                          view - rerunnable=true
-#
-#                      Important: although the use of archive and allowRepackaging are allowed, they are deprecated.
-#                      In addition, the following combinations of settings now cause an error during packaging:
-#                          archive=true and allowRepackaging=true
-#                          archive=false and allowRepackaging=false
-#
-#                      Also you can use Flexible Folder Names. When you use flexible folder names it is important to specify rerunnable correctly.
-#
-#
-# packageMethod      - Specifies how to package the file. One of 'convert', 'ddl_direct', 'direct', 'data_dml', 'sqlfile', 'storedlogic', 'ssis'.
-#                      Packager further parses storedlogic files to determine their type, one of 'function', 'procedure', 'package', 'packagebody', 'trigger', 'view'.
-#                      Use the 'changelog' value when packaging Liquibase changelogs. They are processed differently than SQL scripts.
-#
-# ignore             - If 'true' - skip files in this directory and all subdirectories and do not process them.
-#
-# schemaName         - Schema name or comma-separated list of schema names.
-#                      Use either a literal value or a property. The property must exist in the changelog.
-#                      If you use fully-qualified object names in SQL scripts, the schema names in the SQL scripts must match the schema names in the project.
-#                      Packager returns an error if it encounters a schema reference that is not defined in the project.
-#
-#                      For multi-database projects set, schemaName in the form &lt;database&gt;.&lt;schema&gt;.
-#                      Starting in version 5.4, you can use a wildcard for the schema: &lt;database&gt;.*.
-#                      This capability allows you to manage all SQL scripts for the database in a single folder.
-#
-#                      WARNING
-#                      Do not  use [schemaName] if you are using databaseBackupMode=on_demand in deployPackager.properties.
-#
-# versionStrategy    - Specifies how to deploy existing versions of changesets if multiple versions are available to deploy.
-#                      Values are not case-sensitive. 
-#                          deployAll - Deploy all eligible versions in the order they appear in changelog.xml. Default value.
-#                                      This has been the strategy used historically (before versioning).
-#                          deployLatest - deploy only the latest eligible version. 
-#
-#                      If versionStrategy is set to any other value, processing stops with an error.
-#                      A changeset is eligible to deploy if it meets criteria set in the deploy operation (label expression).
-#
-#
-# The following property is only allowed in the root directory (sqlScmSQLBaseDir) and is not allowed in the subdirectories:
-#
-# folderOrder        - Comma separated list of folder names to enforce the package order of files. This can be used
-#                      when packageMethod ordering (deployPacakger property) is insufficient.
-#
-#
-### Microsoft SQL Server ###
-#
-# SQL Server Integration Services (SSIS) related properties
-#
-# ssisPkgName        - Name of an SSIS package file, including extension (.dtsv)
-#
-# ssisConfig         - Name of an SSIS configuration file, including extension (.dtsConfig)
-#
-# ssisDestPath       - Destination directory under SSISDB in the SQL Server database.
-#
-# ssisDestType       - How deployed SSIS files are stored on the destination SQL Server.
-#                      Default is 'SQL' - store the files in the SQL Server database on the destination server.
-#
-# ssisPkgName        - Name of an SSIS package file (.dtsx)
-#
-# ssisProjectName    - Name of anSSIS project file (.ispac)
-#
-# ssisSupportFileDestPath -
-#                      Windows shared drive destination for support files that accompany an SSIS package file (.dtsx)
-#                      Example: \\SSIS-TEST\SSIS_SHARED
-#
-labels=
-contexts=
-rerunnable= 
-packageMethod=
-schemaName=
-versionStrategy=
-disablePropertySubstitution=
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<meta name="description" content="Liquibase Enterprise Documentation" />
+	</head>
+	<body>
+		<h1>How To: Leverage the "metadata.properties" file</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		Use the&#160;<code>metadata.properties</code>&#160;file to specify behavior during packaging.&#160;
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-SampleFile">Sample File</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>A sample <code>metadata.properties</code> file is installed with <MadCap:variable name="General.DaticalDB" /> in <code>&lt;install-dir&gt;/repl/scripts</code>.</p>
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-PlacementandPrecedence">Placement and Precedence</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>The <code>metadata.properties</code> file applies to all files and subdirectories in the directory where it is found, including the root directory for SQL scripts. Additional <code>metadata.properties</code> files can be used in the subdirectories. A property set in a subdirectory overrides the same property set in a parent directory.</p>
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Properties">Properties</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p><strong>Table: metadata.properties file</strong></p>
+		<table>
+			<colgroup>
+				<col style="width: 144.0px;" />
+				<col style="width: 98.0px;" />
+				<col style="width: 916.0px;" />
+			</colgroup>
+			<tbody>
+				<tr>
+					<td>
+						<p>Property</p>
+					</td>
+					<td>
+						<p>Values</p>
+					</td>
+					<td>
+						<p>Description</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>disablePropertySubstitution</strong></td>
+					<td>true | false</td>
+					<td>Turns off interpretation of properties set in the changelog. See <a href="set-prop-project-changelog.htm">Setting Properties in the Project Changelog</a>.</td>
+				</tr>
+				<tr>
+					<td><strong>disableSqlParser</strong></td>
+					<td>true | false</td>
+					<td>
+						<p>Overrides the project option <code>enableSqlParser=true</code>. There is no effect if the project-level setting is&#160;<code>enableSqlParser=false</code>. This property can be used in metadata.properties for folders that use packaging method DIRECT or SQLFILE. See <a href="../../package-sql-scripts-for-deployment/configure-packaging/sql-parser.htm">Using SQL Parser</a>.</p>
+						<p class="title">The SQL Parser and the DATA_DML packaging method</p>
+						<p>When using the DATA_DML packaging method, the SQL Parser is disabled by default for DML with versions 7.6 and higher.</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>labels</strong></span></p>
+					</td>
+					<td>
+						<p><em>labelName</em>[,<em>labelName</em>...]</p>
+					</td>
+					<td>
+						<p><span>One or more labels that identify this set of changes so they can be easily identified and deployed as a group. Multiple values must be separated by commas. No expressions are allowed.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>contexts</strong></span></p>
+					</td>
+					<td>
+						<p><em>contextName</em>[,<em>contextName</em>...]</p>
+					</td>
+					<td>
+						<p><span>One or more context names to associate a changes with specified environments. Multiple values must be separated by commas. No expressions are allowed.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span style="color: rgb(153,153,153);"><strong>allowRepackaging</strong></span></p>
+					</td>
+					<td>
+						<p><span style="color: rgb(153,153,153);">true |&#160;<strong>false</strong></span></p>
+					</td>
+					<td>
+						<p>
+							<span style="color: rgb(153,153,153);">
+								Deprecated starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use rerunnable instead.</span>
+						</p>
+						<p>
+							<span style="color: rgb(153,153,153);">
+								Starting with <MadCap:variable name="General.DaticalDB" /> v4.21, this property controls whether you can reuse a filename. The default value is false.</span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span style="color: rgb(153,153,153);"><strong>archive</strong></span></p>
+					</td>
+					<td>
+						<p><span style="color: rgb(153,153,153);"><strong>true</strong>&#160;| false</span></p>
+					</td>
+					<td>
+						<p>
+							<span style="color: rgb(153,153,153);">
+								Deprecated starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use rerunnable instead.</span>
+						</p>
+						<p>
+							<span style="color: rgb(153,153,153);">
+								Starting with <MadCap:variable name="General.DaticalDB" /> v4.21, this property controls whether files in the data_dml directory get copied to the archive directory. The default value is true.</span>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td><span><strong>rerunnable</strong></span></td>
+					<td>true | false</td>
+					<td>
+						<p>Starting with <MadCap:variable name="General.DaticalDB" /> v4.37, use this property to classify SQL scripts as rerunnable (true) or non-rerunnable (false). Use it in place of the archive and allowRepackaging properties.</p>
+						<ul>
+							<li><em>Rerunnable</em> scripts can be modified in place and repackaged. They stay in their original directory and are not archived.</li>
+							<li><em>Non-rerunnable</em> scripts can be packaged only once. During packaging the original scripts are moved from the original directory to an archive directory.&#160;They cannot be copied back and edited after packaging. To modify non-rerunnable scripts, use the create / replace workflow. See <a href="../../guides/app-dev-user-guides/developer-workflow/Developer Workflows Managing.htm" rel="nofollow">Developer Workflows: Managing Changesets During Development and Test</a>.</li>
+						</ul>
+						<p>Stored logic scripts are usually rerunnable as they perform CREATE OR REPLACE operations and can therefore be run multiple times and produce the same result (they are <em>idempotent</em>).</p>
+						<p>Set rerunnable to true or false.</p>
+						<ul>
+							<li>true - SQL code file is not archived. It can be repackaged.</li>
+							<li>false - SQL code file is archived. It cannot be repackaged.</li>
+						</ul>
+						<p>If not set, the value is assigned based on its type (the folder where it is placed in SCM):</p>
+						<ul>
+							<li>ddl - rerunnable=false</li>
+							<li><span style="color: rgb(0,51,102);">ddl_direct - rerunnable=false</span></li>
+							<li>data_dml - rerunnable=false</li>
+							<li>sql_direct - rerunnable=false</li>
+							<li>sql - rerunnable=false</li>
+							<li>procedure - rerunnable=true</li>
+							<li>package - rerunnable=true</li>
+							<li>packagebody - rerunnable=true</li>
+							<li>function - rerunnable=true</li>
+							<li>trigger - rerunnable=true</li>
+							<li>view - rerunnable=true</li>
+						</ul>
+						<p><strong>Important</strong>: although the use of archive and allowRepackaging are allowed, they are deprecated. In addition, the following combinations of settings now cause an error during packaging:</p>
+						<ul>
+							<li>archive=true and allowRepackaging=true</li>
+							<li>archive=false and allowRepackaging=false</li>
+						</ul>
+						<p>See also&#160;<span><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a>. When you use flexible folder names it is important to specify <code>rerunnable</code> correctly.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>packageMethod</strong></td>
+					<td><code>convert |&#160;<code><span style="color: rgb(255,102,0);"><span style="color: rgb(0,51,102);">ddl_direct</span>&#160;</span></code>| direct | data_dml | sqlfile | storedlogic | ssis | changelog</code></td>
+					<td>
+						<p>Starting with <MadCap:variable name="General.DaticalDB" /> v5.0, s</span>
+							pecifies how to package the file, one of <code style="color: rgb(51,51,51);">convert</code>, <code>ddl_direct,</code>&#160;<code>direct,&#160;</code><code style="color: rgb(51,51,51);">data_dml</code>, <code style="color: rgb(51,51,51);">sqlfile</code>, <code style="color: rgb(51,51,51);">storedlogic</code>, <code style="color: rgb(51,51,51);">ssis</code>. Packager further parses storedlogic files to determine their type, one of <code style="color: rgb(51,51,51);">function</code>, <code style="color: rgb(51,51,51);">procedure</code>, <code style="color: rgb(51,51,51);">package</code>, <code style="color: rgb(51,51,51);">packagebody</code>, <code style="color: rgb(51,51,51);">trigger</code>, <code style="color: rgb(51,51,51);">view</code>. See <a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow" style="color: rgb(51,51,51);">Flexible Folder Names</a>.</p>
+						<p><span>Use the <code>changelog</code> value when packaging Liquibase changelogs. They are processed differently than SQL scripts. See <a href="../../package-sql-scripts-for-deployment/packaging-changelogs.htm" rel="nofollow">Packaging Liquibase Changelogs</a> and&#160;<a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a>.</span></p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>ignore</strong></td>
+					<td>true | false</td>
+					<td>Do not process files in this directory and all subdirectories. See <a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm" rel="nofollow">Flexible Folder Names</a>.</td>
+				</tr>
+				<tr>
+					<td>
+						<p><span><strong>schemaName</strong></span></p>
+					</td>
+					<td></td>
+					<td>
+						<p><span>Schema name or comma-separated list of schema names.</span></p>
+						<p><span>Use either a literal value or a property. (If using a property, it must exist in the changelog, see <a href="set-prop-project-changelog.htm">Setting Properties in the Project Changelog</a>).</span></p>
+						<p><span>If you use fully-qualified object names in SQL scripts, the schema names in the SQL scripts must match the schema names in the project. Packager returns an error if it encounters a schema reference that is not defined in the project.</span></p>
+						<p><span>For multi-database projects set, <strong>schemaName</strong> in the form <code>&lt;database&gt;.&lt;schema&gt;</code>.</span><span>Starting in version 5.4, you can use a wildcard for the schema: <code>&lt;database&gt;.*</code>. This capability allows you to manage all SQL scripts for the database in a single folder.</span></p>
+						<p class="title">Quoting and Casing Considerations When Setting the 'schemaName' property</p>
+						<ul>
+							<li>In order to ensure a consistent deployment experience the casing defined for schema names in the Datical Project and the casing used to set this property MUST MATCH. If they don't match, Deploy Packager will halt with an error</li>
+							<li>It is not necessary to quote schemaName values. Quotes will be removed during Deploy Packager execution.</li>
+						</ul>
+						<p class="title">Warning</p>
+						<p>Do not use <code>schemaName</code> if you are using <code>databaseBackupMode=on_demand</code>&#160;in 
+							<code>
+								deployPackager.properties with <MadCap:variable name="General.DaticalDB" /> versions 5.5 and lower
+							</code>
+							. (It is okay to use&#160;<code>databaseBackupMode=on_demand</code>&#160;in 
+							<code>
+								deployPackager.properties with <MadCap:variable name="General.DaticalDB" /> versions 5.6 and higher.)
+							</code>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>ssisPkgName</strong></td>
+					<td><em>filename</em></td>
+					<td>Name of an SSIS package file, including extension (.dtsv)</td>
+				</tr>
+				<tr>
+					<td><strong>ssisConfig</strong></td>
+					<td><em>filename</em></td>
+					<td>Name of an SSIS configuration file, including extension (.dtsConfig)</td>
+				</tr>
+				<tr>
+					<td><strong>ssisDestPath</strong></td>
+					<td><em>path</em></td>
+					<td>Destination directory under SSISDB in the SQL Server database.</td>
+				</tr>
+				<tr>
+					<td><strong>ssisDestType</strong></td>
+					<td><code>SQL</code></td>
+					<td>How deployed SSIS files are stored on the destination SQL Server. Default is SQL - store the files in the SQL Server database on the destination server.</td>
+				</tr>
+				<tr>
+					<td><strong>ssisPkgName</strong></td>
+					<td><em>name</em></td>
+					<td>Name of an SSIS package file (.dtsx).</td>
+				</tr>
+				<tr>
+					<td><strong>ssisProjectName</strong></td>
+					<td><em>name</em></td>
+					<td>Name of anSSIS project file (.ispac).</td>
+				</tr>
+				<tr>
+					<td><strong>ssisSupportFileDestPath</strong></td>
+					<td><em>network-path</em></td>
+					<td>
+						<p>Windows shared drive destination&#160;for support files that accompany an SSIS package file (.dtsx). (example: <code>\\SSIS-TEST\SSIS_SHARED</code>)&#160;</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>versionStrategy</strong></td>
+					<td><strong>deployAll</strong>|&#160;deployLatest</td>
+					<td>
+						<p>Specifies how to deploy existing versions of rerunnable changesets if multiple versions are available to deploy. Values are not case-sensitive.</p>
+						<ul>
+							<li>deployAll - (default) deploy all eligible versions in the order they appear in changelog.xml. This has been the strategy used historically (before versioning).</li>
+							<li>deployLatest - deploy only the latest eligible version.</li>
+						</ul>
+						<p>If versionStrategy is set to any other value, processing stops with an error.</p>
+						<p>A changeset is eligible to deploy if it meets criteria set in the deploy operation (label expression).</p>
+					</td>
+				</tr>
+				<tr>
+					<td><strong>folderOrder</strong></td>
+					<td><em>Comma-separated list of folders</em></td>
+					<td>
+						<p>Specified only in the metadata.properties file at the top of the SQL code tree. That directory must be the one specifed by the&#160;<strong>sqlScmSQLBaseDir</strong> property&#160;in the&#160;<code>deployPackager.properties</code> file.</p>
+						<p>Provide a list of directories, in the order you want them packaged. Files from these directories are pulled to the front of the packaging order in front of any other folders in the packaging job. See <a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/custom-packaging-order.htm" rel="nofollow">Custom Packaging Order</a>.</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Samplemetadata.propertiesfile">Sample metadata.properties file</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<b class="code-title">Sample metadata.properties file</b>
+		<pre class="syntaxhighlighter-pre" xml:space="preserve"># 	
+			# Placement and Precedence
+			#
+			# The metadata.properties file applies to all files and subdirectories in the directory where it is found, including the root directory for SQL scripts.
+			# Additional metadata.properties files can be used in the subdirectories. A property set in a subdirectory overrides the same property set in a parent directory.
+			#
+			#
+			# The following properties can be set in the metadata.properties file:
+			#
+			# disablePropertySubstitution - If 'true' - disables variable substitution performed by packager prior to packaging script.  Default value 'false'.
+			#
+			# disableSqlParser   - This is only for Oracle.  Overrides the project option enableSqlParser=true.  There is no effect if the project-level setting is enableSqlParser=false.  
+			#                      This property can be used in metadata.properties for folders that use packaging method DIRECT or SQLFILE.
+			#
+			# labels             - One or more labels that identify this set of changes so they can be easily identified and deployed as a group
+			#                      labelName[,labelName...]
+			#
+			# contexts           - One or more context names to associate a changes with specified environments.
+			#                      contextName[,contextName...]
+			#
+			# allowRepackaging   - DEPRECATED starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use [rerunnable] instead.
+			#                      This property previously controlled whether you can reuse a filename. The default value was 'false', but it is now deprecated.
+			#
+			# archive            - DEPRECATED starting with <MadCap:variable name="General.DaticalDB" /> v4.37. Use rerunnable instead.
+			#                      This property previously controlled whether files in the data_dml directory get copied to the archive directory.  
+			#                      The default value was 'true', but now it is deprecated.
+			#
+			# rerunnable         - Classify SQL scripts as rerunnable (true) or non-rerunnable (false). Use it in place of the [archive] and [allowRepackaging] properties.
+			#                      Set rerunnable to 'true' or 'false':
+			#                          true - SQL code file is not archived. It can be repackaged.
+			#                          false - SQL code file is archived. It cannot be repackaged.
+			#
+			#                      If not set, the value is assigned based on its type (the folder where it is placed in SCM):
+			#                          ddl - rerunnable=false
+			#                          data_dml - rerunnable=false
+			#                          ddl_direct - rerunnable=false
+			#                          sql_direct - rerunnable=false
+			#                          sql - rerunnable=false
+			#                          procedure - rerunnable=true
+			#                          package - rerunnable=true
+			#                          packagebody - rerunnable=true
+			#                          function - rerunnable=true
+			#                          trigger - rerunnable=true
+			#                          view - rerunnable=true
+			#
+			#                      Important: although the use of archive and allowRepackaging are allowed, they are deprecated.
+			#                      In addition, the following combinations of settings now cause an error during packaging:
+			#                          archive=true and allowRepackaging=true
+			#                          archive=false and allowRepackaging=false
+			#
+			#                      Also you can use Flexible Folder Names. When you use flexible folder names it is important to specify rerunnable correctly.
+			#
+			#
+			# packageMethod      - Specifies how to package the file. One of 'convert', 'ddl_direct', 'direct', 'data_dml', 'sqlfile', 'storedlogic', 'ssis'.
+			#                      Packager further parses storedlogic files to determine their type, one of 'function', 'procedure', 'package', 'packagebody', 'trigger', 'view'.
+			#                      Use the 'changelog' value when packaging Liquibase changelogs. They are processed differently than SQL scripts.
+			#
+			# ignore             - If 'true' - skip files in this directory and all subdirectories and do not process them.
+			#
+			# schemaName         - Schema name or comma-separated list of schema names.
+			#                      Use either a literal value or a property. The property must exist in the changelog.
+			#                      If you use fully-qualified object names in SQL scripts, the schema names in the SQL scripts must match the schema names in the project.
+			#                      Packager returns an error if it encounters a schema reference that is not defined in the project.
+			#
+			#                      For multi-database projects set, schemaName in the form &lt;database&gt;.&lt;schema&gt;.
+			#                      Starting in version 5.4, you can use a wildcard for the schema: &lt;database&gt;.*.
+			#                      This capability allows you to manage all SQL scripts for the database in a single folder.
+			#
+			#                      WARNING
+			#                      Do not  use [schemaName] if you are using databaseBackupMode=on_demand in deployPackager.properties.
+			#
+			# versionStrategy    - Specifies how to deploy existing versions of changesets if multiple versions are available to deploy.
+			#                      Values are not case-sensitive. 
+			#                          deployAll - Deploy all eligible versions in the order they appear in changelog.xml. Default value.
+			#                                      This has been the strategy used historically (before versioning).
+			#                          deployLatest - deploy only the latest eligible version. 
+			#
+			#                      If versionStrategy is set to any other value, processing stops with an error.
+			#                      A changeset is eligible to deploy if it meets criteria set in the deploy operation (label expression).
+			#
+			#
+			# The following property is only allowed in the root directory (sqlScmSQLBaseDir) and is not allowed in the subdirectories:
+			#
+			# folderOrder        - Comma separated list of folder names to enforce the package order of files. This can be used
+			#                      when packageMethod ordering (deployPacakger property) is insufficient.
+			#
+			#
+			### Microsoft SQL Server ###
+			#
+			# SQL Server Integration Services (SSIS) related properties
+			#
+			# ssisPkgName        - Name of an SSIS package file, including extension (.dtsv)
+			#
+			# ssisConfig         - Name of an SSIS configuration file, including extension (.dtsConfig)
+			#
+			# ssisDestPath       - Destination directory under SSISDB in the SQL Server database.
+			#
+			# ssisDestType       - How deployed SSIS files are stored on the destination SQL Server.
+			#                      Default is 'SQL' - store the files in the SQL Server database on the destination server.
+			#
+			# ssisPkgName        - Name of an SSIS package file (.dtsx)
+			#
+			# ssisProjectName    - Name of anSSIS project file (.ispac)
+			#
+			# ssisSupportFileDestPath -
+			#                      Windows shared drive destination for support files that accompany an SSIS package file (.dtsx)
+			#                      Example: \\SSIS-TEST\SSIS_SHARED
+			#
+			labels=
+			contexts=
+			rerunnable= 
+			packageMethod=
+			schemaName=
+			versionStrategy=
+			disablePropertySubstitution=
 
-</pre><h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-AssigningLabelsandContexts">Assigning Labels and Contexts</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>You can automatically assign labels and contexts to changesets is by using the <strong>labels</strong> property and <strong>contexts</strong> property.</p><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>metadata.properties</b><pre class="syntaxhighlighter-pre" xml:space="preserve"># This properties file controls label and context values on Deployment Packager generated change sets
-labels=label1,label2,label3
-contexts=QA,PERF_TEST,UAT</pre><h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-EnablingRepackaging">Enabling Repackaging</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>The allowRepackaging property has been deprecated. Use the rerunnable property instead.&#160;</p><p>If for future scripts you want to be able to repackage the without changing the filename and do not want the script to be archived, set <code>rerunnable=true&#160;</code>in the metadata.properties folder.&#160; The Deployment Packager then ignores the earlier version of this file and repackages it as a change set with a higher version number than the previous version.&#160; If rerunnable is not set, the Deployment Package ignores any files already packaged and moves them to the archive folder.&#160; You cannot re-use the same script name unless you are using&#160;<code>rerunnable=true.</code></p><p><strong>Note</strong>: The new script needs to account for what was already deployed by the older script.</p><p>For example,&#160;</p><ol><li>You package a script that creates a table.&#160;</li><li>You want to change the script and repackage it. The changed script still creates the same table.&#160; &#160;</li></ol><p>The changed script needs to drop the table before re-creating it.</p><h1 class="auto-cursor-target" id="HowTo:Leveragethe&quot;metadata.properties&quot;file-UsingschemaNamewithMulti-schemaandMulti-databaseProjects">Using schemaName with Multi-schema and Multi-database Projects</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Projects that use multiple schemas require that that changesets include a schema specification for object changes.&#160;&#160;</p><p>Multi-database projects are also multi-schema. Each database may have multiple schema. Use the wildcard ( * ) for the schema in the <code>schemaName</code> attribute to manage the projects using a database folder instead of a folder per schema.&#160;</p><p>During deployment, Deployment Packager evaluates the <strong>schemaName</strong> property. Evaluation behavior varies with the type of script as follows:</p><ul><li>If a sql script (ddl directory) does not specify a schema name for an object, the first schema listed in the schemaName property is used. Fully-qualified object names are considered valid, even if they use a schema name that does not match the schemaName setting.&#160;</li><li>If a stored-logic script (function, package, packagebody, procedure, trigger, view directories) specifies a schema name for an object that does not match the first schema in the schemaName list, an error is returned.</li><li>If a directly-executed script (sql, sql_direct directories) specifies a schema name for an object, the object is deployed to the schema specified in the script. The script setting overrides the schemaName property setting. However, the ChangeLog entry shows the the first item in theschemaName list.</li></ul><p class="title">Note</p>If a single-schema project includes a schemaName setting in <code>metadata.properties</code>, packaging fails with an error. Schema cannot be specified for single-schema projects.&#160;<p>The schemaName property is evaluated only for some types of scripts, corresponding with the script directories:</p><table class="wrapped confluenceTable"><colgroup></colgroup><tbody><tr><th>Evaluated</th><th>Not evaluated</th></tr><tr><td><p>data_dml</p><p>ddl</p><p><span style="color: rgb(0,51,102);">ddl_direct</span></p><p>function</p><p>package</p><p>packagebody</p><p>procedure</p><p>sql</p><p>sql_direct (*see note about Microsoft SQL Server below)</p><p>trigger</p><p>view</p></td><td><p>sqlplus</p></td></tr></tbody></table><p>*For Microsoft SQL Server scripts must use fully qualified object names and references in the sql_direct folder, unless your schema is dbo AND dbo is set as the default schema for your Datical user.</p><p>For examples, see near the bottom of&#160;<a href="#">How To: Leverage the "metadata.properties" file</a>.</p><h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Examples:">Examples:</h1> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><p>Let us work with an example. Assume that this is the directory structure within your sql_code directory:</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="218" width="170" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-33-17.png?version=1&amp;modificationDate=1501615998895&amp;cacheVersion=1&amp;api=v2&amp;width=170&amp;height=218" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-33-17.png?version=1&amp;modificationDate=1501615998895&amp;cacheVersion=1&amp;api=v2&amp;width=170&amp;height=218 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-33-17.png?version=1&amp;modificationDate=1501615998895&amp;cacheVersion=1&amp;api=v2&amp;width=170&amp;height=218 1x" /></span></p><h2 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-UsingLabels">Using Labels</h2><h3 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Use-case:Apply&quot;hotfix&quot;labeltocertainddlscripts">Use-case: Apply "hotfix" label to certain ddl scripts</h3><ul><li><p>Create a "hotfix" subdirectory in the ddl directory&#160;</p></li><li><p>Create a "metadata.properties" file in the "hotfix" subdirectory.&#160;</p></li><li><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="247" width="384" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-36-1.png?version=1&amp;modificationDate=1501616163018&amp;cacheVersion=1&amp;api=v2&amp;width=384&amp;height=247" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-36-1.png?version=1&amp;modificationDate=1501616163018&amp;cacheVersion=1&amp;api=v2&amp;width=384&amp;height=247 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-36-1.png?version=1&amp;modificationDate=1501616163018&amp;cacheVersion=1&amp;api=v2&amp;width=384&amp;height=247 1x" /></span></p></li><li><p>Add the following line in the metadata.properties file:</p></li><li><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>metadata.properties - hotfix</b><pre class="syntaxhighlighter-pre" xml:space="preserve">labels=hotfix</pre></li><li><p>Now, when Deployment Packager packages any script from the "hotfix" subdirectory, those changes will automatically receive the "hotfix" label (because the label is defined in "metadata.properties" file in the hotfix subdirectory)</p><ul><li>Lets say "table_user_session_fix1.sql" script is dropped into sql_code/ddl/hotfix directory and it is committed into SCM.&#160;</li><li>When packager runs, it will pick up this script and realize that there is a metadata.properties file located in the same directory and it contains labels=hotfix. Therefore, packager will apply this label ("hotfix") to all changesets generated from this sql script.</li><li>Note that in addition to applying the "hotfix" label, other labels are also applied:&#160;<ul><li>The script name is a label&#160;</li><li>The label passed into the Deployment Packager when packager was invoked (via "hammer groovy deployPackager.groovy --label=&lt;comma_separated_list_of_labels&gt;")</li></ul></li><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="181" width="1180" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_9-15-23.png?version=1&amp;modificationDate=1501679726813&amp;cacheVersion=1&amp;api=v2&amp;width=1180&amp;height=181" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_9-15-23.png?version=1&amp;modificationDate=1501679726813&amp;cacheVersion=1&amp;api=v2&amp;width=1180&amp;height=181 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_9-15-23.png?version=1&amp;modificationDate=1501679726813&amp;cacheVersion=1&amp;api=v2&amp;width=1180&amp;height=181 1x" /></span></li></ul></li></ul><h2 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-UsingContexts">Using Contexts</h2><h3 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Usecase:ChangesneedtobedeployedtospecificDevenvironments">Use case: Changes need to be deployed to specific Dev environments</h3><p>Certain projects have requirements where they have multiple DEV databases (e.g., DEV1, DEV2, DEV3, etc.). Each DEV environment is given to a specific team or designated for a specific feature. As such, scripts get deployed to a specific DEV database (instead of deploying to all DEV databases).Once scripts are ready for QA, then all scripts are deployed into a single QA environment. Here is a high level diagram to show typical deployment path:</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="451" width="824" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-14-31.png?version=1&amp;modificationDate=1501683273389&amp;cacheVersion=1&amp;api=v2&amp;width=824&amp;height=451" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-14-31.png?version=1&amp;modificationDate=1501683273389&amp;cacheVersion=1&amp;api=v2&amp;width=824&amp;height=451 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-14-31.png?version=1&amp;modificationDate=1501683273389&amp;cacheVersion=1&amp;api=v2&amp;width=824&amp;height=451 1x" /></span></p><p>This can be achieved using Datical's "context". Similar to labels, a context refers to a specific database (or databases) in the pipeline. When a Datical pipeline is configured, each connection to database is given a context. This context can be used to perform deployments.&#160;</p><h4 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-WheredoyouspecifycontextforadatabaseenvironmentinDaticalproject?">Where do you specify context for a database environment in Datical project?</h4><ul><li>In <MadCap:variable name="General.DaticalDB" /> GUI, click on "Edit Connection" link for each database in the project:</li><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="275" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-9-42.png?version=1&amp;modificationDate=1501686584370&amp;cacheVersion=1&amp;api=v2&amp;width=275&amp;height=342" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-9-42.png?version=1&amp;modificationDate=1501686584370&amp;cacheVersion=1&amp;api=v2&amp;width=326&amp;height=406 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-9-42.png?version=1&amp;modificationDate=1501686584370&amp;cacheVersion=1&amp;api=v2&amp;width=275&amp;height=342 1x" /></span></li><li>Specify context here. If no context is provided, click on the "Configure" button on the right to type in the context</li><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="466" width="440" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-11-47.png?version=1&amp;modificationDate=1501686708964&amp;cacheVersion=1&amp;api=v2&amp;width=440&amp;height=465" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-11-47.png?version=1&amp;modificationDate=1501686708964&amp;cacheVersion=1&amp;api=v2&amp;width=614&amp;height=650 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-11-47.png?version=1&amp;modificationDate=1501686708964&amp;cacheVersion=1&amp;api=v2&amp;width=440&amp;height=465 1x" /></span>&#160;→&#160;<span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="490" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-13-53.png?version=1&amp;modificationDate=1501686835092&amp;cacheVersion=1&amp;api=v2&amp;width=490&amp;height=318" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-13-53.png?version=1&amp;modificationDate=1501686835092&amp;cacheVersion=1&amp;api=v2&amp;width=633&amp;height=412 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-13-53.png?version=1&amp;modificationDate=1501686835092&amp;cacheVersion=1&amp;api=v2&amp;width=490&amp;height=318 1x" /></span></li><li>Click "OK".</li><li>Repeat for all database environments in the project, including database environments in other pipelines that exist in the project.<ul><li>Your context can match your database name as shown in the table below:<ul><li><table class="wrapped confluenceTable"><colgroup></colgroup><tbody><tr><th>Database name</th><th>Context</th></tr><tr><td>REF1</td><td>REF1</td></tr><tr><td>DEV1</td><td>DEV1</td></tr><tr><td>DEV2</td><td>DEV2</td></tr><tr><td>DEV3</td><td>DEV3</td></tr><tr><td>QA</td><td>QA</td></tr><tr><td>STAGE</td><td>STAGE</td></tr><tr><td>PROD</td><td>PROD</td></tr></tbody></table></li></ul></li></ul></li><li>Finally, make sure to push the project into your SCM (e.g., Bitbucket).</li></ul><h4 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Step-by-stepguide">Step-by-step guide</h4><ul><li>Setup directory structure such that there are DEV subdirectories in each of the sql_code directories<ul><li>For example, in data_dml directory, there would be three DEV directories - one for each DEV environment - DEV1, DEV2 and DEV3</li></ul></li><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="400" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-30-35.png?version=1&amp;modificationDate=1501684238632&amp;cacheVersion=1&amp;api=v2&amp;width=400&amp;height=394" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-30-35.png?version=1&amp;modificationDate=1501684238632&amp;cacheVersion=1&amp;api=v2&amp;width=470&amp;height=464 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-30-35.png?version=1&amp;modificationDate=1501684238632&amp;cacheVersion=1&amp;api=v2&amp;width=400&amp;height=394 1x" /></span></li><li>In each DEV subdirectory, there would be a "metadata.properties" file which would contain "contexts" flag:<ul><li>In <u>DEV1</u> subdirectory, the "metadata.properties" file would contain "contexts=REF1,<span style="color: rgb(255,0,0);">DEV1</span>,QA,STAGE,PROD"</li><li>In <u>DEV2</u> subdirectory, the "metadata.properties" file would contain "contexts=REF1,<span style="color: rgb(255,0,0);">DEV2</span>,QA,STAGE,PROD"</li><li>In <u>DEV3</u> subdirectory, the "metadata.properties" file would contain "contexts=REF1,<span style="color: rgb(255,0,0);">DEV3</span>,QA,STAGE,PROD"</li><li><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>metadata.properties - DEV1</b><pre class="syntaxhighlighter-pre" xml:space="preserve">contexts=REF1,DEV1,QA,STAGE,PROD</pre></li></ul></li><li>When packager picks up scripts from these subdirectories, it will automatically apply all context to resulting changesets.&#160;<ul><li>Lets say "shopping_cart_aug.sql" script is dropped into sql_code/ddl/DEV1 directory and it is committed into SCM.&#160;</li><li>When packager runs, it will pick up this script and realize that there is a metadata.properties file located in the same directory (ddl/DEV1) and it contains contexts=REF1,DEV1,QA,STAGE,PROD. Therefore, packager will apply these contexts to all changesets generated from this sql script.</li></ul></li><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="208" width="935" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-2-4.png?version=1&amp;modificationDate=1501686126342&amp;cacheVersion=1&amp;api=v2&amp;width=935&amp;height=208" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-2-4.png?version=1&amp;modificationDate=1501686126342&amp;cacheVersion=1&amp;api=v2&amp;width=935&amp;height=208 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-2-4.png?version=1&amp;modificationDate=1501686126342&amp;cacheVersion=1&amp;api=v2&amp;width=935&amp;height=208 1x" /></span></li><li>Now, when you deploy your changes to DEV1 environment, these two changesets will be DEPLOYED.</li><li>When you deploy your changes to DEV2 or DEV3 environments, these two changesets will be SKIPPED because the context for these changesets do not match with the database context as specified in the Datical project</li></ul></body>
+		</pre>
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-AssigningLabelsandContexts">Assigning Labels and Contexts</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>You can automatically assign labels and contexts to changesets is by using the <strong>labels</strong> property and <strong>contexts</strong> property.</p>
+		<b>metadata.properties</b>
+		<pre class="syntaxhighlighter-pre" xml:space="preserve"># This properties file controls label and context values on Deployment Packager generated change sets
+			labels=label1,label2,label3
+		contexts=QA,PERF_TEST,UAT</pre>
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-EnablingRepackaging">Enabling Repackaging</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>The allowRepackaging property has been deprecated. Use the rerunnable property instead.</p>
+		<p>If for future scripts you want to be able to repackage the without changing the filename and do not want the script to be archived, set <code>rerunnable=true&#160;</code>in the metadata.properties folder. The Deployment Packager then ignores the earlier version of this file and repackages it as a change set with a higher version number than the previous version. If rerunnable is not set, the Deployment Package ignores any files already packaged and moves them to the archive folder. You cannot re-use the same script name unless you are using&#160;<code>rerunnable=true.</code></p>
+		<p><strong>Note</strong>: The new script needs to account for what was already deployed by the older script.</p>
+		<p>For example,&#160;</p>
+		<ol>
+			<li>You package a script that creates a table.</li>
+			<li>You want to change the script and repackage it. The changed script still creates the same table.</li>
+		</ol>
+		<p>The changed script needs to drop the table before re-creating it.</p>
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-UsingschemaNamewithMulti-schemaandMulti-databaseProjects">Using schemaName with Multi-schema and Multi-database Projects</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>Projects that use multiple schemas require that that changesets include a schema specification for object changes.</p>
+		<p>Multi-database projects are also multi-schema. Each database may have multiple schema. Use the wildcard ( * ) for the schema in the <code>schemaName</code> attribute to manage the projects using a database folder instead of a folder per schema.</p>
+		<p>During deployment, Deployment Packager evaluates the <strong>schemaName</strong> property. Evaluation behavior varies with the type of script as follows:</p>
+		<ul>
+			<li>If a sql script (ddl directory) does not specify a schema name for an object, the first schema listed in the schemaName property is used. Fully-qualified object names are considered valid, even if they use a schema name that does not match the schemaName setting.</li>
+			<li>If a stored-logic script (function, package, packagebody, procedure, trigger, view directories) specifies a schema name for an object that does not match the first schema in the schemaName list, an error is returned.</li>
+			<li>If a directly-executed script (sql, sql_direct directories) specifies a schema name for an object, the object is deployed to the schema specified in the script. The script setting overrides the schemaName property setting. However, the ChangeLog entry shows the the first item in theschemaName list.</li>
+		</ul>
+		<p class="title">Note</p>
+		If a single-schema project includes a schemaName setting in <code>metadata.properties</code>, packaging fails with an error. Schema cannot be specified for single-schema projects.&#160;
+		<p>The schemaName property is evaluated only for some types of scripts, corresponding with the script directories:</p>
+		<table>
+			<tbody>
+				<tr>
+					<th>Evaluated</th>
+					<th>Not evaluated</th>
+				</tr>
+				<tr>
+					<td>
+						<p>data_dml</p>
+						<p>ddl</p>
+						<p><span style="color: rgb(0,51,102);">ddl_direct</span></p>
+						<p>function</p>
+						<p>package</p>
+						<p>packagebody</p>
+						<p>procedure</p>
+						<p>sql</p>
+						<p>sql_direct (*see note about Microsoft SQL Server below)</p>
+						<p>trigger</p>
+						<p>view</p>
+					</td>
+					<td>
+						<p>sqlplus</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p>*For Microsoft SQL Server scripts must use fully qualified object names and references in the sql_direct folder, unless your schema is dbo AND dbo is set as the default schema for your Datical user.</p>
+		<p>For examples, see near the bottom of <a href="#">How To: Leverage the "metadata.properties" file</a>.</p>
+		<h1 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Examples:">Examples:</h1>
+		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>Let us work with an example. Assume that this is the directory structure within your sql_code directory:</p>
+		<p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="218" width="170" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-33-17.png?version=1&amp;modificationDate=1501615998895&amp;cacheVersion=1&amp;api=v2&amp;width=170&amp;height=218" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-33-17.png?version=1&amp;modificationDate=1501615998895&amp;cacheVersion=1&amp;api=v2&amp;width=170&amp;height=218 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-33-17.png?version=1&amp;modificationDate=1501615998895&amp;cacheVersion=1&amp;api=v2&amp;width=170&amp;height=218 1x" /></span></p>
+		<h2 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-UsingLabels">Using Labels</h2>
+		<h3 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Use-case:Apply&quot;hotfix&quot;labeltocertainddlscripts">Use-case: Apply "hotfix" label to certain ddl scripts</h3>
+		<ul>
+			<li>
+				<p>Create a "hotfix" subdirectory in the ddl directory&#160;</p>
+			</li>
+			<li>
+				<p>Create a "metadata.properties" file in the "hotfix" subdirectory.</p>
+			</li>
+			<li>
+				<p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="247" width="384" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-36-1.png?version=1&amp;modificationDate=1501616163018&amp;cacheVersion=1&amp;api=v2&amp;width=384&amp;height=247" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-36-1.png?version=1&amp;modificationDate=1501616163018&amp;cacheVersion=1&amp;api=v2&amp;width=384&amp;height=247 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-1_15-36-1.png?version=1&amp;modificationDate=1501616163018&amp;cacheVersion=1&amp;api=v2&amp;width=384&amp;height=247 1x" /></span></p>
+			</li>
+			<li>
+				<p>Add the following line in the metadata.properties file:</p>
+			</li>
+			<li>
+				<b>metadata.properties - hotfix</b>
+				<pre class="syntaxhighlighter-pre" xml:space="preserve">labels=hotfix</pre>
+			</li>
+			<li>
+				<p>Now, when Deployment Packager packages any script from the "hotfix" subdirectory, those changes will automatically receive the "hotfix" label (because the label is defined in "metadata.properties" file in the hotfix subdirectory)</p>
+				<ul>
+					<li>Lets say "table_user_session_fix1.sql" script is dropped into sql_code/ddl/hotfix directory and it is committed into SCM.</li>
+					<li>When packager runs, it will pick up this script and realize that there is a metadata.properties file located in the same directory and it contains labels=hotfix. Therefore, packager will apply this label ("hotfix") to all changesets generated from this sql script.</li>
+					<li>Note that in addition to applying the "hotfix" label, other labels are also applied:&#160;
+						<ul>
+							<li>The script name is a label</li>
+							<li>The label passed into the Deployment Packager when packager was invoked (via "hammer groovy deployPackager.groovy --label=&lt;comma_separated_list_of_labels&gt;")</li>
+						</ul>
+					</li>
+					<li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="181" width="1180" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_9-15-23.png?version=1&amp;modificationDate=1501679726813&amp;cacheVersion=1&amp;api=v2&amp;width=1180&amp;height=181" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_9-15-23.png?version=1&amp;modificationDate=1501679726813&amp;cacheVersion=1&amp;api=v2&amp;width=1180&amp;height=181 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_9-15-23.png?version=1&amp;modificationDate=1501679726813&amp;cacheVersion=1&amp;api=v2&amp;width=1180&amp;height=181 1x" /></span></li>
+				</ul>
+			</li>
+		</ul>
+		<h2 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-UsingContexts">Using Contexts</h2>
+		<h3 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Usecase:ChangesneedtobedeployedtospecificDevenvironments">Use case: Changes need to be deployed to specific Dev environments</h3>
+		<p>Certain projects have requirements where they have multiple DEV databases (e.g., DEV1, DEV2, DEV3, etc.). Each DEV environment is given to a specific team or designated for a specific feature. As such, scripts get deployed to a specific DEV database (instead of deploying to all DEV databases).Once scripts are ready for QA, then all scripts are deployed into a single QA environment. Here is a high level diagram to show typical deployment path:</p>
+		<p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="451" width="824" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-14-31.png?version=1&amp;modificationDate=1501683273389&amp;cacheVersion=1&amp;api=v2&amp;width=824&amp;height=451" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-14-31.png?version=1&amp;modificationDate=1501683273389&amp;cacheVersion=1&amp;api=v2&amp;width=824&amp;height=451 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-14-31.png?version=1&amp;modificationDate=1501683273389&amp;cacheVersion=1&amp;api=v2&amp;width=824&amp;height=451 1x" /></span></p>
+		<p>This can be achieved using Datical's "context". Similar to labels, a context refers to a specific database (or databases) in the pipeline. When a Datical pipeline is configured, each connection to database is given a context. This context can be used to perform deployments.</p>
+		<h4 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-WheredoyouspecifycontextforadatabaseenvironmentinDaticalproject?">Where do you specify context for a database environment in Datical project?</h4>
+		<ul>
+			<li>In <MadCap:variable name="General.DaticalDB" /> GUI, click on "Edit Connection" link for each database in the project:</li>
+			<li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="275" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-9-42.png?version=1&amp;modificationDate=1501686584370&amp;cacheVersion=1&amp;api=v2&amp;width=275&amp;height=342" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-9-42.png?version=1&amp;modificationDate=1501686584370&amp;cacheVersion=1&amp;api=v2&amp;width=326&amp;height=406 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-9-42.png?version=1&amp;modificationDate=1501686584370&amp;cacheVersion=1&amp;api=v2&amp;width=275&amp;height=342 1x" /></span></li>
+			<li>Specify context here. If no context is provided, click on the "Configure" button on the right to type in the context</li>
+			<li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="466" width="440" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-11-47.png?version=1&amp;modificationDate=1501686708964&amp;cacheVersion=1&amp;api=v2&amp;width=440&amp;height=465" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-11-47.png?version=1&amp;modificationDate=1501686708964&amp;cacheVersion=1&amp;api=v2&amp;width=614&amp;height=650 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-11-47.png?version=1&amp;modificationDate=1501686708964&amp;cacheVersion=1&amp;api=v2&amp;width=440&amp;height=465 1x" /></span>&#160;→&#160;<span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="490" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-13-53.png?version=1&amp;modificationDate=1501686835092&amp;cacheVersion=1&amp;api=v2&amp;width=490&amp;height=318" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-13-53.png?version=1&amp;modificationDate=1501686835092&amp;cacheVersion=1&amp;api=v2&amp;width=633&amp;height=412 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-13-53.png?version=1&amp;modificationDate=1501686835092&amp;cacheVersion=1&amp;api=v2&amp;width=490&amp;height=318 1x" /></span></li>
+			<li>Click "OK".</li>
+			<li>Repeat for all database environments in the project, including database environments in other pipelines that exist in the project.
+				<ul>
+					<li>Your context can match your database name as shown in the table below:
+						<ul>
+							<li>
+								<table>
+									<tbody>
+										<tr>
+											<th>Database name</th>
+											<th>Context</th>
+										</tr>
+										<tr>
+											<td>REF1</td>
+											<td>REF1</td>
+										</tr>
+										<tr>
+											<td>DEV1</td>
+											<td>DEV1</td>
+										</tr>
+										<tr>
+											<td>DEV2</td>
+											<td>DEV2</td>
+										</tr>
+										<tr>
+											<td>DEV3</td>
+											<td>DEV3</td>
+										</tr>
+										<tr>
+											<td>QA</td>
+											<td>QA</td>
+										</tr>
+										<tr>
+											<td>STAGE</td>
+											<td>STAGE</td>
+										</tr>
+										<tr>
+											<td>PROD</td>
+											<td>PROD</td>
+										</tr>
+									</tbody>
+								</table>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>Finally, make sure to push the project into your SCM (e.g., Bitbucket).</li>
+		</ul>
+		<h4 id="HowTo:Leveragethe&quot;metadata.properties&quot;file-Step-by-stepguide">Step-by-step guide</h4>
+		<ul>
+			<li>Setup directory structure such that there are DEV subdirectories in each of the sql_code directories
+				<ul>
+					<li>For example, in data_dml directory, there would be three DEV directories - one for each DEV environment - DEV1, DEV2 and DEV3</li>
+				</ul>
+			</li>
+			<li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="400" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-30-35.png?version=1&amp;modificationDate=1501684238632&amp;cacheVersion=1&amp;api=v2&amp;width=400&amp;height=394" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-30-35.png?version=1&amp;modificationDate=1501684238632&amp;cacheVersion=1&amp;api=v2&amp;width=470&amp;height=464 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_10-30-35.png?version=1&amp;modificationDate=1501684238632&amp;cacheVersion=1&amp;api=v2&amp;width=400&amp;height=394 1x" /></span></li>
+			<li>In each DEV subdirectory, there would be a "metadata.properties" file which would contain "contexts" flag:
+				<ul>
+					<li>In <u>DEV1</u> subdirectory, the "metadata.properties" file would contain "contexts=REF1,<span style="color: rgb(255,0,0);">DEV1</span>,QA,STAGE,PROD"</li>
+					<li>In <u>DEV2</u> subdirectory, the "metadata.properties" file would contain "contexts=REF1,<span style="color: rgb(255,0,0);">DEV2</span>,QA,STAGE,PROD"</li>
+					<li>In <u>DEV3</u> subdirectory, the "metadata.properties" file would contain "contexts=REF1,<span style="color: rgb(255,0,0);">DEV3</span>,QA,STAGE,PROD"</li>
+					<li>
+						<b>metadata.properties - DEV1</b>
+						<pre class="syntaxhighlighter-pre" xml:space="preserve">contexts=REF1,DEV1,QA,STAGE,PROD</pre>
+					</li>
+				</ul>
+			</li>
+			<li>When packager picks up scripts from these subdirectories, it will automatically apply all context to resulting changesets.&#160;
+				<ul>
+					<li>Lets say "shopping_cart_aug.sql" script is dropped into sql_code/ddl/DEV1 directory and it is committed into SCM.</li>
+					<li>When packager runs, it will pick up this script and realize that there is a metadata.properties file located in the same directory (ddl/DEV1) and it contains contexts=REF1,DEV1,QA,STAGE,PROD. Therefore, packager will apply these contexts to all changesets generated from this sql script.</li>
+				</ul>
+			</li>
+			<li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="208" width="935" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-2-4.png?version=1&amp;modificationDate=1501686126342&amp;cacheVersion=1&amp;api=v2&amp;width=935&amp;height=208" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-2-4.png?version=1&amp;modificationDate=1501686126342&amp;cacheVersion=1&amp;api=v2&amp;width=935&amp;height=208 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1021086/image2017-8-2_11-2-4.png?version=1&amp;modificationDate=1501686126342&amp;cacheVersion=1&amp;api=v2&amp;width=935&amp;height=208 1x" /></span></li>
+			<li>Now, when you deploy your changes to DEV1 environment, these two changesets will be DEPLOYED.</li>
+			<li>When you deploy your changes to DEV2 or DEV3 environments, these two changesets will be SKIPPED because the context for these changesets do not match with the database context as specified in the Datical project</li>
+		</ul>
+	</body>
 </html>

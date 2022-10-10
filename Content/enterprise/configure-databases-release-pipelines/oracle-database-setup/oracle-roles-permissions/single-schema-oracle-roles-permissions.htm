@@ -3,22 +3,17 @@
     <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
     <body>
         <h1>Single-Schema Projects - Oracle Roles and Permissions</h1>
-        <p>For single-schema projects the DATICAL_USER is the managed schema account.&#160; At runtime, <MadCap:variable name="General.DaticalDB" /> will connect to the database as the owner of the managed schema to process and deploy code.&#160; The DATABASECHANGELOG and DATABASECHANGELOGLOCK tables used to track and manage database changes are deployed into the managed schema.&#160; The database schemas can be different across steps in the pipeline.</p>
-        <p>
-            <br />
-        </p>
-        <p>Database permissions for <MadCap:variable name="General.DaticalDB" /> are managed through Roles.&#160; Three <MadCap:variable name="General.DaticalDB" /> Roles are needed:</p>
+        <p>For single-schema projects the DATICAL_USER is the managed schema account. At runtime, <MadCap:variable name="General.DaticalDB" /> will connect to the database as the owner of the managed schema to process and deploy code. The DATABASECHANGELOG and DATABASECHANGELOGLOCK tables used to track and manage database changes are deployed into the managed schema. The database schemas can be different across steps in the pipeline.</p>
+        <p>Database permissions for <MadCap:variable name="General.DaticalDB" /> are managed through Roles. Three <MadCap:variable name="General.DaticalDB" /> Roles are needed:</p>
         <ul>
-            <li>DATICAL_SCHEMA_OWNER_ROLE - Required on all databases in the project.&#160; Grants permissions to deploy objects.</li>
-            <li>DATICAL_PACKAGER_SCHEMA_OWNER_ROLE - Required only on the REF database in the project.&#160; Grants additional permissions required to execute <MadCap:variable name="General.DaticalDB" /> packaging operations.</li>
-            <li>DATICAL_TRACK_ROLE - Required on all databases in the project.&#160; Grants permissions to manage the database change log.&#160;</li>
+            <li>DATICAL_SCHEMA_OWNER_ROLE - Required on all databases in the project. Grants permissions to deploy objects.</li>
+            <li>DATICAL_PACKAGER_SCHEMA_OWNER_ROLE - Required only on the REF database in the project. Grants additional permissions required to execute <MadCap:variable name="General.DaticalDB" /> packaging operations.</li>
+            <li>DATICAL_TRACK_ROLE - Required on all databases in the project. Grants permissions to manage the database change log.</li>
         </ul>
-        <h2 class="auto-cursor-target" id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_SCHEMA_OWNER_ROLE">DATICAL_SCHEMA_OWNER_ROLE</h2>
+        <h2 id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_SCHEMA_OWNER_ROLE">DATICAL_SCHEMA_OWNER_ROLE</h2>
         <p>This role gives the <MadCap:variable name="General.DaticalDB" /> user the required permissions on all managed database objects.</p>
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_ROLE_SCHEMA_OWNER</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">-- The following must be run as sysdba
+        <b>DATICAL_ROLE_SCHEMA_OWNER</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- The following must be run as sysdba
 -- SQL &gt; conn / as sysdba
 
 CREATE ROLE DATICAL_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
@@ -84,39 +79,26 @@ GRANT SELECT_CATALOG_ROLE TO DATICAL_SCHEMA_OWNER_ROLE;
 GRANT SELECT ON V_$PARAMETER TO DATICAL_SCHEMA_OWNER_ROLE;
  
 -- Permissions needed to capture storage options
-GRANT EXECUTE ON SYS.UTL_FILE TO DATICAL_SCHEMA_OWNER_ROLE;
-</pre>
-            
-        
-        <p>
-            <br />
-        </p>
-        <h1 class="auto-cursor-target" id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_PACKAGER_SCHEMA_OWNER_ROLE">DATICAL_PACKAGER_SCHEMA_OWNER_ROLE</h1>
-        <p>This role adds permissions needed to perform packaging. Use it only for the REF database (project step).&#160;</p>
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_PACKAGER_SCHEMA_OWNER</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
+GRANT EXECUTE ON SYS.UTL_FILE TO DATICAL_SCHEMA_OWNER_ROLE;</pre>
+        <h1 id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_PACKAGER_SCHEMA_OWNER_ROLE">DATICAL_PACKAGER_SCHEMA_OWNER_ROLE</h1>
+        <p>This role adds permissions needed to perform packaging. Use it only for the REF database (project step).</p>
+        <b>DATICAL_PACKAGER_SCHEMA_OWNER</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
 
 -- When using the tracefileLocation=REMOTE, you will need to setup the following permissions.
--- Note: These permissions are only required on schemas running the Convert SQL Scripts command.&#160; This is only needed on the packaging / reference database.
+-- Note: These permissions are only required on schemas running the Convert SQL Scripts command. This is only needed on the packaging / reference database.
 GRANT ALTER SESSION TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
 
--- The following permissions are needed for backing up and restoring the database.&#160; This is only needed on the packaging / reference database.
+-- The following permissions are needed for backing up and restoring the database. This is only needed on the packaging / reference database.
 GRANT EXP_FULL_DATABASE TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
 GRANT IMP_FULL_DATABASE TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
 
 -- The following permission is required if you you have Data Vault installed. This is only needed on the packaging / reference database.
-GRANT BECOME USER TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
-</pre>
-            
-        
-        <h1 class="auto-cursor-target" id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_TRACK_ROLE">DATICAL_TRACK_ROLE</h1>
+GRANT BECOME USER TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;</pre>
+        <h1 id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_TRACK_ROLE">DATICAL_TRACK_ROLE</h1>
         <p>This role should be managed separately. There are some overlaps with permissions in the DATICAL_SCHEMA_OWNER_ROLE.</p>
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_TRACK_ROLE</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
+        <b>DATICAL_TRACK_ROLE</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
 
 -- will create 2 tables - DATABASECHANGELOG and DATABASECHANGELOGLOCK
 -- will insert records
@@ -125,39 +107,23 @@ grant create session,
   create synonym, create view,
   create cluster, create indextype, create operator
 to DATICAL_TRACK_ROLE;</pre>
-            
-        
         <h1 id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_DATAPUMP_DIRCreation">DATICAL_DATAPUMP_DIR Creation</h1>
-        <p><MadCap:variable name="General.DaticalDB" /> uses datapump as the default mechanism to backup and restore database schemas during Packaging.&#160; The DATICAL_DATAPUMP_DIR is only needed on the REF databases.&#160; Edit the script to set the path for the DATICAL_DATAPUMP_DIR to an appropriate location on the database server.</p>
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>DATICAL_DATAPUMP_DIR</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
+        <p><MadCap:variable name="General.DaticalDB" /> uses datapump as the default mechanism to backup and restore database schemas during Packaging. The DATICAL_DATAPUMP_DIR is only needed on the REF databases. Edit the script to set the path for the DATICAL_DATAPUMP_DIR to an appropriate location on the database server.</p>
+        <b>DATICAL_DATAPUMP_DIR</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
 CREATE OR REPLACE DIRECTORY DATICAL_DATAPUMP_DIR AS '&amp;PathToDatapumpDir';
 </pre>
-            
-        
-        <div class="confluence-information-macro confluence-information-macro-note conf-macro output-block">
-            
-                <p>To use Data Pump in an Oracle RAC configuration, you must ensure that the directory object path (DATICAL_DATAPUMP_DIR by default) is on a cluster-wide file system.&#160; The directory object must point to shared physical storage that is visible to, and accessible from, all instances where Data Pump and/or external tables processes may run.&#160;</p>
-            
-        
+        <p>To use Data Pump in an Oracle RAC configuration, you must ensure that the directory object path (DATICAL_DATAPUMP_DIR by default) is on a cluster-wide file system. The directory object must point to shared physical storage that is visible to, and accessible from, all instances where Data Pump and/or external tables processes may run.</p>
         <h1 id="Single-SchemaProjects-OracleRolesandPermissions-TRACE_FILE_DIRCreation">TRACE_FILE_DIR Creation</h1>
-        <p>When using the tracefileLocation=remote option, the following directory object must be created.&#160; It is needed on the REF database only.</p>
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>TRACE_FILE_DIR</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
+        <p>When using the tracefileLocation=remote option, the following directory object must be created. It is needed on the REF database only.</p>
+        <b>TRACE_FILE_DIR</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
 CREATE OR REPLACE DIRECTORY TRACE_FILE_DIR AS '&amp;PathToTracefileDir';
 </pre>
-            
-        
-        <h1 id="Single-SchemaProjects-OracleRolesandPermissions-GrantingRolesandPermissions">Granting Roles and Permissions</h1>
-        <p>Grant the roles to the managed schema account.&#160;&#160;Modify the script to grant the schema owner unlimited tablespace based upon your company policy and tablespace configuration.</p>
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>REF Database Roles and Permissions</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for REF databases.
+        <h2 id="Single-SchemaProjects-OracleRolesandPermissions-GrantingRolesandPermissions">Granting Roles and Permissions</h2>
+        <p>Grant the roles to the managed schema account. Modify the script to grant the schema owner unlimited tablespace based upon your company policy and tablespace configuration.</p>
+        <b>REF Database Roles and Permissions</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for REF databases.
 -- Modify this to set the appropriate account name for your SchemaOwner account.
 GRANT DATICAL_SCHEMA_OWNER_ROLE TO &amp;SchemaOwner;
 GRANT DATICAL_PACKAGER_SCHEMA_OWNER ROLE to &amp;SchemaOwner:
@@ -173,15 +139,8 @@ GRANT DATICAL_TRACK_ROLE TO &amp;SchemaOwner;
  -- –or-
 -- Grant access to one or more specified tablespaces
 -- ALTER USER &amp;SchemaOwner QUOTA UNLIMITED ON &amp;TablespaceName;</pre>
-            
-        
-        <p>
-            <br />
-        </p>
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>non-REF Database Roles and Permissions</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for non-REF databases.
+        <b>non-REF Database Roles and Permissions</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for non-REF databases.
 -- Modify this to set the appropriate account name for your SchemaOwner account.
 GRANT DATICAL_SCHEMA_OWNER_ROLE TO &amp;SchemaOwner;
 GRANT DATICAL_TRACK_ROLE TO &amp;SchemaOwner;
@@ -191,20 +150,9 @@ GRANT DATICAL_TRACK_ROLE TO &amp;SchemaOwner;
  -- –or-
 -- Grant access to one or more specified tablespaces
 -- ALTER USER &amp;SchemaOwner QUOTA UNLIMITED ON &amp;SchemaOwner;</pre>
-            
-        
-        <p>
-            <br />
-        </p>
-        <div class="confluence-information-macro confluence-information-macro-note conf-macro output-block">
-            
-                <p>&#160;The roles granted to SchemaOwner must be DEFAULT roles.&#160; Be sure to validate that the accounts have all the required DEFAULT roles.</p>
-            
-        
-        
-            <div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Validate Default Roles</b>
-            
-            <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Verify permissions.
+        <p>The roles granted to SchemaOwner must be DEFAULT roles. Be sure to validate that the accounts have all the required DEFAULT roles.</p>
+        <b>Validate Default Roles</b>
+        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Verify permissions.
 -- Modify this to set the appropriate account name for your SchemaOwner accounts.
 
 select grantee, granted_role, default_role from dba_role_privs where grantee = '&amp;SchemaOwner' order by 1;
@@ -216,14 +164,12 @@ alter user &amp;SchemaOwner default role DATICAL_TRACK_ROLE;
 
 -- Verify READ/WRITE permissions exist on the DATICAL_DATAPUMP_DIR (REF database only).
 select table_name, privilege from DBA_TAB_PRIVS where grantee = '&amp;SchemaOwner';</pre>
-            
-        
-        <h1 class="auto-cursor-target" id="Single-SchemaProjects-OracleRolesandPermissions-PackagingRequirementforExclusiveConnection">Packaging Requirement for Exclusive Connection</h1>
-        <p>Packaging requires that no other schema-owner users are connected to the database.&#160;</p>
+        <h2 id="Single-SchemaProjects-OracleRolesandPermissions-PackagingRequirementforExclusiveConnection">Packaging Requirement for Exclusive Connection</h2>
+        <p>Packaging requires that no other schema-owner users are connected to the database.</p>
         <ul>
-            <li>Deployment Packager checks for connections to the REF database at the beginning of a packaging operation. Packaging stops and reports an error if there are other active connections.&#160;</li>
-            <li>During packaging, if a schema-owner user attempts to connect to the database, packager warns and may stop.&#160;</li>
+            <li>Deployment Packager checks for connections to the REF database at the beginning of a packaging operation. Packaging stops and reports an error if there are other active connections.</li>
+            <li>During packaging, if a schema-owner user attempts to connect to the database, packager warns and may stop.</li>
         </ul>
-        <p>Deployment packager drops all objects in the SchemaOwner account before doing a restore.&#160; If there are other connections to the SchemaOwner, they may interfere with the process.</p>
+        <p>Deployment packager drops all objects in the SchemaOwner account before doing a restore. If there are other connections to the SchemaOwner, they may interfere with the process.</p>
     </body>
 </html>

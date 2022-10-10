@@ -1,8 +1,615 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us">
-    <head><title>Liquibase Enterprise Documentation</title>
-        <link href="../../../../Resources/Stylesheets/Creating+a+Datical+Project+Using+the+Project+Creation+Script+(project_creator.groovy).css" rel="stylesheet" />
-    </head>
-    <body>
-        <h1>Prerequisites</h1> <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /><ol><li class="li_1"><p class="p_1">Ensure that the <MadCap:variable name="General.DaticalDB" /> CLI directory is in your path. Otherwise, you will need to specify the full path to the CLI tool – hammer.</p></li><li class="li_1"><p class="p_1">Configure and place the following input files (Tab Delimited Files) in the &lt;provisioning_files_dir&gt; directory</p></li></ol><p>Tips:</p><ul><li class="li_1"><p class="p_1">The filenames must begin with your &lt;project_name&gt;.&#160; This is how Datical determines which files it should process.</p></li><li class="li_1"><p class="p_1">The first line of the file must contain the field headers.</p></li><li class="li_1"><p class="p_1">Column order does not matter. You can place them in any order.&#160;</p></li></ul><p>&#160;</p><table class="table_1"><col class="col_5" /><col class="col_6" /><tr><td colspan="2" class="td_1"><p><span class="Strong_1">&lt;project_name&gt;.project.tsv.txt</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">Field Headers&#160;</span>(case-sensitive)</p></td><td class="td_1"><p><span class="Strong">Description</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">autoGenSQL</span></p></td><td class="td_1"><p>A TRUE or FALSE value that determines if SQL is automatically generated from Datical functions</p></td></tr><tr><td class="td_1"><p><span class="Strong">deployThreshold</span></p></td><td class="td_1"><p>Pick one of the 3 available options:</p><ul><li class="li_1"><p class="p_1"><span class="Strong">stopOnError</span> - Deployment will not be performed when errors are present in Pre-Deployment validation</p></li><li class="li_1"><p class="p_1"><span class="Strong">stopOnWarn</span> - Deployment will not be performed when errors and/or Warnings are present in Pre-Deployment validation</p></li><li class="li_1"><p class="p_1"><span class="Strong">deployAlways</span> - Deploy will occur regardless of validation results. NOT RECOMMENDED</p></li></ul></td></tr><tr><td class="td_1"><p><span class="Strong">externalStoredLogic</span></p></td><td class="td_1"><p>A TRUE or FALSE value that determines if storedLogic is inline or in external files</p></td></tr><tr><td class="td_1"><p><span class="Strong">invalidsCheck</span></p><p><span class="Emphasis_2">Oracle, SQL Server, or DB2 only</span></p></td><td class="td_1"><p>Determines the type of validity check for compiled objects <br />disabled - No check</p><p>limited - Only check objects&#160;<span class="span_1">targeted by a deployment and their dependencies</span></p><p>local - Check objects in all schemas specified in the deployment plan<br />global - Check across the entire database</p></td></tr><tr><td class="td_1"><p><span class="Strong">invalidsAction</span></p><p><span class="Emphasis_2">Oracle, SQL Server, or DB2 only</span></p></td><td class="td_1"><p>Determines what to do when the Stored Logic Validity Check fails.&#160;</p><p>Both existing objects already in the database and new objects being deployed are checked.&#160;&#160;</p><ul><li class="li_1"><p class="p_1"><span class="Strong">warn</span> - print WARN message and continue </p><ul><li class="li_1"><p class="p_1">New objects that fail - print WARN message</p></li><li class="li_1"><p class="p_1">Existing objects that fail - print WARN message</p></li></ul></li><li class="li_1"><p class="p_1"><span class="Strong">fail</span> - print WARN or ERROR message, depending on objects </p><ul><li class="li_1"><p class="p_1">New objects that fail - print ERROR message</p></li><li class="li_1"><p class="p_1">Existing objects that fail that <span class="Strong">were not</span> targeted by a changeset in the deploy operation - print WARN message</p></li><li class="li_1"><p class="p_1">(7.7 &amp; later) Existing objects that fail that <span class="Strong">were</span> targeted by a changeset in the deploy operation - print ERROR message</p></li></ul></li></ul></td></tr><tr><td class="td_1"><p><span class="Strong">requireOptions</span></p></td><td class="td_1"><p>A TRUE or FALSE value that determines if Forecast and Deploy Options are always required</p></td></tr><tr><td class="td_1"><p><span class="Strong">deployMode</span></p></td><td class="td_1"><p><MadCap:variable name="General.DaticalDB" /> can optionally perform a full set of rules validations and deployment simulation prior to deploying the changes to the database. This is called a "Full" deploy. If you typically do a Forecast and then a deploy, you can set the deployMode to "quick" to skip the forecast and rules validation steps that happen during a Full deploy.</p><p>Valid values for this setting are:</p><ul><li class="li_1"><p class="p_1">quick</p></li><li class="li_1"><p class="p_1">full</p></li></ul></td></tr><tr><td class="td_1"><p><span class="Strong">dbSchemaDefinition</span></p></td><td class="td_1"><p>The value of this setting determines whether the schema managed by this Plan are defined once for all Deployment Steps in the Plan (value: 'project') or specified independently with each Deployment Step (value:'dbDef') .&#160; For multi-schema projects, this value should always be 'project'.&#160;&#160;</p></td></tr><tr><td class="td_1"><p><span class="Strong">multiCatalog</span></p><p><span class="Emphasis_2">SQL Server only</span></p></td><td class="td_1"><p>A TRUE or FALSE value to indicate whether this Deployment Plan manages more than one catalog/database (MSSQL Server only).</p></td></tr><tr><td class="td_1"><p><span class="Strong">multiSchema</span></p></td><td class="td_1"><p>A TRUE or FALSE value to indicate whether this Deployment Plan manages more than one schema.&#160;</p></td></tr><tr><td class="td_1"><p><span class="Strong">trackingSchema</span></p></td><td class="td_1"><p>The schema that should host the Datical Tracking Tables for the Deployment Steps in this Plan.</p></td></tr><tr><td class="td_1"><p><span class="Strong">managedSchema</span></p></td><td class="td_1"><p>A comma-separated list of the schema to be managed by the Deployment Plan. They must be valid and available for the database specified by schemaSelectionStep.</p></td></tr><tr><td class="td_1"><p><span class="Strong">schemaSelectionStep</span></p></td><td class="td_1"><p>DbDef to use for the list of managed schema in managedSchema.&#160;</p></td></tr><tr><td class="td_1"><p><span class="Strong">limitForecast</span></p></td><td class="td_1"><p>A TRUE or FALSE value that optimizes the forecast by limiting the objects under consideration to the ones that are getting deployed (instead of the entire database)</p></td></tr><tr><td class="td_1"><p><span class="Strong">enableRowCount</span></p></td><td class="td_1"><p>Pick one of the 3 available options:</p><ul><li class="li_1"><p class="p_1"><span class="Strong">exact&#160;</span>- Use a table scan to collect the row count.&#160;</p></li><li class="li_1"><p class="p_1"><span class="Strong">approximate</span> - Use statistics to estimate the row count.</p></li><li class="li_1"><p class="p_1"><span class="Strong">disabled</span> - Do not collect row counts.</p></li></ul><p>Before v5.7, the semantics were true|false.&#160; When read in v5.7 or later, true is mapped to exact and false is mapped to disabled.&#160;</p></td></tr><tr><td class="td_1"><p><span class="Strong">forecastDML</span> <br /><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>A TRUE or FALSE value that enables DML forecasting.</p></td></tr><tr><td class="td_1"><p><span class="Strong">enableDdlLockTimeout</span></p><p><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>A TRUE or FALSE value that enables the Oracle DDL_LOCK_TIMEOUT. The actual value&#160;</p></td></tr><tr><td class="td_1"><p><span class="Strong">ddlLockTimeoutValue</span></p><p><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>DDL commands require exclusive locks on internal structures. If these locks are not available some commands return with an "ORA-00054: resource busy" error message, which can be frustrating when trying to modify objects that are accessed frequently. To get round this Oracle 11g includes the <span class="HTMLCode_1">DDL_LOCK_TIMEOUT</span> parameter, which can be set at instance or session level using the <span class="HTMLCode_1">ALTER SYSTEM</span> and <span class="HTMLCode_1">ALTER SESSION</span> commands respectively.</p><p>The <span class="HTMLCode_1">DDL_LOCK_TIMEOUT</span> parameter indicates the number of seconds a DDL command should wait for the locks to become available before throwing the resource busy error message. The default value is zero.</p></td></tr><tr><td class="td_1"><p><span class="Strong">runtimeCredentials</span></p></td><td class="td_1"><p><span class="Strong">Do not use this field</span>, it does not have any effect.<br />Set the DbDefClass with the prefix&#160;<span class="Strong_2">DelayedCredential</span> instead</p></td></tr><tr><td class="td_1"><p><span class="Strong">enableSqlParser</span></p><p><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>Enable use of the SQL Parser for scripts in the&#160;<span class="span_2">ddl_direct, sql,&#160;</span>and sql_direct folders. For eligible databases and restrictions on usage, see&#160;<a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896570188/Using+SQL+Parser">Using SQL Parser</a>.</p></td></tr></table><p>&#160;</p><table class="table_1"><col class="col_7" /><col class="col_8" /><tr><td colspan="2" class="td_1"><p><span class="Strong_1">&lt;project_name&gt;.dbdefs.tsv.txt</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">Field Headers </span>(case-sensitive)</p></td><td class="td_1"><p><span class="Strong">Description</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">name</span></p></td><td class="td_1"><p>The name for the dbDef. Used in the as an alias for this connection.</p></td></tr><tr><td class="td_1"><p><span class="Strong">DbDefClass</span></p></td><td class="td_1"><ul><li class="li_1"><p class="p_1">Oracle </p><ul><li class="li_1"><p class="p_1">Inline Credentials: &#160;<span class="Strong">OracleDbDef</span></p></li><li class="li_1"><p class="p_1">Run-Time Supplied Credentials: <span class="Strong">&#160;</span><span class="Strong_2">DelayedCredentialOracleDbDef</span></p></li></ul></li><li class="li_1"><p class="p_1">SQL Server </p><ul><li class="li_1"><p class="p_1">Inline Credentials: &#160;<span class="Strong">SqlServerDbDef</span></p></li><li class="li_1"><p class="p_1">Run-Time Supplied Credentials: <span class="Strong">&#160;DelayedCredentialSqlServerDbDef</span></p></li></ul></li><li class="li_1"><p class="p_1">EDB Postgres </p><ul><li class="li_1"><p class="p_1">Inline Credentials: &#160;<span class="Strong">PostgresqlDbDef</span></p></li><li class="li_1"><p class="p_1">Run-Time Supplied Credentials: <span class="Strong">&#160;DelayedCredentialPostgresDbDef</span></p></li></ul></li><li class="li_1"><p class="p_1">DB2 </p><ul><li class="li_1"><p class="p_1">Inline Credentials: &#160;<span class="Strong">Db2DbDef</span></p></li><li class="li_1"><p class="p_1">Run-Time Supplied Credentials: <span class="Strong">&#160;DelayedCredentialDb2DbDef</span></p></li></ul></li><li class="li_1"><p class="p_1">(deprecated) MySQL&#160;Inline Credentials: &#160;MysqlDbDef</p></li></ul></td></tr><tr><td class="td_1"><p><span class="Strong">hostname</span></p></td><td class="td_1"><p>The hostname/ip of the target database server.</p></td></tr><tr><td class="td_1"><p><span class="Strong">port</span></p></td><td class="td_1"><p>The port number for JDBC connections to the target database server.</p></td></tr><tr><td class="td_1"><p><span class="Strong">username</span></p></td><td class="td_1"><p>The database user name to use for the connection.</p></td></tr><tr><td class="td_1"><p><span class="Strong">password</span></p></td><td class="td_1"><p>The password for the database user specified.&#160;&#160;<span class="Strong_3">We strongly recommend to use runtime credentials because it is more secure than stored credentials (due to the possibility of the stored password being decoded)</span><span class="span_1">.</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">integratedSecurity</span> <br /><span class="Emphasis_2">SQL Server only</span></p></td><td class="td_1"><p>Enable Active Directory for SQL Server. When this is set, the username and password fields should be empty.</p></td></tr><tr><td class="td_1"><p><span class="Strong">database</span> <br /><span class="Emphasis_2">DB2 or Postgres only</span></p></td><td class="td_1"><p>The type of the database you wish to manage.</p></td></tr><tr><td class="td_1"><p><span class="Strong">databaseName</span> <br /><span class="Emphasis_2">SQL Server only</span></p></td><td class="td_1"><p>The name of the database you wish to manage.</p></td></tr><tr><td class="td_1"><p><span class="Strong">instanceName</span> <br /><span class="Emphasis_2">SQL Server only</span></p></td><td class="td_1"><p>The name of the instance you wish to manage.</p></td></tr><tr><td class="td_1"><p><span class="Strong">applicationName</span> <br /><span class="Emphasis_2">SQL Server only</span></p></td><td class="td_1"><p>The name of the database application you wish to manage.</p></td></tr><tr><td class="td_1"><p><span class="Strong">azureClientId</span></p><p><span class="Strong_4">Azure SQL Managed Instance only</span></p><p><span class="Strong_4">Reference DB only</span></p></td><td class="td_1"><p>The Microsoft Azure Client ID associated with the account with which you wish to manage the Azure SQL Managed Instance.</p></td></tr><tr><td class="td_1"><p><span class="Strong">azureTenantId</span></p><p><span class="Strong_4">Azure SQL Managed Instance only</span></p><p><span class="Strong_4">Reference DB only</span></p></td><td class="td_1"><p>The Microsoft Azure Tenant ID associated with the account for the Azure SQL Managed Instance you wish to manage.</p></td></tr><tr><td class="td_1"><p><span class="Strong">azureClientSecret</span></p><p><span class="Strong_4">Azure SQL Managed Instance only</span></p><p><span class="Strong_4"><br /></span><span class="Strong_4">Reference DB only</span></p></td><td class="td_1"><p>The Microsoft Azure Client Secret used to authenticate with the Azure REST.</p><p><span class="span_3">The REST API Client Secret is a sensitive credential that should be treated with the same caution as database login credentials. It is strongly recommended that this credential be provided at runtime in an environment variable and not stored in the GUI. For more information, see product documentation about </span><a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569345/Providing+Runtime+Credentials"><span class="Hyperlink_1">Runtime Credentials</span></a><span class="span_3">.</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">azureResourceGroup</span></p><p><span class="Strong_4">Azure SQL Managed Instance only</span></p><p><span class="Strong_4">Reference DB only</span></p></td><td class="td_1"><p>The Microsoft Azure Resource Group associated with the Azure SQL Managed Instance you wish to manage.</p></td></tr><tr><td class="td_1"><p><span class="Strong">azureSubscriptionId</span></p><p><span class="Strong_4">Azure SQL Managed Instance only</span></p><p><span class="Strong_4">Reference DB only</span></p></td><td class="td_1"><p>The Microsoft Azure Subscription ID associated with the Azure SQL Managed Instance you wish to manage.</p></td></tr><tr><td class="td_1"><p><span class="Strong">platformType</span><br /><span class="Emphasis_2">DB2 only</span></p></td><td class="td_1"><p>Platform type, one of LUW or ZOS. LUW is the default.&#160;</p></td></tr><tr><td class="td_1"><p><span class="Strong">sid</span> <br /><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>The name of the Oracle SID to which you wish connect.</p></td></tr><tr><td class="td_1"><p><span class="Strong">serviceName</span> <br /><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>The name of the Oracle Service to which you wish connect.</p></td></tr><tr><td class="td_1"><p><span class="Strong">useWallet</span><span class="Strong"><br /></span><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>Use Oracle Wallet to connect to the Oracle database through an SSL connection. See&#160;<a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896566933/SSL+Connection+to+an+Oracle+Database+Through+Oracle+Wallet">Using Oracle Wallet for SSL Connections to Oracle Databases</a>.&#160;</p></td></tr><tr><td class="td_1"><p><span class="Strong">tnsName</span><span class="Strong"><br /></span><span class="Emphasis_2">Oracle only</span></p></td><td class="td_1"><p>Directory that contains configuration files for Oracle Wallet.</p></td></tr><tr><td class="td_1"><p><span class="Strong">defaultSchemaName</span></p></td><td class="td_1"><p>The name of the schema/catalog you wish to manage. Only used with single schema project configurations.</p></td></tr><tr><td class="td_1"><p><span class="Strong">contexts</span></p></td><td class="td_1"><p>A comma separated list of contexts to associate with the new dbDef.</p></td></tr><tr><td class="td_1"><p><span class="Strong">labels</span></p></td><td class="td_1"><p>A comma separated list of labels to associate with the new dbDef.</p></td></tr><tr><td class="td_1"><p><span class="Strong">storageOptions</span></p></td><td class="td_1"><p>A TRUE or FALSE value that determines if the Datical collects Storage Options.</p></td></tr><tr><td class="td_1"><p><span class="Strong">dbDefType</span></p></td><td class="td_1"><p>Set to <span class="HTMLCode_1">standard</span> for managed database. Set to <span class="HTMLCode_1">dmcdb</span> for a Deployment Monitoring Console database.<br /><span class="Strong">NOTE:&#160;</span>If specifying a&#160;<span class="HTMLCode_1">dmcdb</span> in your project,&#160;<span class="HTMLCode_1">project_creator.groovy</span> will attempt to register the project with the&#160;<span class="HTMLCode_1">dmcdb</span>.</p></td></tr><tr><td class="td_1"><p><span class="Strong">scriptExecutionTimeout</span></p></td><td class="td_1"><p>Limit the time to wait for a script to execute, in seconds.&#160; Default value is 0, which means there is no limit.&#160;</p></td></tr></table><p>&#160;</p><table class="table_1"><col class="col_9" /><col class="col_10" /><tr><td colspan="2" class="td_1"><p><span class="Strong_1">&lt;project_name&gt;.pipelines.tsv.txt</span><span class="span_4">&#160;</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">Field Headers </span>(case-sensitive)</p></td><td class="td_1"><p><span class="Strong">Description</span></p></td></tr><tr><td class="td_1"><p><span class="Strong">pipeline</span></p></td><td class="td_1"><p>Name of the pipeline</p></td></tr><tr><td class="td_1"><p><span class="Strong">description</span></p></td><td class="td_1"><p>Decription for the pipeline</p></td></tr><tr><td class="td_1"><p><span class="Strong">dbDef</span></p></td><td class="td_1"><p>Name of a dbDef from &lt;project_name&gt;.dbdefs.tsv.txt</p></td></tr><tr><td class="td_1"><p><span class="Strong">visible</span></p></td><td class="td_1"><p>TRUE/FALSE value - is this step visible in the pipeline</p></td></tr></table></body>
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+		<link href="../../../../Resources/Stylesheets/Creating+a+Datical+Project+Using+the+Project+Creation+Script+(project_creator.groovy).css" rel="stylesheet" />
+	</head>
+	<body>
+		<h1>Prerequisites</h1>
+		<MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<ol>
+			<li>
+				<p>Ensure that the <MadCap:variable name="General.DaticalDB" /> CLI directory is in your path. Otherwise, you will need to specify the full path to the CLI tool – hammer.</p>
+			</li>
+			<li>
+				<p>Configure and place the following input files (Tab Delimited Files) in the &lt;provisioning_files_dir&gt; directory</p>
+			</li>
+		</ol>
+		<p>Tips:</p>
+		<ul>
+			<li>
+				<p>The filenames must begin with your &lt;project_name&gt;. This is how Datical determines which files it should process.</p>
+			</li>
+			<li>
+				<p>The first line of the file must contain the field headers.</p>
+			</li>
+			<li>
+				<p>Column order does not matter. You can place them in any order.</p>
+			</li>
+		</ul>
+		<p></p>
+		<table>
+			<tr>
+				<td colspan="2">
+					<p><span class="Strong_1">&lt;project_name&gt;.project.tsv.txt</span></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>Field Headers&#160;</strong>(case-sensitive)</p>
+				</td>
+				<td>
+					<p><strong>Description</strong></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>autoGenSQL</strong></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value that determines if SQL is automatically generated from Datical functions</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>deployThreshold</strong></p>
+				</td>
+				<td>
+					<p>Pick one of the 3 available options:</p>
+					<ul>
+						<li>
+							<p><strong>stopOnError</strong> - Deployment will not be performed when errors are present in Pre-Deployment validation</p>
+						</li>
+						<li>
+							<p><strong>stopOnWarn</strong> - Deployment will not be performed when errors and/or Warnings are present in Pre-Deployment validation</p>
+						</li>
+						<li>
+							<p><strong>deployAlways</strong> - Deploy will occur regardless of validation results. NOT RECOMMENDED</p>
+						</li>
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>externalStoredLogic</strong></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value that determines if storedLogic is inline or in external files</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>invalidsCheck</strong></p>
+					<p><span class="Emphasis_2">Oracle, SQL Server, or DB2 only</span></p>
+				</td>
+				<td>
+					<p>Determines the type of validity check for compiled objects <br />disabled - No check</p>
+					<p>limited - Only check objects&#160;<span>targeted by a deployment and their dependencies</span></p>
+					<p>local - Check objects in all schemas specified in the deployment plan<br />global - Check across the entire database</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>invalidsAction</strong></p>
+					<p><span class="Emphasis_2">Oracle, SQL Server, or DB2 only</span></p>
+				</td>
+				<td>
+					<p>Determines what to do when the Stored Logic Validity Check fails.</p>
+					<p>Both existing objects already in the database and new objects being deployed are checked.</p>
+					<ul>
+						<li>
+							<p><strong>warn</strong> - print WARN message and continue</p>
+							<ul>
+								<li>
+									<p>New objects that fail - print WARN message</p>
+								</li>
+								<li>
+									<p>Existing objects that fail - print WARN message</p>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<p><strong>fail</strong> - print WARN or ERROR message, depending on objects</p>
+							<ul>
+								<li>
+									<p>New objects that fail - print ERROR message</p>
+								</li>
+								<li>
+									<p>Existing objects that fail that <strong>were not</strong> targeted by a changeset in the deploy operation - print WARN message</p>
+								</li>
+								<li>
+									<p>(7.7 &amp; later) Existing objects that fail that <strong>were</strong> targeted by a changeset in the deploy operation - print ERROR message</p>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>requireOptions</strong></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value that determines if Forecast and Deploy Options are always required</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>deployMode</strong></p>
+				</td>
+				<td>
+					<p><MadCap:variable name="General.DaticalDB" /> can optionally perform a full set of rules validations and deployment simulation prior to deploying the changes to the database. This is called a "Full" deploy. If you typically do a Forecast and then a deploy, you can set the deployMode to "quick" to skip the forecast and rules validation steps that happen during a Full deploy.</p>
+					<p>Valid values for this setting are:</p>
+					<ul>
+						<li>
+							<p>quick</p>
+						</li>
+						<li>
+							<p>full</p>
+						</li>
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>dbSchemaDefinition</strong></p>
+				</td>
+				<td>
+					<p>The value of this setting determines whether the schema managed by this Plan are defined once for all Deployment Steps in the Plan (value: 'project') or specified independently with each Deployment Step (value:'dbDef') . For multi-schema projects, this value should always be 'project'.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>multiCatalog</strong></p>
+					<p><span class="Emphasis_2">SQL Server only</span></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value to indicate whether this Deployment Plan manages more than one catalog/database (MSSQL Server only).</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>multiSchema</strong></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value to indicate whether this Deployment Plan manages more than one schema.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>trackingSchema</strong></p>
+				</td>
+				<td>
+					<p>The schema that should host the Datical Tracking Tables for the Deployment Steps in this Plan.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>managedSchema</strong></p>
+				</td>
+				<td>
+					<p>A comma-separated list of the schema to be managed by the Deployment Plan. They must be valid and available for the database specified by schemaSelectionStep.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>schemaSelectionStep</strong></p>
+				</td>
+				<td>
+					<p>DbDef to use for the list of managed schema in managedSchema.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>limitForecast</strong></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value that optimizes the forecast by limiting the objects under consideration to the ones that are getting deployed (instead of the entire database)</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>enableRowCount</strong></p>
+				</td>
+				<td>
+					<p>Pick one of the 3 available options:</p>
+					<ul>
+						<li>
+							<p><strong>exact&#160;</strong>- Use a table scan to collect the row count.</p>
+						</li>
+						<li>
+							<p><strong>approximate</strong> - Use statistics to estimate the row count.</p>
+						</li>
+						<li>
+							<p><strong>disabled</strong> - Do not collect row counts.</p>
+						</li>
+					</ul>
+					<p>Before v5.7, the semantics were true|false. When read in v5.7 or later, true is mapped to exact and false is mapped to disabled.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>forecastDML</span> <br /><span class="Emphasis_2">Oracle only</strong></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value that enables DML forecasting.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>enableDdlLockTimeout</strong></p>
+					<p><span class="Emphasis_2">Oracle only</span></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value that enables the Oracle DDL_LOCK_TIMEOUT. The actual value&#160;</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>ddlLockTimeoutValue</strong></p>
+					<p><span class="Emphasis_2">Oracle only</span></p>
+				</td>
+				<td>
+					<p>DDL commands require exclusive locks on internal structures. If these locks are not available some commands return with an "ORA-00054: resource busy" error message, which can be frustrating when trying to modify objects that are accessed frequently. To get round this Oracle 11g includes the <span class="HTMLCode_1">DDL_LOCK_TIMEOUT</span> parameter, which can be set at instance or session level using the <span class="HTMLCode_1">ALTER SYSTEM</span> and <span class="HTMLCode_1">ALTER SESSION</span> commands respectively.</p>
+					<p>The <span class="HTMLCode_1">DDL_LOCK_TIMEOUT</span> parameter indicates the number of seconds a DDL command should wait for the locks to become available before throwing the resource busy error message. The default value is zero.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>runtimeCredentials</strong></p>
+				</td>
+				<td>
+					<p><strong>Do not use this field</span>, it does not have any effect.<br />Set the DbDefClass with the prefix&#160;<span class="Strong_2">DelayedCredential</strong> instead</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>enableSqlParser</strong></p>
+					<p><span class="Emphasis_2">Oracle only</span></p>
+				</td>
+				<td>
+					<p>Enable use of the SQL Parser for scripts in the&#160;<span>ddl_direct, sql,&#160;</span>and sql_direct folders. For eligible databases and restrictions on usage, see <a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896570188/Using+SQL+Parser">Using SQL Parser</a>.</p>
+				</td>
+			</tr>
+		</table>
+		<p></p>
+		<table>
+			<tr>
+				<td colspan="2">
+					<p><span class="Strong_1">&lt;project_name&gt;.dbdefs.tsv.txt</span></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>Field Headers</strong>(case-sensitive)</p>
+				</td>
+				<td>
+					<p><strong>Description</strong></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>name</strong></p>
+				</td>
+				<td>
+					<p>The name for the dbDef. Used in the as an alias for this connection.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>DbDefClass</strong></p>
+				</td>
+				<td>
+					<ul>
+						<li>
+							<p>Oracle</p>
+							<ul>
+								<li>
+									<p>Inline Credentials: <strong>OracleDbDef</strong></p>
+								</li>
+								<li>
+									<p>Run-Time Supplied Credentials: <strong>&#160;</span><span class="Strong_2">DelayedCredentialOracleDbDef</strong></p>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<p>SQL Server</p>
+							<ul>
+								<li>
+									<p>Inline Credentials: <strong>SqlServerDbDef</strong></p>
+								</li>
+								<li>
+									<p>Run-Time Supplied Credentials: <strong>&#160;DelayedCredentialSqlServerDbDef</strong></p>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<p>EDB Postgres</p>
+							<ul>
+								<li>
+									<p>Inline Credentials: <strong>PostgresqlDbDef</strong></p>
+								</li>
+								<li>
+									<p>Run-Time Supplied Credentials: <strong>&#160;DelayedCredentialPostgresDbDef</strong></p>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<p>DB2</p>
+							<ul>
+								<li>
+									<p>Inline Credentials: <strong>Db2DbDef</strong></p>
+								</li>
+								<li>
+									<p>Run-Time Supplied Credentials: <strong>&#160;DelayedCredentialDb2DbDef</strong></p>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<p>(deprecated) MySQL&#160;Inline Credentials: MysqlDbDef</p>
+						</li>
+					</ul>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>hostname</strong></p>
+				</td>
+				<td>
+					<p>The hostname/ip of the target database server.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>port</strong></p>
+				</td>
+				<td>
+					<p>The port number for JDBC connections to the target database server.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>username</strong></p>
+				</td>
+				<td>
+					<p>The database user name to use for the connection.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>password</strong></p>
+				</td>
+				<td>
+					<p>The password for the database user specified. <span class="Strong_3">We strongly recommend to use runtime credentials because it is more secure than stored credentials (due to the possibility of the stored password being decoded)</span><span>.</span></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>integratedSecurity</span> <br /><span class="Emphasis_2">SQL Server only</strong></p>
+				</td>
+				<td>
+					<p>Enable Active Directory for SQL Server. When this is set, the username and password fields should be empty.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>database</span> <br /><span class="Emphasis_2">DB2 or Postgres only</strong></p>
+				</td>
+				<td>
+					<p>The type of the database you wish to manage.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>databaseName</span> <br /><span class="Emphasis_2">SQL Server only</strong></p>
+				</td>
+				<td>
+					<p>The name of the database you wish to manage.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>instanceName</span> <br /><span class="Emphasis_2">SQL Server only</strong></p>
+				</td>
+				<td>
+					<p>The name of the instance you wish to manage.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>applicationName</span> <br /><span class="Emphasis_2">SQL Server only</strong></p>
+				</td>
+				<td>
+					<p>The name of the database application you wish to manage.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>azureClientId</strong></p>
+					<p><span class="Strong_4">Azure SQL Managed Instance only</span></p>
+					<p><span class="Strong_4">Reference DB only</span></p>
+				</td>
+				<td>
+					<p>The Microsoft Azure Client ID associated with the account with which you wish to manage the Azure SQL Managed Instance.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>azureTenantId</strong></p>
+					<p><span class="Strong_4">Azure SQL Managed Instance only</span></p>
+					<p><span class="Strong_4">Reference DB only</span></p>
+				</td>
+				<td>
+					<p>The Microsoft Azure Tenant ID associated with the account for the Azure SQL Managed Instance you wish to manage.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>azureClientSecret</strong></p>
+					<p><span class="Strong_4">Azure SQL Managed Instance only</span></p>
+					<p><span class="Strong_4"><br /></span><span class="Strong_4">Reference DB only</span></p>
+				</td>
+				<td>
+					<p>The Microsoft Azure Client Secret used to authenticate with the Azure REST.</p>
+					<p><span>The REST API Client Secret is a sensitive credential that should be treated with the same caution as database login credentials. It is strongly recommended that this credential be provided at runtime in an environment variable and not stored in the GUI. For more information, see product documentation about</span><a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896569345/Providing+Runtime+Credentials"><span class="Hyperlink_1">Runtime Credentials</span></a><span>.</span></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>azureResourceGroup</strong></p>
+					<p><span class="Strong_4">Azure SQL Managed Instance only</span></p>
+					<p><span class="Strong_4">Reference DB only</span></p>
+				</td>
+				<td>
+					<p>The Microsoft Azure Resource Group associated with the Azure SQL Managed Instance you wish to manage.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>azureSubscriptionId</strong></p>
+					<p><span class="Strong_4">Azure SQL Managed Instance only</span></p>
+					<p><span class="Strong_4">Reference DB only</span></p>
+				</td>
+				<td>
+					<p>The Microsoft Azure Subscription ID associated with the Azure SQL Managed Instance you wish to manage.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>platformType</span><br /><span class="Emphasis_2">DB2 only</strong></p>
+				</td>
+				<td>
+					<p>Platform type, one of LUW or ZOS. LUW is the default.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>sid</span> <br /><span class="Emphasis_2">Oracle only</strong></p>
+				</td>
+				<td>
+					<p>The name of the Oracle SID to which you wish connect.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>serviceName</span> <br /><span class="Emphasis_2">Oracle only</strong></p>
+				</td>
+				<td>
+					<p>The name of the Oracle Service to which you wish connect.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>useWallet</span><span class="Strong"><br /></span><span class="Emphasis_2">Oracle only</strong></p>
+				</td>
+				<td>
+					<p>Use Oracle Wallet to connect to the Oracle database through an SSL connection. See <a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896566933/SSL+Connection+to+an+Oracle+Database+Through+Oracle+Wallet">Using Oracle Wallet for SSL Connections to Oracle Databases</a>.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>tnsName</span><span class="Strong"><br /></span><span class="Emphasis_2">Oracle only</strong></p>
+				</td>
+				<td>
+					<p>Directory that contains configuration files for Oracle Wallet.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>defaultSchemaName</strong></p>
+				</td>
+				<td>
+					<p>The name of the schema/catalog you wish to manage. Only used with single schema project configurations.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>contexts</strong></p>
+				</td>
+				<td>
+					<p>A comma separated list of contexts to associate with the new dbDef.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>labels</strong></p>
+				</td>
+				<td>
+					<p>A comma separated list of labels to associate with the new dbDef.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>storageOptions</strong></p>
+				</td>
+				<td>
+					<p>A TRUE or FALSE value that determines if the Datical collects Storage Options.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>dbDefType</strong></p>
+				</td>
+				<td>
+					<p>Set to <span class="HTMLCode_1">standard</span> for managed database. Set to <span class="HTMLCode_1">dmcdb</span> for a Deployment Monitoring Console database.<br /><strong>NOTE:&#160;</span>If specifying a&#160;<span class="HTMLCode_1">dmcdb</span> in your project,&#160;<span class="HTMLCode_1">project_creator.groovy</span> will attempt to register the project with the&#160;<span class="HTMLCode_1">dmcdb</strong>.</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>scriptExecutionTimeout</strong></p>
+				</td>
+				<td>
+					<p>Limit the time to wait for a script to execute, in seconds. Default value is 0, which means there is no limit.</p>
+				</td>
+			</tr>
+		</table>
+		<p></p>
+		<table>
+			<tr>
+				<td colspan="2">
+					<p><span class="Strong_1">&lt;project_name&gt;.pipelines.tsv.txt</span><span>&#160;</span></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>Field Headers</strong>(case-sensitive)</p>
+				</td>
+				<td>
+					<p><strong>Description</strong></p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>pipeline</strong></p>
+				</td>
+				<td>
+					<p>Name of the pipeline</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>description</strong></p>
+				</td>
+				<td>
+					<p>Decription for the pipeline</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>dbDef</strong></p>
+				</td>
+				<td>
+					<p>Name of a dbDef from &lt;project_name&gt;.dbdefs.tsv.txt</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<p><strong>visible</strong></p>
+				</td>
+				<td>
+					<p>TRUE/FALSE value - is this step visible in the pipeline</p>
+				</td>
+			</tr>
+		</table>
+	</body>
 </html>

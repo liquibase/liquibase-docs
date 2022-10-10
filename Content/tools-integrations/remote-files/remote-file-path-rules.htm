@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h2>Remote File Path Rules</h2>
+        <p>Below are all of the remote file path rules that apply to <MadCap:variable name="General.Liquibase" /> using S3. Review the example use cases and instructions to ensure it is the right avenue for your project.</p>
+        <h3>Reference S3 Files with <MadCap:variable name="General.Liquibase" /> CLI Commands</h3>
+        <p>You can reference S3 files with <MadCap:variable name="General.Liquibase" /> CLI&#160;Commands depending on the file type and location. <a href="s3-commands.htm">This document</a> covers in detail how to reference each file type.</p>
+        <h3>S3 Files Reference Other S3 Files</h3>
+        <p> A file in one s3 bucket can reference a file in a different S3 bucket. In this example, a Flow file is located in a S3 bucket named "myS3bucket".</p><pre xml:space="preserve"><code class="language-text">flow --flowfile=s3://myS3bucket/liquibase.s3.flowfile.yaml</code></pre>
+        <p> Below, we see a snippet of flowfile action code which references a nested flow file in a separate s3 bucket.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">endStage:
+  actions:
+    - type: liquibase
+      command: flow
+      cmdArgs: {flowfile: "s3://dbateam/resources/liquibase.endstage.flowfile.yaml"}</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h3>Use multiple S3 locations in the same command</h3>
+        <p>Resources are often stored in different S3 locations and <MadCap:variable name="General.Liquibase" /> allows you to find those separate locations in one command. </p>
+        <p>For example, Let's say the <code>checks-settings.conf</code> you need is in the DBA’s resources bucket and the <code>flowfile.yaml</code> is in the DevOps Orchestration Team’s bucket. Simultaneously, the <code>changelog</code> is stored locally while you are in dev, but then is relocated to the deploy sub-directory of the DevOps team. You should put the direct full path on the <MadCap:variable name="General.liquiPropFile" /> file as shown below. </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The file exceptions to this rule are changelog files, snapshot files, or native executor configuration files which must be split over <a href="searchpath.htm">searchpath</a>.</p>
+        <p>
+        Example of multiple S3 locations called on in the same command:</p><pre><code class="language-text">liquibase --searchpath=s3://devopsteam/deploy --changelogfile=mychangelog.sql flow --flowfile=s3://devopsteam/orchestration/liquibase.production.flowfile.yaml </code></pre>
+        <h3>Relative path and absolute path</h3>
+        <p>There are two ways to find  files via S3. You can look by absolute path or relative path. </p>
+        <p><b>Absolute Path:</b>
+            <br>
+            </br>An absolute path is set as a property in the <MadCap:variable name="General.liquiPropFile" /> file.  It must include the full, direct path to the S3 file to find the file successfully. Absolute paths can be set for any file type except <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor configuration files. When an absolute path to a file  is provided, <MadCap:variable name="General.Liquibase" /> uses the file specified in the absolute path without checking searchpath.</p>
+        <p>Absolute Path Example:<br />the absolute path to the flow file is located in S3.</p><pre xml:space="preserve"><code class="language-text">liquibase flow --flow-file s3:/[myDirectory]/flow.yaml</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Paths for changelog files, snapshot files, or native executor configuration files must be split over a relative path using <a href="searchpath.htm">searchpath</a>.</p>
+        <p><b>Relative Path:</b>
+        </p>
+        <p>Relative Path is enabled with a combination of setting <a href="searchpath.htm">searchpath</a> and a relative path on file’s property, which are combined to form the complete S3 path to the file. Relative Path is the only way to successfully find <MadCap:variable name="General.changelog" /> files, snapshot files, or native executor configuration files.</p>
+        <p>In this example, searchpath is set to an S3 bucket: <pre xml:space="preserve"><code class="language-text">liquibase --searchpath=s3://myS3bucket/demo --changelogfile=example-changelog.sql update</code></pre></p>
+        <p><MadCap:variable name="General.Liquibase" /> will look in the <code>s3://myS3bucket/demo</code> folder for the file titled:<code>example-changelog.sql</code>.<br /></p>
+        <h3>Sync S3 files to use locally</h3>
+        <p>You may need to work offline and with local docker databases with the same operational files located in your S3 bucket. To do this, you can  download S3 files to work with them locally. In some cases, you will need to download an entire directory or a single file. Learn how to download objects from S3 <a href="https://awscli.amazonaws.com/v2/documentation/api/latest/reference/s3/sync.html">here</a>. It is important to note that <MadCap:variable name="General.Liquibase" /> will not automatically sync the local files with S3 files. Learn how to sync local files with S3 <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-sync.html">here</a>. Files must be in the same directory structure as they are on S3 to use them locally. </p>
+    </body>
+</html>
