@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>&gt;<title>flow | Liquibase Docs</title><meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/labs/flow.html" /><meta name="description" content="Reference information and use cases for the flow command and Flow File." /></head>
+    <body>
+        <h1><code>liquibase flow</code> file and command</h1>
+        <p>
+            <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /> </p>
+        <p> The <code>liquibase flow</code> command and the Flow File on which it operates is intended to create portable, platform-independent <MadCap:variable name="General.CompanyName" /> workflows that can run wherever you need them without modification. This can include but is not limited to Jenkins, GitHub actions, a developers desktop, or any CI/CD support tool. Flow allows you to put multiple commands in a single file so they can all run sequentially by typing a single command into the CLI.  The flow command  provides the convenience of performing all of the steps in one place. This leads to better repeatability and standardization of the steps in a DevOps pipeline.</p>
+        <p>You can modify the Flow File  to update the <MadCap:variable name="General.Liquibase" /> steps specified in each Stage. You only have to update them in the Flow File to bring all jobs up to date. It is necessary to store Flow Files in remote locations or share across teams to enable this flexible behavior.</p>
+        <h2>Create a Flow File</h2>
+        <p>There are two ways to create a Flow File:</p>
+        <ol>
+            <li>The Default Flow File method, which runs on H2 by default</li>
+            <li><a href="advance-flow-file.htm">The Existing Project method - advanced</a>
+            </li>
+        </ol>
+        <p>The Flow File is not installed by default, so you must create one. If you create a Flow File without a properties file or a <MadCap:variable name="General.changelog" /> configured, it will fail to run. An example file is</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>
+                    <h3>Default Flow File method</h3>
+                </MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>This method is for creating an entirely new project. To create a default Flow File, users must start H2.</p>
+                <ol>
+                    <li>Run the <code>liquibase flow</code> command to initiate Flow File creation.</li>
+                    <li><MadCap:variable name="General.Liquibase" /> will prompt you to create a Flow File. From the three options available, enter <code>2</code>. <br />The file is created and validated successfully.</li>
+                    <li>Open the newly created file and review the sections and comments.<br /><br />Note: Answer the three prompt questions according to your operation preferences.</li>
+                </ol>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h3>Validation</h3>
+        <p>Once the Flow File is written, you can verify that it works by using the <code>flow validate</code> command. This ensures that the <MadCap:variable name="General.Liquibase" /> commands have all of the parameters necessary to run successfully and the YAML formatting is correct. See the <a href="#Syntax">Syntax</a> section for more information.</p>
+        <p>Run <code>flow validate --flow-file update-status-diff.flow</code> in the CLI.</p>
+        <p>If the file fails the validation check, <MadCap:variable name="General.Liquibase" /> will state what command argument(s) were not resolved. You can then review and correct your Flow File and then run the <code>flow validate</code> command again to ensure it is working as expected.</p>
+        <h2>Flow File organization</h2>
+        <p>The Flow File contains one or more Stages and Actions. Below are definitions of these and a visual aid.</p>
+        <p class="center">
+            <img src="../../Z_Resources/Images/Diagrams/flowfile-basic.png" />
+        </p>
+        <p><b>Stages</b> are bundles of related <code>actions</code> in the Flow File. You can add a single action or multiple actions per Stage.</p>
+        <p><b>Actions</b> are individual<MadCap:variable name="General.Liquibase" />or shell commands that execute within <code>stages</code> or <a href="advance-flow-file.htm"><code>endStage</code></a> as part of the Flow File. Any <MadCap:variable name="General.Liquibase" /> command arguments (abbreviated as <code>cmdArgs</code> in the Flow File) can be placed in any <code>action</code> section, with the exception of the list of global arguments below.</p>
+        <h3>Incompatible commands and global arguments</h3>
+        <p>You must use the following commands and global arguments in the CLI instead of the Flow File:</p>
+        <h4>Commands</h4>
+        <ul>
+            <li><code>init start-h2</code> – This command locks the console</li>
+        </ul>
+        <h4>Global arguments</h4>
+        <ul>
+            <li><code>ARGUMENT_CONVERTER</code>
+            </li>
+            <li><code>CLASSPATH</code>
+            </li>
+            <li><code>DEFAULTS_FILE</code>
+            </li>
+            <li><code>INCLUDE_SYSTEM_CLASSPATH</code>
+            </li>
+            <li><code>LOG_CHANNELS</code>
+            </li>
+            <li><code>LOG_FILE</code>
+            </li>
+            <li><code>LOG_LEVEL</code>
+            </li>
+            <li><code>MONITOR_PERFORMANCE</code>
+            </li>
+            <li><code>PROMPT_FOR_NON_LOCAL_DATABASE</code>
+            </li>
+            <li><code>SEARCHPATH</code>
+            </li>
+            <li><code>SHOULD_RUN</code>
+            </li>
+            <li><code>SHOW_BANNER</code>
+            </li>
+        </ul>
+        <h3><a name="Syntax"></a>Syntax</h3>
+        <p>The <MadCap:variable name="General.Liquibase" /> Flow File is written in YAML and must be formatted properly. As you can see in the below Flow File example, the <code>cmdArgs</code> section has all command arguments between curly braces and separated by commas.</p>
+        <p>All command arguments are formatted in the following way:<br /><code>cmdArgs: {command-name: argument value, snapshot-format: JSON}</code></p>
+        <p>This example Flow File is the simplest scenario in which only <code>cmdArgs</code> are specified in the Actions. For this example to run, a liquibase.properties file with url, username and password must be available. The properties file should be in the same directory as the flow file. Additionally, the user will need a changelog file.</p>
+        <h3>Flow File example</h3>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">stages:
+  cleanuptheDB:
+    actions:
+      - type: liquibase
+        command: dropAll
+    afterActions:
+      - type: liquibase
+        command: status
+        cmdArgs: {verbose: TRUE}</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+    </body>
+</html>
