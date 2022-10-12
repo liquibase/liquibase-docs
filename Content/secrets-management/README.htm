@@ -1,0 +1,57 @@
+# Liquibase CyberArk PAM Vault Extension
+Natively read your CyberArk PAM based vault secrets in Liquibase. 
+
+## Supported product editions
+<a href="https://www.liquibase.com/pricing/pro" target="_blank"><img alt="Liquibase Pro" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmcred%2Fliquibase-header-footer%2Ffeature%2Fbadges%2Fbadges%2Fpro.json"></a>
+
+## Requirements
+* Liquibase 4.10 + 
+* Liquibase Pro License
+* CyberArk PAM Vault with API enabled
+* RootCA certificate in your java security keystore (typically cacerts) 
+
+## Installation
+The easiest way to install this extension is with `lpm` [liquibase package manager](https://github.com/liquibase/liquibase-package-manager).
+```shell
+lpm update
+lpm add cyberarkpam-vault
+```
+
+## Setup
+A [Liquibase Pro](https://www.liquibase.com/pricing/pro) License key is required.
+### Required parameters
+```
+--vault-addr=PARAM
+    URL for CyberArk PAM Vault Server
+    (liquibase.vault.addr)
+    (LIQUIBASE_VAULT_ADDR)
+    [deprecated: --vaultAddr]
+
+--vault-certfile=PARAM
+    Certificate for CyberArk PAM Vault Server
+    (liquibase.vault.certfile)
+    (LIQUIBASE_VAULT_CERTFILE)
+    [deprecated: --vaultCertfile]
+```
+### Adding RootCA certificate in your java security keystore
+Example:
+```
+sudo keytool -importcert -alias CyberArkRoot -keystore /Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/lib/security/cacerts -storepass changeit -file RootCA.crt
+```
+If there is an error message showing PKIX exception you could have imported into the wrong cacerts file\
+Run liquibase -version to see which jvm Liquibase is using
+
+To debug the ssl connection, you can add this java environment variable to your command line
+`-Djavax.net.debug=ssl:handshake`
+
+## Using Secrets in Liquibase Properties
+Any property in a Liquibase Properties file can be stored in CyberArk PAM Vault. In order for the vault plugin to know which properties should be populated from vault, use the pattern of `VAULT_TYPE,PATH_TO_NAME_IN_PAM,FIELD_TO_MAP`, see example below. 
+
+## Example
+```properties
+username= cyberarkpam,UserName,username
+password= cyberarkpam,Content,password
+```
+
+## Feedback and Issues
+Please submit all feedback and issues to [this idea board](https://ideas.liquibase.com/c/58-cyberark-pro-extension).
