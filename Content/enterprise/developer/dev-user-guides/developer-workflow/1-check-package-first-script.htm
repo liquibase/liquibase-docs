@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title></title>
+        <meta name="description" content="Liquibase Enterprise Documentation" />
+    </head>
+    <body>
+        <h1>1.0. Check-in (and package) your first script
+			<MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" /></h1>
+        <p>Check in your script(s) in the correct directory.</p><pre class="conf-macro output-block" xml:space="preserve">&lt;sql_code_dir&gt; # for example, sql_scripts
+data_dml
+ddl
+ddl_direct
+function
+package
+packagebody
+procedure
+sql
+sql_direct
+trigger</pre>
+        <p>Commit/push your scripts to SQL repository. As soon as your scripts are pushed a Jenkins job will be triggered to start <MadCap:variable name="General.DaticalDB" />
+			's packaging process.</p>
+        <p>Refer to <a href="../developer-workflow.htm">Placing Files in the SCM Repository</a> for more details.</p>
+        <p>The Packaging process goes through a workflow and validates your script(s) in a REF database (and upon success may automatically deploy into DEV or INT database). The high-level workflow can be described as these stages:</p>
+        <ul>
+            <li><u>Packaging stage</u>:
+				<ul><li>A backup of the REF database is created</li><li><p><code>ddl</code> scripts by default go through a "convert_sql" process which allows Datical to determine what changed in managed schema(s).</p><ul><li><p>This requires deploying the <code>ddl</code> scripts into the REF database.</p></li><li><p>The outcome is one or more changesets.</p></li><li>If there are errors with <code>ddl</code> scripts then the REF database will be restored to its initial state.</li><li>You could optionally change the packageMethod of the ddl folder to ddl_direct (if you don't want to use the default convert packageMethod).</li><li>All other scripts (<code>data_dml, ddl_direct, stored logic, sql_direct)&#160;</code>bypass the "convert_sql" process.</li></ul></li><li>REF database is restored to its initial state</li><li>If packaging stage fails, the overall job stops and returns an error</li></ul></li>
+            <li><u>Forecast stage</u>:
+				<ul><li>ddl changesets are forecasted</li><li>If forecast stage fails, the overall job stops and returns an error</li></ul></li>
+            <li><u>Deploy stage</u>:
+				<ul><li>All changes (ddl changesets as well as all non-dll scripts) are deployed to REF database</li><li>If there are failures during deployment:
+						<ul><li>The REF database is restored to its initial state.</li><li>Developers will have the opportunity to fix their scripts and try again.</li><li>Overall job stops and returns an error</li></ul></li><li>If all ddl changesets and scripts deploy successfully then non-stored logic files are moved to the <code>archive</code> directory
+						<ul><li>This includes scripts in the following directories: <code>ddl, ddl_direct, data_dml, sql, and sql_direct</code></li></ul></li></ul></li>
+        </ul>
+        <h3 id="id-1.0.Check-in(andpackage)yourfirstscript-BestPractices">Best Practices</h3>
+        <p>These are suggested best practices:</p>
+        <ul>
+            <li>Try not to commit large number of scripts at once.
+				<ul><li>This will take longer to package</li><li>If there are failures during packaging process then none of the scripts will deploy</li><li>Suggest: Commit fewer scripts</li></ul></li>
+            <li>Be cognizant of dependencies
+				<ul><li>Look into <a href="../developer-workflow.htm">Processing Order</a> for how Datical will determine in which order to deploy scripts</li></ul></li>
+        </ul>
+    </body>
+</html>
