@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us">
+    <head><title>Liquibase Enterprise Documentation</title>
+        <link href="../../../../Resources/Stylesheets/Oracle+on+Amazon+RDS+Setup.css" rel="stylesheet" />
+    </head>
+    <body>
+        <h1> Postgres EDB and PostgreSQL Setup</h1>
+        <MadCap:snippetText src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>This page is currently invisible to customers through Restrictions</p>
+        <h2>Platform Support</h2>
+        <p><MadCap:variable name="General.DaticalDB" /> supports these Postgres platforms and variants:</p>
+        <ul>
+            <li>
+                <p>EDB Postgres</p>
+            </li>
+            <li>
+                <p>PostgreSQL (on-premise)</p>
+            </li>
+            <li>
+                <p>PostgreSQL on Amazon RDS</p>
+            </li>
+            <li>
+                <p>PostgreSQL on Amazon Aurora</p>
+            </li>
+        </ul>
+        <p>See <a href="../../../system-requirements/hardware-software-database-requirements.htm">Hardware, Software, and Database Requirements</a> for more information on version support.</p>
+        <h2>Prerequisite: Ownership of Schema and Database Objects</h2>
+        <p>In order for <MadCap:variable name="General.DaticalDB" /> to manage an existing Postgres instance, it must connect as a user with at least one of the following requirements:</p>
+        <ul>
+            <li>
+                <p>Owns all schema to be managed by <MadCap:variable name="General.DaticalDB" /><strong>and</strong> owns all objects in those schema.</p>
+            </li>
+            <li>
+                <p>Is a superuser (on-prem only–the superuser on Amazon RDS or Aurora does not have sufficient permissions)</p>
+            </li>
+        </ul>
+        <p>Postgres has a distinction between ownership and privilege, and only one user may own an object. Only the owner (or a superuser) may alter or drop a given object. Therefore, simply granting the owner's role to another user is not sufficient. Ownership must be explicitly transferred (see below). 
+			<span>When managing Postgres databases, please disregard any documentation referencing the use of multiple roles for <MadCap:variable name="General.DaticalDB" /> connection users.</span></p>
+        <p>"The right to modify or destroy an object is always the privilege of the owner only." - from PostgreSQL documentation <a href="https://www.postgresql.org/docs/9.6/ddl-priv.html">https://www.postgresql.org/docs/9.6/ddl-priv.html</a></p>
+        <p>Since it is necessary for <MadCap:variable name="General.DaticalDB" /> to perform both backup and restore operations on all schema it manages (which involves dropping and recreating entire schema and their objects), its connection user must own these schema and objects. If it does not, packaging fails and a permissions error is reported.</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><b>Special Instructions for Postgres in Amazon RDS</b>
+            <br />If you are using Postgres for Amazon RDS or for Aurora, the admin user they provide is NOT a true superuser and its privileges are NOT sufficient to perform <MadCap:variable name="General.DaticalDB" /> operations. The user specified in the DbDef connection must have proper permissions on the database (<em>connect</em>, <em>create</em>, and <em>temporary</em> are suggested) as well as ownership of schema and objects as described above. See AWS documentation for more information.<br /><br /><img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Prerequisite Ownership of.png" /><span class="expand-control-text">Instructions for Reassigning Object Ownership in Postgres for Amazon RDS</span></p>
+        <p>The following steps to reassign object ownership without superuser privileges can be taken in Postgres in Amazon RDS environments</p>
+        <p>1. Create a new role named 'change_owner' and grant it the LOGIN privilege</p>
+        <p class="HTMLPreformatted">mydb=&gt; CREATE ROLE change_owner LOGIN;</p>
+        <p class="HTMLPreformatted">CREATE ROLE</p>
+        <p class="HTMLPreformatted">
+            <br />2. Make both the current owner ('old_owner') and the new <MadCap:variable name="General.DaticalDB" /> owner ('new_ddb_owner') roles members of the newly created role</p>
+        <p class="HTMLPreformatted">mydb=&gt; GRANT old_owner TO change_owner;</p>
+        <p class="HTMLPreformatted">GRANT ROLE</p>
+        <p class="HTMLPreformatted">mydb=&gt; GRANT new_ddb_owner TO change_owner;</p>
+        <p class="HTMLPreformatted">GRANT ROLE<br /><br /></p>
+        <p>3. Logout from psql and login using the new role</p>
+        <p class="HTMLPreformatted">$ psql -U change_owner mydb</p>
+        <p class="HTMLPreformatted">mydb=&gt;<br /><br /></p>
+        <p>4. Execute the reassignment</p>
+        <p class="HTMLPreformatted">mydb=&gt; REASSIGN OWNED BY old_owner TO new_ddb_owner</p>
+        <p class="HTMLPreformatted">REASSIGN OWNED</p>
+        <p>
+            <br />Courtesy of <a href="https://sysadmintips.com/services/databases/postgresql-error-permission-denied-to-reassign-objects/">sysadmintips.com</a></p>
+        <h3>Pipeline Steps in the Project</h3>
+        <p>Each database in your release pipeline is represented as a step in the <MadCap:variable name="General.DaticalDB" /> project. <span>Each step has its own set of connection information, including the user to connect as (the</span><span class="Strong_1">connection user</span><span>).</span></p>
+        <p>At each step, the connection user must be the owner of all schema managed by <MadCap:variable name="General.DaticalDB" /> and the owner of all objects in that schema.</p>
+        <p class="title">Note</p>
+        <p>You do not have to use the same user for every step in the pipeline, as long as that user has the requisite ownership to perform <MadCap:variable name="General.DaticalDB" /> operations.</p>
+        <h2>Choosing a User to Manage PostgreSQL Databases</h2>
+        <p>If you already have a user with the requisite ownership, you can configure <MadCap:variable name="General.DaticalDB" /> to connect as that user and skip the following steps.</p>
+        <h2>Creating a User to Manage PostgreSQL Databases</h2>
+        <p>If you want to create a new user to be the <MadCap:variable name="General.DaticalDB" /> connection user, then you have two options:</p>
+        <ol>
+            <li>
+                <p>Ensure that user is a superuser (on-prem Postgres)</p>
+            </li>
+            <li>
+                <p>Transfer ownership of all existing schema to be managed by <MadCap:variable name="General.DaticalDB" /> and all objects in those schema.</p>
+            </li>
+        </ol>
+        <p>The following sections show how to create a user, grant the required permissions, and transfer ownership of database objects.</p>
+        <h3>1. Creating the <MadCap:variable name="General.DaticalDB" /> User and Granting the Required Permissions</h3>
+        <p>Log in as a superuser and run the following commands, substituting user and database name appropriately.</p>
+        <p class="HTMLPreformatted">CREATE USER "datical_user" WITH PASSWORD 'password';</p>
+        <p class="HTMLPreformatted">GRANT CREATE, CONNECT, TEMPORARY ON DATABASE "your_database_name" TO "datical_user" WITH GRANT OPTION;</p>
+        <h3>2. Transferring Ownership of Database Objects to the <MadCap:variable name="General.DaticalDB" /> User</h3>
+        <p>You must either log in as a superuser or the object owner to transfer ownership.</p>
+        <ol>
+            <li>
+                <p>Make the current owner a member of the Datical user role.</p>
+                <ul>
+                    <li>
+                        <p>Log in as a superuser or the Datical user and grant membership:</p>
+                        <p class="HTMLPreformatted">GRANT "datical_user" to "current_owner";</p>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <p>Transfer ownership of database objects.</p>
+                <ul>
+                    <li>
+                        <p>To transfer ownership of a schema:</p>
+                        <p class="HTMLPreformatted">ALTER SCHEMA "schema_name" OWNER TO "datical_user";</p>
+                    </li>
+                    <li>
+                        <p>To transfer ALL objects on a database to another user:</p>
+                        <p class="HTMLPreformatted">REASSIGN OWNED BY "current_owner" TO "datical_user";</p>
+                    </li>
+                    <li>
+                        <p>To transfer a single object on a database to another user, please refer to the appropriate ALTER statement for that object type in the Postgres documentation.</p>
+                    </li>
+                </ul>
+                <h2>Limitations</h2>
+                <p>&#160;</p>
+                <ul>
+                    <li>
+                        <p>See Known Issues in <MadCap:variable name="General.DaticalDB" /> v2019.2.2 - Release Notes&#160;and release notes for maintenance releases.</p>
+                    </li>
+                </ul>
+                <h3>Function Type Support On Cloud Environments</h3>
+                <p>This is general information about <strong>Amazon</strong> support for these functions. The user with the highest level of permissions on Aurora/RDS (rds_superuser) does not have the capability to create certain functions. This is the case whether you are using <MadCap:variable name="General.DaticalDB" /> or not!</p>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <p>Function Type</p>
+                            </td>
+                            <td>
+                                <p>Community Edition</p>
+                            </td>
+                            <td>
+                                <p>Cloud (Aurora/RDS)</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p>query language functions</p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations.png" alt="(tick)" />
+                                </p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations.png" alt="(tick)" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p>procedural language functions (TRUSTED)</p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations.png" alt="(tick)" />
+                                </p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations.png" alt="(tick)" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p>procedural language functions (UNTRUSTED)</p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations.png" alt="(tick)" />
+                                </p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations_1.png" alt="(error)" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p>internal functions</p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations.png" alt="(tick)" />
+                                </p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations_1.png" alt="(error)" />
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <p>C-language functions</p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations.png" alt="(tick)" />
+                                </p>
+                            </td>
+                            <td>
+                                <p>
+                                    <img src="../../../../Resources/Images/Postgres+EDB+and+PostgreSQL+Setup/Limitations_1.png" alt="(error)" />
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </li>
+        </ol>
+    </body>
+</html>
