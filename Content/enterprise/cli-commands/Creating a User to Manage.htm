@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us">
+	<head>
+		<title>Liquibase Enterprise Documentation</title>
+	</head>
+	<body>
+		<h1>Creating a User to Manage PostgreSQL Databases</h1>
+		<MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+		<p>If you want to create a new user to be the <MadCap:variable name="General.DaticalDB" /> connection user, then you have two options:</p>
+		<ol>
+			<li>
+				<p>Ensure that user is a superuser (on-prem Postgres)</p>
+			</li>
+			<li>
+				<p>Transfer ownership of all existing schema to be managed by <MadCap:variable name="General.DaticalDB" /> and all objects in those schema.</p>
+			</li>
+		</ol>
+		<p>The following sections show how to create a user, grant the required permissions, and transfer ownership of database objects.</p>
+		<h2>1. Creating the <MadCap:variable name="General.DaticalDB" /> User and Granting the Required Permissions</h2>
+		<p>Log in as a superuser and run the following commands, substituting user and database name appropriately.</p>
+		<p class="HTMLPreformatted">CREATE USER "datical_user" WITH PASSWORD 'password';</p>
+		<p class="HTMLPreformatted">GRANT CREATE, CONNECT, TEMPORARY ON DATABASE "your_database_name" TO "datical_user" WITH GRANT OPTION;</p>
+		<h2>2. Transferring Ownership of Database Objects to the <MadCap:variable name="General.DaticalDB" /> User</h2>
+		<p>You must either log in as a superuser or the object owner to transfer ownership.</p>
+		<ol>
+			<li>
+				<p>Make the current owner a member of the Datical user role.</p>
+				<ul>
+					<li>
+						<p>Log in as a superuser or the Datical user and grant membership:</p>
+						<p class="HTMLPreformatted">GRANT "datical_user" to "current_owner";</p>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<p>Transfer ownership of database objects.</p>
+				<ul>
+					<li>
+						<p>To transfer ownership of a schema:</p>
+						<p class="HTMLPreformatted">ALTER SCHEMA "schema_name" OWNER TO "datical_user";</p>
+					</li>
+					<li>
+						<p>To transfer ALL objects on a database to another user:</p>
+						<p class="HTMLPreformatted">REASSIGN OWNED BY "current_owner" TO "datical_user";</p>
+					</li>
+					<li>
+						<p>To transfer a single object on a database to another user, please refer to the appropriate ALTER statement for that object type in the Postgres documentation.</p>
+					</li>
+				</ul>
+			</li>
+		</ol>
+	</body>
+</html>
