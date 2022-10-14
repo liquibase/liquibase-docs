@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>Liquibase Enterprise Documentation</title><meta name="description" content="Liquibase Enterprise Documentation" /></head>
+    <head><title>Liquibase Enterprise Documentation</title>
+        <meta name="description" content="Liquibase Enterprise Documentation" />
+    </head>
     <body>
         <h1>Multi-Schema Projects - Oracle Roles and Permissions</h1>
-        <h1 id="Multi-SchemaProjects-OracleRolesandPermissions-Multi-SchemaProjectDatabaseAccounts,RolesandPermissions">Multi-Schema Project Database Accounts, Roles and Permissions</h1>
+        <MadCap:snippetBlock src="../../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <h2>Multi-Schema Project Database Accounts, Roles and Permissions</h2>
         <p>Two datical database accounts are required for multi-schema projects. These accounts are referred to as DATICAL_USER and DATICAL_TRACKING. At runtime, <MadCap:variable name="General.DaticalDB" /> will connect to the database as the DATICAL_USER to process and deploy code. The DATICAL_TRACKING schema owns the DATABASECHANGELOG and DATABASECHANGELOGLOCK tables used to track and manage database changes. The database change log tables are created in the default tablespace assigned to the DATICAL_TRACKING account. The database account names must be the same across all databases in the pipeline. The DATICAL_USER and DATICAL_TRACKING accounts should not be one of the managed schemas in the pipeline.</p>
         <p>Database permissions for <MadCap:variable name="General.DaticalDB" /> are managed through Roles. Three <MadCap:variable name="General.DaticalDB" /> Roles are needed:</p>
         <ul>
@@ -11,10 +14,8 @@
             <li>DATICAL_PACKAGER_ROLE - Required only on the REF database in the project. Grants additional permissions required to execute <MadCap:variable name="General.DaticalDB" /> packaging operations.</li>
             <li>DATICAL_TRACK_ROLE - Required on all databases in the project. Grants permissions to manage the database change log.</li>
         </ul>
-        <p>Multi-schema projects require the DATICAL_USER account to have elevated privileges because the account is used to create objects in each of the schemas managed by Liquibase.</p>
-        <h1 id="Multi-SchemaProjects-OracleRolesandPermissions-DATICAL_ROLEforGeneralPermissionsonallDatabaseObjectsinallManagedDatabases">DATICAL_ROLE for General Permissions on all Database Objects in all Managed Databases</h1>
-        <b>DATICAL_ROLE</b>
-        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- The following must be run as sysdba
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Multi-schema projects require the DATICAL_USER account to have elevated privileges because the account is used to create objects in each of the schemas managed by Liquibase.</p>
+        <h2>DATICAL_ROLE for General Permissions on all Database Objects in all Managed Databases</h2><b>DATICAL_ROLE</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- The following must be run as sysdba
 -- SQL &gt; conn / as sysdba
 
 CREATE ROLE DATICAL_ROLE NOT IDENTIFIED;
@@ -80,10 +81,8 @@ GRANT EXECUTE on SYS.DBMS_METADATA TO DATICAL_ROLE;
 GRANT EXECUTE ON SYS.UTL_FILE TO DATICAL_ROLE;
 
 </pre>
-        <h1 id="Multi-SchemaProjects-OracleRolesandPermissions-DATICAL_PACKAGER_ROLEforAdditionalPermissionsontheREFDatabase">DATICAL_PACKAGER_ROLE for Additional Permissions on the REF Database</h1>
-        <p>This role grants additional permissions needed for Packaging</p>
-        <b>DATICAL_PACKAGER_ROLE</b>
-        <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_ROLE NOT IDENTIFIED;
+        <h2>DATICAL_PACKAGER_ROLE for Additional Permissions on the REF Database</h2>
+        <p>This role grants additional permissions needed for Packaging</p><b>DATICAL_PACKAGER_ROLE</b><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_ROLE NOT IDENTIFIED;
 
 -- When using the tracefileLocation=REMOTE, you will need to setup the following permissions. 
 -- Note: These permissions are only required on schemas running the Convert SQL Scripts command.  This is only needed on the packaging / reference database.
@@ -99,10 +98,8 @@ GRANT BECOME USER TO DATICAL_PACKAGER_ROLE;
 
 -- The following permission is required only if you use security policies. This is only needed on the packaging / reference database.
 GRANT EXEMPT ACCESS POLICY TO DATICAL_PACKAGER_ROLE;</pre>
-        <h1 id="Multi-SchemaProjects-OracleRolesandPermissions-DATICAL_TRACK_ROLEforPermissionsontheTrackingTables">DATICAL_TRACK_ROLE for Permissions on the Tracking Tables</h1>
-        <p>In a multi-schema project you typically define a separate schema for the tracking tables. The DATICAL_TRACK_ROLE permissions are needed on that schema.</p>
-        <b>DATICAL_TRACK_ROLE</b>
-        <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
+        <h2>DATICAL_TRACK_ROLE for Permissions on the Tracking Tables</h2>
+        <p>In a multi-schema project you typically define a separate schema for the tracking tables. The DATICAL_TRACK_ROLE permissions are needed on that schema.</p><b>DATICAL_TRACK_ROLE</b><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
 
 -- will create 2 tables - DATABASECHANGELOG and DATABASECHANGELOGLOCK
 -- will insert records
@@ -111,17 +108,13 @@ grant create session,
   create synonym, create view,
   create cluster, create indextype, create operator
 to DATICAL_TRACK_ROLE;</pre>
-        <h1 id="Multi-SchemaProjects-OracleRolesandPermissions-DATICAL_DATAPUMP_DIRCreation">DATICAL_DATAPUMP_DIR Creation</h1>
-        <p><MadCap:variable name="General.DaticalDB" /> uses datapump as the default mechanism to backup and restore database schemas during Packaging. The DATICAL_DATAPUMP_DIR is only needed on the REF databases. Edit the script to set the path for the DATICAL_DATAPUMP_DIR to an appropriate location on the database server.</p>
-        <b>DATICAL_DATAPUMP_DIR</b>
-        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
+        <h2>DATICAL_DATAPUMP_DIR Creation</h2>
+        <p><MadCap:variable name="General.DaticalDB" /> uses datapump as the default mechanism to backup and restore database schemas during Packaging. The DATICAL_DATAPUMP_DIR is only needed on the REF databases. Edit the script to set the path for the DATICAL_DATAPUMP_DIR to an appropriate location on the database server.</p><b>DATICAL_DATAPUMP_DIR</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
 CREATE OR REPLACE DIRECTORY DATICAL_DATAPUMP_DIR AS '/path/to/directory';
 </pre>
-        <p>To use Data Pump in an Oracle RAC configuration, you must ensure that the directory object path (DATICAL_DATAPUMP_DIR by default) is on a cluster-wide file system. The directory object must point to shared physical storage that is visible to, and accessible from, all instances where Data Pump and/or external tables processes may run.</p>
-        <h1 id="Multi-SchemaProjects-OracleRolesandPermissions-GrantingRolesandPermissions">Granting Roles and Permissions</h1>
-        <p>Grant the roles to the DATICAL_USER and DATICAL_TRACKING accounts.</p>
-        <b>REF Database Roles and Permissions</b>
-        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for REF databases.
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">To use Data Pump in an Oracle RAC configuration, you must ensure that the directory object path (DATICAL_DATAPUMP_DIR by default) is on a cluster-wide file system. The directory object must point to shared physical storage that is visible to, and accessible from, all instances where Data Pump and/or external tables processes may run.</p>
+        <h2>Granting Roles and Permissions</h2>
+        <p>Grant the roles to the DATICAL_USER and DATICAL_TRACKING accounts.</p><b>REF Database Roles and Permissions</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for REF databases.
 -- Modify this to set the appropriate account name for your DATICAL_USER and DATICAL_TRACKING accounts.
 GRANT DATICAL_ROLE TO DATICAL_USER;
 GRANT DATICAL_PACKAGER_ROLE to DATICAL_USER;
@@ -129,16 +122,12 @@ GRANT DATICAL_PACKAGER_ROLE to DATICAL_USER;
 GRANT READ, WRITE, EXECUTE ON DIRECTORY DATICAL_DATAPUMP_DIR TO DATICAL_USER;
 GRANT ALTER SESSION TO DATICAL_USER;
 
-GRANT DATICAL_TRACK_ROLE TO DATICAL_TRACKING;</pre>
-        <b>non-REF Database Roles and Permissions</b>
-        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for non-REF databases.
+GRANT DATICAL_TRACK_ROLE TO DATICAL_TRACKING;</pre><b>non-REF Database Roles and Permissions</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for non-REF databases.
 -- Modify this to set the appropriate account name for your DATICAL_USER and DATICAL_TRACKING accounts.
 GRANT DATICAL_ROLE TO DATICAL_USER;
 GRANT ALTER SESSION TO DATICAL_USER;
 GRANT DATICAL_TRACK_ROLE TO DATICAL_TRACKING;</pre>
-        <p>The roles granted to DATICAL_USER and DATICAL_TRACKING must be DEFAULT roles. Be sure to validate that the accounts have all the required DEFAULT roles.</p>
-        <b>Validate Default Roles</b>
-        <pre class="syntaxhighlighter-pre" xml:space="preserve">-- Verify permissions.
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The roles granted to DATICAL_USER and DATICAL_TRACKING must be DEFAULT roles. Be sure to validate that the accounts have all the required DEFAULT roles.</p><b>Validate Default Roles</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Verify permissions.
 -- Modify this to set the appropriate account name for your DATICAL_USER and DATICAL_TRACKING accounts.
 
 select grantee, granted_role, default_role from dba_role_privs where grantee like 'DATICAL%' order by 1;

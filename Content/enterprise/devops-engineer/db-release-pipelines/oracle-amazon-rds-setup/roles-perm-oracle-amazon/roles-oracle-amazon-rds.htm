@@ -6,11 +6,199 @@
     <body>
         <h1>Roles and Permissions for <MadCap:variable name="General.DaticalDB" /> on Oracle on Amazon RDS</h1>
         <MadCap:snippetText src="../../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <h2>Multi-Schema Project Database Accounts, Roles and Permissions</h2>
+        <p>Two datical database accounts are required for multi-schema projects.  These accounts are referred to as DATICAL_USER and DATICAL_TRACKING.  At runtime, Datical will connect to the database as the DATICAL_USER to process and deploy code.  The DATICAL_TRACKING schema owns the DATABASECHANGELOG and DATABASECHANGELOGLOCK tables used to track and manage database changes.  The database change log tables are created in the default tablespace assigned to the DATICAL_TRACKING account.  The database account names must be the same across all databases in the pipeline.  The DATICAL_USER and DATICAL_TRACKING accounts should not be one of the managed schemas in the pipeline.</p>
+        <p>Database permissions for Datical are managed through Roles.  Three Datical Roles are needed:</p>
         <ul>
-            <li>Multi-Schema Projects - Oracle on Amazon RDS Roles and Permissions</li>
-            <li><a href="../../../../dba/planning-projects/release-pipeline-contents-schema/single-schema-projects.htm">Single-Schema Projects - Oracle on Amazon RDS Roles and Permissions</a>
+            <li>
+                <p>DATICAL_ROLE - Required on all databases in the project.  Grants permissions to deploy objects to the managed schemas.</p>
+            </li>
+            <li>
+                <p>DATICAL_PACKAGER_ROLE - Required only on the REF database in the project.  Grants additional permissions required to execute Datical packaging operations.</p>
+            </li>
+            <li>
+                <p>DATICAL_TRACK_ROLE - Required on all databases in the project.  Grants permissions to manage the database change log.</p>
             </li>
         </ul>
-        <p>See <a href="../../overview-db-used/Database Users Roles and Passwords.htm">Database Users, Roles, and Passwords</a> for a general discussion of database setup for <MadCap:variable name="General.DaticalDB" />.</p>
+        <p>You must grant any user-defined roles that are granted to any managed schema to the SYSTEM user WITH ADMIN OPTION. Otherwise, Datical will not be able to successfully restore these roles during the packaging operation and packager will fail.</p>
+        <h2>DATICAL_ROLE for General Permissions on all Database Objects in all Managed Databases</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>DATICAL_ROLE</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">-- The following must be run as the RDS_MASTER_USER that was specified for the database.
+-- SQL &gt; connect &lt;RDS_MASTER_USER&gt;
+&#160;
+CREATE ROLE DATICAL_ROLE NOT IDENTIFIED;
+&#160;
+GRANT ALTER ANY INDEX TO DATICAL_ROLE;
+GRANT ALTER ANY MATERIALIZED VIEW TO DATICAL_ROLE;
+GRANT ALTER ANY PROCEDURE TO DATICAL_ROLE;
+GRANT ALTER ANY SEQUENCE TO DATICAL_ROLE;
+GRANT ALTER ANY TABLE TO DATICAL_ROLE;
+GRANT ALTER ANY TRIGGER TO DATICAL_ROLE;
+GRANT ALTER ANY TYPE TO DATICAL_ROLE;
+GRANT ALTER SESSION TO DATICAL_ROLE;
+GRANT GRANT ANY OBJECT PRIVILEGE TO DATICAL_ROLE;
+GRANT CREATE ANY INDEX TO DATICAL_ROLE;
+GRANT CREATE ANY MATERIALIZED VIEW TO DATICAL_ROLE;
+GRANT CREATE ANY PROCEDURE TO DATICAL_ROLE;
+GRANT CREATE ANY SEQUENCE TO DATICAL_ROLE;
+GRANT CREATE ANY SYNONYM TO DATICAL_ROLE;
+GRANT CREATE PUBLIC SYNONYM TO DATICAL_ROLE;
+GRANT CREATE ANY TABLE TO DATICAL_ROLE;
+GRANT CREATE ANY TRIGGER TO DATICAL_ROLE;
+GRANT CREATE ANY TYPE TO DATICAL_ROLE;
+GRANT CREATE ANY VIEW TO DATICAL_ROLE;
+GRANT CREATE SESSION TO DATICAL_ROLE;
+GRANT DELETE ANY TABLE TO DATICAL_ROLE WITH ADMIN OPTION;
+GRANT DROP ANY INDEX TO DATICAL_ROLE;
+GRANT DROP ANY MATERIALIZED VIEW TO DATICAL_ROLE;
+GRANT DROP ANY PROCEDURE TO DATICAL_ROLE;
+GRANT DROP ANY SEQUENCE TO DATICAL_ROLE;
+GRANT DROP ANY SYNONYM TO DATICAL_ROLE;
+GRANT DROP ANY TABLE TO DATICAL_ROLE;
+GRANT DROP ANY TRIGGER TO DATICAL_ROLE;
+GRANT DROP ANY TYPE TO DATICAL_ROLE;
+GRANT DROP ANY VIEW TO DATICAL_ROLE;
+GRANT INSERT ANY TABLE TO DATICAL_ROLE;
+GRANT SELECT_CATALOG_ROLE TO DATICAL_ROLE;
+GRANT UPDATE ANY TABLE TO DATICAL_ROLE ;
+GRANT COMMENT ANY TABLE TO DATICAL_ROLE;
+&#160;
+-- The following permission are needed for SNAPSHOT, COMPARE, FORECAST on all available schemas
+GRANT SELECT ANY TABLE TO DATICAL_ROLE;
+GRANT SELECT ANY SEQUENCE TO DATICAL_ROLE;
+GRANT EXECUTE ANY PROCEDURE TO DATICAL_ROLE;
+&#160;
+-- The following permissions are needed for auto generation of permissions
+GRANT SELECT ANY DICTIONARY TO DATICAL_ROLE;
+&#160;
+-- The following permissions are needed for working with EDITIONING VIEWS
+GRANT CREATE ANY EDITION TO DATICAL_ROLE;
+GRANT DROP ANY EDITION TO DATICAL_ROLE;
+&#160;
+-- The following permissions are needed if your company allows Public Synonyms
+GRANT CREATE PUBLIC SYNONYM TO DATICAL_ROLE;
+GRANT DROP PUBLIC SYNONYM TO DATICAL_ROLE;
+&#160;
+-- The following permissions are needed for management of database scoped triggers
+GRANT ADMINISTER DATABASE TRIGGER TO DATICAL_ROLE;
+&#160;
+-- The following permissions are needed to capture storage options for SNAPSHOT
+-- On Oracle RDS the RDSADMIN_UTIL package must be used for grants to objects owned by SYS.
+begin
+rdsadmin.rdsadmin_util.grant_sys_object(
+p_obj_name  =&gt; 'DBMS_METADATA',
+p_grantee   =&gt; 'DATICAL_ROLE',
+p_privilege =&gt; 'EXECUTE');
+end;
+/
+begin
+rdsadmin.rdsadmin_util.grant_sys_object(
+p_obj_name  =&gt; 'UTL_FILE',
+p_grantee   =&gt; 'DATICAL_ROLE',
+p_privilege =&gt; 'EXECUTE');
+end;
+/
+</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>DATICAL_PACKAGER_ROLE for Additional Permissions on the REF Database</h2>
+        <p>This role grants additional permissions needed for Packaging</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>DATICAL_PACKAGER_ROLE</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_ROLE NOT IDENTIFIED;
+ 
+-- The following permissions are needed for backing up and restoring the database.  This is only needed on the packaging / reference database.
+GRANT EXP_FULL_DATABASE TO DATICAL_PACKAGER_ROLE;
+GRANT IMP_FULL_DATABASE TO DATICAL_PACKAGER_ROLE;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>DATICAL_TRACK_ROLE for Permissions on the Tracking Tables</h2>
+        <p>In a multi-schema project you typically define a separate schema for the tracking tables. The DATICAL_TRACK_ROLE permissions are needed on that schema.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>DATICAL_TRACK_ROLE</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
+ 
+-- will create 2 tables - DATABASECHANGELOG and DATABASECHANGELOGLOCK
+-- will insert records
+grant create session,
+  create procedure, create sequence, create table, create trigger, create type,
+  create synonym, create view,
+  create cluster, create indextype, create operator
+to DATICAL_TRACK_ROLE;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>DATICAL_DATAPUMP_DIR Creation</h2>
+        <p>Datical uses datapump as the default mechanism to backup and restore database schemas during Packaging.  The DATICAL_DATAPUMP_DIR is only needed on the REF databases.  The command should be executed as the RDS_MASTER_USER.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>DATICAL_DATAPUMP_DIR</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">connect &lt;RDS_MASTER_USER&gt;
+-- Create the DATICAL_DATAPUMP_DIR
+EXEC rdsadmin.rdsadmin_util.create_directory(p_directory_name =&gt; 'DATICAL_DATA_PUMP_DIR');</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Granting Roles and Permissions</h2>
+        <p>Grant the roles to the DATICAL_USER and DATICAL_TRACKING accounts.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>REF Database Roles and Permissions</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">-- Permissions for REF databases.
+-- Modify this to set the appropriate account name for your DATICAL_USER and DATICAL_TRACKING accounts.
+GRANT DATICAL_ROLE TO DATICAL_USER WITH ADMIN OPTION;
+GRANT DATICAL_PACKAGER_ROLE to DATICAL_USER;
+ 
+-- Directory permissions cannot be granted by a ROLE because the directory is checked through the utl_file.file_exists function.
+-- Datapump backup directory.
+GRANT READ, WRITE ON DIRECTORY DATICAL_DATA_PUMP_DIR TO DATICAL_USER;
+-- Access to trace files.
+GRANT READ on DIRECTORY BDUMP to DATICAL_USER;
+GRANT ALTER SESSION TO DATICAL_USER;
+ 
+GRANT DATICAL_TRACK_ROLE TO DATICAL_TRACKING;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>non-REF Database Roles and Permissions</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">-- Permissions for non-REF databases.
+-- Modify this to set the appropriate account name for your DATICAL_USER and DATICAL_TRACKING accounts.
+GRANT DATICAL_ROLE TO DATICAL_USER;
+GRANT ALTER SESSION TO DATICAL_USER;
+GRANT DATICAL_TRACK_ROLE TO DATICAL_TRACKING;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The roles granted to DATICAL_USER and DATICAL_TRACKING must be DEFAULT roles.  Be sure to validate that the accounts have all the required DEFAULT roles.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>Validate Default Roles</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">-- Verify permissions.
+-- Modify this to set the appropriate account name for your DATICAL_USER and DATICAL_TRACKING accounts.
+ 
+select grantee, granted_role, default_role from dba_role_privs where grantee like 'DATICAL%' order by 1;
+ 
+-- If DEFAULT_ROLE is not YES.  Execute the following.
+alter user DATICAL_USER default role DATICAL_ROLE;
+alter user DATICAL_USER default role DATICAL_PACKAGER_ROLE;  /* REF database only */
+alter user DATICAL_TRACKING default role DATICAL_TRACK_ROLE;
+ 
+-- Verify READ/WRITE permissions exist on the DATICAL_DATA_PUMP_DIR and BDUMP directories (REF database only).
+select table_name, privilege from DBA_TAB_PRIVS where grantee = 'DATICAL_USER';</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Granting Roles on Managed Schema to the SYSTEM User</h2>
+        <p>If you have user-defined roles assigned to the managed schema, you must grant those roles to SYSTEM user WITH ADMIN OPTION.</p>
+        <p>During packaging, Datical DB backs up user-defined roles for the managed schema along with the managed schema itself. The impdp operation works by having the SYSTEM user perform those backup and restore actions, so the SYSTEM user must be granted those roles.</p>
+        <p>If the SYSTEM user is not granted those roles, the Datical packaging operation fails.</p>
     </body>
 </html>
