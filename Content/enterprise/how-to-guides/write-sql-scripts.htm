@@ -1,70 +1,56 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-	<head>
-		<title>Liquibase Enterprise Documentation</title>
-		<meta name="description" content="Liquibase Enterprise Documentation" />
-	</head>
-	<body>
-		<h1>Writing SQL Scripts for <MadCap:variable name="General.DaticalDB" /></h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<h1 id="WritingSQLScriptsforDaticalDB-WritingScriptsforDatabaseObjects">Writing Scripts for Database Objects</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<p>Packaging for <MadCap:variable name="General.DaticalDB" /> proceeds by database object type. It is a best practice to break down SQL scripts into a script per database object type.</p>
-		<h1 id="WritingSQLScriptsforDaticalDB-Usingthesql_directandddl_directFolder">Using the sql_direct and ddl_direct Folder</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<p>Use the <span><code>ddl_direct</code></span> or <code>sql_direct</code> folder for SQL scripts to be processed by the native database client.</p>
-		<p><span>The <code>ddl_direct</code> and <code>sql_direct</code> folders are identical except for the order in which they are processed in packaging:&#160;<code>ddl, ddl_direct, view, function, procedure, package, packageBody, trigger, sql, sql_direct, data_dml</code>.</span></p>
-		<p>You may need to package scripts in this folder under certain conditions:</p>
-		<ul>
-			<li>You use multi-object scripts that you cannot break out into per-object scripts.</li>
-			<li>Your scripts include database objects that are not supported by the CONVERT packaging method (which is the default method for the DDL folder) such as database links, queues, types, cursors, public synonyms, renames, grants, and revokes. See these pages for details:
-				<ul>
-					<li><a href="oracle-packaging.htm" rel="nofollow">Oracle Database Objects and Packaging</a></li>
-					<li><a href="sql-objects-packaging.htm" rel="nofollow">SQL Server Database Objects and Packaging</a></li>
-					<li><a href="postgresql-objects-packaging.htm" rel="nofollow">Postgres Database Objects and Packaging</a></li>
-				</ul>
-			</li>
-			<li>Your scripts have <a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm">Complex and Interdependent Database Changes</a>.</li>
-			<li>You need to preserve the actual statements in the script and the order of the statements in the script (which may not be preserved if using ddl folder/CONVERT packaging method, see <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570004#WritingSQLScriptsforDaticalDB-CONVERT/ddlfolderversusDIRECT/sql_directfolder">CONVERT/ddl folder versus DIRECT/sql_direct folder</a> ).</li>
-			<li>You get errors during packaging in other folders that you cannot resolve by other means.</li>
-		</ul>
-		<p class="title">Note</p>
-		<p>Changesets produced using the database native client cannot be deployed to other types of database.</p>
-		<h1 id="WritingSQLScriptsforDaticalDB-EncodingandCharactersinScriptFiles">Encoding and Characters in Script Files</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<p class="title">File Encoding Best Practice</p>
-		<p>For best results, scripts should use UTF-8 encoding. Other encoding types can result in lexical issues with Datical DB that require the affected files to be converted to UTF-8.</p>
-		<ul>
-			<li>This conversion is performed automatically when you use the Deploy Packager &amp; the <code>packagemethod</code> is set to <code><code>direct </code>or ddl_direct </code>in the <code><a href="metadata-properties-file.htm" rel="nofollow">metadata.properties</a></code> file that affects the script's directory</li>
-			<li>This conversion <strong>IS NOT</strong> performed when you create change sets that target scripts in the Change Set Wizard of the Datical DB GUI. These options include:
-				<ul>
-					<li>Execute with sqlplus for Oracle Databases</li>
-					<li>Execute a DML script with sqlplus for Oracle Databases (Required for DML Forecasting)</li>
-					<li>Execute with sqlcmd for Microsoft SQL Server &amp; Azure SQL Databases</li>
-					<li>Execute with clpplus for DB2 Databases</li>
-					<li>Execute with psql for Postgres Databases</li>
-					<li>Execute with edbplus for EnterpriseDB Databases</li>
-					<li>Execute a SQL script file using JDBC</li>
-				</ul>
-			</li>
-		</ul>
-		<h2 id="WritingSQLScriptsforDaticalDB-UsingtheNLS_LANGenvironmentvariablewithOracle">Using the NLS_LANG environment variable with Oracle</h2>
-		<p>The NLS_LANG environment variable can impact the operation of Datical DB in two ways.</p>
-		<h3 id="WritingSQLScriptsforDaticalDB-sqlplusChangeSetExecution"><code>sqlplus</code> Change Set Execution</h3>
-		<p>This setting is used by the database to ensure that script contents are interpreted appropriately when executed and that data values are stored appropriately in the database. This can effect how characters are displayed in query output and in SQL IDEs and workbenches. If you are unable to standardize on UTF-8 as recommended above, it is recommended that all scripts processed for a given Datical DB project use the same locale and character set designations. You may then set the NLS_LANG value that corresponds to your script in your Datical DB project as described in <a href="../../define-release-pipeline/configure-projects/configure-project-settings/configure-projects.htm">Configuring Project Settings</a></p>
-		<h3 id="WritingSQLScriptsforDaticalDB-Log&amp;ConsoleOutput">Log &amp; Console Output</h3>
-		<p>The setting also effects the characters sets used for output and logs. If the language and character set of the database does not match the language and character set specified on the client, you may see unexpected characters or question marks in your output instead. This can occur during Deploy operations or during the Backup and Restore phases of the Deploy Packager and, in some cases, can lead to operation failures. It is highly recommended that the NLS_LANG setting on the client system from which the Deploy Packager is executed match the setting on the RefDB. This can be accomplished by setting the NLS_LANG environment prior to executing Datical DB on the client.</p>
-		<h3 id="WritingSQLScriptsforDaticalDB-AdditionalInformation">Additional Information</h3>
-		<p>See Oracle documentation for more information:</p>
-		<ul>
-			<li>Oracle Database Globalization Support Guide - <a class="external-link" href="https://docs.oracle.com/database/121/NLSPG/ch3globenv.htm#NLSPG189" rel="nofollow">Choosing a Locale with the NLS_LANG Environment Variable</a></li>
-			<li>NLS_LANG FAQ - <a class="external-link" href="https://www.oracle.com/database/technologies/faq-nls-lang.html" rel="nofollow">https://www.oracle.com/database/technologies/faq-nls-lang.html</a></li>
-		</ul>
-		<h1 id="WritingSQLScriptsforDaticalDB-ErrorHandling">Error Handling</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<p>Do not put error-handling statements in the object definition. For example:</p>
-		<ul>
-		<li>Oracle - do not include WHENEVER SQLERROR statements with the object definition.</li>
+    <head><title>Liquibase Enterprise Documentation</title>
+        <meta name="description" content="Liquibase Enterprise Documentation" />
+    </head>
+    <body>
+        <h1>Writing SQL Scripts for <MadCap:variable name="General.DaticalDB" /></h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <h1 id="WritingSQLScriptsforDaticalDB-WritingScriptsforDatabaseObjects">Writing Scripts for Database Objects</h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>Packaging for <MadCap:variable name="General.DaticalDB" /> proceeds by database object type. It is a best practice to break down SQL scripts into a script per database object type.</p>
+        <h1 id="WritingSQLScriptsforDaticalDB-Usingthesql_directandddl_directFolder">Using the sql_direct and ddl_direct Folder</h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>Use the <span><code>ddl_direct</code></span> or <code>sql_direct</code> folder for SQL scripts to be processed by the native database client.</p>
+        <p><span>The <code>ddl_direct</code> and <code>sql_direct</code> folders are identical except for the order in which they are processed in packaging:&#160;<code>ddl, ddl_direct, view, function, procedure, package, packageBody, trigger, sql, sql_direct, data_dml</code>.</span>
+        </p>
+        <p>You may need to package scripts in this folder under certain conditions:</p>
+        <ul>
+            <li>You use multi-object scripts that you cannot break out into per-object scripts.</li>
+            <li>Your scripts include database objects that are not supported by the CONVERT packaging method (which is the default method for the DDL folder) such as database links, queues, types, cursors, public synonyms, renames, grants, and revokes. See these pages for details:
+				<ul><li><a href="oracle-packaging.htm" rel="nofollow">Oracle Database Objects and Packaging</a></li><li><a href="sql-objects-packaging.htm" rel="nofollow">SQL Server Database Objects and Packaging</a></li><li><a href="postgresql-objects-packaging.htm" rel="nofollow">Postgres Database Objects and Packaging</a></li></ul></li>
+            <li>Your scripts have <a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm">Complex and Interdependent Database Changes</a>.</li>
+            <li>You need to preserve the actual statements in the script and the order of the statements in the script (which may not be preserved if using ddl folder/CONVERT packaging method, see <a href="https://datical-cs.atlassian.net/wiki/pages/resumedraft.action?draftId=896570004#WritingSQLScriptsforDaticalDB-CONVERT/ddlfolderversusDIRECT/sql_directfolder">CONVERT/ddl folder versus DIRECT/sql_direct folder</a> ).</li>
+            <li>You get errors during packaging in other folders that you cannot resolve by other means.</li>
+        </ul>
+        <p class="title">Note</p>
+        <p>Changesets produced using the database native client cannot be deployed to other types of database.</p>
+        <h1 id="WritingSQLScriptsforDaticalDB-EncodingandCharactersinScriptFiles">Encoding and Characters in Script Files</h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p class="title">File Encoding Best Practice</p>
+        <p>For best results, scripts should use UTF-8 encoding. Other encoding types can result in lexical issues with Datical DB that require the affected files to be converted to UTF-8.</p>
+        <ul>
+            <li>This conversion is performed automatically when you use the Deploy Packager &amp; the <code>packagemethod</code> is set to <code><code>direct </code>or ddl_direct </code>in the <code><a href="metadata-properties-file.htm" rel="nofollow">metadata.properties</a></code> file that affects the script's directory</li>
+            <li>This conversion <strong>IS NOT</strong> performed when you create change sets that target scripts in the Change Set Wizard of the Datical DB GUI. These options include:
+				<ul><li>Execute with sqlplus for Oracle Databases</li><li>Execute a DML script with sqlplus for Oracle Databases (Required for DML Forecasting)</li><li>Execute with sqlcmd for Microsoft SQL Server &amp; Azure SQL Databases</li><li>Execute with clpplus for DB2 Databases</li><li>Execute with psql for Postgres Databases</li><li>Execute with edbplus for EnterpriseDB Databases</li><li>Execute a SQL script file using JDBC</li></ul></li>
+        </ul>
+        <h2 id="WritingSQLScriptsforDaticalDB-UsingtheNLS_LANGenvironmentvariablewithOracle">Using the NLS_LANG environment variable with Oracle</h2>
+        <p>The NLS_LANG environment variable can impact the operation of Datical DB in two ways.</p>
+        <h3 id="WritingSQLScriptsforDaticalDB-sqlplusChangeSetExecution"><code>sqlplus</code> Change Set Execution</h3>
+        <p>This setting is used by the database to ensure that script contents are interpreted appropriately when executed and that data values are stored appropriately in the database. This can effect how characters are displayed in query output and in SQL IDEs and workbenches. If you are unable to standardize on UTF-8 as recommended above, it is recommended that all scripts processed for a given Datical DB project use the same locale and character set designations. You may then set the NLS_LANG value that corresponds to your script in your Datical DB project as described in <a href="../../define-release-pipeline/configure-projects/configure-project-settings/configure-projects.htm">Configuring Project Settings</a></p>
+        <h3 id="WritingSQLScriptsforDaticalDB-Log&amp;ConsoleOutput">Log &amp; Console Output</h3>
+        <p>The setting also effects the characters sets used for output and logs. If the language and character set of the database does not match the language and character set specified on the client, you may see unexpected characters or question marks in your output instead. This can occur during Deploy operations or during the Backup and Restore phases of the Deploy Packager and, in some cases, can lead to operation failures. It is highly recommended that the NLS_LANG setting on the client system from which the Deploy Packager is executed match the setting on the RefDB. This can be accomplished by setting the NLS_LANG environment prior to executing Datical DB on the client.</p>
+        <h3 id="WritingSQLScriptsforDaticalDB-AdditionalInformation">Additional Information</h3>
+        <p>See Oracle documentation for more information:</p>
+        <ul>
+            <li>Oracle Database Globalization Support Guide - <a class="external-link" href="https://docs.oracle.com/database/121/NLSPG/ch3globenv.htm#NLSPG189" rel="nofollow">Choosing a Locale with the NLS_LANG Environment Variable</a></li>
+            <li>NLS_LANG FAQ - <a class="external-link" href="https://www.oracle.com/database/technologies/faq-nls-lang.html" rel="nofollow">https://www.oracle.com/database/technologies/faq-nls-lang.html</a></li>
+        </ul>
+        <h1 id="WritingSQLScriptsforDaticalDB-ErrorHandling">Error Handling</h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>Do not put error-handling statements in the object definition. For example:</p>
+        <ul>
+            <li>Oracle - do not include WHENEVER SQLERROR statements with the object definition.</li>
             <li>SQL Server - do not include IF EXISTS statements with the object definition.</li>
         </ul>
         <p>Datical DB has its own error-handling that wraps SQL scripts. Specifying error-handling within the statements is not necessary.</p>
@@ -88,10 +74,7 @@
         <p>Use the following conventions for writing stored-logic scripts:</p>
         <ul>
             <li>Create or modify only one object per file.
-                <ul>
-                    <li>Exception: Oracle packages. A package header and package body can be included in the same file.</li>
-                </ul>
-            </li>
+                <ul><li>Exception: Oracle packages. A package header and package body can be included in the same file.</li></ul></li>
             <li>
                 <p>For stored logic scripts, only use the CREATE command (such as "CREATE PROCEDURE"). When you update and deploy the file again, Datical automatically converts the CREATE to an ALTER as needed</p>
                 <ul>
@@ -101,15 +84,7 @@
                 </ul>
             </li>
             <li>Include only the object definition. Do not place other statements in the file.
-                <ul>
-                    <li>
-                        <p>Deployment Packager fails if it encounters statements before an object definition for scripts in a stored logic folders or where packageMethod is defined in the metadata.properties as<code>packageMethod=STOREDLOGIC</code>.</p>
-                    </li>
-                    <li>This includes statements such as ALTER SESSION and USE. These statements should not be necessary when using Liquibase Enterprise.</li>
-                    <li>This also includes statements such as <span style="color: rgb(29,28,29);">SET QUOTED_IDENTIFIER ON/OFF and SET ANSI_NULLS ON/OFF. If these statements need to be included, use the sql_direct folder.</span></li>
-                    <li>Do not put error-handling statements in the object definition for stored logic scripts.Datical DB has its own error-handling that wraps SQL scripts. Specifying error-handling within the statements is not necessary.</li>
-                </ul>
-            </li>
+                <ul><li><p>Deployment Packager fails if it encounters statements before an object definition for scripts in a stored logic folders or where packageMethod is defined in the metadata.properties as<code>packageMethod=STOREDLOGIC</code>.</p></li><li>This includes statements such as ALTER SESSION and USE. These statements should not be necessary when using Liquibase Enterprise.</li><li>This also includes statements such as <span style="color: rgb(29,28,29);">SET QUOTED_IDENTIFIER ON/OFF and SET ANSI_NULLS ON/OFF. If these statements need to be included, use the sql_direct folder.</span></li><li>Do not put error-handling statements in the object definition for stored logic scripts.Datical DB has its own error-handling that wraps SQL scripts. Specifying error-handling within the statements is not necessary.</li></ul></li>
         </ul>
         <h2 id="WritingSQLScriptsforDaticalDB-ManagingDropsofStoredLogicObjects">Managing Drops of Stored Logic Objects</h2>
         <h3 id="WritingSQLScriptsforDaticalDB-Version6.16andEarlier">Version 6.16 and Earlier</h3>
@@ -128,8 +103,7 @@
                 </tr>
                 <tr>
                     <td><code>procPrintHelloWorld</code> is initially created</td>
-                    <td>
-                        <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE OR REPLACE PROCEDURE procPrintHelloWorld
+                    <td><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE OR REPLACE PROCEDURE procPrintHelloWorld
 IS
 BEGIN
   
@@ -141,8 +115,7 @@ END;</pre>
                 </tr>
                 <tr>
                     <td><code>procPrintHelloWorld</code> is modified</td>
-                    <td>
-                        <pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE OR REPLACE PROCEDURE procPrintHelloWorld
+                    <td><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE OR REPLACE PROCEDURE procPrintHelloWorld
 IS
 BEGIN
   
@@ -154,8 +127,7 @@ END;</pre>
                 </tr>
                 <tr>
                     <td><code>procPrintHelloWorld</code> is dropped</td>
-                    <td>
-                        <pre class="syntaxhighlighter-pre" xml:space="preserve">DROP PROCEDURE procPrintHelloWorld;</pre>
+                    <td><pre class="syntaxhighlighter-pre" xml:space="preserve">DROP PROCEDURE procPrintHelloWorld;</pre>
                     </td>
                     <td>3</td>
                 </tr>
@@ -191,15 +163,26 @@ END;</pre>
         <p>If the order of the statements in the script is critical or if the script contains statements that would not be represented in a change set generated by diffing the before and after states of the database, you could instead package those scripts with the DIRECT method (which is used by default in the <span>sql_direct</span> folder). Scripts packaged with the DIRECT method in the <span>sql_direct</span> folder (or other folders that you have set to use the DIRECT packaging method) will run the actual script, thereby preserving the statements and the order of the statements.</p>
         <p>Note that the possible drawback with using the DIRECT method/<span>sql_direct</span> folder with some configurations is losing some of the simulation/forecasting/modeling/profiling abilities that may happen with the CONVERT method/ddl folder. For Oracle you could use Datical's optional <a href="../../package-sql-scripts-for-deployment/configure-packaging/sql-parser.htm" rel="nofollow">SQL Parser</a> feature to add forecasting to the DIRECT method/<span>sql_direct</span> folder (or other folders that you have set to use the DIRECT packaging method).</p>
         <p>Here are pages with additional information such as an overview of the workflows packager uses, packaging methods, packaging folders, and which methods/folders to use for different types of changes:</p>
-        <p><a href="overview-packaging.htm">Overview of Packaging</a></p>
-        <p><a href="files-scm-repository.htm">Placing Files in the SCM Repository</a></p>
-        <p><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/fixed-folder-names.htm">Fixed Folder Names</a></p>
-        <p><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm">Flexible Folder Names</a></p>
-        <p><a href="sql-objects-packaging.htm">SQL Server Database Objects and Packaging</a></p>
-        <p><a href="oracle-packaging.htm">Oracle Database Objects and Packaging</a></p>
-        <p><a href="postgresql-objects-packaging.htm" rel="nofollow">PostgreSQL Server Database Objects and Packaging</a></p>
-        <p><a href="../../package-sql-scripts-for-deployment/configure-packaging/sql-parser.htm">Using SQL Parser</a></p>
-        <p><a href="../app-dev-how-to-guides/choose-btw-CONVERT-ddl-packaging.htm">How To: Choose Between CONVERT (ddl) and DDL_DIRECT (ddl_direct) Packaging Methods</a></p>
-        <p><a href="../../troubleshoot/difference-between-ddl-sql-folders.htm">What is the difference between "ddl" and "sql_direct" folders?</a></p>
+        <p>
+            <MadCap:xref href="../developer/overview-packaging-developer.htm">Overview of Packaging</MadCap:xref>
+        </p>
+        <p><a href="files-scm-repository.htm">Placing Files in the SCM Repository</a>
+        </p>
+        <p><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/fixed-folder-names.htm">Fixed Folder Names</a>
+        </p>
+        <p><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/flexible-folder-names.htm">Flexible Folder Names</a>
+        </p>
+        <p><a href="sql-objects-packaging.htm">SQL Server Database Objects and Packaging</a>
+        </p>
+        <p><a href="oracle-packaging.htm">Oracle Database Objects and Packaging</a>
+        </p>
+        <p><a href="postgresql-objects-packaging.htm" rel="nofollow">PostgreSQL Server Database Objects and Packaging</a>
+        </p>
+        <p><a href="../../package-sql-scripts-for-deployment/configure-packaging/sql-parser.htm">Using SQL Parser</a>
+        </p>
+        <p><a href="../app-dev-how-to-guides/choose-btw-CONVERT-ddl-packaging.htm">How To: Choose Between CONVERT (ddl) and DDL_DIRECT (ddl_direct) Packaging Methods</a>
+        </p>
+        <p><a href="../../troubleshoot/difference-between-ddl-sql-folders.htm">What is the difference between "ddl" and "sql_direct" folders?</a>
+        </p>
     </body>
 </html>

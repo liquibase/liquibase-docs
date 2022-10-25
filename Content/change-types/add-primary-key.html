@@ -6,7 +6,32 @@
     </head>
     <body>
         <h1>addPrimaryKey</h1>
-        <p>Adds a primary key out of an existing column or set of columns.</p>
+        <p>The <code>addPrimaryKey</code>&#160;<MadCap:variable name="General.changetypes" /> adds a primary key out of an existing column or set of columns.</p>
+        <h2>Uses</h2>
+        <p>It is a best practice to <a href="https://learn.microsoft.com/en-us/office/troubleshoot/access/database-normalization-description">normalize</a> the data in your relational database by setting a primary key on one or more of the columns of a table. A table can only have one primary key, regardless of whether that key is single or composite. You can use the primary key to uniquely identify each row in the table.</p>
+        <h2>Running the <code>addPrimaryKey</code>&#160;<MadCap:variable name="General.changetypes" /></h2>
+        <p>To add a primary key to your table, follow these steps:</p>
+        <p><b>Step 1:</b> Add the <code>addPrimaryKey</code>&#160;<MadCap:variable name="General.changetypes" /> to your <MadCap:variable name="General.changeset" /> with the needed <MadCap:variable name="General.Param/Attribute" />s, as shown in the examples.</p>
+        <p><b>Step 2:</b> Deploy your <MadCap:variable name="General.changeset"></MadCap:variable> by running the <code>update</code> command.</p><pre><code class="language-text">liquibase update</code></pre>
+        <h3>Add new column to existing primary key</h3>
+        <p>If you have already set a primary key on a column, but you realize that column by itself does not provide sufficient uniqueness to each row, you can add an additional column to the existing key. <MadCap:variable name="General.Liquibase" /> returns an error if you try to create a new primary key because one already exists. Instead, follow these steps:</p>
+        <ol>
+            <li><b>Drop the existing primary key</b> with the <MadCap:xref href="drop-primary-key.html">dropPrimaryKey</MadCap:xref>&#160;<MadCap:variable name="General.changetypes" />:<pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="liquibase-docs" id="dropPrimaryKey-example"&gt;
+    &lt;dropPrimaryKey  tableName= "existing_table" constraintName="primary_key_constraint"/&gt;
+&lt;/changeSet&gt;</code></pre></li>
+            <li><b>Add new column to the existing table</b> with the <MadCap:xref href="add-column.html">addColumn</MadCap:xref>&#160;<MadCap:variable name="General.changetypes" />:<pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="liquibase-docs" id="addColumn-example"&gt; 
+    &lt;addColumn tableName="existing_table"&gt;
+        &lt;column name="new_column" type="VARCHAR(256)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;</code></pre></li>
+            <li><b>Add a composite primary key to the table</b>, including both the new and old columns:<pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="liquibase-docs" id="addPrimaryKey-example"&gt;
+    &lt;addPrimaryKey tableName="existing_table" columnNames="existing_column,new_column" constraintName="primary_key_constraint"/&gt;
+&lt;/changeSet&gt;</code></pre></li>
+            <li><b>Deploy your changes:</b><pre xml:space="preserve"><code class="language-text">liquibase update</code></pre>
+            </li>
+        </ol>
         <h2 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h2>
         <table>
             <col style="width: 300px;" />
