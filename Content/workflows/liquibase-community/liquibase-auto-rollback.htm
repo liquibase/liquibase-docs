@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title>Liquibase Auto Rollback | Liquibase Docs</title>
         <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/liquibase-auto-rollback.html" />
@@ -8,7 +8,7 @@
         <h1><MadCap:variable name="General.Liquibase" /> Auto Rollback</h1>
         <p><MadCap:variable name="General.Liquibase" /> supports <MadCap:variable name="General.changetypes" />s that automatically create rollback statements when you run rollback commands and <MadCap:variable name="General.changetypes" />s that don’t include an automatic rollback. If you want to use the rollback functionality or override the default generated rollback statement, you need to specify the <code>&lt;rollback&gt;</code> tag within the needed <MadCap:variable name="General.changeset" />.</p>
         <h2>Formatted SQL</h2>
-        <p><MadCap:variable name="General.Liquibase" /> does not support an automatic rollback for formatted SQL <MadCap:variable name="General.changeset" />s. You should add custom rollback statements to the formatted SQL <MadCap:variable name="General.changeset" />s if you want to use <code>rollback</code> commands.</p><pre xml:space="preserve"><code class="language-text">-- liquibase formatted sql
+        <p><MadCap:variable name="General.Liquibase" /> does not support an automatic rollback for formatted SQL <MadCap:variable name="General.changeset" />s. You should add custom rollback statements to the formatted SQL <MadCap:variable name="General.changeset" />s if you want to use <code>rollback</code> commands.</p><pre xml:space="preserve"><code class="language-sql">-- liquibase formatted sql
 -- changeset liquibaseuser:1
 create table example1 ( id int primary key, name varchar(255) );
 -- rollback drop table example1;
@@ -18,6 +18,10 @@ insert into example1 values ('1','The First', 'Country')
 insert into example1 values ('2','The Second', 'Country2')
 -- rollback delete from example1 where id='1'
 -- rollback delete from example1 where id='2'</code></pre>
+        <p>If you do not want to revert a change in a rollback mode, use the <code>empty</code> keyword:</p><pre xml:space="preserve"><code class="language-sql">-- liquibase formatted sql
+-- changeset liquibaseuser:1
+create table example1 ( id int primary key, name varchar(255) );
+-- rollback empty</code></pre>
         <h2>Using the <code>&lt;rollback&gt;</code> tag</h2>
         <p>The <code>&lt;rollback&gt;</code> tag describes how to roll back a change using SQL statements, <MadCap:variable name="General.changetypes" />s, or a reference to a previous <MadCap:variable name="General.changeset" />.</p>
         <p>You can have plain SQL in the content part of the <code>&lt;rollback&gt;</code> element. <MadCap:variable name="General.Liquibase" /> treats the text in the element as the <code>&lt;sql&gt;</code> <MadCap:variable name="General.changetypes" /> with <code>stripComments</code> set to <code>true</code>, <code>splitStatements</code> set to <code>true</code>, and <code>endDelimiter</code> set to <code>;</code>. For more details, see the XML example from the <MadCap:xref href="../../change-types/sql.html">sql</MadCap:xref> documentation.</p><pre><code class="language-xml">&lt;changeSet id="1" author="bob"&gt;
@@ -40,7 +44,7 @@ insert into example1 values ('2','The Second', 'Country2')
 	&lt;dropTable tableName="changeRollback2"/&gt;
 	&lt;rollback changeSetId="changeRollback2-create" changeSetAuthor="liquibase"/&gt;
 &lt;/changeSet&gt;</code></pre>
-        <p>If you do not want to revert a change in a rollback mode, use an empty rollback tag:</p><pre><code class="language-xml">&lt;changeSet id="3" author="liquibaseuser"&gt;
+        <p>If you do not want to revert a change in a rollback mode, use a self-closing rollback tag:</p><pre><code class="language-xml">&lt;changeSet id="3" author="liquibaseuser"&gt;
 	&lt;createTable tableName="changeRollback"&gt;
 		&lt;column name="id" type="int"/&gt;
 	&lt;/createTable&gt;
