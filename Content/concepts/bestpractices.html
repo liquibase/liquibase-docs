@@ -8,12 +8,9 @@
         <h1 id="liquibase-best-practices">Best Practices</h1>
         <p>To help you maximize the effectiveness and efficiency of the <MadCap:variable name="General.Liquibase" /> workflow, we recommend that you implement the following best practices.</p>
         <h2 id="organizing-your-changelogs">Changelogs</h2>
-        <ul>
-            <li>
-                <p>Define the directory structure.</p>
-                <p>The most common way to organize your changelogs is by major release. Make certain to store changelogs in your source control, preferably near the database access code.</p>
-                <p>The following example specifies the directory <code>com/example/db/changelog</code>.</p>
-                <figure class="highlight"><pre xml:space="preserve"><code class="language-text" data-lang="text">com
+        <h3>Define the directory structure</h3>
+        <p>The most common way to organize your <MadCap:variable name="General.changelog" />s is by major release. Make certain to store <MadCap:variable name="General.changelog" />s in your source control, preferably near the database access code.</p>
+        <p>The following example specifies the directory <code>com/example/db/changelog</code>:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
   example
     db
       changelog
@@ -22,87 +19,70 @@
 		db.changelog-1.1.xml
 		db.changelog-2.0.xml
 	  DatabasePool.java
-	  AbstractDAO.java</code>
-						</pre>
-                </figure>
-            </li>
-            <li>
-                <p>Set up the root changelog and the included changelog files.</p>
-                <p>The root changelog file <code>db.changelog-root.xml</code> is passed to all <MadCap:variable name="General.Liquibase" /> calls.</p>
-                <p><MadCap:variable name="General.Liquibase" /> supports the inclusion of changelogs in the following formats:</p>
-                <ul>
-                    <li>SQL – Use SQL if you are familiar with it and do not want to learn a new way to specify database changes.</li>
-                    <li>Markup – Use a markup language like XML, JSON, or YAML to accomplish any of the following tasks:
-                        <ul><li>Automate the rollback of new database objects</li><li>Simplify the deployment a single set of changes to different types of databases</li><li>Improve Hub and db-doc reporting</li></ul><!--p>To view example changelogs in different languages, see "link to a (yet to be created) page with tabbed, dynamic examples of the different changelog formats, à la the GS examples or LB.org’s Best Practices".</p--></li>
-                </ul>
-                <p>When new version files are created, update <code>db.changelog-root.xml</code> with the new include files.</p>
-            </li>
-            <li>Specify one change per changeset.
-				<p>Unless you are grouping several changes as a single transaction, we strongly encourage you to specify only one change per changeset. This approach makes each change atomic within a single transaction.</p><p>Each changeset either succeeds or fails. If it fails, it can be corrected and redeployed until it succeeds. Multiple independent changes in a single changeset introduce the risk that some changes deploy while a later change fails, leaving the database in a partially deployed state.</p></li>
-            <li>
-                <p>Define the team's changeset ID format.</p>
-                <p>Choose a changeset ID that is unique within its changelog. We recommend that you use an increasing numerical sequence that starts at 1.</p>
-            </li>
-            <li>
-                <p>Document unclear or complicated changesets.</p>
-                <p>Most of the time, changesets are self-documenting. When a changeset requires additional information or explanation, use <code>&lt;comments&gt;</code> tags.</p>
-            </li>
-            <li>
-                <p>Plan a rollback strategy.</p>
-                <p>Use the mechanism for your specific changelog format to explicitly state your rollback instructions. Make certain to test your rollback logic early during the planning process.</p>
-                <p>To ensure safe and predictable rollbacks, test them in a development environment before running them in production.</p>
-            </li>
-            <li>
-                <p>Manage your reference data.</p>
-                <p>Leverage <MadCap:variable name="General.Liquibase" /> to manage your reference data. For example, <MadCap:variable name="General.Liquibase" /> contexts help you target specific environments when you need to complete the following tasks:</p>
-                <ul>
-                    <li>
-                        <p>Deploy test data to QA environments only</p>
-                    </li>
-                    <li>
-                        <p>Deploy data fixes to pre-production and production environments</p>
-                    </li>
-                    <li>
-                        <p>Manage application configuration data</p>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        <h2 id="stored-logic">Stored Logic</h2>
-        <p>After a changeset is applied to an environment, <MadCap:variable name="General.Liquibase" /> never applies the same changeset to that same environment unless you override its default values. When you use Liquibase to update stored logic objects like procedures and functions, the following options are available:</p>
+	  AbstractDAO.java</code></pre>
+        <h3>Set up the root <MadCap:variable name="General.changelog" /> and the included <MadCap:variable name="General.changelog" /> files</h3>
+        <p>The root <MadCap:variable name="General.changelog" /> file <code>db.changelog-root.xml</code> is passed to all <MadCap:variable name="General.Liquibase" /> calls.</p>
+        <p><MadCap:variable name="General.Liquibase" /> supports the use of <MadCap:variable name="General.changelog" />s in the following formats:</p>
         <ul>
-            <li>Add <code>roll forward</code> changesets to the end of the changelog.
-				<p class="note" style="text-align: left;" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This approach might create multiple changesets in the changelog. Additionally, multiple files might be required to manage the various states of the stored logic objects.</p></li>
-            <li><i>Recommended:</i> Maintain a separate, stored logic-specific changelog file that satisfies the following criteria:
+            <li>SQL – Use SQL if you are familiar with it and do not want to learn a new way to specify database changes.</li>
+            <li>Markup – Use a markup language like XML, JSON, or YAML to accomplish any of the following tasks:
+                <ul><li>Automate the rollback of new database objects</li><li>Simplify the deployment a single set of changes to different types of databases</li><li>Improve <MadCap:variable name="General.Hub" /> and <MadCap:xref href="../commands/docs/db-doc.html">db-doc</MadCap:xref> reporting</li></ul><!--p>To view example changelogs in different languages, see "link to a (yet to be created) page with tabbed, dynamic examples of the different changelog formats, à la the GS examples or LB.org's Best Practices".</p--></li>
+        </ul>
+        <p>When new version files are created, update <code>db.changelog-root.xml</code> with the new include files.</p>
+        <h3>Specify one change per <MadCap:variable name="General.changeset" /></h3>
+        <p>Unless you are grouping several changes as a single transaction, we strongly encourage you to specify only one change per <MadCap:variable name="General.changeset" />. This approach makes each change atomic within a single transaction.</p>
+        <p>Each <MadCap:variable name="General.changeset" /> either succeeds or fails. If it fails, it can be corrected and redeployed until it succeeds. Multiple independent changes in a single <MadCap:variable name="General.changeset" /> introduce the risk that some changes deploy while a later change fails, leaving the database in a partially deployed state.</p>
+        <h3>Define the team's <MadCap:variable name="General.changeset" /> ID format</h3>
+        <p>Choose a <MadCap:variable name="General.changeset" /> ID that is unique within its <MadCap:variable name="General.changelog" />. We recommend that you use an increasing numerical sequence that starts at 1.</p>
+        <h3>Document unclear or complicated <MadCap:variable name="General.changeset" />s</h3>
+        <p>Most of the time, <MadCap:variable name="General.changeset" />s are self-documenting. When a <MadCap:variable name="General.changeset" /> requires additional information or explanation, use <code>&lt;comments&gt;</code> tags.</p>
+        <h3>Plan a rollback strategy</h3>
+        <p>Use the mechanism for your specific <MadCap:variable name="General.changelog" /> format to explicitly state your rollback instructions. Make certain to test your rollback logic early during the planning process.</p>
+        <p>To ensure safe and predictable rollbacks, test them in a development environment before running them in production.</p>
+        <h3>Manage your reference data</h3>
+        <p>Leverage <MadCap:variable name="General.Liquibase" /> to manage your reference data. For example, <MadCap:variable name="General.Liquibase" /> contexts help you target specific environments when you need to complete the following tasks:</p>
+        <ul>
+            <li>Deploy test data to QA environments only</li>
+            <li>Deploy data fixes to pre-production and production environments</li>
+            <li>Manage application configuration data</li>
+        </ul>
+        <h2 id="stored-logic">Stored logic</h2>
+        <p>After a <MadCap:variable name="General.changeset" /> is applied to an environment, <MadCap:variable name="General.Liquibase" /> never applies the same <MadCap:variable name="General.changeset" /> to that same environment unless you override its default values. When you use <MadCap:variable name="General.Liquibase" /> to update stored logic objects like procedures and functions, the following options are available:</p>
+        <ul>
+            <li>Add <code>roll forward</code>&#160;<MadCap:variable name="General.changeset" />s to the end of the <MadCap:variable name="General.changelog" />.
+				<p class="note" style="text-align: left;" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This approach might create multiple <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" />. Additionally, multiple files might be required to manage the various states of the stored logic objects.</p></li>
+            <li><i>Recommended:</i> Maintain a separate, stored logic-specific <MadCap:variable name="General.changelog" /> file that satisfies the following criteria:
 				<ul><li>Features a generic name, like <code>changelog-rerunable.xml</code></li><li>Always runs last during the run order</li></ul></li>
         </ul>
-        <p>When stored logic objects reside within a separate changelog, you do not need to revisit earlier release files every time an object changes. By running the changelog at the end of the run order, the stored logic objects remain outside the typical flow, reducing the chance of encountering an error.</p>
+        <p>When stored logic objects reside within a separate <MadCap:variable name="General.changelog" />, you do not need to revisit earlier release files every time an object changes. By running the <MadCap:variable name="General.changelog" /> at the end of the run order, the stored logic objects remain outside the typical flow, reducing the chance of encountering an error.</p>
         <p>Stored logic behaves more like application code than a database schema change. Stored procedures, functions, packages, and triggers are better managed similarly to source code, where continuous updates are made to a single source file for each unit of stored logic. Use this approach with standard Git tools to detect changes over time.</p>
-        <p>To deploy changes only when a changelog file is modified, ensure the following criteria are satisfied:</p>
+        <p>To deploy changes only when a <MadCap:variable name="General.changelog" /> file is modified, ensure the following criteria are satisfied:</p>
         <ul>
             <li>Your stored logic includes a <code>CREATE OR REPLACE</code> statement.
 			<p class="note" style="text-align: left;" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If your database does not support <code>CREATE OR REPLACE</code>, you might need to explicitly drop an object, if it exists, and follow it up with a separate <code>CREATE</code> statement.</p></li>
-            <li>The changeset attribute <code>runOnChange</code> is set to <code>"true"</code>.</li>
+            <li>The <MadCap:variable name="General.changeset" /> attribute <code>runOnChange</code> is set to <code>"true"</code>.</li>
         </ul>
-        <p>When Liquibase detects a modification to a stored logic changeset that was applied during a previous update, it uses the new object definition to apply the changeset again.</p>
-        <h2 id="dev-workflow">Developer Workflow</h2>
+        <p>When <MadCap:variable name="General.Liquibase" /> detects a modification to a stored logic <MadCap:variable name="General.changeset" /> that was applied during a previous update, it uses the new object definition to apply the <MadCap:variable name="General.changeset" /> again.</p>
+        <h2 id="dev-workflow">Developer workflow</h2>
         <p>Use the following workflow to develop software:</p>
         <ol>
-            <li>Use your favorite IDE or editor to create a local changeset that contains the change.</li>
-            <li>Enter <code>liquibase update</code> to run an update with the new changeset.</li>
+            <li>Use your favorite IDE or editor to create a local <MadCap:variable name="General.changeset" /> that contains the change.</li>
+            <li>Enter <code>liquibase update</code> to run an update with the new <MadCap:variable name="General.changeset" />.</li>
             <li>Make the corresponding changes in the application code.</li>
             <li>Test the new application code together with the database change.</li>
-            <li>Commit both the changeset and the application code to source control.</li>
+            <li>Commit both the <MadCap:variable name="General.changeset" /> and the application code to source control.</li>
         </ol>
-        <h2 id="consider-pro-ent">Consider <MadCap:variable name="General.Liquibase" /> Pro or <MadCap:variable name="General.Liquibase" /> Enterprise</h2>
-        <h3 id="consider-pro"><MadCap:variable name="General.Liquibase" /> Pro</h3>
-        <p><a href="https://download.liquibase.org/"><MadCap:variable name="General.Liquibase" /> Pro</a> supports <a href="https://www.liquibase.org/documentation/changes/index.html">stored logic</a>, enables <a href="https://docs.liquibase.com/commands/pro/rollback-one-changeset.html">targeted rollbacks</a>, and provides additional customer support.</p>
-        <h3 id="consider-ent"><MadCap:variable name="General.Liquibase" /> Enterprise</h3>
-        <p><a href="https://www.liquibase.com/"><MadCap:variable name="General.Liquibase" /> Enterprise</a> is a commercial product that builds upon core <MadCap:variable name="General.Liquibase" /> functionality. Beyond versioning and managing database changes, <MadCap:variable name="General.Liquibase" /> Enterprise bridges the gap between development and operations with the following features and capabilities, all of which help to enable a fully unified and automated path for database code:</p>
+        <h2 id="consider-pro-ent">Consider <MadCap:variable name="General.LBPro" /> or <MadCap:variable name="General.LBEnterprise" /></h2>
+        <h3 id="consider-pro"><MadCap:variable name="General.LBPro" />
+        </h3>
+        <p><a href="https://download.liquibase.org/"><MadCap:variable name="General.Liquibase" /> Pro</a> supports <a href="https://www.liquibase.org/documentation/changes/index.html">stored logic</a>, enables <a href="https://docs.liquibase.com/commands/rollback/rollback-one-changeset.html">targeted rollbacks</a>, and provides additional customer support.</p>
+        <h3 id="consider-ent"><MadCap:variable name="General.LBEnterprise" />
+        </h3>
+        <p><a href="https://www.liquibase.com/"><MadCap:variable name="General.Liquibase" /> Enterprise</a> is a commercial product that builds upon core <MadCap:variable name="General.Liquibase" /> functionality. Beyond versioning and managing database changes, <MadCap:variable name="General.LBEnterprise" /> bridges the gap between development and operations with the following features and capabilities, all of which help to enable a fully unified and automated path for database code:</p>
         <ul>
             <li>Web interface, command line interface, and REST API. All interfaces are secure and require authentication.</li>
             <li>Automatic verification of database code against organizational standards, thereby reducing or eliminating the need for manual reviews.</li>
-            <li>Automatic generation of changesets from validated DDL code, reducing or eliminating the need to craft changesets and update changelogs manually.</li>
+            <li>Automatic generation of <MadCap:variable name="General.changeset" />s from validated DDL code, reducing or eliminating the need to craft <MadCap:variable name="General.changeset" />s and update <MadCap:variable name="General.changelog" />s manually.</li>
             <li>Generation of unchangeable artifacts for database code, ensuring consistent, repeatable, and automation-ready downstream deployments.</li>
             <li>Impact forecasting of database changes with an object-based model of the target database, thereby preventing errors or issues when deploying changes.</li>
             <li>Basic integration with ticketing systems like JIRA, which facilitates the tracing of database changes to source code and initial requirements. This capability also simplifies the processes of holding and accelerating feature sets.</li>

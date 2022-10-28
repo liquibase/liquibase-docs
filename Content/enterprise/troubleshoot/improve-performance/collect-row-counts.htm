@@ -1,124 +1,139 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-	<head>
-		<title>Liquibase Enterprise Documentation</title>
-		<meta name="description" content="Liquibase Enterprise Documentation" />
-	</head>
-	<body>
-		<h1>Settings for Collecting Row Counts</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<h1 id="SettingsforCollectingRowCounts-Overview">Overview</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<p>When building the in memory model of the current database state used to evaluate and simulate pending changes, <MadCap:variable name="General.DaticalDB" /> collects row counts from each table. In environments with many tables or with tables that have many rows this operation can become time consuming. As of release 5.7, the collection of row counts changed from a boolean (true | false) to multiple values (exact, approximate, disabled). In older projects, true is mapped to exact and false is mapped to disabled. Using approximate is typically faster than using exact (true).</p>
-		<p class="title">Note</p>
-		<p>The default setting starting in v5.7 has changed to disabled (false).</p>
-		<h1 id="SettingsforCollectingRowCounts-ManagingtheProjectSettingforRowCountCollection">Managing the Project Setting for Row Count Collection</h1>
-		<MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-		<p>The project setting can be managed in any of the following ways:</p>
-		<ul>
-			<li>GUI: In the project, click the <strong>Settings</strong> tab. The option is in the&#160;<strong>Deployment Settings</strong> section under <strong>Forecast/Deploy: Collect row counts for all tables during Forecast (if needed for rules)</strong>.</li>
-			<li>CLI: you can set and show the <code>enableRowCount</code> setting</li>
-			<li><MadCap:variable name="General.DMCProductShortName" />
-				: the setting is in the <strong>Project Settings</strong> in the <strong>Deployment</strong> tab.</li>
-		</ul>
-		<p>The setting is one of the following values. It is <code>disabled</code> by default.</p>
-		<ul>
-			<li><code>exact</code> - Use a table scan to count the rows (uses the most time)</li>
-			<li><code>approximate</code> - Use statistics to provide an approximate value (uses less time)</li>
-			<li><code>disabled</code> - Do not collect row counts</li>
-		</ul>
-		<h2 id="SettingsforCollectingRowCounts-DatabaseStatisticsUsedforApproximatingRowCounts">Database Statistics Used for Approximating Row Counts</h2>
-		<p>The availability and accuracy of table statistics depends on how often you collect and store the statistics on the database server. These details are only for when you set enableRowCount="approximate":</p>
-		<table>
-			<tbody>
-				<tr>
-					<th>Database</th>
-					<th>Prerequisite</th>
-					<th>How Value is Obtained</th>
-					<th>See Also&#160;</th>
-				</tr>
-				<tr>
-					<td>Oracle</td>
-					<td>
-						<p>Run <code>DBMS_STATS.GATHER_TABLE_STATS</code> to collect or update the statistics.</p>
-					</td>
-					<td>
-						<p><strong>Permissions</strong></p>
-						<p>Requires DBA privilege.</p>
-						<p><strong>Source</strong></p>
-						<p>Value in <code>dba_tables.num_rows</code> for each table.</p>
-						<p><strong>Sample Query</strong></p>
-						<pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT CONCAT(OWNER,CONCAT('.', TABLE_NAME)) as TABLE_NAME, NUM_ROWS FROM DBA_TABLES WHERE OWNER IN ('&amp;USER_NAME');</pre>
-					</td>
-					<td><a class="external-link" href="http://www.dba-oracle.com/t_count_rows_all_tables_in_schema.htm" rel="nofollow">Oracle Database Tips</a></td>
-				</tr>
-				<tr>
-					<td>SQL Server</td>
-					<td>None. Statistics are kept automatically.</td>
-					<td>
-						<p><strong>Permissions</strong></p>
-						<ul>
-							<li>VIEW DATABASE STATE or VIEW SERVER STATE permission</li>
-							<li>SELECT permission on the table object</li>
-							<li>See <a class="external-link" href="https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/system-dynamic-management-views?view=sql-server-2017" rel="nofollow">System Dynamic Management Views</a></li>
-						</ul>
-						<p><strong>Source</strong></p>
-						<p>Uses a <code>sum</code> of <code>row_counts</code> from <code>sys.dm_db_partition_stats</code> to get the total number of rows in the heap or clustered index on the table.</p>
-						<p><strong>Sample Query</strong>&#160;</p>
-						<pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT (OBJECT_SCHEMA_NAME(object_id)+ '.' + OBJECT_NAME(object_id)) as TABLE_NAME, 
+    <head><title>Liquibase Enterprise Documentation</title>
+        <meta name="description" content="Liquibase Enterprise Documentation" />
+    </head>
+    <body>
+        <h1>Settings for Collecting Row Counts</h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>When building the in memory model of the current database state used to evaluate and simulate pending changes, <MadCap:variable name="General.DaticalDB" /> collects row counts from each table. In environments with many tables or with tables that have many rows this operation can become time consuming. As of release 5.7, the collection of row counts changed from a boolean (true | false) to multiple values (exact, approximate, disabled). In older projects, true is mapped to exact and false is mapped to disabled. Using approximate is typically faster than using exact (true).</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The default setting starting in v5.7 has changed to disabled (false).</p>
+        <h2>Managing the Project Setting for Row Count Collection</h2>
+        <p>The project setting can be managed in any of the following ways:</p>
+        <ul>
+            <li>GUI: In the project, click the <strong>Settings</strong> tab. The option is in the <strong>Deployment Settings</strong> section under <strong>Forecast/Deploy: Collect row counts for all tables during Forecast (if needed for rules)</strong>.</li>
+            <li>CLI: you can set and show the <code>enableRowCount</code> setting</li>
+            <li><MadCap:variable name="General.DMCProductShortName" />: the setting is in the <strong>Project Settings</strong> in the <strong>Deployment</strong> tab.</li>
+        </ul>
+        <p>The setting is one of the following values. It is <code>disabled</code> by default.</p>
+        <ul>
+            <li><code>exact</code> - Use a table scan to count the rows (uses the most time)</li>
+            <li><code>approximate</code> - Use statistics to provide an approximate value (uses less time)</li>
+            <li><code>disabled</code> - Do not collect row counts</li>
+        </ul>
+        <h2>Database Statistics Used for Approximating Row Counts</h2>
+        <p>The availability and accuracy of table statistics depends on how often you collect and store the statistics on the database server. These details are only for when you set enableRowCount="approximate":</p>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Database</th>
+                    <th>Prerequisite</th>
+                    <th>How Value is Obtained</th>
+                    <th>See Also</th>
+                </tr>
+                <tr>
+                    <td>Oracle</td>
+                    <td>
+                        <p>Run <code>DBMS_STATS.GATHER_TABLE_STATS</code> to collect or update the statistics.</p>
+                    </td>
+                    <td>
+                        <p><strong>Permissions</strong>
+                        </p>
+                        <p>Requires DBA privilege.</p>
+                        <p><strong>Source</strong>
+                        </p>
+                        <p>Value in <code>dba_tables.num_rows</code> for each table.</p>
+                        <p><strong>Sample Query</strong>
+                        </p><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT CONCAT(OWNER,CONCAT('.', TABLE_NAME)) as TABLE_NAME, NUM_ROWS FROM DBA_TABLES WHERE OWNER IN ('&amp;USER_NAME');</pre>
+                    </td>
+                    <td><a class="external-link" href="http://www.dba-oracle.com/t_count_rows_all_tables_in_schema.htm" rel="nofollow">Oracle Database Tips</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SQL Server</td>
+                    <td>None. Statistics are kept automatically.</td>
+                    <td>
+                        <p><strong>Permissions</strong>
+                        </p>
+                        <ul>
+                            <li>VIEW DATABASE STATE or VIEW SERVER STATE permission</li>
+                            <li>SELECT permission on the table object</li>
+                            <li>See <a class="external-link" href="https://docs.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/system-dynamic-management-views?view=sql-server-2017" rel="nofollow">System Dynamic Management Views</a></li>
+                        </ul>
+                        <p><strong>Source</strong>
+                        </p>
+                        <p>Uses a <code>sum</code> of <code>row_counts</code> from <code>sys.dm_db_partition_stats</code> to get the total number of rows in the heap or clustered index on the table.</p>
+                        <p><strong>Sample Query</strong>
+                        </p><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT (OBJECT_SCHEMA_NAME(object_id)+ '.' + OBJECT_NAME(object_id)) as TABLE_NAME, 
 							CAST(row_count AS float) as NUM_ROWS FROM sys.dm_db_partition_stats
 						where OBJECT_SCHEMA_NAME(object_id) IN ('DAT28');</pre>
-					</td>
-					<td><a class="external-link" href="https://blogs.msdn.microsoft.com/martijnh/2010/07/15/sql-serverhow-to-quickly-retrieve-accurate-row-count-for-table/" rel="nofollow">MSDN Blog</a></td>
-				</tr>
-				<tr>
-					<td>DB2</td>
-					<td>Run <code>RUNSTATS</code> to collect or update the statistics.</td>
-					<td>
-						<p><strong>Permissions</strong></p>
-						<p>The following roles have the necessary permission:</p>
-						<ul>
-							<li><span>ACCESSCTRL</span></li>
-							<li><span>DATAACCESS</span></li>
-							<li><span>DBADM</span></li>
-							<li><span>SECADM</span></li>
-							<li><span>SQLADM</span></li>
-							<li><span>SYSADM</span></li>
-							<li><span>SYSCTRL</span></li>
-							<li><span>SYSMAINT</span></li>
-							<li><span>SYSMON</span></li>
-						</ul>
-						<p><strong>Source</strong></p>
-						<p>Uses <code>syscat.tables</code> view.</p>
-						<p><strong>Sample Query</strong></p>
-						<pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT CONCAT(TRIM(TABSCHEMA), CONCAT('.', TABNAME)) as TABLE_NAME, SUM(CARD) AS NUM_ROWS
+                    </td>
+                    <td><a class="external-link" href="https://blogs.msdn.microsoft.com/martijnh/2010/07/15/sql-serverhow-to-quickly-retrieve-accurate-row-count-for-table/" rel="nofollow">MSDN Blog</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>DB2</td>
+                    <td>Run <code>RUNSTATS</code> to collect or update the statistics.</td>
+                    <td>
+                        <p><strong>Permissions</strong>
+                        </p>
+                        <p>The following roles have the necessary permission:</p>
+                        <ul>
+                            <li><span>ACCESSCTRL</span>
+                            </li>
+                            <li><span>DATAACCESS</span>
+                            </li>
+                            <li><span>DBADM</span>
+                            </li>
+                            <li><span>SECADM</span>
+                            </li>
+                            <li><span>SQLADM</span>
+                            </li>
+                            <li><span>SYSADM</span>
+                            </li>
+                            <li><span>SYSCTRL</span>
+                            </li>
+                            <li><span>SYSMAINT</span>
+                            </li>
+                            <li><span>SYSMON</span>
+                            </li>
+                        </ul>
+                        <p><strong>Source</strong>
+                        </p>
+                        <p>Uses <code>syscat.tables</code> view.</p>
+                        <p><strong>Sample Query</strong>
+                        </p><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT CONCAT(TRIM(TABSCHEMA), CONCAT('.', TABNAME)) as TABLE_NAME, SUM(CARD) AS NUM_ROWS
 							FROM syscat.tables WHERE TABSCHEMA not in ('SYSIBM', 'SYSPUBLIC', 'SYSCAT', 'SYSSTAT', 'SYSIBMADM', 'SYSTOOLS')
 						and TABSCHEMA in ('db2intuser') GROUP BY TABSCHEMA, TABNAME;</pre>
-					</td>
-					<td><a class="external-link" href="https://it.toolbox.com/question/how-to-get-the-row-count-of-all-tables-in-sysibmsystables-120715" rel="nofollow">TOOLBOX</a></td>
-				</tr>
-				<tr>
-					<td>EDB Postgres</td>
-					<td>Perform an ANALYZE before forecast or deploy to get the most accurate values.</td>
-					<td>
-						<p><strong>Permissions</strong></p>
-						<p>No special permissions required.</p>
-						<p><strong>Source</strong></p>
-						<p>Uses statistics from the catalog table <code>pg_class</code>.</p>
-						<p><strong>Sample Query</strong></p>
-						<pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT concat(relnamespace::regnamespace::text,'.',pgc.relname) as TABLE_NAME, pgc.reltuples::BIGINT AS NUM_ROWS 
+                    </td>
+                    <td><a class="external-link" href="https://it.toolbox.com/question/how-to-get-the-row-count-of-all-tables-in-sysibmsystables-120715" rel="nofollow">TOOLBOX</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>EDB Postgres</td>
+                    <td>Perform an ANALYZE before forecast or deploy to get the most accurate values.</td>
+                    <td>
+                        <p><strong>Permissions</strong>
+                        </p>
+                        <p>No special permissions required.</p>
+                        <p><strong>Source</strong>
+                        </p>
+                        <p>Uses statistics from the catalog table <code>pg_class</code>.</p>
+                        <p><strong>Sample Query</strong>
+                        </p><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT concat(relnamespace::regnamespace::text,'.',pgc.relname) as TABLE_NAME, pgc.reltuples::BIGINT AS NUM_ROWS 
 							FROM pg_class pgc WHERE pgc.relkind='r' and relnamespace::regnamespace::text not in ('pg_catalog', 'information_schema', 'sys', 'public', 'pgagent')
 						and relnamespace::regnamespace::text IN ('SchemaNameHere');</pre>
-					</td>
-					<td><a class="external-link" href="https://wiki.postgresql.org/wiki/Count_estimate" rel="nofollow">PostgreSQL wiki</a></td>
-				</tr>
-			</tbody>
-		</table>
-		<h2 id="SettingsforCollectingRowCounts-OverridingtheRowCountSettinginForecastandDeployOperations">Overriding the Row Count Setting in Forecast and Deploy Operations</h2>
-		<p>You can override the project settings when you perform a forecast or deploy operation.</p>
-		<ul>
-			<li>GUI - Set a different value for the option in the Forecast and Deploy wizards.</li>
-			<li>CLI - Provide a different value in the enableRowCount option for the forecast and deploy commands.</li>
-		</ul>
-	</body>
+                    </td>
+                    <td><a class="external-link" href="https://wiki.postgresql.org/wiki/Count_estimate" rel="nofollow">PostgreSQL wiki</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2 id="SettingsforCollectingRowCounts-OverridingtheRowCountSettinginForecastandDeployOperations">Overriding the Row Count Setting in Forecast and Deploy Operations</h2>
+        <p>You can override the project settings when you perform a forecast or deploy operation.</p>
+        <ul>
+            <li>GUI – Set a different value for the option in the Forecast and Deploy wizards.</li>
+            <li>CLI – Provide a different value in the <code>enableRowCount</code> option for the forecast and deploy commands.</li>
+        </ul>
+    </body>
 </html>

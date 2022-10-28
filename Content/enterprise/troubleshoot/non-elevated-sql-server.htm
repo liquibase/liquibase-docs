@@ -6,9 +6,8 @@
     <body>
         <h1>Non-elevated user for SQL Server</h1>
         <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-        <p><MadCap:variable name="General.DaticalDB" />
-			's Deployment Packager for SQL Server requires elevated permissions as documented here:&#160;
-			<a href="../devops-engineer/db-release-pipelines/sql-server-database-setup/roles-permissions-sql-server.htm" rel="nofollow">SQL Server Roles and Permissions for <MadCap:variable name="General.DaticalDB" /></a>
+        <p><MadCap:variable name="General.DaticalDB" />'s Deployment Packager for SQL Server requires elevated permissions as documented here:
+			<a href="../devops/db-release-pipelines/sql-setup/roles-permissions-sql-server.htm" rel="nofollow">SQL Server Roles and Permissions for <MadCap:variable name="General.DaticalDB" /></a>
 		. These roles inclue:</p>
         <ul>
             <li>dbcreator - server-level permission</li>
@@ -24,17 +23,15 @@
         </ul>
         <p>This document discusses another approach that does not requires above-mentioned SQL Server privileges for packaging.</p>
         <h2 id="Non-elevateduserforSQLServer-Overview">Overview</h2>
-        <p>This approach leverages <MadCap:variable name="General.DaticalDB" />
-            's baselineto capture the state of the database (establish baseline before you do anything else - this will populate changelog.xml with initial change sets). Then use&#160;custom backup/restore script that doesn't use the native SQL Server backup/restore mechanism (and require the&#160;associated&#160;privileges).</p>
+        <p>This approach leverages <MadCap:variable name="General.DaticalDB" />'s baselineto capture the state of the database (establish baseline before you do anything else - this will populate changelog.xml with initial change sets). Then use custom backup/restore script that doesn't use the native SQL Server backup/restore mechanism (and require the associated privileges).</p>
         <p>This script, as part of restoring the database, performs drop of all objects to clean out the database. By configuring to use "on_demand" backup mode,&#160;Deployment Packager will use the changelog instead of the backup file to restore the database.</p>
         <h2 id="Non-elevateduserforSQLServer-Requirements">Requirements</h2>
         <p>This approach requires the following setup:</p>
         <ul>
-            <li>The database must be baselined so that all objects in the database have a corresponding change set in <MadCap:variable name="General.DaticalDB" />
-                's changelog. The baseline (change sets) serve as backup of the database from which databases will be rebuilt in case restore operation needs to be performed.</li>
+            <li>The database must be baselined so that all objects in the database have a corresponding change set in <MadCap:variable name="General.DaticalDB" />'s changelog. The baseline (change sets) serve as backup of the database from which databases will be rebuilt in case restore operation needs to be performed.</li>
             <li>Deployment Packager must be configured with <code>databaseBackupMode=on_demand</code></li>
-            <li>Use the attached groovy script for custom backup/restore method.&#160;
-                <ul><li>Groovy script:&#160;<a href="https://datical-cs.atlassian.net/wiki/download/attachments/826737010/BackupRestoreSqlServerNoBackupFile-v5.4.groovy?version=1&amp;modificationDate=1555940986232&amp;cacheVersion=1&amp;api=v2">BackupRestoreSqlServerNoBackupFile-v5.4.groovy</a>.&#160;
+            <li>Use the attached groovy script for custom backup/restore method.
+                <ul><li>Groovy script: <a href="https://datical-cs.atlassian.net/wiki/download/attachments/826737010/BackupRestoreSqlServerNoBackupFile-v5.4.groovy?version=1&amp;modificationDate=1555940986232&amp;cacheVersion=1&amp;api=v2">BackupRestoreSqlServerNoBackupFile-v5.4.groovy</a>.
                         <ul><li>This script would need to be added to "extensions" directory, which requires additional property to be set in Deployment Packager configuration:&#160;<code>extensionsPath=C://apps//DaticalDB//repl//scripts//extensions</code></li></ul></li><li>As such, Deployment Packager must be configured with <code>databaseBackupRestoreMethod=BackupRestoreSqlServerNoBackupFile</code></li></ul></li>
         </ul>
         <h2 id="Non-elevateduserforSQLServer-Step-by-Step">Step-by-Step</h2>
@@ -57,8 +54,8 @@ GO</pre></li></ol></li>
         </ol>
         <p><MadCap:variable name="General.DaticalDB" /> SME:</p>
         <ol>
-            <li>Save the&#160;groovy script (<a href="https://datical-cs.atlassian.net/wiki/download/attachments/826737010/BackupRestoreSqlServerNoBackupFile-v5.4.groovy?version=1&amp;modificationDate=1555940986232&amp;cacheVersion=1&amp;api=v2">BackupRestoreSqlServerNoBackupFile-v5.4.groovy</a>) to a path within Datical install directory, e.g.,&#160;<code>C://apps//DaticalDB//repl//scripts//extensions</code>.
-                <ol><li>Rename the file to&#160;<code>BackupRestoreSqlServerNoBackupFile.groovy</code></li><li>The script performs the following operations:
+            <li>Save the groovy script (<a href="https://datical-cs.atlassian.net/wiki/download/attachments/826737010/BackupRestoreSqlServerNoBackupFile-v5.4.groovy?version=1&amp;modificationDate=1555940986232&amp;cacheVersion=1&amp;api=v2">BackupRestoreSqlServerNoBackupFile-v5.4.groovy</a>) to a path within Datical install directory, e.g.,&#160;<code>C://apps//DaticalDB//repl//scripts//extensions</code>.
+                <ol><li>Rename the file to <code>BackupRestoreSqlServerNoBackupFile.groovy</code></li><li>The script performs the following operations:
                         <ol><li>Backup: No backup is taken. This is configured in Step 3 where Datical project is configured for "<code>on_demand</code>" backup mode.</li><li>Restore: Performs a drop of all objects by executing SQL code (built into the groovy script) and then restores/rebuilds the database from change sets in the Datical project.</li></ol></li></ol></li>
             <li>Provide a mechanism to build REF DB using one of the following two approaches:
                 <ol><li>If the REF DB is already populated, then create a baseline of your REF database using the command: <code>hammer groovy project_baseline.groovy</code></li><li>If the REF DB is a blank database, then DBAs will need to provide a DDL script of all objects from production instance. This script will need to be added to <code>sql_direct/ref_only</code> folder containing custom metadata.properties file that mentions <code>contexts=REF_ONLY</code></li></ol></li>
@@ -68,9 +65,9 @@ GO</pre></li></ol></li>
         </ol>
         <p>You are now configured with non-elevated use that can run Deployment Packager. Start packager your SQL scripts.</p>
         <h2 id="Non-elevateduserforSQLServer-ExpectedBehavior">Expected Behavior</h2>
-        <p><strong>For packaging scripts using CONVERT packaging method (ddl):&#160;</strong>Deployment Packager will always perform a restore operation. This will manifest as following intermediate deploy operation during packaging job:</p>
+        <p><strong>For packaging scripts using CONVERT packaging method (ddl):</strong> Deployment Packager will always perform a restore operation. This will manifest as following intermediate deploy operation during packaging job:</p>
         <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="250" width="851" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/826737010/Screen%20Shot%202019-05-14%20at%207.51.17%20PM.png?version=1&amp;modificationDate=1557881687554&amp;cacheVersion=1&amp;api=v2&amp;width=851&amp;height=249" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/826737010/Screen%20Shot%202019-05-14%20at%207.51.17%20PM.png?version=1&amp;modificationDate=1557881687554&amp;cacheVersion=1&amp;api=v2&amp;width=1702&amp;height=498 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/826737010/Screen%20Shot%202019-05-14%20at%207.51.17%20PM.png?version=1&amp;modificationDate=1557881687554&amp;cacheVersion=1&amp;api=v2&amp;width=851&amp;height=249 1x" /></span>
         </p>
-        <p><strong>For packaging scripts using STOREDLOGIC, DDL_DIRECT, DATA_DML, SQLFILE, or DIRECT packaging methods:&#160;</strong>Deployment Packager may not always perform a restore operation. The restore operation will only be invoked when a failure is encountered during the packaging job.</p>
+        <p><strong>For packaging scripts using STOREDLOGIC, DDL_DIRECT, DATA_DML, SQLFILE, or DIRECT packaging methods:</strong> Deployment Packager may not always perform a restore operation. The restore operation will only be invoked when a failure is encountered during the packaging job.</p>
     </body>
 </html>
