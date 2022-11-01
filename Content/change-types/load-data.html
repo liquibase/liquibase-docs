@@ -36,13 +36,23 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
         <p>All CSV columns are used by default while generating SQL even if they are not described in the <code>columns</code> property. If you want to skip specific headers in the CSV file, set the value of the <code>type</code> property to <code>skip</code>.</p>
         <p>Imagine that you have a table with columns <code>col_1</code>,<code>col_2</code>,<code>col_3</code>. To load only columns <code>col_1</code> and <code>col_2</code>, specify <code>col_3</code> in the <code>column</code> tag  and set its type to <code>skip</code>:</p><pre xml:space="preserve"><code class="language-text">&lt;column name="col_1" header="col_1" type="skip" /&gt;</code></pre>
         <h3>Creating a loadable CSV</h3>
-        <p>You can load data from an existing CSV file. Alternatively, you can capture the current state of your database as a CSV with the <MadCap:xref href="../commands/snapshot/generate-changelog.html">generate-changelog</MadCap:xref> command and <code>dataOutputDirectory</code>&#160;<MadCap:variable name="General.Param/Attribute" />. This generates the <code>loadData</code> <MadCap:variable name="General.changeset" />s.</p><pre><code class="language-text">liquibase --diffTypes=tables,columns,data --dataOutputDirectory=data generate-changelog</code></pre>
+        <p>You can load data from an existing CSV file (<code>names.csv</code>):</p><pre xml:space="preserve"><code class="language-text">id,first,last
+0,john,doe
+1,eric,smith
+2,cat,jones</code></pre>
+        <p>In your <MadCap:variable name="General.changelog" />, create a <code>loadData</code>&#160;<MadCap:variable name="General.changeset" /> for the table <code>populated</code>:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="adrian" id="2::dataForTable" labels="data"&gt;
+    &lt;loadData file="names.csv" primaryKey="id" tableName="populated"/&gt;
+&lt;/changeSet&gt;</code></pre>
+        <p>In your command line, deploy your change:</p><pre><code class="language-text">liquibase update</code></pre>
+        <h4>Generating <code>loadData</code>&#160;<MadCap:variable name="General.changeset" />s and a CSV from your current database</h4>
+        <p>You can also capture the current state of your database as a CSV with the <MadCap:xref href="../commands/snapshot/generate-changelog.html">generate-changelog</MadCap:xref> command and <code>dataOutputDirectory</code>&#160;<MadCap:variable name="General.Param/Attribute" />. This generates the <code>loadData</code> <MadCap:variable name="General.changeset" />s with the columns from the CSV, and formats your data as a CSV in the folder you specified for <code>dataOutputDirectory</code>:</p><pre xml:space="preserve"><code class="language-text">liquibase --diffTypes=tables,columns,data --dataOutputDirectory=myData --changelog-file=output_changelog.xml generate-changelog</code></pre>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>Example generated <MadCap:variable name="General.changelog" /> (loadData)</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot style="font-size: 18pt">Example generated <MadCap:variable name="General.changelog" /> (with <code>dataOutputDirectory</code>)</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
-&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"&gt;
+<MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
     &lt;changeSet author="adrian (generated)" id="1667231983827-1"&gt;
         &lt;loadData commentLineStartsWith="#" encoding="UTF-8" file="myData/populated.csv" quotchar=""" separator="," tableName="POPULATED"&gt;
             &lt;column header="ID" name="ID" type="NUMERIC"/&gt;
@@ -53,29 +63,32 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
 &lt;/databaseChangeLog&gt;</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <p>If you don't use the <code>--dataOutputDirectory</code> flag while running the command or the <code>loadData</code> tag added in the <MadCap:variable name="General.changelog" />, you will have the <MadCap:xref href="insert.html">insert</MadCap:xref> statements in your <MadCap:variable name="General.changelog" />:</p><pre><code class="language-text">liquibase --diffTypes=tables,columns,data --changelog-file=myChangelog.xml generate-changelog</code></pre>
+        <p>If you don't use the <code>--dataOutputDirectory</code> flag while running the command, <MadCap:variable name="General.Liquibase" /> uses <MadCap:xref href="insert.html">insert</MadCap:xref> statements in your generated <MadCap:variable name="General.changelog" /> instead of columns in the <code>loadData</code> tag, and also formats your data as a CSV&#160;in the folder you specified for <code>dataOutputDirectory</code>:</p><pre><code class="language-text">liquibase --diffTypes=tables,columns,data --changelog-file=myChangelog.xml generate-changelog</code></pre>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>Example generated <MadCap:variable name="General.changelog" /> (insert)</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot style="font-size: 18pt">Example generated <MadCap:variable name="General.changelog" /> (without <code>dataOutputDirectory</code>)</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre><code class="language-xml"> 
-&lt;changeSet author="support.liquibase.net (generated)" id="1595949192529-5"&gt;
-    &lt;insert tableName="COUNTRIES"&gt;
-        &lt;column name="COUNTRY_ID" value="1 "/&gt;
-        &lt;column name="COUNTRY_NAME" value="IS"/&gt;
-        &lt;column name="REGION_ID" valueNumeric="2"/&gt;
-    &lt;/insert&gt;
-    &lt;insert tableName="COUNTRIES"&gt;
-        &lt;column name="COUNTRY_ID" value="2 "/&gt;
-        &lt;column name="COUNTRY_NAME" value="US"/&gt;
-        &lt;column name="REGION_ID" valueNumeric="5"/&gt;
-    &lt;/insert&gt;
-    &lt;insert tableName="COUNTRIES"&gt;
-        &lt;column name="COUNTRY_ID" value="3 "/&gt;
-        &lt;column name="COUNTRY_NAME" value="HN"/&gt;
-        &lt;column name="REGION_ID" valueNumeric="6"/&gt;
-    &lt;/insert&gt;
-&lt;/changeSet&gt;</code></pre>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+<MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+    &lt;changeSet author="adrian (generated)" id="1667315146413-1"&gt;
+        &lt;insert tableName="POPULATED"&gt;
+            &lt;column name="ID" valueNumeric="0"/&gt;
+            &lt;column name="FIRST" value="john"/&gt;
+            &lt;column name="LAST" value="doe"/&gt;
+        &lt;/insert&gt;
+        &lt;insert tableName="POPULATED"&gt;
+            &lt;column name="ID" valueNumeric="1"/&gt;
+            &lt;column name="FIRST" value="eric"/&gt;
+            &lt;column name="LAST" value="smith"/&gt;
+        &lt;/insert&gt;
+        &lt;insert tableName="POPULATED"&gt;
+            &lt;column name="ID" valueNumeric="2"/&gt;
+            &lt;column name="FIRST" value="cat"/&gt;
+            &lt;column name="LAST" value="jones"/&gt;
+        &lt;/insert&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <h2 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h2>
