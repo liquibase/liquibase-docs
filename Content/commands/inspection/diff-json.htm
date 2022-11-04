@@ -1,0 +1,411 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>diff JSON | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/commands/inspection/diff-json.html" />
+        <meta name="description" content="Reference information and use cases for the diff JSON command. The diff --format=json command in Liquibase allows you to compare two databases of the same type, or different types, to one another and use the output in a JSON format." />
+    </head>
+    <body>
+        <h1><code>diff</code> JSON<a href="https://www.liquibase.com/trial" target="_blank"><img src="../../Z_Resources/Images/Logos/pro-pages.jpg" style="vertical-align: middle;width: 3%" /></a></h1>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-pro.flsnp" />
+        <p>Starting with <MadCap:variable name="General.Liquibase" /> 3.9.0, you can automate drift detection at scale in your database schemas with the <MadCap:variable name="General.LBPro" /> machine-readable JSON diff output. The <code>diff --format=json</code>  command is a <MadCap:variable name="General.LBPro" /> extension to the <MadCap:variable name="General.LBCommunity" /> <MadCap:xref href="diff.htm">diff</MadCap:xref> command.</p>
+        <h2>Uses</h2>
+        <p>The <code>diff</code> command in a JSON format is typically used to detect drift between a model schema and a database's actual schema. You can use the output of the <code>diff</code> command in a JSON format as an input to automation processes. For example, the results in a JSON <code>diff</code> can be parsed in your build system to trigger alerts, generate reports, or run the <MadCap:xref href="diff-changelog.html">diff-changelog</MadCap:xref> command.</p>
+        <p>After you run the command, a JSON-structured object lists the differences between the databases, as well as the values that are configured in your <MadCap:variable name="General.Liquibase" /> properties or Maven POM file, or are passed as command-line arguments under the <code>url</code> and <code>referenceUrl</code> keys.</p>
+        <h2>Running the <code>diff</code> JSON command</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-diff-run.flsnp" MadCap:conditionTagExpression="include[command-diff-run.diff-json]" />
+        <h2>Using the <code>diff</code> JSON command</h2>
+        <p>The <code>diff</code> JSON command produces a list of categories along with one of the following descriptions:</p>
+        <ul>
+            <li><b>Missing</b>: there are objects on your source database (referenceURL) that are not on your target database (URL).</li>
+            <li><b>Unexpected</b>: there are objects on your target database (URL) that are not on your source database (referenceURL).</li>
+            <li><b>Changed</b>: the object as it exists on the source database (referenceURL) is different than as it exists in the target database (URL).</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The changed description will not specify the type of change applied to your database. Run the <MadCap:xref href="diff-changelog.html">diff-changelog</MadCap:xref> command to generate a <MadCap:variable name="General.changelog" /> that will apply the changes to the target database.</p>
+        <p><MadCap:variable name="General.LBPro" /> <code>diff</code> JSON categories:</p>
+        <ul>
+            <li>Check Constraint</li>
+            <li>Package</li>
+            <li>Package Body</li>
+            <li>Function</li>
+            <li>Trigger</li>
+            <li>Synonyms</li>
+        </ul>
+        <p>Also, <MadCap:variable name="General.LBPro" /> includes <MadCap:variable name="General.LBCommunity" /> <code>diff</code> categories when running <code>--format=json</code>:</p>
+        <ul>
+            <li>Catalog</li>
+            <li>Column</li>
+            <li>Foreign Key</li>
+            <li>Index</li>
+            <li>Primary Key</li>
+            <li>Schema</li>
+            <li>Sequence</li>
+            <li>Procedure</li>
+            <li>Unique Constraints</li>
+            <li>View</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> does not currently check <code>datatype</code> length.</p>
+        <h3>Filtering <code>diff</code> types</h3>
+        <p><MadCap:variable name="General.Liquibase" /> allows you to use <code>diffType</code> <MadCap:variable name="General.Param/Attribute" /> to filter the types of objects you want to compare. Multiple filters can be added to the <MadCap:variable name="General.Param/Attribute" /> as a comma-separated list. If no <code>diffTypes</code> are specified, all objects are considered.</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>liquibase --diffTypes=tables,indexes,views diff</code>
+        </p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><code>diff</code> JSON example output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-txt">Starting Liquibase at 13:54:07 (version 4.4.0 #11 built at 2021-06-09 16:36+0000)
+Liquibase Version: 4.4.0
+Liquibase Pro 4.4.0 by <MadCap:variable name="General.DaticalDB" /> licensed to support until Wed Sep 22 23:59:59 CDT 2021
+{
+  "diff": {
+	"diffFormat": 1,
+	"created": "Mon Jul 19 13:54:08 CDT 2021",
+	"databases": {
+	  "reference": {
+	  "majorVersion": "13",
+	  "minorVersion": "2 (Debian 13",
+	  "name": "PostgreSQL",
+	  "url": "jdbc:postgresql://example.net:5432/dev"
+	},
+	"target": {
+	  "majorVersion": "13",
+	  "minorVersion": "2 (Debian 13",
+	  "name": "PostgreSQL",
+	  "url": "jdbc:postgresql://example.net:5432/test"
+	}
+  },
+  "missingObjects": [
+	{
+	  "missingObject": {
+		"name": "contract_bank_accounts",
+		"type": "table",
+		"schemaName": "public",
+		"catalogName": "dev"
+	   }
+	 },
+	 {
+	   "missingObject": {
+		 "name": "firstname",
+		 "type": "column",
+		 "relationName": "contract_bank_accounts",
+		 "schemaName": "public",
+		 "catalogName": "dev"
+	    }
+	  },
+	  {
+		"missingObject": {
+		  "name": "pay_by_quarter",
+		  "type": "column",
+		  "relationName": "sal_emp",
+		  "schemaName": "public",
+	      "catalogName": "dev"
+	     }
+	   },
+	   {
+		 "missingObject": {
+		   "name": "schedule",
+		   "type": "column",
+		   "relationName": "sal_emp",
+	       "schemaName": "public",
+		   "catalogName": "dev"
+		  }
+	    },
+		{
+		  "missingObject": {
+		    "name": "lastnames",
+		    "type": "column",
+		    "relationName": "contract_bank_accounts",
+		    "schemaName": "public",
+		    "catalogName": "dev"
+		   }
+		 },
+		 {
+		   "missingObject": {
+			 "name": "id",
+			 "type": "column",
+			 "relationName": "contract_bank_accounts",
+			 "schemaName": "public",
+			 "catalogName": "dev"
+		    }
+		  },
+		  {
+			"missingObject": {
+			  "name": "name",
+			  "type": "column",
+			  "relationName": "sal_emp",
+			  "schemaName": "public",
+			  "catalogName": "dev"
+			 }
+		   },
+		   {
+			 "missingObject": {
+			   "name": "contract_bank_accounts_pkey",
+			   "type": "primaryKey",
+			   "schemaName": "public",
+			   "catalogName": "dev"
+			 }
+		   },
+		   {
+			 "missingObject": {
+			   "name": "sal_emp",
+			   "type": "table",
+			   "schemaName": "public",
+			   "catalogName": "dev"
+			 }
+		    },
+			{
+			  "missingObject": {
+				"name": "contract_bank_accounts_pkey",
+				"type": "index",
+				"schemaName": "public",
+				"catalogName": "dev"
+			  }
+			}]
+		  ,
+		  "unexpectedObjects": [
+			{
+			  "unexpectedObject": {
+				"name": "id",
+				"type": "column",
+				"relationName": "actor",
+				"schemaName": "public",
+				"catalogName": "test"
+			  }
+			},
+			{
+		      "unexpectedObject": {
+				"name": "firstname",
+				"type": "column",
+				"relationName": "actor",
+				"schemaName": "public",
+				"catalogName": "test"
+			   }
+			 },
+			 {
+			   "unexpectedObject": {
+				 "name": "contacts",
+				 "type": "table",
+				 "schemaName": "public",
+				 "catalogName": "test"
+			    }
+			  },
+			  {
+				"unexpectedObject": {
+				  "name": "bcolor",
+				  "type": "column",
+				  "relationName": "colors",
+				  "schemaName": "public",
+				  "catalogName": "test"
+			     }
+			   },
+			   {
+				 "unexpectedObject": {
+				   "name": "bcolor",
+				   "type": "column",
+				   "relationName": "colors1",
+				   "schemaName": "public",
+				   "catalogName": "test"
+				  }
+				},
+				{
+				  "unexpectedObject": {
+					"name": "id",
+					"type": "column",
+					"relationName": "contacts",
+					"schemaName": "public",
+					"catalogName": "test"
+			      }
+				},
+				{
+				  "unexpectedObject": {
+					"name": "lastname",
+					"type": "column",
+					"relationName": "contacts",
+					"schemaName": "public",
+					"catalogName": "test"
+				   }
+				 },
+				 {
+				   "unexpectedObject": {
+					 "name": "colors_pkey1",
+					 "type": "index",
+					 "schemaName": "public",
+					 "catalogName": "test"
+					}
+				  },
+				  {
+					"unexpectedObject": {
+					  "name": "twitter",
+					  "type": "column",
+					  "relationName": "actor",
+					  "schemaName": "public",
+					  "catalogName": "test"
+					 }
+				   },
+				   {
+					 "unexpectedObject": {
+					   "name": "colors",
+					   "type": "table",
+					   "schemaName": "public",
+					   "catalogName": "test"
+					  }
+					},
+				    {
+					  "unexpectedObject": {
+						"name": "actor_pkey",
+						"type": "index",
+						"schemaName": "public",
+						"catalogName": "test"
+					   }
+					 },
+					 {
+					   "unexpectedObject": {
+						 "name": "id",
+						 "type": "column",
+						 "relationName": "colors",
+						 "schemaName": "public",
+						 "catalogName": "test"
+						}
+					  },
+					  {
+						"unexpectedObject": {
+						  "name": "colors1",
+						  "type": "table",
+						  "schemaName": "public",
+						  "catalogName": "test"
+						 }
+					   },
+					   {
+						 "unexpectedObject": {
+						   "name": "actor",
+						   "type": "table",
+						   "schemaName": "public",
+						   "catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "contacts_pkey",
+						    "type": "primaryKey",
+						    "schemaName": "public",
+						    "catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "firstname",
+						    "type": "column",
+						    "relationName": "contacts",
+						    "schemaName": "public",
+					 	    "catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "colors_pkey",
+						    "type": "index",
+						    "schemaName": "public",
+						    "catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "lastname",
+							"type": "column",
+							"relationName": "actor",
+							"schemaName": "public",
+							"catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+							"name": "actor_pkey",
+							"type": "primaryKey",
+							"schemaName": "public",
+							"catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+							"name": "colors_pkey",
+							"type": "primaryKey",
+							"schemaName": "public",
+							"catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "fcolor",
+						    "type": "column",
+						    "relationName": "colors",
+						    "schemaName": "public",
+					    	"catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "colors_pkey1",
+						    "type": "primaryKey",
+						    "schemaName": "public",
+						    "catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "contacts_pkey",
+						    "type": "index",
+						    "schemaName": "public",
+						    "catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+						    "name": "id",
+						    "type": "column",
+						    "relationName": "colors1",
+						    "schemaName": "public",
+						    "catalogName": "test"
+						  }
+						},
+						{
+						  "unexpectedObject": {
+					 	    "name": "fcolor",
+						    "type": "column",
+						    "relationName": "colors1",
+						    "schemaName": "public",
+						    "catalogName": "test"
+						  }
+						}]
+					   ,
+					   "changedObjects": [
+						 {
+						   "changedObject": {
+						   "name": "test",
+						   "type": "catalog",
+						   "differences": [
+						     {
+						       "difference": {
+						         "comparedValue": "test",
+							     "field": "name",
+								 "message": "name changed from 'dev' to 'test'",
+								 "referenceValue": "dev"
+							}
+						 }]
+
+				}
+	 		 }]
+
+   }
+}
+Liquibase command 'diff' was executed successfully.</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Related Links</h2>
+        <ul>
+            <li><a href="https://www.liquibase.org/blog/liquibase-diffs">Best Practices for Using Diffs</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../workflows/liquibase-community/diffing-multiple-schemas-in-liquibase.htm">Diffing Multiple Schemas in [%=General.Liquibase%]</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
