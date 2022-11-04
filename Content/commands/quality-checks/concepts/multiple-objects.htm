@@ -1,96 +1,115 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title>copy</title>
-        <meta rel="canonical" href="https://docs.liquibase.com/commands/quality-checks/copy.html" />
-        <meta name="description" content="Reference information and use cases for the copy command. The copy subcommand copies a customizable check so that you can run the same check multiple times with different parameters." />
+    <head><title>Multiple Objects</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/commands/quality-checks/concepts/multiple-objects.html" />
+        <meta name="description" content="Reference information and use cases for the multiple objects quality check. The multiple objects quality check lets you verify whether multiple objects in your database adhere to naming conventions you specify." />
     </head>
     <body>
-        <h1><code>copy</code> <MadCap:snippetText src="../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /></h1>
-        <p>The <code>copy</code> subcommand copies a customizable check so that you can run the same check multiple times with different parameters.</p>
-        <h2>Uses</h2>
-        <p>If you want to run the same check with different values, use <code>copy</code> to make a new version with new values. If enabled, both checks will be run in the same execution.</p>
-        <p>For example, you can make two copies of the check that scans SQL:</p>
+        <h1>Multiple Objects Quality Check <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /></h1>
+        <p>The multiple objects quality check lets you verify whether objects in your database adhere to naming conventions you specify. You can use it to test multiple types of objects at the same time, rather than creating individual checks for each one.</p>
+        <p>The name of the multiple objects check depends on what kind of search you want to make:</p>
         <ul>
-            <li>SQL should not contain <code>COPY DATABASE</code></li>
-            <li>SQL should not contain <code>ALTER USER</code></li>
+            <li><code>--check-name=ObjectNameMustMatch</code> specifies a positive search</li>
+            <li><code>--check-name=ObjectNameMustNotMatch</code> specifies a negative search</li>
         </ul>
-        <p><MadCap:variable name="General.Liquibase" /> does not allow you to copy static checks because they do not include  customization options, and having the same check is redundant.</p>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/checks-available.flsnp" />
-        <h2>Running the <code>copy</code> command</h2>
-        <p>The command is interactive, and you need to follow the CLI output messages to execute it:</p>
-        <ol>
-            <li>Run the command specifying your values:</li><pre xml:space="preserve"><code class="language-text">liquibase checks copy --check-name=TableColumnLimit</code></pre>
-            <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/checks-custom-checks-setting-file.flsnp" />
-            <li>Enter the name of the check copy using alphanumeric characters. Also, the name of the copy should differ from the original name.</li>
-        </ol>
-        <p>The command will add the copy of a check to the checks settings file. To execute the check, use the <MadCap:xref href="run.htm">run command</MadCap:xref>.</p>
-        <h2>Attributes</h2>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
-        <table>
+        <p><MadCap:variable name="General.Liquibase" /> supports this check on the following objects:</p>
+        <ul>
+            <li><code>TABLE</code>
+            </li>
+            <li><code>COLUMN</code>
+            </li>
+            <li><code>SEQUENCE</code>
+            </li>
+        </ul>
+        <h2>Using the multiple objects check</h2>
+        <p>You can create a new multiple objects check with the following command:</p><pre xml:space="preserve"><code class="language-text">liquibase checks copy --check-name=[ObjectNameMustMatch|ObjectNameMustNotMatch]</code></pre>
+        <p><MadCap:variable name="General.Liquibase" /> then asks how you want to configure the check attributes. Here is an example of the configuration prompts in the CLI:</p><pre xml:space="preserve"><code class="language-text">Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [ObjectNameMustMatch1]:
+New check 'ObjectNameMustMatch1' created from 'ObjectNameMustMatch'
+Set the Severity to return a code of 0-4 when triggered. (options: 'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4 )? [INFO]:
+Set 'OPERATOR' (options: STARTS_WITH, ENDS_WITH, CONTAINS, REGEXP)  [STARTS_WITH]:
+Set 'SEARCH_STRING' (options: a string, or a valid regular expression) : helloworld
+Set 'OBJECT_TYPES' to check, separated by commas (options: TABLE, COLUMN, SEQUENCE) : table,column
+Set 'CASE_SENSITIVE' (options: true, false)  [true]:</code></pre>
+        <p>To edit your check later, run the <code>liquibase checks customize</code> command. To validate your <MadCap:variable name="General.changelog" /> with the multiple objects check, run the following command:</p><pre xml:space="preserve"><code class="language-text">liquibase checks run</code></pre>
+        <h2>Multiple objects check attributes</h2>
+        <table style="width: 100%;margin-left: auto;margin-right: auto;">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Syntax</th>
+                    <th>Parameter</th>
+                    <th>Type</th>
                     <th>Description</th>
+                    <th>Customization</th>
+                    <th>Default</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><code>checks-settings-file</code>
+                    <td><code>OPERATOR</code>
+                    </td>
+                    <td>String/enum</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-operator-description.flsnp" />
                     </td>
                     <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-attribute-syntax.flsnp" MadCap:snippetVariables="quality-checks-attributes.cli:checks-settings-file,;quality-checks-attributes.envar-attribute:CHECKS_SETTINGS_FILE,;quality-checks-attributes.property:checksSettingsFile,;quality-checks-attributes.envar-subcommand:COPY,;quality-checks-attributes.subcommand:copy," />
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-operator-customization.flsnp" />
                     </td>
                     <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-checks-setting-file-description.flsnp" />
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-operator-default.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>check-name</code>
+                    <td><code>SEARCH_STRING</code>
+                    </td>
+                    <td>String/enum</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-search-string-description.flsnp" />
                     </td>
                     <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-attribute-syntax.flsnp" MadCap:snippetVariables="quality-checks-attributes.cli:check-name,;quality-checks-attributes.envar-attribute:CHECK_NAME,;quality-checks-attributes.property:checkName,;quality-checks-attributes.envar-subcommand:COPY,;quality-checks-attributes.subcommand:copy," />
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-search-string-customization.flsnp" />
                     </td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-check-name.flsnp" />
-                    </td>
+                    <td>None</td>
                 </tr>
                 <tr>
-                    <td><code>auto-update</code>
+                    <td><code>CASE_SENSITIVE</code>
+                    </td>
+                    <td>String/enum</td>
+                    <td>Set how the <code>SearchString</code> is processed</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-case-sensitive-customization.flsnp" />
                     </td>
                     <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-attribute-syntax.flsnp" MadCap:snippetVariables="quality-checks-attributes.cli:auto-update=[on|off],;quality-checks-attributes.envar-attribute:AUTO_UPDATE=[ON|OFF],;quality-checks-attributes.property:autoUpdate: [on|off],;quality-checks-attributes.envar-subcommand:COPY,;quality-checks-attributes.subcommand:copy," />
-                    </td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-auto-update-description.flsnp" />
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-case-sensitive-default.flsnp" />
                     </td>
                 </tr>
             </tbody>
         </table>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/liquibase-regular-expressions.flsnp" />
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot><code>copy</code> example output</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot>Multiple checks example output</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">Starting Liquibase at 13:18:02 (version 4.9.1 #1978 built at 2022-03-28 19:39+0000)
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">Starting Liquibase at 14:20:01 (version 4.9.1 #1978 built at 2022-03-28 19:39+0000)
 Liquibase Version: 4.9.1
 
-Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [TableColumnLimit1]:
-TableColumnLimit
-Invalid value: 'TableColumnLimit': A check with the short name 'TableColumnLimit' already exists
-
-Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [TableColumnLimit1]:
-TCL
-New check 'TCL' created from 'TableColumnLimit'
+Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [ObjectNameMustNotMatch1]:
+Operator
+New check 'Operator' created from 'ObjectNameMustNotMatch'
 
 Set the Severity to return a code of 0-4 when triggered. (options: 'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4)? [MINOR]:
 0
-Set 'MAX_COLUMNS' (options: positive numeric value) [50]:
-20
+Set 'OPERATOR' (options: STARTS_WITH, ENDS_WITH, CONTAINS, REGEXP) [STARTS_WITH]:
+
+Set 'SEARCH_STRING' (options: a string, or a valid regular expression):
+operator
+Set 'OBJECT_TYPES' to check, separated by commas (options: TABLE, COLUMN, SEQUENCE):
+Column
+Set 'CASE_SENSITIVE' (options: true, false) [true]:
+false
 Customization complete. Review the table below to confirm your changes.
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
 | #   | Check Name                     | Short Name                 | Description                    | Enabled | Customization                  | Severity |
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
-| 10  | Warn on Detection of 'GRANT'   | SqlGrantWarn               | This check warns a user when   | true    | None                         | 1        |
+| 10  | Warn on Detection of 'GRANT'   | SqlGrantWarn               | This check warns a user when   | true    | None                           | 1        |
 |     | Statements                     |                            | SQL contains 'GRANT'           |         |                                |          |
 |     |                                |                            | statements so that they can    |         |                                |          |
 |     |                                |                            | ensure that the privilege      |         |                                |          |
@@ -135,11 +154,7 @@ Customization complete. Review the table below to confirm your changes.
 |     |                                |                            | than a threshold number of     |         |                                |          |
 |     |                                |                            | columns.                       |         |                                |          |
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
-| 70  | Check Table Column Count       | TCL                        | Ensures that no table has more | true    | MAX_COLUMNS = 20               | 0        |
-|     |                                |                            | than a threshold number of     |         |                                |          |
-|     |                                |                            | columns.                       |         |                                |          |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
-| 70  | Check Table Column Count       | TableColumnLimit           | Ensures that no table has more | true    | MAX_COLUMNS = 50               | 1        |
+| 70  | Check Table Column Count       | TableColumnLimit           | Ensures that no table has more | true    | MAX_COLUMNS = 50               | 0        |
 |     |                                |                            | than a threshold number of     |         |                                |          |
 |     |                                |                            | columns.                       |         |                                |          |
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
@@ -152,6 +167,11 @@ Customization complete. Review the table below to confirm your changes.
 |     |                                |                            | object names do not match the  |         | SEARCH_STRING = null           |          |
 |     |                                |                            | supplied pattern.              |         | OBJECT_TYPES = null            |          |
 |     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+| 85  | Object name pattern not match  | Operator                   | This check confirms the listed | true    | OPERATOR = STARTS_WITH         | 0        |
+|     |                                |                            | object names do not match the  |         | SEARCH_STRING = operator       |          |
+|     |                                |                            | supplied pattern.              |         | OBJECT_TYPES = Column          |          |
+|     |                                |                            |                                |         | CASE_SENSITIVE = false         |          |
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
 | 90  | Warn on Grant of Specific      | SqlGrantSpecificPrivsWarn  | This check warns a user when   | false   | PRIVILEGE_LIST = null          | 1        |
 |     | Privileges                     |                            | changeset includes or          |         |                                |          |
@@ -217,14 +237,9 @@ Liquibase command 'checks copy' was executed successfully.</code></pre>
         <ul>
             <li>
                 <MadCap:xref href="working-with-quality-checks.htm">Quality Checks</MadCap:xref>
-                <ul>
-                    <li>
-                        <MadCap:xref href="getting-started-with-the-checks-command.htm">Getting Started with the checks Command</MadCap:xref>
-                    </li>
-                    <li>
-                        <MadCap:xref href="quality-checks-list.htm">Configuring  Quality Checks</MadCap:xref>
-                    </li>
-                </ul>
+            </li>
+            <li>
+                <MadCap:xref href="getting-started-with-the-checks-command.htm">Getting Started with the checks Command</MadCap:xref>
             </li>
         </ul>
     </body>
