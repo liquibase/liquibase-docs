@@ -5,14 +5,17 @@
         <meta name="description" content="Troubleshoot the replica identity error" />
     </head>
     <body>
-        <h1>Troubleshoot <MadCap:variable name="General.databasechangelog" /> Replication Error</h1>
+        <h1>Troubleshoot<MadCap:variable name="General.databasechangelog" /> Replication Error</h1>
         <MadCap:snippetBlock src="../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
-        <p>If the error below appears, learn more about the cause and how to resolve the issue below</p>
-        <h2>Error: </h2><pre>cannot delete from table '</pre><pre>angelog' because it does not have a replica identity and publishes deletes 2HINT: To enable deleting from the table, set REPLICA IDENTITY using ALTER TABLE. 3SQL state: 55000</pre>
-        <h2>Cause: </h2>
-        <p>The error occurs when  implementing the <code>rollback </code>command with a  changelog that does not have a primary key assigned to it. If two databases are compared and they both have a primary key, but a changelog is created in only one,  the changelog isn’t recognized because it does not have a primary key. When <code>rollback </code>is performed on a database that contains a changelog without a primary key, there isn't a matching <MadCap:variable name="General.databasechangelog" /> table that is recognized by the other database to delete from. That is when the error appears.</p>
+        <h2>Issue:</h2>
+        <p>When Liquibase Enterprise is in an environment with active database replication,  you may run into issues that relate to the <MadCap:variable name="General.databasechangelog" /> tracking table, which actively tracks changes in Liquibase.  Typically this is first noticed when performing a Rollback operation as this operation will delete records from the DATABASECHANGELOG table.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Below is a  PostgreSQL specific example of an error that can appear. This can occur in other database settings so the resolution will be the same.</p>
+        <h2>Error: </h2><pre xml:space="preserve">cannot delete from table <MadCap:variable name="General.databasechangelog" /> because it does not have a replica identity and publishes deletes 2HINT: To enable deleting from the table, set REPLICA IDENTITY using ALTER TABLE. 3SQL state: 55000</pre>
         <h2>Solution:</h2>
-        <p>Manually create a PRIMARY KEY or UNIQUE CONSTRAINT on the <MadCap:variable name="General.databasechangelog" /> table using columns: ID, AUTHOR, FILENAME</p>
+        <p>Many database replication tools require all replicated tables to have a primary key or unique constraint.  This enables the replication tool to efficiently replicate data changes to those tables. <br /><br />If running into an error similar to one above, try the below resolution:</p>
+        <ul>
+            <li>Manually create a PRIMARY KEY or UNIQUE CONSTRAINT on the <MadCap:variable name="General.databasechangelog" /> table using columns: ID, AUTHOR, FILENAME</li>
+        </ul>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This is a solution in 8.1 and later.  This occurred initially in a Postgres database but can occur in other settings so this can apply to all users.</p>
     </body>
 </html>

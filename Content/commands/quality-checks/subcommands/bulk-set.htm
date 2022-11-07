@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>bulk-set | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/commands/quality-checks/subcommands/bulk-set.html" />
+        <meta name="description" content="Reference information and use cases for the Liquibase Pro bulk-set command. The bulk-set command sets all qualifying quality checks to the same value. " />
+    </head>
+    <body>
+        <h1><code>bulk-set</code> <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /></h1>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/command-pro.flsnp" />
+        <p>The <code>bulk-set</code> subcommand sets all qualifying quality checks to the same value. It helps you perform bulk management operations without running similar checks commands multiple times.</p>
+        <h2>Uses</h2>
+        <p>The <code>bulk-set</code> command allows you to modify all qualifying quality checks at once  using the <code>--enable</code>, <code>--disable</code>, and <code>--severity</code> flags.</p>
+        <p>For  example, in a few commands, you can disable all your quality checks, set all severity exit codes to <code>0</code>, and then pick a couple of them to enable and set the appropriate severity level. Let’s say you have 30 quality checks with different priorities. However, you want to reset them all to have a severity of <code>0</code>  and configure only a few to have a severity of <code>4</code>, which you have set in your CI/CD tool as an exit code that stops your jobs. This way, you would run <code>liquibase checks bulk-set --severity=4</code>.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You cannot enable the checks that do not have the default value. You need to copy and customize them first.</p>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-available.flsnp" />
+        <h2>Running the <code>bulk-set</code> command</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
+        <p>You can run the <code>bulk-set</code> command as follows:</p><pre xml:space="preserve"><code class="language-text">liquibase checks bulk-set --disable
+liquibase checks bulk-set --enable
+liquibase checks bulk-set --severity=[INFO|MINOR|MAJOR|CRITICAL|BLOCKER]
+liquibase checks bulk-set --severity=[0|1|2|3|4]</code></pre>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-custom-checks-setting-file.flsnp" />
+        <p>The command is interactive, so to skip the confirmation in automation, use the <code>--force</code> flag with another <code>bulk-set</code> flag.</p><pre xml:space="preserve"><code class="language-text">liquibase checks bulk-set --severity=INFO --force</code></pre>
+        <p>You can pass only one flag at a time. For example, to enable checks and set them to <code>severity=MINOR</code>, run two  <code>bulk-set</code> commands, as follows.</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>liquibase checks bulk-set --enable</code> <br /><code>liquibase checks bulk-set --severity=MINOR</code><br /></p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Specify the <code>--auto-update</code> parameter if you want to allow automatic backup and updating of the <code>liquibase.check-settings.conf</code> file when new quality checks are available:<br />CLI: <code>--auto-update=[on|off]</code><br />Property: <code>liquibase.command.checks.bulkset.autoUpdate: [on|off]</code><br />Environment Variable: <code>LIQUIBASE_COMMAND_CHECKS_BULKSET_AUTO_UPDATE=[ON|OFF]</code><br /></p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><code>bulk-set</code> example output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">Liquibase Version: 4.9.1
+IMPORTANT: Are you sure you want to set all the checks to severity 'MINOR' (1)&gt;? (Y/N): [N]:
+	Y
+
+
+	All qualifying checks have been set to severity 'MINOR'.
+
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| #   | Check Name                     | Short Name                 | Description                    | Enabled | Customization                  | Severity |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 10  | Warn on Detection of 'GRANT'   | SqlGrantWarn               | This check warns a user when   | true    | None                           | 1        |
+	|     | Statements                     |                            | SQL contains 'GRANT'           |         |                                |          |
+	|     |                                |                            | statements so that they can    |         |                                |          |
+	|     |                                |                            | ensure that the privilege      |         |                                |          |
+	|     |                                |                            | being granted won't lead to    |         |                                |          |
+	|     |                                |                            | security issues.               |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 20  | Warn on Detection of 'REVOKE'  | SqlRevokeWarn              | This check warns a user when   | true    | None                           | 1        |
+	|     | Statements                     |                            | SQL contains 'REVOKE'          |         |                                |          |
+	|     |                                |                            | statements so that they can    |         |                                |          |
+	|     |                                |                            | ensure that the privilege      |         |                                |          |
+	|     |                                |                            | being revoked won't lead to    |         |                                |          |
+	|     |                                |                            | data access and dependency     |         |                                |          |
+	|     |                                |                            | issues.                        |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 30  | Warn when 'DROP TABLE'         | ChangeDropTableWarn        | This check warns a user when a | true    | None                           | 1        |
+	|     | detected                       |                            | table is being dropped so that |         |                                |          |
+	|     |                                |                            | they can ensure that dropping  |         |                                |          |
+	|     |                                |                            | the table won't lead to        |         |                                |          |
+	|     |                                |                            | unintentional loss of data.    |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 40  | Warn when 'DROP COLUMN'        | ChangeDropColumnWarn       | This check warns a user when a | true    | None                           | 1        |
+	|     | detected                       |                            | column is being dropped so     |         |                                |          |
+	|     |                                |                            | that they can ensure that      |         |                                |          |
+	|     |                                |                            | dropping the column won't lead |         |                                |          |
+	|     |                                |                            | to unintentional loss of data. |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 50  | Warn when 'MODIFY column'      | ModifyDataTypeWarn         | This check warns a user when a | true    | None                           | 1        |
+	|     | detected                       |                            | change will result in          |         |                                |          |
+	|     |                                |                            | modification of a data type so |         |                                |          |
+	|     |                                |                            | they can ensure that modifying |         |                                |          |
+	|     |                                |                            | the data type won't lead to    |         |                                |          |
+	|     |                                |                            | unintentional loss of data     |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 60  | Check for specific patterns in | SqlUserDefinedPatternCheck | This check scans raw SQL for   | false   | SEARCH_STRING = null           | 1        |
+	|     | sql                            |                            | the presence of specific       |         | MESSAGE = A match for regular  |          |
+	|     |                                |                            | patterns and warns the user    |         | expression SEARCH_STRING was   |          |
+	|     |                                |                            | when they are found.           |         | detected in Changeset          |          |
+	|     |                                |                            |                                |         | CHANGESET.                     |          |
+	|     |                                |                            |                                |         | STRIP_COMMENTS = true          |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 70  | Check Table Column Count       | 1234                       | Ensures that no table has more | true    | MAX_COLUMNS = 5                | 1        |
+	|     |                                |                            | than a threshold number of     |         |                                |          |
+	|     |                                |                            | columns.                       |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 70  | Check Table Column Count       | TableColumnLimit           | Ensures that no table has more | true    | MAX_COLUMNS = 50               | 1        |
+	|     |                                |                            | than a threshold number of     |         |                                |          |
+	|     |                                |                            | columns.                       |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 80  | Object name pattern match      | ObjectNameMustMatch        | This check confirms the listed | false   | OPERATOR = STARTS_WITH         | 1        |
+	|     |                                |                            | object names conform to the    |         | SEARCH_STRING = null           |          |
+	|     |                                |                            | supplied pattern.              |         | OBJECT_TYPES = null            |          |
+	|     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 85  | Object name pattern not match  | ObjectNameMustNotMatch     | This check confirms the listed | false   | OPERATOR = STARTS_WITH         | 1        |
+	|     |                                |                            | object names do not match the  |         | SEARCH_STRING = null           |          |
+	|     |                                |                            | supplied pattern.              |         | OBJECT_TYPES = null            |          |
+	|     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 90  | Warn on Grant of Specific      | SqlGrantSpecificPrivsWarn  | This check warns a user when   | false   | PRIVILEGE_LIST = null          | 1        |
+	|     | Privileges                     |                            | changeset includes or          |         |                                |          |
+	|     |                                |                            | generates sql that grants      |         |                                |          |
+	|     |                                |                            | specific privileges to a user  |         |                                |          |
+	|     |                                |                            | or role                        |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 100 | Warn when 'TRUNCATE TABLE'     | ChangeTruncateTableWarn    | This check warns a user when a | true    | None                           | 1        |
+	|     | detected                       |                            | table is being truncated so    |         |                                |          |
+	|     |                                |                            | that they can ensure that      |         |                                |          |
+	|     |                                |                            | truncating the table won't     |         |                                |          |
+	|     |                                |                            | lead to unintentional loss of  |         |                                |          |
+	|     |                                |                            | data.                          |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 110 | Warn on Detection of grant     | SqlGrantOptionWarn         | This check warns a user when   | true    | None                           | 1        |
+	|     | that contains 'WITH GRANT      |                            | SQL contains 'GRANT'           |         |                                |          |
+	|     | OPTION'                        |                            | statements that include the    |         |                                |          |
+	|     |                                |                            | 'WITH GRANT OPTION' clause so  |         |                                |          |
+	|     |                                |                            | that they can ensure that the  |         |                                |          |
+	|     |                                |                            | privilege being granted won't  |         |                                |          |
+	|     |                                |                            | lead to security issues        |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 130 | Warn on Detection of grant     | SqlGrantAdminWarn          | This check warns a user when   | true    | None                           | 1        |
+	|     | that contains 'WITH ADMIN      |                            | SQL contains 'GRANT'           |         |                                |          |
+	|     | OPTION'                        |                            | statements that include the    |         |                                |          |
+	|     |                                |                            | 'WITH ADMIN OPTION' clause so  |         |                                |          |
+	|     |                                |                            | that they can ensure that the  |         |                                |          |
+	|     |                                |                            | privilege being granted won't  |         |                                |          |
+	|     |                                |                            | lead to security issues        |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 160 | Rollback Required for          | RollbackRequired           | This check triggers when a     | true    | None                           | 1        |
+	|     | Changeset                      |                            | changeset does not have a      |         |                                |          |
+	|     |                                |                            | rollback defined.              |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 170 | Changesets Must Have a Label   | ChangesetLabelCheck        | This check enforces the        | true    | None                           | 1        |
+	|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |          |
+	|     |                                |                            | labels be assigned to each     |         |                                |          |
+	|     |                                |                            | changeset to provide better    |         |                                |          |
+	|     |                                |                            | deployment control and to      |         |                                |          |
+	|     |                                |                            | enhance traceability of        |         |                                |          |
+	|     |                                |                            | efforts across changesets.     |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 173 | Changesets Must Have a Context | ChangesetContextCheck      | This check enforces the        | true    | None                           | 1        |
+	|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |          |
+	|     |                                |                            | contexts be assigned to each   |         |                                |          |
+	|     |                                |                            | changeset to provide better    |         |                                |          |
+	|     |                                |                            | deployment control and to      |         |                                |          |
+	|     |                                |                            | enhance traceability of        |         |                                |          |
+	|     |                                |                            | efforts across changesets.     |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	| 176 | Changesets Must Have a Comment | ChangesetCommentCheck      | This check enforces the        | true    | None                           | 1        |
+	|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |          |
+	|     |                                |                            | comments be added to each      |         |                                |          |
+	|     |                                |                            | changeset to document the      |         |                                |          |
+	|     |                                |                            | purpose of a changeset for     |         |                                |          |
+	|     |                                |                            | other/future consumers of this |         |                                |          |
+	|     |                                |                            | changelog                      |         |                                |          |
+	+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+
+	Liquibase command 'checks bulk-set' was executed successfully.</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../concepts/working-with-quality-checks.htm">Quality Checks</MadCap:xref>
+                <ul>
+                    <li>
+                        <MadCap:xref href="../concepts/getting-started-with-the-checks-command.htm">Getting Started with the checks Command</MadCap:xref>
+                    </li>
+                    <li>
+                        <MadCap:xref href="../checks/quality-checks-list.htm">Configuring  Quality Checks</MadCap:xref>
+                    </li>
+                    <li>
+                        <MadCap:xref href="../concepts/using-quality-checks-in-automation-severity-and-exit-code.htm">Using Quality Checks in Automation: Severity and Exit Code</MadCap:xref>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </body>
+</html>

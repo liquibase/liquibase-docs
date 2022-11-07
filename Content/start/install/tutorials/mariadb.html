@@ -1,0 +1,835 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Using Liquibase with MariaDB | Liquibase Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/install/tutorials/mariadb.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with MariaDB." />
+    </head>
+    <body>
+        <h1 id="mariadb-tutorial">Using <MadCap:variable name="General.Liquibase" /> with MariaDB, skySQL, or MariaDB AWS RDS</h1>
+        <p>MariaDB delivers operational agility with key enterprise features, including real ACID compliance and full SQL. It provides two solutions:</p>
+        <ul>
+            <li><a href="https://mariadb.com/docs/">MariaDB Platform</a>, which includes an open-source database solution—MariaDB Server along with Xpand, ColumnStore, and MaxScale.</li>
+            <li><a href="https://mariadb.com/products/skysql/docs/">MariaDB Cloud (or MariaDB SkySQL)</a>, which is a cloud database service (DBaaS) that delivers MariaDB Platform on the expert-maintained cloud infrastructure from MariaDB Corporation.</li>
+        </ul>
+        <p>You can also use <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MariaDB.html">MariaDB on Amazon RDS</a>. For more information about MariaDB, see the <a href="https://mariadb.com/kb/en/">MariaDB Knowledge Base</a>.</p>
+        <h2>Supported versions</h2>
+        <ul>
+            <li>10.X</li>
+        </ul>
+        <h2>Verification level</h2>
+        <p>MariaDB: <MadCap:snippetText src="../../../Z_Resources/Snippets/def/database-verification-level-guaranteed.flsnp" /></p>
+        <p>MariaDB AWS&#160;RDS:&#160;<MadCap:snippetText src="../../../Z_Resources/Snippets/def/database-verification-level-unverified.flsnp" /></p>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/database-verification-levels.flsnp" />
+        <h2>Prerequisites</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
+        <p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">If you create the <MadCap:variable name="General.Liquibase" /> properties file, do not name it <code>mariadb.properties</code>. This file name conflicts with a properties file that is released with the MariaDB driver.</p>
+        <h2>Install drivers</h2>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and MariaDB, you need the <a href="https://mariadb.com/kb/en/about-mariadb-connector-j/">JDBC driver JAR file</a> (<a href="https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client">Maven download</a>).</p>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[database-driver.driver-pre-installed or database-driver.maven-jar-public]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;org.mariadb.jdbc&lt;/groupId&gt;
+    &lt;artifactId&gt;mariadb-java-client&lt;/artifactId&gt;
+    &lt;version&gt;3.0.6&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h2>Test your connection</h2>
+        <ol>
+            <li>Ensure your MariaDB is configured:</li>
+            <ul>
+                <li>
+                    <MadCap:xref href="#MariaDB">MariaDB Server</MadCap:xref>
+                </li>
+                <!--<li>
+		                <MadCap:xref href="#MariaDB2">MariaDB SkySQL</MadCap:xref>
+		            </li>-->
+                <li>
+                    <MadCap:xref href="#MariaDB3">MariaDB on AWS RDS</MadCap:xref>
+                </li>
+            </ul>
+            <li>
+                <MadCap:snippetText src="../../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
+            </li>
+            <ul>
+                <li>
+                    <MadCap:xref href="#MariaDB">MariaDB Server</MadCap:xref>
+                </li>
+                <!--<li>
+		                <MadCap:xref href="#MariaDB2">MariaDB SkySQL</MadCap:xref>
+		            </li>-->
+                <li>
+                    <MadCap:xref href="#MariaDB3">MariaDB on AWS RDS</MadCap:xref>
+                </li>
+            </ul>
+            <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/database-pro-key.flsnp" />
+        </ol>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-changelog-test-connection.flsnp" />
+        <h3><a name="MariaDB"></a>MariaDB Server</h3>
+        <ul>
+            <li>Check the status of the database by running the <code>SHOW [GLOBAL | SESSION] STATUS</code> command.</li>
+            <li>Specify the database URL in the <MadCap:variable name="General.Liquibase" /> properties file, as follows:</li><pre><code class="language-text">url: jdbc:mariadb://&lt;host&gt;:&lt;port&gt;/&lt;dbname&gt;</code></pre>
+        </ul>
+        <h3><a name="MariaDB2"></a>MariaDB SkySQL</h3>
+        <ul>
+            <li>Check the connection by referring to the <a href="https://mariadb.com/products/skysql/docs/clients/#clients">Client Instructions</a>. To connect to MariaDB SkySQL, you need to whitelist your IP, choose a client and a database, and use service details as the connection information.</li>
+            <li>Download the <code>skysql_chain.pem</code> certificate. Go to your MariaDB SkySQL account and select <b>Your Services</b> &gt; <b>Show Credentials</b> &gt; <b>Certificate authority chain</b> &gt; <b>Download</b>. Place the certificate in your <MadCap:variable name="General.Liquibase" /> project folder.</li>
+            <li>Specify the database URL in the <code><MadCap:variable name="General.liquiPropFile" /></code> file as follows:</li><pre><code class="language-text">url: jdbc:mariadb://&lt;host&gt;:&lt;port&gt;/&lt;dbname&gt;?useSSL=true&amp;serverSslCert=skysql_chain.pem</code></pre>
+            <p>You can find the needed host name under <b>Connect using MariaDB CLI</b> by selecting <b>Your</b> <b>Services</b> &gt; <b>Show Credentials</b>:</p>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>url:jdbc:mariadb://sky0001680.mdb0001652.db.skysql.net:5001/myDatabase?useSSL=true&amp;serverSslCert=skysql_chain.pem</code>
+            </p>
+        </ul>
+        <h3><a name="MariaDB3"></a>MariaDB on AWS RDS</h3>
+        <ul>
+            <li>Check the connection by using the mysql utility and running the following:</li><pre><code class="language-text">mysql -h &lt;endpoint&gt; -P 3306 -u &lt;mymainuser&gt; -p</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The alternative way is to connect with the <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToMariaDBInstance.html#USER_ConnectToMariaDBInstance.EndpointAndPort">SSL certificate</a>.</p>
+            <p>You can find the connection information in the <a href="https://console.aws.amazon.com/rds/">AWS Management Console</a>:</p>
+            <ol>
+                <li>Open the Amazon RDS console</li>
+                <li>Select <b>Databases</b> and choose the needed database</li>
+                <li>Select <b>Connectivity &amp; security</b>. You will see all information under <b>Endpoint &amp; Port</b>.</li>
+            </ol>
+            <p>To find the connection information using the AWS CLI and RDS API, refer to the <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToMariaDBInstance.html#USER_ConnectToMariaDBInstance.EndpointAndPort">Connecting to a DB instance running the MariaDB database engine</a> documentation.</p>
+        </ul>
+        <ul>
+            <li>Specify the database URL in the <MadCap:variable name="General.Liquibase" /> properties file, as follows:</li><pre><code class="language-text">url: jdbc:mariadb://&lt;endpoint&gt;:&lt;port&gt;/&lt;dbname&gt;</code></pre>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>url:jdbc:mariadb://myrds.cz1j1vh9uvuo.us-east-1.rds.amazonaws.com:3306/mydatabase</code>
+            </p>
+        </ul>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Supported <MadCap:variable name="General.changetypes" />s</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <table>
+                    <col style="width: 600px;">
+                    </col>
+                    <col style="width: 600px;">
+                    </col>
+                    <thead>
+                        <tr>
+                            <th><MadCap:variable name="General.changetypes" />
+                            </th>
+                            <th>Supported</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-auto-increment.html">addAutoIncrement</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-check-constraint.html">addCheckConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-column.html">addColumn</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-default-value.html">addDefaultValue</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-foreign-key-constraint.html">addForeignKeyConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-lookup-table.html">addLookupTable</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-not-null-constraint.html">addNotNullConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-primary-key.html">addPrimaryKey</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/add-unique-constraint.html">addUniqueConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/alter-sequence.html">alterSequence</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-function.html">createFunction</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-index.html">createIndex</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-package.html">createPackage</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-package-body.html">createPackageBody</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-procedure.html">createProcedure</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-sequence.html">createSequence</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-synonym.html">createSynonym</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-table.html">createTable</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-trigger.html">createTrigger</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/create-view.html">createView</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/custom-change.html">customChange</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/delete.html">delete</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/disable-check-constraint.html">disableCheckConstraint</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/disable-trigger.html">disableTrigger</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-all-foreign-key-constraints.html">dropAllForeignKeyConstraints</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-check-constraint.html">dropCheckConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-column.html">dropColumn</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-default-value.html">dropDefaultValue</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-foreign-key-constraint.html">dropForeignKeyConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-function.html">dropFunction</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-index.html">dropIndex</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-not-null-constraint.html">dropNotNullConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-package.html">dropPackage</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-package-body.html">dropPackageBody</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-primary-key.html">dropPrimaryKey</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-procedure.html">dropProcedure</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-sequence.html">dropSequence</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-synonym.html">dropSynonym</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-table.html">dropTable</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-trigger.html">dropTrigger</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-unique-constraint.html">dropUniqueConstraint</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/drop-view.html">dropView</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/empty.html">empty</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/enable-check-constraint.html">enableCheckConstraint</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/enable-trigger.html">enableTrigger</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/execute-command.html">executeCommand</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/insert.html">insert</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/load-data.html">loadData</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/load-update-data.html">loadUpdateData</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/mark-unused.html">markUnused</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/merge-columns.html">mergeColumns</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/modify-data-type.html">modifyDataType</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/output.html">output</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/rename-column.html">renameColumn</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/rename-sequence.html">renameSequence</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/rename-table.html">renameTable</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/rename-trigger.html">renameTrigger</MadCap:xref>
+                            </td>
+                            <td>Not Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/rename-view.html">renameView</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/set-column-remarks.html">setColumnRemarks</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/set-table-remarks.html">setTableRemarks</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/sql.html">sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/sql-file.html">sqlFile</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/stop.html">stop</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/tag-database.html">tagDatabase</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../change-types/update.html">update</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Supported commands</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <table>
+                    <col style="width: 600px;">
+                    </col>
+                    <col style="width: 600px;">
+                    </col>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Supported</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/maintenance/calculate-checksum.html">calculate-checksum</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/changelog-sync.htm">changelog-sync</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/changelog-sync-sql.htm">changelog-sync-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/changelog-sync-to-tag.htm">changelog-sync-to-tag</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/changelog-sync-to-tag-sql.htm">changelog-sync-to-tag-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/maintenance/clear-checksums.htm">clear-checksums</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/db-doc.html">db-doc</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/hub/deactivate-changelog.htm">deactivate-changelog</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/inspection/diff.htm">diff</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/inspection/diff-json.htm">diff JSON</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/drop-all.htm">drop-all</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/future-rollback-count-sql.htm">future-rollback-count-sql &lt;value&gt;</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/future-rollback-from-tag-sql.htm">future-rollback-from-tag-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/future-rollback-sql.htm">future-rollback-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/inspection/generate-changelog.html">generate-changelog</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td><code>help</code>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/history.html">history</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/maintenance/list-locks.htm">list-locks</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/mark-next-changeset-ran.html">mark-next-changeset-ran</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/mark-next-changeset-ran-sql.html">mark-next-changeset-ran-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/hub/register-changelog.htm">register-changelog</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/maintenance/release-locks.htm">release-locks</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-by-tag.htm">rollback</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-count.htm">rollback-count</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-count-sql.htm">rollback-count-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-one-changeset.html">rollback-one-changeset</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-one-changeset-sql.html">rollback-one-changeset-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-one-update.html">rollback-one-update</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-one-update-sql.html">rollback-one-update-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-sql.htm">rollback-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-to-date.htm">rollback-to-date</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/rollback/rollback-to-date-sql.htm">rollback-to-date-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/inspection/snapshot-reference.html">snapshot-reference</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/status.htm">status</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/hub/sync-hub.htm">sync-hub</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/tag.html">tag</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/tag-exists.html">tag-exists</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/change-tracking/unexpected-changesets.html">unexpected-changesets</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/update.html">update</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/update-sql.htm">update-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/update-count.htm">update-count</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/update-count-sql.html">update-count-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/update-testing-rollback.htm">update-testing-rollback</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/update-to-tag.html">update-to-tag</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/update-to-tag-sql.html">update-to-tag-sql</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MadCap:xref href="../../../commands/update/validate.htm">validate</MadCap:xref>
+                            </td>
+                            <td>Supported</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://mariadb.com/kb/en/">MariaDB Documentation</a>
+            </li>
+            <li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MariaDB.html">MariaDB on Amazon RDS Documentation</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../commands/home.htm">Liquibase Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../workflows/home.htm">Workflows</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
