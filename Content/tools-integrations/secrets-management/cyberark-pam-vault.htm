@@ -6,7 +6,7 @@
     </head>
     <body>
         <h1 id="liquibase-cyberark-pam-vault-extension"><MadCap:variable name="General.Liquibase" /> CyberArk PAM Vault Extension</h1>
-        <p>Natively read your <a href="https://www.cyberark.com/products/privileged-access-manager/">CyberArk PAM</a> (Privileged Access Manager) based vault secrets in <MadCap:variable name="General.Liquibase" />. For more information, see <a href="https://docs.cyberark.com/Product-Doc/OnlineHelp/PAS/Latest/en/Content/Resources/_TopNav/cc_Home.htm">CyberArk PAM&#160;documentation</a>.</p>
+        <p>You can natively read your <a href="https://www.cyberark.com/products/privileged-access-manager/">CyberArk PAM</a> (Privileged Access Manager) based vault secrets in <MadCap:variable name="General.Liquibase" /> with the CyberArk PAM&#160;Vault extension. If you connect to your vault using the <code><MadCap:variable name="General.liquiPropFile" /></code> file, you can store sensitive <MadCap:variable name="General.Liquibase" /> authentication details such as database <code>url</code>, <code>username</code>, and <code>password</code>&#160;<MadCap:variable name="General.Param/Attribute" />s in your vault. For more information, see <a href="https://docs.cyberark.com/Product-Doc/OnlineHelp/PAS/Latest/en/Content/Resources/_TopNav/cc_Home.htm">CyberArk PAM&#160;documentation</a>.</p>
         <h2 id="supported-product-editions">Supported products</h2>
         <p><a href="https://www.liquibase.com/pricing/pro" target="_blank"><img alt="Liquibase Pro" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmcred%2Fliquibase-header-footer%2Ffeature%2Fbadges%2Fbadges%2Fpro.json" /></a>
         </p>
@@ -26,27 +26,63 @@
         <h3><MadCap:variable name="General.Liquibase" /> Package Manager</h3>
         <p>Alternatively, you can install this extension with <code>lpm</code> (<a href="https://github.com/liquibase/liquibase-package-manager">Liquibase Package Manager</a>).</p><pre><code class="language-shell">lpm update
 lpm add cyberarkpam-vault</code></pre>
-        <h2 id="setup">Setup</h2>
-        <p>A <a href="https://www.liquibase.com/pricing/pro">Liquibase Pro</a> License key is required.</p>
-        <h3 id="required-parameters">Required parameters</h3><pre xml:space="preserve"><code class="language-text">--vault-addr=PARAM
-    URL for CyberArk PAM Vault Server
-    (liquibase.vault.addr)
-    (LIQUIBASE_VAULT_ADDR)
-    [deprecated: --vaultAddr]
-
---vault-certfile=PARAM
-    Certificate for CyberArk PAM Vault Server
-    (liquibase.vault.certfile)
-    (LIQUIBASE_VAULT_CERTFILE)
-    [deprecated: --vaultCertfile]</code></pre>
+        <h2 id="setup"><MadCap:variable name="General.Param/Attr/Uppercased" />s</h2>
+        <p>You need a <MadCap:variable name="General.LBPro" /> license key to use CyberArk PAM Vault. See <MadCap:xref href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">How to Apply Your [%=General.LBPro%] License Key</MadCap:xref>.</p>
+        <table style="width: 100%;">
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Definition</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--liquibase-pro-license-key</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-liquibase-pro-license-key.flsnp" />
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>--vault-addr</code>
+                    </td>
+                    <td>URL for CyberArk PAM Vault Server</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>--vault-certfile</code>
+                    </td>
+                    <td>Certificate for CyberArk PAM Vault Server</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table>
         <h3 id="adding-rootca-certificate-in-your-java-security-keystore">Adding RootCA certificate in your Java security keystore</h3>
         <p>Example:</p><pre><code class="language-shell">sudo keytool -importcert -alias CyberArkRoot -keystore /Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/lib/security/cacerts -storepass changeit -file RootCA.crt</code></pre>
         <p>If there is an error message showing PKIX exception, you could have imported into the wrong <code>cacerts</code> file. Run <code>liquibase -version</code> to see which JVM <MadCap:variable name="General.Liquibase" /> is using</p>
         <p>To debug the SSL connection, you can add this Java environment variable to your command line:
 <code>-Djavax.net.debug=ssl:handshake</code></p>
-        <h2 id="using-secrets-in-liquibase-properties">Using secrets in <code><MadCap:variable name="General.liquiPropFile" /></code></h2>
-        <p>Any property in a <code><MadCap:variable name="General.liquiPropFile" /></code> file can be stored in CyberArk PAM Vault. Use the syntax <code>VAULT_TYPE,PATH_TO_NAME_IN_PAM,FIELD_TO_MAP</code>  to tell the vault plugin which properties to populate from the vault:</p><pre><code class="language-text">username= cyberarkpam,UserName,username
-password= cyberarkpam,Content,password</code></pre>
+        <h2 id="using-secrets-in-liquibase-properties">Usage</h2>
+        <p>Any property in a <code><MadCap:variable name="General.liquiPropFile" /></code> file can be stored in CyberArk PAM Vault. Use the syntax <code>VAULT_TYPE,PATH_TO_NAME_IN_PAM,FIELD_TO_MAP</code>  to tell the vault plugin which properties to populate from the vault:</p><pre xml:space="preserve"><code class="language-text"># Enable Liquibase Pro functionality
+liquibase.pro.licenseKey= ***Insert Pro License Key***
+
+# Properties to store in the vault
+username= cyberarkpam,UserName,username
+password= cyberarkpam,Content,password
+
+# Authentication
+vault.addr= ***Vault URL***
+vault.certfile= ***Vault Certificate***</code></pre>
+        <h3>Store your <MadCap:variable name="General.LBPro" /> license key in CyberArk PAM&#160;Vault</h3>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/secrets-store-pro-key.flsnp" MadCap:conditionTagExpression="include[secrets.cyberark]" /><pre xml:space="preserve"><code class="language-text">liquibase.pro.licenseKey= cyberarkpam,your_path,pro_key</code></pre>
         <h2 id="feedback">Feedback</h2>
         <p>Please submit all feedback and issues to <a href="https://ideas.liquibase.com/c/58-cyberark-pro-extension">this idea board</a>.</p>
         <h2>Related links</h2>
