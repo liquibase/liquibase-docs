@@ -1,0 +1,114 @@
+/*
+@author Liquibase
+@version 1.0
+@date July 28, 2020
+@description ERROR if SQL script references a schema outside Project file
+*/
+
+/*
+README: 
+
+This is a SQL Rule which throws ERROR when a sql script references a schema outside Project file
+To Execute this rule use:
+hammer runRules [dbDef] [SQL file | SQL files folder]
+
+*/
+
+package com.datical.hammer.core.sqlrules.CheckProjectSchemas
+
+
+import com.datical.db.project.Project;
+import com.datical.db.project.Schema;
+import com.datical.db.project.DatabaseDef;
+import com.datical.dbsim.model.DbModel;
+import com.datical.db.project.Plan;
+import java.util.regex.*;
+import com.datical.db.project.util.ProjectUtil;
+import java.util.*;
+import com.google.common.collect.Iterables;
+import liquibase.database.Database;
+import com.datical.hammer.core.liquibase.status.LiquibaseAPIUtils;
+import com.datical.hammer.core.connectionservice.DatabaseBuilder;
+import java.sql.Connection;
+import com.datical.hammer.core.rules.ProjectResources;
+import com.datical.hammer.core.rules.Response;
+import com.datical.hammer.core.rules.Response.ResponseType;
+import com.datical.hammer.core.rules.WithComments;
+import com.datical.hammer.core.rules.WithoutComments;
+import com.datical.hammer.core.DatabaseDefUtil;
+import com.datical.hammer.core.extensions.DBOperations;
+
+
+/***********************************************************  Rules  *************************************************************/
+
+/* @return false if validation fails; true otherwise */
+function boolean validateSql(String sql, Project project, DBOperations operations, String regex) {
+    
+	System.out.println("Validation called: CheckProjectSchemas");
+	List<String> availableSchemas = getAvailableSchemas(project, operations);
+	List<String> availableSchemasList =  new ArrayList<>();
+
+	for(String schema : availableSchemas) {
+		availableSchemasList.add(schema.toLowerCase());
+	}
+	boolean nonManagedSchemaFound = false;
+    List<String> schemaStringList = new ArrayList<>();
+    for (Schema schema : project.getSchemas()) {
+      schemaStringList.add(schema.getName().toLowerCase().replaceAll("\\$\\{.*\\}.",""));
+    }
+	//System.out.println("Available schemas size:"+availableSchemasList.size());
+	//System.out.println("Assigned schemas size:"+schemaStringList.size());
+
+	Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+	Matcher matcher = pattern.matcher(sql);
+	while(matcher.find()){
+	String formattedSchemaName = matcher.group(1).replace("[","").replace("]","");
+	
+	//System.out.println("Formatted Schema Name = " + formattedSchemaName);
+		if(!schemaStringList.contains(formattedSchemaName) && availableSchemasList.contains(formattedSchemaName)) {
+			nonManagedSchemaFound = true;
+			System.out.println("Non Managed Schema Name found in script: " + formattedSchemaName);
+			break;
+		}
+	}
+	
+	return nonManagedSchemaFound;
+}
+
+function DatabaseDef getDatabaseDef(Project project) {
+	String dbName = project.getSchemaSelectionStep();
+	DatabaseDef dbDef = DatabaseDefUtil.findDbByName(project, dbName);
+	return dbDef;
+}
+
+function List<String> getAvailableSchemas(Project project, DBOperations operations){
+	DatabaseDef dbDef = getDatabaseDef(project);
+	List<String> schemas =  new ArrayList();
+	Connection connection = null;
+	try {
+		connection = DatabaseBuilder.buildPlainConnection(dbDef);
+		schemas = operations.getSchemaNames(connection);		
+	 } catch (Exception dbe) {
+			
+	 }  finally {
+		  if (connection != null){
+			try {
+			  connection.close();
+			} catch (Exception e) {
+			  ; // do nothing
+			}
+		  }
+		}
+	  return schemas;
+}
+
+rule "Check Project Schemas Format"
+    salience 1
+	when
+	    $project : Project()
+		$operations : DBOperations()
+		woc : WithoutComments(validateSql(getText().toLowerCase(), $project, $operations, "(\\S+)\\s*\\.\\s*(\\S+)"))
+	then
+		String errorMessage = "Script references a Schema not listed in Project file (Sql Script: " + woc.getSqlFile().getName() + ")";
+        insert(new Response(ResponseType.FAIL, errorMessage, drools.getRule().getName()));
+	end
