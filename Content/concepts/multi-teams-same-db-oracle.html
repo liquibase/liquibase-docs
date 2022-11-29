@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title>Best Practices for Multiple Teams Deploying to the Same Database (Oracle)</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/bestpractices.html" />
+        <meta name="description" content="This document discusses use cases when there are multiple teams that deploy to the same database." />
+    </head>
+    <body>
+        <h1>Best Practices for Multiple Teams Deploying to the Same Database (Oracle)</h1>
+        <p>This document discusses use cases when there are multiple teams that deploy to the same database. We will discuss the following two use cases in this scenario:</p>
+        <ol>
+            <li>Each team has one or more dedicated schema(s) in the same database</li>
+            <li>Multiple teams write to one or more shared schemas in the same database</li>
+        </ol>
+        <h2>Use case 1: Each team has one or more dedicated schema in the same database</h2>
+        <p>This is a common use case for applications that integrate multiple subsystems. Multiple teams, each with their own Git repository, deploy database changes into their own dedicated schemas in the same database.</p>
+        <table>
+            <col />
+            <col />
+            <tbody>
+                <tr>
+                    <th>Team</th>
+                    <th>Schema</th>
+                </tr>
+                <tr>
+                    <td>Team 1</td>
+                    <td>SchemaA</td>
+                </tr>
+                <tr>
+                    <td>Team 2</td>
+                    <td>SchemaB</td>
+                </tr>
+                <tr>
+                    <td>Team 3</td>
+                    <td>SchemaC</td>
+                </tr>
+                <tr>
+                    <td>Team4</td>
+                    <td>SchemaD</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Structuring Git repository</h3>
+        <p>Each team will dedicate a directory in their repository for database changes. In this directory, they can manage all their scripts along with the changelog.xml file. The team can also create a directory for their schema.</p>
+        <img src="../Z_Resources/Images/best-practices/multi-schema-1.png" />
+        <p>In the case of a team deploying to multiple schemas, they could organize their repository where they have a subdirectory for each schema.</p>
+        <img src="../Z_Resources/Images/best-practices/multi-schema-2.png" />
+        <p>The team needs a master changelog file which can control the flow of all changes to all schemas.</p>
+        <p>See the section “Deploying with Liquibase” later in this document for sample scripts.</p>
+        <h2>Use case 2: Multiple teams write to one or more shared schemas in the same database</h2>
+        <p>In this use case, multiple teams, each with their own Git repository, deploy database changes to one or more shared schemas. This use case is common for legacy applications that have added subsystems over time or other complex application architectures.</p>
+        <table>
+            <col />
+            <col />
+            <tbody>
+                <tr>
+                    <th>Team</th>
+                    <th>Schema</th>
+                </tr>
+                <tr>
+                    <td>Team 1</td>
+                    <td rowspan="4">
+                        <p rowspan="4">SchemaA, SchemaB, SchemaC</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Team 2</td>
+                </tr>
+                <tr>
+                    <td>Team 3</td>
+                </tr>
+                <tr>
+                    <td>Team4</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is important to understand that teams must communicate with each other about their database changes going into shared schemas. Database changes often have dependencies, and these changes need to be coordinated so that they are deployed in the correct order.</p>
+        <h3>Structuring Git repository</h3>
+        <p>When multiple teams share common schemas, it is not possible to use each team’s own application repository. This use case requires setting up a dedicated SQL repository for shared schemas.</p>
+        <img src="../Z_Resources/Images/best-practices/multi-schema-4.png" />
+        <p>The team needs a master changelog file that can control the flow of all changes to all schemas.</p>
+        <p>See the section “Deploying with Liquibase” later in this document for sample scripts.</p>
+        <p>&#160;</p>
+        <h2>Sample masterChangelog.xml</h2>
+        <p>Here is a sample masterChangelog.xml file which can be used in a multi-schema repository:</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: XML;">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd
+http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.6.xsd "&gt;
+	&lt;include file="schemaA/changeLog.xml" context="schemaA"/&gt;
+	&lt;include file="schemaB/changeLog.xml" context="schemaB"/&gt;
+	&lt;include file="schemaC/changeLog.xml" context="schemaC"/&gt;
+&lt;/databaseChangeLog&gt;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <p>&#160;</p>
+        <h2>Deploying with Liquibase</h2>
+        <p>The basic script for deploying with Liquibase using a single service account to deploy to multiple shared schemas looks like this:</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: PowerShell;"># add liquibase path to the environment variable
+export PATH=&lt;Path to Liquibase&gt;:${PATH}
+
+# git clone or retrieve a versioned artifact
+git clone &lt;GIT URL to the repo&gt;
+cd &lt;Repo&gt;/sql_code
+
+# run the “status” command
+liquibase --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          status -–verbose
+
+# run the “update” command
+liquibase --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          update
+
+# run the “history” command
+liquibase --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          history</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <p>&#160;</p>
+        <p>The script for deploying with Liquibase using proxy users to deploy to one schema at a time looks like this. This is for the Oracle use case:</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: PowerShell;"># add liquibase path to the environment variable
+export PATH=&lt;Path to Liquibase&gt;:${PATH}
+
+# git clone or retrieve a versioned artifact
+git clone &lt;GIT URL to the repo&gt;
+cd &lt;Repo&gt;/sql_code
+LBSCHEMANAMES="${1:-"HR OC OE SH"}"
+
+for LBSCHEMA in $LBSCHEMANAMES
+do
+
+# run the “status” command
+liquibase --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          --default-schema-name=${LBSCHEMA} \
+          status –-verbose
+
+# run the “update” command
+liquibase –-changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          --default-schema-name=${LBSCHEMA} \
+          update
+
+# run the “history” command
+liquibase --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          --default-schema-name=${LBSCHEMA} \
+          history
+done</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <p>Liquibase automatically creates DATABASECHANGELOG and DATABASECHANGELOGLOCK tables (also called DBCL tables) for tracking deployments. These tables are created in the default schema for the user connecting to the database.</p>
+        <p>If you want your DBCL tables to be created in another schema, e.g., a dedicated schema for Liquibase tracking only, then you can use <code>--liquibase-schema-name=&lt;schema&gt;</code> to indicate your specific schema. You need to make sure that the service account allows creating DBCL tables in this schema, and allows querying these tables.</p>
+        <ul>
+            <li><code>--liquibase-schema-name=&lt;schema&gt;</code>
+                <ul>
+                    <li>The parameter specifies the schema to use for the creation of Liquibase objects, like the DATABASECHANGELOG and DATABASECHANGELOGLOCK tracking tables.</li>
+                </ul>
+            </li>
+            <li><code>--default-schema-name=&lt;schema&gt;</code>
+                <ul>
+                    <li>The parameter specifies the default schema name to use for the database connection.</li>
+                </ul>
+            </li>
+        </ul>
+    </body>
+</html>
