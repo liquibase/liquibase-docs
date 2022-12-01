@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>Switching your databases</h1>
+        <p>The <MadCap:variable name="General.DMCProductName" /> (<MadCap:variable name="General.DMCProductShortName" />) allows you to switch from an internal to an external database or from an external to another external database with the use of a few simple commands. In this topic, we will cover the tools, commands, and the workflow for switching your database, so you can do so easily.</p>
+        <h2>About PostgreSQL tools for backup and migration of <MadCap:variable name="General.DMC DB" /> data</h2>
+        <p>PostgreSQL has command line utilities that allow you to migrate data from one database and restore it to another database using <code>pg_dump</code> and <code>pg_restore</code> commands.</p>
+        <ul>
+            <li>The <code>pg_dump</code> command allows you to create a backup file which contains the structure and data of a PostgreSQL database.</li>
+            <li>The <code>pg_restore</code> command allows you to populate a new database from a backup file created with <code>pg_dump</code>.</li>
+        </ul>
+        <p>These commands can be executed from any system and are automatically installed when you install a PostgreSQL database, or when you install the PostgreSQL client. For more information on these commands, view the <a href="https://www.postgresql.org/docs/">PostgreSQL documentation</a> that corresponds to your version.</p>
+        <h2>Using <code>pg_dump</code> to create a PostgreSQL dump file</h2>
+        <p>To create a PostgreSQL dump file, use the following command:</p><pre><code class="language-html">pg_dump -U &lt;database_user&gt; -h &lt;database_hostname/ip&gt; -p &lt;database_port&gt; &lt;database_name&gt; &gt; &lt;dump_file_name&gt;
+$&gt; pg_dump -U datical -h dmc.mynetwork.net -p 5432 datical &gt; dmc-dump</code></pre>
+        <h2>Using <code>pg_restore</code> to populate a new empty PostgreSQL database</h2>
+        <p>To create a PostgreSQL dump file, use the following command:</p><pre><code class="language-html">code pg_restore --clean --if-exists -h &lt;database_hostname/ip&gt; -U &lt;database_user&gt; -Fc -n public -d &lt;database_name&gt;  &lt;dump_file_name&gt;
+$&gt; pg_restore --clean --if-exists -h dmc.mynetwork.net -U datical -Fc -n public -d datical  dmc-dump</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>pg_restore</code> should only be used to populate an empty database intended for <MadCap:variable name="General.DMCProductShortName" /> usage.</p>
+        <h2>About the <code>db configure</code> command</h2>
+        <p>You can update the database connection information for your <MadCap:variable name="General.DMCProductShortName" /> installation by using a sub-command to the  datical-control.  Before running the command you will need the connection information for your new database.</p><pre><code class="language-html">$&gt; sudo datical-control db configure -h
+Change the Application DB configuration
+jdbc url example - jdbc:postgresql://HOSTNAME:PORTNUMBER/DATABASE
+usage: datical-control db configure [args]
+--debug            Prints debug-level messages
+-h,--help            Help (Prints this message)
+--password &lt;arg&gt;   DMC Database password
+--url &lt;arg&gt;        DMC Database jdbc url
+--username &lt;arg&gt;   DMC Database username
+$&gt; sudo datical-control db configure --jdbcurl jdbc:postgresql://dmc.mynetwork.net:5432/datical --username datical --password mypassword</code></pre>
+        <h2>How to switch the <MadCap:variable name="General.DMCProductShortName" /> between databases</h2>
+        <p>Now that you have specific information about the tools and commands, let's go over the workflow. To switch the <MadCap:variable name="General.DMCProductShortName" /> from one database to another (regardless of it being internal or external):</p>
+        <ol>
+            <li>Backup your existing <MadCap:variable name="General.DMC DB" /> using the pg_backup command in PostgreSQL.</li><pre><code class="language-html">pg_dump -U datical -h dmc.mynetwork.com -p 5432 datical &gt; dmc-dump</code></pre>
+            <li>Follow the instructions for creating a new PostgreSQL database for the <MadCap:variable name="General.DMCProductShortName" /> found <a href="https://dmc.datical.com/install/production-mode/production-home.htm">here</a>.</li>
+            <li>Populate the new <MadCap:variable name="General.DMC DB" /> with data from the dump file you created in step 1.</li><pre><code class="language-html">pg_restore --clean --if-exists -h newdmcdb.mynetwork.com -U datical -Fc -n public -d datical dmc-dump</code></pre>
+            <li>On your <MadCap:variable name="General.DMCProductShortName" /> host, run the following command to configure the <MadCap:variable name="General.DMCProductShortName" /> to use the new database.</li><pre><code class="language-html">sudo datical-control db configure --jdbcurl jdbc:postgresql://newdmcdb.mynetwork.com:5432/datical --username datical --password &lt;password&gt;</code></pre>
+        </ol>
+        <h3>Related links</h3>
+        <ul>
+            <li>
+                <MadCap:xref href="validate-ext-database-content.htm">Validating external database content</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="register-project-dmc.htm">Register your Project with [%=General.DMCProductShortName%]</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../user-group-project-config/manage-users-dmc.htm">Managing users in the [%=General.DMCProductShortName%]</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../web-tier-config/hostname-ip-config.htm">Configuring  your hostname &amp; IP address</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../web-tier-config/manage-default-ports.htm">Managing your default ports and HTTP protocols</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
