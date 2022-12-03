@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>DB2 on z/OS - Running Static Backup</h1>
+        <MadCap:snippetBlock src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p>Here are instructions for running the script which creates the DB2 z/OS restore script.</p>
+        <ul>
+            <li>Please review DB2 on z/OS - Setting up Datical Project to make sure you setup project correctly.</li>
+            <li>Datical's static backup script (groovy):</li>
+            <ul> <li>The script, db2z_create_static_backup.groovy, needs to be executed from the Datical project, since it is a Hammer Groovy script.</li><li>It will create the output file db2z_restore.sql in the project directory.</li><li>That is the file that deployPackager will pick up.</li></ul>
+        </ul><pre># sample usage:</pre><pre># hammer groovy db2z_create_static_backup.groovy dbDef=&lt;dbDef name&gt; tables=&lt;csv list of tables for inserts&gt; scripts=&lt;csv list of scripts&gt;</pre>
+        <p>hammer groovy db2z_create_static_backup.groovy dbDef=REF tables=DATABASECHANGELOG scripts=dumpScripts/createDatabase.sql</p>
+        <p>Database dump script:</p>
+        <p>Provide one or more dump scripts which rebuilds your DB2 database. This script should start with CREATE DATABASE. At a minimum, it also needs to contain code for DATABASECHANGELOG table. E.g.,</p><pre>CREATE DATABASE "DATICAL"</pre><pre>CCSID EBCDIC;</pre><pre>&#160;</pre><pre>CREATE TABLE IBMUSER.DATABASECHANGELOG (</pre><pre>"ID" VARCHAR(255) FOR MIXED DATA NOT NULL,</pre><pre>"AUTHOR" VARCHAR(255) FOR MIXED DATA NOT NULL,</pre><pre>"FILENAME" VARCHAR(255) FOR MIXED DATA NOT NULL,</pre><pre>"DATEEXECUTED" TIMESTAMP NOT NULL,</pre><pre>"ORDEREXECUTED" INTEGER NOT NULL,</pre><pre>"EXECTYPE" VARCHAR(10) FOR MIXED DATA NOT NULL,</pre><pre>"MD5SUM" VARCHAR(35) FOR MIXED DATA WITH DEFAULT NULL,</pre><pre>"DESCRIPTION" VARCHAR(255) FOR MIXED DATA WITH DEFAULT NULL,</pre><pre>"COMMENTS" VARCHAR(255) FOR MIXED DATA WITH DEFAULT NULL,</pre><pre>"TAG" VARCHAR(255) FOR MIXED DATA WITH DEFAULT NULL,</pre><pre>"LIQUIBASE" VARCHAR(20) FOR MIXED DATA WITH DEFAULT NULL,</pre><pre>"CONTEXTS" VARCHAR(4000) FOR MIXED DATA WITH DEFAULT NULL,</pre><pre>"LABELS" VARCHAR(4000) FOR MIXED DATA WITH DEFAULT NULL,</pre><pre>"DEPLOYMENT_ID" VARCHAR(10) FOR MIXED DATA WITH DEFAULT NULL</pre><pre>)</pre><pre>PARTITION BY SIZE EVERY 4 G</pre><pre>AUDIT NONE</pre><pre>DATA CAPTURE NONE</pre><pre>CCSID UNICODE;</pre>
+        <p>Eye-ball the generated SQL script -  db2z_restore.sql</p>
+        <p>Before the restore runs in deployPackager, Datical drops all objects on the managed schemas. This gets rid of any objects created by Convert SQL, including sequences.</p>
+        <p>Here is the Jenkinsfile which can run the static backup and produce a new restore script (see line 52).</p>
+        <p>Note: Be sure to provide a new DB2 export script as pointed out by comments in lines 47-48 (e.g., "dumpScripts/createDatabase.sql")</p>
+    </body>
+</html>
