@@ -7,10 +7,9 @@
     <body>
         <h1 id="contexts">Contexts</h1>
         <p>Contexts  are expressions that control whether commands like <MadCap:xref href="../../../commands/update/update.html">update</MadCap:xref> run certain <MadCap:variable name="General.changeset" />s. You add contexts directly to <MadCap:variable name="General.changeset" />s in your <MadCap:variable name="General.changelog" /> and specify them at runtime using the <code>--contexts</code>&#160;<MadCap:variable name="General.Param/Attribute" /> in the CLI. Context names are case-insensitive strings.</p>
-        <h2><code>contextFilter</code> rules</h2>
+        <h2 id="usage">Usage</h2>
         <p>By default, a database update runs all <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" />, regardless of what you specify in the CLI. If you add a contextFilter to a <MadCap:variable name="General.changeset" />, it only runs when you specify that context in the CLI, but unmarked <MadCap:variable name="General.changeset" />s still run. If you do not specify any contexts in the CLI&#160;at runtime, every <MadCap:variable name="General.changeset" /> in your <MadCap:variable name="General.changelog" /> runs, even if they have contextFilters attached. <a href="../../../enterprise/cli-commands/registerProjectWithDMCDB.htm#https://www.liquibase.com/blog/this-is-a-story-about-control-context-filter-label-filter">Learn more about the contextFilter logic at this blog post.</a><br /></p>
-        <h3>contextFilter use case example:</h3>
-        <p>If you want to tag your environment and <b>let the changesets contain the filter logic</b>, set <code>--contexts</code> on the CLI and <code>contextFilter</code> in the <MadCap:variable name="General.changeset" />.</p>
+        <p>For example, if you want to tag your environment and <b>let the <MadCap:variable name="General.changeset" />s contain the filter logic</b>, set <code>contextFilter</code> in the <MadCap:variable name="General.changeset" /> and use <code>--contexts</code> in the CLI.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to tag your <MadCap:variable name="General.changeset" />s and <b>control the filter logic in the CLI</b>, use <MadCap:xref href="labels.html">Labels</MadCap:xref> instead of contexts.<br /></p>
         <h3>Examples of SQL, XML, JSON, and YAML <MadCap:variable name="General.changeset" />s using the contextFilter <MadCap:variable name="General.Param/Attribute" />:</h3>
         <MadCap:dropDown>
@@ -87,7 +86,7 @@ insert into news (id, title) values (1, 'Liquibase 0.8 Released')</code></pre>
                 value: "Liquibase 0.8 Released"</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <h2 id="context-syntax">Context syntax</h2>
+        <h2 id="syntax">Syntax</h2>
         <p>You can specify a context using <code>AND</code>, <code>OR</code>, <code>!</code>, and parentheses in the <MadCap:variable name="General.changeset" />s. Without parentheses, the order of operations is <code>!</code>, <code>AND</code>, and then <code>OR</code>.</p>
         <p><strong>Examples:</strong>
         </p>
@@ -114,7 +113,7 @@ insert into news (id, title) values (1, 'Liquibase 0.8 Released')</code></pre>
             <li>Prior to 4.13.0, the "contextFilter" attribute was called "context". A "context" attribute continues to act as an alias for "contextFilter"</li>
         </ul>
         <h2>Running contexts</h2>
-        <p>You can only specify context filtering logic in a <MadCap:variable name="General.changeset" /> definition, but you can still specify multiple contexts when running <MadCap:variable name="General.Liquibase" /> in the&#160;CLI. However, you can only list out all the contexts that apply to the current <MadCap:variable name="General.Liquibase" /> run.</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=changelog.xml --contexts="test" update</code></pre>
+        <p>You can only specify context filtering logic in a <MadCap:variable name="General.changeset" /> definition, but you can still specify multiple contexts when running <MadCap:variable name="General.Liquibase" /> in the CLI. However, you can only list out all the contexts that apply to the current <MadCap:variable name="General.Liquibase" /> run.</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=changelog.xml --contexts="test" update</code></pre>
         <p>If your <MadCap:variable name="General.changelog" /> includes several <MadCap:variable name="General.changeset" />s with complex and simple context filters such as <code>contextFilter="qa and main and !dev"</code> for <MadCap:variable name="General.changeset" /> 1 and <code>contextFilter="test"</code> for <MadCap:variable name="General.changeset" /> 2, you need to pass the following on the command line to deploy them:</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=changelog.xml --contexts="test,qa,main" update</code></pre>
         <h2 id="using-contexts-for-test-data">Using contexts for test data</h2>
         <p>If you  manage your test data with <MadCap:variable name="General.Liquibase" />, it is best practice to have this data  in line with all your other <MadCap:variable name="General.changeset" />s, but marked with a <code>"test"</code> contextFilter.
@@ -126,8 +125,27 @@ be applied, including those marked with a <code>"test"</code> context.</p>
         <p>Using contexts to control test data is better than having a separate <MadCap:variable name="General.changelog" />s tree because later <MadCap:variable name="General.changetypes" />s and changes will be applied to existing test 
 data the same as they are applied to production data. If you had a set of test data that was created and simply added after the database is set up, you 
 would be constantly manually updating your test data scripts to keep them in line with the current database schema.</p>
-        <h2 id="using-contexts-for-multi-dbms-changelogs">Using contexts for multi-DBMS <MadCap:variable name="General.changelog" />s</h2>
-        <p>You can use contexts to control which <MadCap:variable name="General.changeset" />s are run on which databases, but there is an option to use the built in <code>"dbms"</code> tag on the <MadCap:variable name="General.changeset" /> tag.</p>
+        <h2 id="multi-dbms-changelogs">Multi-DBMS <MadCap:variable name="General.changelog" />s</h2>
+        <p>If you need to use one <MadCap:variable name="General.changelog" /> for multiple databases, and you only want specific <MadCap:variable name="General.changeset" />s to run on each database, it is possible to use the <code>contextFilter</code> tag to filter them, and then run <code>liquibase update --contexts="&lt;dbname&gt;"</code> in your command line. <b>However, this is not recommended.</b> For example:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet  id="1-lawful-evil"  author="adrian" contextFilter="postgres"&gt;
+    &lt;createTable  tableName="my_table"&gt;
+        &lt;column  name="id"  type="int"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;</code></pre>
+        <p>Instead, it is a best practice to use the <code>dbms</code> tag to differentiate <MadCap:variable name="General.changeset" />s by database type, and then run <code>liquibase update</code> in your command line. This is a clearer use of contexts and decreases the possibility of errors. You can use <code>contextFilter</code> and <code>dbms</code> on the same <MadCap:variable name="General.changeset" />, but only <code>dbms</code> should refer to your database type. For example:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet  id="1-lawful-good"  author="adrian" dbms="postgres"&gt;
+    &lt;createTable  tableName="my_postgres_table"&gt;
+        &lt;column  name="id"  type="int"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet  id="2-lawful-good"  author="adrian" dbms="oracle"&gt;
+    &lt;createTable  tableName="my_oracle_table"&gt;
+        &lt;column  name="id"  type="int"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet  id="3-lawful-good"  author="adrian" dbms="oracle" contextFilter="test"&gt;
+    &lt;createTable  tableName="my_oracle_test_table"&gt;
+        &lt;column  name="id"  type="int"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;</code></pre>
         <h2 id="default-context">Default context</h2>
         <p>You can specify a contextFilter <MadCap:variable name="General.Param/Attribute" /> in the root <MadCap:variable name="General.databasechangelog" /> node to assign that context to all <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" /> by default.</p>
         <p>The specified contextFilter will have <code>AND</code> with any contextFilters specified in <MadCap:variable name="General.changeset" />s within the <MadCap:variable name="General.changelog" /> file.</p>
