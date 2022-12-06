@@ -53,14 +53,14 @@
         <p>The team needs a master changelog file which can control the flow of all changes to all database.</p>
         <p>See the section “Deploying with Liquibase” later in this document for sample scripts.</p>
         <h2>Use case 2: Multiple teams write to one or more shared database in the same instance</h2>
-        <p>In this use case, multiple teams, each with their own Git repository, deploy database changes to one or more shared databases. This use case is common for legacy applications that have added subsystems over time or other complex application architectures. </p>
+        <p>In this use case, multiple teams, each with their own Git repository, deploy database changes to one or more shared databases. This use case is common for legacy applications that have added subsystems over time or other complex application architectures.</p>
         <table>
             <col />
             <col />
             <tbody>
                 <tr>
                     <th>Team</th>
-                    <th>Schema</th>
+                    <th>Databases</th>
                 </tr>
                 <tr>
                     <td>Team 1</td>
@@ -79,6 +79,12 @@
                 </tr>
             </tbody>
         </table>
+        <p>There are three important considerations here:</p>
+        <ol>
+            <li>You will use a single URL and credentials to connect to all databases. This requires that you use a single service account which has permissions to multiple databases.</li>
+            <li>Within SQL scripts, each object would need to be fully qualified with database name, schema name and object name. This is a requirements because of the single service account used to deploy to multiple databases.</li>
+            <li>Liquibase tracking tables (<code>DATABASECHANGELOG</code> and <code>DATABASECHANGELOGLOCK</code>) will be created only in one database that is specified in the URL. Deployments to multiple databases will be tracked by a single <code>DATABASECHANGELOG</code> tracking table in the database specified in the URL.</li>
+        </ol>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is important to understand that teams must communicate with each other about their database changes going into shared databases. Database changes often have dependencies, and these changes need to be coordinated so that they are deployed in the correct order.</p>
         <h3>Structuring Git repository</h3>
         <p>When multiple teams share common schemas, it is not possible to use each team’s own application repository. This use case requires setting up a dedicated SQL repository for shared databases.</p>
@@ -99,9 +105,9 @@
        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd
    http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.6.xsd "&gt;
 
-&lt;include file="databaseA/changeLog.xml" context="databaseA"/&gt;
-&lt;include file="databaseB/changeLog.xml" context="databaseB"/&gt;
-&lt;include file="databaseC/changeLog.xml" context="databaseC"/&gt;
+&lt;include file="databaseA/changeLog.xml"/&gt;
+&lt;include file="databaseB/changeLog.xml"/&gt;
+&lt;include file="databaseC/changeLog.xml"/&gt;
 
 &lt;/databaseChangeLog&gt;</MadCap:codeSnippetBody>
         </MadCap:codeSnippet>
