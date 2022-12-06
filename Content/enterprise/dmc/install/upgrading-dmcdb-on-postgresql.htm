@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>Upgrading <MadCap:variable name="General.DMC DB" /> on PostgreSQL 10 to PostgreSQL 13</h1>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">To use  PostgreSQL 12 or 13, upgrade to <MadCap:variable name="General.DMCProductShortName" /> 7.15 or later versions. Before upgrading DMC after the <a href="https://dmc.datical.com/configure/java-config/changing-java-version.htm">Java upgrade</a>, put back the previous version of Java (11.0.8) to the <code>/opt/datical/old_jre</code> directory for the DMC upgrade process to be successful. After your DMC upgrade is complete, change the Java version to the one you want to use.</p>
+        <p><a href="https://www.postgresql.org/docs/13/release-13.html">PostgreSQL 13</a> introduces security and performance enhancements that provide a safer, more stable, and more secure <MadCap:variable name="General.DMCProductShortName" /> experience than previous versions. Thus, the embedded database has been updated to PostgreSQL 13. It is also recommended that you upgrade existing <MadCap:variable name="General.DMC DB" /> instances from PostgreSQL 10 to PostgreSQL 13.</p>
+        <h2>Demo Mode</h2>
+        <p>You can upgrade the existing <MadCap:variable name="General.DMC DB" /> from PostgreSQL 10 to PostgreSQL 13 in demo mode:</p>
+        <h3>During the installation of a new <MadCap:variable name="General.DMCProductShortName" /> version</h3>
+        <ol>
+            <li>Run the installer to upgrade DMC by following the <MadCap:xref href="demo-mode/demo-install-methods.htm">Demo mode installation methods</MadCap:xref> documentation. You will be prompted to upgrade your <MadCap:variable name="General.DMC DB" /> to PostgreSQL 13.
+            </li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Do not delete your existing <MadCap:variable name="General.DMCProductShortName" /> installation. Run a new installation script and point to the existing working installation. However, if you have <MadCap:variable name="General.DMCProductShortName" /> running and want to do the second <MadCap:variable name="General.DMCProductShortName" /> installation into a new directory, you must stop the existing <MadCap:variable name="General.DMCProductShortName" /> processes first by using the <code>sudo datical-control service stop all</code> command.</p>
+        </ol>
+        <ol start="2">
+            <li>Enter <b>Yes</b> to allow the automated process to install a new database, update your configuration, and migrate your data.
+            </li>
+        </ol>
+        <h3>After the installation of a new <MadCap:variable name="General.DMCProductShortName" /> version</h3>
+        <p>If you have upgraded <MadCap:variable name="General.DMCProductShortName" /> and declined an automated PostgreSQL upgrade, you can still initiate it.</p>
+        <p>Run the <code>sudo datical-control db migrate</code> command to start the upgrade of PostgreSQL from version 10 to 13 and migrate your data. <MadCap:variable name="General.DMCProductShortName" /> will continue to function and <MadCap:variable name="General.DaticalDB" /> (Liquibase Enterprise) will report the data to <MadCap:variable name="General.DMC DB" /> without any reconfiguration. </p>
+        <h2>Production Mode</h2>
+        <p>Choose one of the following ways to upgrade the existing <MadCap:variable name="General.DMC DB" /> from PostgreSQL 10 to PostgreSQL 13 in production mode:</p>
+        <ul>
+            <li>Upgrade for a shared PostgreSQL 13 cluster or host to migrate <MadCap:variable name="General.DMC DB" /> to an external Postgres 13 cluster or host that already hosts other databases</li>
+            <li>Upgrade for a dedicated PostgreSQL 13 cluster or host to migrate <MadCap:variable name="General.DMC DB" /> to an external Postgres 13 cluster or host that does not host any other databases</li>
+            <li>Upgrade for PostgreSQL 13 on AWS RDS</li>
+        </ul>
+        <h3><a name="Upgrade"></a>Upgrade for a Shared PostgreSQL 13 Cluster or Host</h3>
+        <p>Use the <code>pg_dump</code> and <code>psql</code> utilities to migrate your database and the <code>datical-control</code> commands to update your configuration.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>pg_dump</code> utility backs up the PostgreSQL 10 database.</p>
+        <h4>Prerequisites</h4>
+        <ul>
+            <li>Have <a href="https://dmc.datical.com/install/production-mode/cli-install.htm"><MadCap:variable name="General.DMCProductShortName" /> installed in production mode</a></li>
+            <li>Have <a href="https://www.postgresql.org/download/">PostgreSQL 10 installed on any of your servers</a> that are similar to CentOS</li>
+        </ul>
+        <h4>Upgrading a shared PostgreSQL 10 cluster or host to a shared PostgreSQL 13 cluster or host</h4>
+        <ol>
+            <li>Using the CLI, back up the data of the <MadCap:variable name="General.DMCProductShortName" /> database from the PostgreSQL 10 instance:
+            </li><pre><code class="language-html">/usr/pgsql-10/bin/pg_dump datical --username=dmcuser --password &gt; 10dump.sql</code></pre>
+            <p>Then enter your password. The command creates a <code>10dump.sql</code> file in the current directory of the local machine.</p>
+        </ol>
+        <ol start="2">
+            <li>Stop all services by running the following command:</li><pre><code class="language-html">datical-control service stop all</code></pre>
+        </ol>
+        <ol start="3">
+            <li>Stop the service for PostgreSQL 10:</li><pre><code class="language-html">systemctl stop postgresql-10.service</code></pre>
+        </ol>
+        <ol start="4">
+            <li><a href="https://www.postgresql.org/download/linux/redhat/">Install PostgreSQL 13</a> in a different directory than PostgreSQL 10.</li>
+        </ol>
+        <ol start="5">
+            <li>Start PostgreSQL 13 if it is not running:
+            </li><pre><code class="language-html">systemctl start postgresql-13</code></pre>
+        </ol>
+        <ol start="6">
+            <li>Follow all steps mentioned in the <MadCap:xref href="production-mode/production-home.htm">[%=General.DMCProductShortName%] production mode</MadCap:xref> documentation because you need a new database server.
+            </li>
+        </ol>
+        <ol start="7">
+            <li>Restore the PostgreSQL 10 backup to PostgreSQL 13. Perform this step in the same directory you have run the <code>pg_dump</code> command so that the <code>10dump.sql</code> file can be found.
+            </li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the destination database server is on another host, specify the <code>--host</code> parameter with the <code>psql</code> command.</p><pre><code class="language-html">psql -d datical -f 10dump.sql --username=dmcuser --password</code></pre>
+        </ol>
+        <ol start="8">
+            <li>Start all datical services:
+            </li><pre><code class="language-html">datical-control service start keycloak
+datical-control service start datical-service
+datical-control service start proxy</code></pre>
+        </ol>
+        <ol start="9">
+            <li>
+                <p>Confirm that the data has been copied to the PostgreSQL13 instance and DMC has a connection to PostgreSQL:</p>
+            </li><pre><code class="language-html">psql --host=&lt;HOSTNAME&gt; --port=5432 --username=&lt;DMC_USER&gt; --password --dbname=&lt;DB_NAME&gt;</code></pre>
+        </ol>
+        <ol start="10">
+            <li>Disable or delete the PostgreSQL 10 service.</li>
+        </ol>
+        <h3>Upgrade for a Dedicated PostgreSQL 13 Cluster or Host</h3>
+        <p>If the destination cluster contains no existing databases, use the <code>pg_upgrade</code> and <code>datical-control</code> commands to update your configuration.</p>
+        <h4>Prerequisites</h4>
+        <ul>
+            <li>Have <a href="https://dmc.datical.com/install/production-mode/cli-install.htm"><MadCap:variable name="General.DMCProductShortName"></MadCap:variable> installed in production mode</a></li>
+            <li>Have <a href="https://www.postgresql.org/download/">PostgreSQL 10 installed on any of your servers</a> that are similar to CentOS</li>
+        </ul>
+        <h4>Upgrading a dedicated PostgreSQL 10 cluster or host to a dedicated PostgreSQL 13 cluster or host</h4>
+        <ol>
+            <li>Stop all services by running the following command:
+            </li><pre><code class="language-html">datical-control service stop all</code></pre>
+        </ol>
+        <ol start="2">
+            <li>Stop the service for PostgreSQL 10:
+            </li><pre><code class="language-html">systemctl stop postgresql-10.service</code></pre>
+        </ol>
+        <ol start="3">
+            <li><a href="https://www.postgresql.org/download/linux/redhat/">Install Postgres 13</a> in a different directory than PostgreSQL 10.
+            </li>
+        </ol>
+        <ol start="4">
+            <li>Update the <code>pg_hba.conf</code> and <code>postgresql.conf</code> files as defined by steps 6–9 in the <MadCap:xref href="production-mode/production-home.htm">[%=General.DMCProductShortName%] production mode</MadCap:xref> documentation.
+            </li>
+            <li>Start PostgreSQL 13 if it is not running:
+            </li><pre><code class="language-html">systemctl start postgresql-13</code></pre>
+        </ol>
+        <ol start="6">
+            <li>Drop any databases that may exist in the PostgreSQL 13 instance because the <code>pg_upgrade</code> command will fail if the destination database has any databases. If you have other databases in the destination cluster, back up and restore them after completing the migration. Alternatively, you can use the <MadCap:xref href="#Upgrade">Upgrade for a Shared PostgreSQL 13 Cluster or Host</MadCap:xref> instructions for <code>pg_dump</code>.
+            </li>
+        </ol>
+        <ol start="7">
+            <li>Drop any users that may exist in the PostgreSQL 13 instance, except for the postgres user.
+            </li>
+        </ol>
+        <ol start="8">
+            <li>Stop PostgreSQL 13:
+            </li><pre><code class="language-html">systemctl stop postgresql-13</code></pre>
+        </ol>
+        <ol start="9">
+            <li>Switch to the PostgreSQL user:
+            </li><pre><code class="language-html">sudo su - postgres</code></pre>
+        </ol>
+        <p>The following steps require the <code>pg_upgrade</code> executable. You need to run it from the newer installation of PostgreSQL. Also, it is not recommended to use the <code>--link</code> option when calling <code>pg_upgrade</code>.</p>
+        <ol start="10">
+            <li>In the <code>/tmp</code> directory or any other directory with the PostgreSQL files to which you have write access, run the following command:
+            </li><pre xml:space="preserve"><code class="language-html">${pg13bin}/pg_upgrade --old-bindir ${pg10bin} 
+--new-bindir ${pg13bin} --old-datadir ${pg10data.toString()} 
+--new-datadir ${pg13data.toString()} --username postgres 
+--old-options '-c config_file=$pg10data/postgresql.conf' 
+--new-options '-c config_file=$pg13data/postgresql.conf</code></pre>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>/usr/pgsql-13/bin/pg_upgrade --old-bindir /usr/pgsql-10/bin/ --new-bindir /usr/pgsql-13/bin/ <br />--old-datadir /var/lib/pgsql/10/data --new-datadir /var/lib/pgsql/13/data <br />--username postgres --old-options '-c config_file=/var/lib/pgsql/10/data/postgresql.conf' <br />--new-options '-c config_file=/var/lib/pgsql/13/data/postgresql.conf'</code>
+            </p>
+        </ol>
+        <ol start="11">
+            <li>Start the PostgreSQL 13 service:
+            </li><pre><code class="language-html">systemctl start postgresql-13.service</code></pre>
+        </ol>
+        <ol start="12">
+            <li>Start all datical services:
+            </li><pre><code class="language-html">datical-control service start keycloak
+datical-control service start datical-service
+datical-control service start proxy</code></pre>
+        </ol>
+        <ol start="13">
+            <li>Confirm that the data has been copied to the PostgreSQL 13 instance and <MadCap:variable name="General.DMCProductShortName" /> has a connection to PostgreSQL:
+            </li><pre><code class="language-html">psql --host=&lt;HOSTNAME&gt; --port=5432 --username=&lt;DMC_USER&gt; --password --dbname=&lt;DB_NAME&gt;</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the migration fails, you can start the PostgreSQL 10 server by running <code>systemctl start postgresql-10.service</code> and will have all the data for PostgreSQL 10.</p>
+        </ol>
+        <ol start="14">
+            <li>Disable or delete the PostgreSQL 10 service.
+            </li>
+        </ol>
+        <h3>Upgrade for PostgreSQL on AWS RDS</h3>
+        <p>If you use <MadCap:variable name="General.DMCProductShortName" /> with PostgreSQL 10 on Amazon RDS for an existing <MadCap:variable name="General.DMC DB" /> and want to upgrade it to version 13, follow the AWS documentation – <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.PostgreSQL.html">Upgrading the PostgreSQL DB engine for Amazon RDS</a>.</p>
+    </body>
+</html>

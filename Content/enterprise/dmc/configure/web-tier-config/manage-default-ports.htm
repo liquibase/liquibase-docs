@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>Managing your default ports and HTTP protocols</h1>
+        <p>The <MadCap:variable name="General.DMCProductName" /> (<MadCap:variable name="General.DMCProductShortName" />) allows you  to manage and modify your default ports to meet your workplace protocols whenever you want. </p>
+        <h2>Uses</h2>
+        <p>Users typically manage and modify default ports when they work in an environment with IT policies that determine how traffic is handled on internal networks, and the default port setup needs to be modified to meet those needs. Users can also modify their ports when they want to have the <MadCap:variable name="General.CompanyName" /> web server listen to specific ports.</p>
+        <h2>Managing and modifying your default ports</h2>
+        <p>To manage and modify your existing ports:</p>
+        <ol>
+            <li>Open <i>cluster.properties</i> under <code>&lt;install_dir&gt;/config/</code>.</li>
+            <li>Add <code>datical.server.proxy.enabled=false</code>.</li>
+        </ol>
+        <p>Add the following settings to the <code>/opt/datical/datical-service/config/application.properties</code> file:</p>
+        <ol MadCap:continue="true">
+            <li><code>datical.server.https.port=2445</code>.</li>
+            <li><code>datical.server.https.externalPort=2445</code>.</li>
+            <li><code>datical.server.http.port=4455</code>.</li>
+            <li><code>datical.server.http.externalPort=4455</code>.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Ports 2445 and 4455 can be any unused port number on the <MadCap:variable name="General.DMCProductShortName" /> host. The maximum port number is 65535.</p>
+        <ol MadCap:continue="true">
+            <li>Restart <code>datical-proxy</code> using command <code>sudo service datical-proxy restart</code>.</li>
+            <li>Restart <code>datical-service</code> using command <code>sudo service datical-service restart</code>.</li>
+            <li>Navigate to <code>https://host_name:2445</code>.</li>
+        </ol>
+        <h2>Turning off the HTTPS Protocol</h2>
+        <p>By default, the <MadCap:variable name="General.DMCProductShortName" /> supports HTTPS protocol. Currently, If you navigate to an HTTP protocol, it will redirect to HTTPS.</p>
+        <p>To change the default and support HTTP only, complete the following steps:</p>
+        <ol>
+            <li>Create <i>application.properties</i> files under ,<code>&lt;INSTALL_DIR&gt;/datical-service/config/</code></li>
+            <li>Add the following property: <code>datical.server.https.required=false</code> to the file.</li>
+            <li>Restart the <code>datical-proxy</code> using the following command: <code>sudo service datical-proxy restart</code>.</li>
+            <li>Next, restart the <code>datical-service</code> using the following command: <code>sudo service datical-service restart</code>.</li>
+            <li>Check <code>datical-service</code> with <code>http://host_name</code>.</li>
+        </ol>
+        <h2>Enabling HTTP Options for <MadCap:variable name="General.DMCProductShortName"></MadCap:variable></h2>
+        <p>You can use the <code>HTTP OPTIONS</code> method to administer <MadCap:variable name="General.DMCProductShortName" /> and initiate a client-server connection. However, as a security precaution, the <code>HTTP OPTIONS</code> method is disabled for <MadCap:variable name="General.DMCProductShortName" /> by default. If your internal monitoring software or other tools rely on the <MadCap:variable name="General.DMCProductShortName" /> <code>HTTP OPTIONS</code> method to work with your internal systems, and you need to enable <code>HTTP OPTIONS</code>, follow these steps:</p>
+        <ol>
+            <li>On your <MadCap:variable name="General.DMCProductShortName" /> server, open or create the file: <code>&lt;DATICAL_SERVICE_INSTALL_FOLDER&gt;/datical-service/config/application.properties</code>.</li>
+            <li>Add the setting to enable the <code>HTTP OPTIONS</code> method: <code>datical.options-request-disabled=false</code> and save your changes.</li>
+            <li>Restart <code>datical-proxy</code> using the following command:</li><pre xml:space="preserve"><code class="language-text">sudo service datical-proxy restart</code></pre>
+            <li>Restart <code>datical-service</code> using the following command:</li><pre xml:space="preserve"><code class="language-text">sudo service datical-service restart</code></pre>
+            <li>Check <code>datical-service</code> with <code>http://host_name</code>.</li>
+        </ol>
+        <h2>Obtaining and Importing a Certificate Signed by a Certificate Authority</h2>
+        <p>This section covers how to use a certificate signed by a Certificate Authority to secure data transmitted between the server and the browser, which is a two step process as follows:</p>
+        <h3>Step 1: Submitting a Certificate Signing Request to the Certificate Authority</h3>
+        <p>To generate a certificate signing request:</p>
+        <ol>
+            <li>Start a terminal session on the server where <MadCap:variable name="General.DMCProductShortName" /> is installed</li>
+            <li>Run the following command:</li><pre xml:space="preserve"><code class="language-text">datical-control https generate-signing-request --output &lt;path/to/file.csr&gt;
+# Example:
+datical-control https generate-signing-request --output /tmp/certificate.csr</code></pre>
+        </ol>
+        <ol MadCap:continue="true">
+            <li>Copy the <code>certificate.csr</code> file to a system with internet access (if necessary)</li>
+            <li>Upload the CSR to the Certificate Authority used by your organization</li>
+        </ol>
+        <p>The Certificate Authority will confirm the identity of your organization and the authenticity of your request.  Once that process completes, you will be able to download a new certificate specific to your <MadCap:variable name="General.DMCProductShortName" /> server.</p>
+        <h3>Step 2: Importing the Certificate into the <MadCap:variable name="General.DMCProductShortName" /> Installation</h3>
+        <p>Once the Certificate Authority issues the certificate based on your certificate request, follow the steps below to import that certificate into your <MadCap:variable name="General.DMCProductShortName" /> installation:</p>
+        <ol>
+            <li>Download Signed Certificate in .pem or .p7b format</li>
+            <li>Copy the Signed Certificate to the server where <MadCap:variable name="General.DMCProductShortName" /> is installed</li>
+            <li>Start a terminal session on the server where <MadCap:variable name="General.DMCProductShortName" /> is installed</li>
+            <li>Import the Signed Certificate. Run the following command:</li><pre xml:space="preserve"><code class="language-text">datical-control https import-certificate --certificate &lt;path/to/file.p7b&gt;
+# Example:
+datical-control https import-certificate --certificate /tmp/certificate.p7b </code></pre>
+        </ol>
+        <h3>Related links</h3>
+        <ul>
+            <li>
+                <MadCap:xref href="hostname-ip-config.htm">Configuring  your hostname &amp; IP address</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../database-config/register-project-dmc.htm">Connecting to the [%=General.DMCProductShortName%] database</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
