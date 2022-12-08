@@ -7,13 +7,12 @@
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> with Hibernate</h1>
         <p><a href="https://hibernate.org/orm/documentation/5.5/">Hibernate</a> is an object-relational mapping (ORM) tool that can be used alongside <MadCap:variable name="General.Liquibase" /> to provide a persistent framework for a relational database.</p>
-        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project and integrating it into your Hibernate ORM setup. In this tutorial, you will learn how to install the required database drivers and configure the <code><MadCap:variable name="General.liquiPropFile" /></code> file to establish a connection to an H2 database.</p>
+        <p>The purpose of this document is to guide you through the process of creating a new <MadCap:variable name="General.Liquibase" /> project and integrating it into your Hibernate JPA setup. </p>
         <h2>Supported versions</h2>
         <ul>
-            <li><b>5.0+:</b> liquibase-hibernate5</li>
-            <li><b>4.3:</b> liquibase-hibernate4</li>
-            <li><b>4.0–4.2:</b> liquibase-hibernate4.2</li>
-            <li><b>3.X:</b> liquibase-hibernate3</li>
+            <li><b>6.x:</b> liquibase-hibernate6</li>
+            <li><b>5.x:</b> liquibase-hibernate5</li>
+
         </ul>
         <h2>Verification level</h2>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/database-verification-level-unverified.flsnp" />
@@ -23,16 +22,7 @@
         <ul>
             <li>Download and install <a href="https://maven.apache.org/download.cgi">Maven</a>.</li>
         </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"> We will refer to the location of the <MadCap:variable name="General.Liquibase" /> executable as <code>$LIQUIBASE_HOME</code> in this tutorial.</p>
-        <h2>Install drivers</h2>
-        <p>Hibernate can be used with several databases that are supported by <MadCap:variable name="General.Liquibase" />, such as H2.</p>
-        <ul>
-            <li>To use an H2 database with <MadCap:variable name="General.Liquibase" />, you must have the <a href="https://mvnrepository.com/artifact/com.h2database/h2">H2 JDBC driver JAR file</a>., which is pre-installed with <MadCap:variable name="General.Liquibase" />. For more information, see <MadCap:xref href="../../../workflows/liquibase-community/adding-and-updating-liquibase-drivers.htm">Adding and Updating [%=General.Liquibase%] Drivers</MadCap:xref>.</li>
-            <li>Download the <a href="https://github.com/liquibase/liquibase-hibernate/releases"><MadCap:variable name="General.Liquibase" /> extension for Hibernate</a> and place it in the <code>liquibase/internal/lib</code> directory.</li>
-        </ul>
-        <h2>Test your connection</h2>
-        <p>To start the H2 server included in the <MadCap:variable name="General.Liquibase" /> distribution, open the command line, go to <code>$LIQUIBASE_HOME/examples</code>, and run <code>liquibase init start-h2</code>. This opens a database console in your browser.</p>
-        <p>You can check the status of the database by entering <code>create table test_table (id int)</code> in the text area of the database console and selecting <b>Run</b>. You will see <code>TEST_TABLE</code> appear in the object view. For more information, see <MadCap:xref href="h2.html">Using [%=General.Liquibase%] with H2</MadCap:xref>.</p>
+
         <h2>Create a new <MadCap:variable name="General.Liquibase" /> project with Hibernate</h2>
         <p>We will be creating a Maven project for this tutorial. To configure a <MadCap:variable name="General.Liquibase" /> project for Hibernate, perform the following steps:</p>
         <ol>
@@ -58,115 +48,100 @@
 
 	&lt;name&gt;Liquibase Hibernate Example&lt;/name&gt;
 	&lt;description&gt;Demo project for liquibase and hibernate&lt;/description&gt;
+					
+	&lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;3.0.0&lt;/version&gt;
+        &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+    &lt;/parent&gt;
 
-		&lt;properties&gt;
-			&lt;liquibase.version&gt;4.3.5&lt;/liquibase.version&gt;
-			&lt;liquibase-hibernate5.version&gt;4.3.5&lt;/liquibase-hibernate5.version&gt;
-			&lt;javassist.version&gt;3.24.0-GA&lt;/javassist.version&gt;
-			&lt;validation-api.version&gt;2.0.1.Final&lt;/validation-api.version&gt;
-			&lt;maven.build.timestamp.format&gt;yyyyMMddHHmmss&lt;/maven.build.timestamp.format&gt;
-			&lt;spring-boot.version&gt;2.3.4.RELEASE&lt;/spring-boot.version&gt;
-			&lt;hibernate5.version&gt;5.5.3.Final&lt;/hibernate5.version&gt;
-			&lt;maven.compiler.source&gt;11&lt;/maven.compiler.source&gt;
-			&lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;
-			&lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-		&lt;/properties&gt;
+    &lt;properties&gt;
+        &lt;liquibase.version&gt;4.18.0&lt;/liquibase.version&gt;
+        &lt;liquibase-hibernate6.version&gt;4.18.0&lt;/liquibase-hibernate6.version&gt;
+        &lt;hibernate6.version&gt;6.1.5.Final&lt;/hibernate6.version&gt;
+        &lt;javassist.version&gt;3.24.0-GA&lt;/javassist.version&gt;
+        &lt;validation-api.version&gt;3.0.2&lt;/validation-api.version&gt;
+        &lt;maven.compiler.source&gt;11&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;
+        &lt;maven.build.timestamp.format&gt;yyyyMMddHHmmss&lt;/maven.build.timestamp.format&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;/properties&gt;
 
-		&lt;dependencies&gt;
-			&lt;dependency&gt;
-				&lt;groupId&gt;org.hibernate&lt;/groupId&gt;
-				&lt;artifactId&gt;hibernate-core&lt;/artifactId&gt;
-				&lt;version&gt;${hibernate5.version}&lt;/version&gt;
-			&lt;/dependency&gt;
-			&lt;dependency&gt;
-				&lt;groupId&gt;com.h2database&lt;/groupId&gt;
-				&lt;artifactId&gt;h2&lt;/artifactId&gt;
-				&lt;version&gt;1.4.200&lt;/version&gt;
-			&lt;/dependency&gt;
-		&lt;/dependencies&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.hibernate.orm&lt;/groupId&gt;
+            &lt;artifactId&gt;hibernate-core&lt;/artifactId&gt;
+            &lt;version&gt;${hibernate6.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.h2database&lt;/groupId&gt;
+            &lt;artifactId&gt;h2&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
 
-	&lt;build&gt;
-		&lt;plugins&gt;
-			&lt;plugin&gt;
-				&lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
-				&lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
-				&lt;version&gt;3.0.0&lt;/version&gt;
-				&lt;configuration&gt;
-					&lt;executable&gt;java&lt;/executable&gt;
-					&lt;arguments&gt;
-						&lt;argument&gt;-classpath&lt;/argument&gt;
-						&lt;classpath/&gt;
-						&lt;argument&gt;com.liquibase.Application&lt;/argument&gt;
-					&lt;/arguments&gt;
-				&lt;/configuration&gt;
-			&lt;/plugin&gt;
-			&lt;plugin&gt;
-				&lt;groupId&gt;org.liquibase&lt;/groupId&gt;
-				&lt;artifactId&gt;liquibase-maven-plugin&lt;/artifactId&gt;
-				&lt;version&gt;${liquibase.version}&lt;/version&gt;
-				&lt;configuration&gt;
-					&lt;changelog-file&gt;${project.basedir}/src/main/resources/config/liquibase/master.xml&lt;/changelog-file&gt;
-					&lt;outputChangeLogFile&gt;dbchangelog.xml&lt;/outputChangeLogFile&gt;
-					&lt;diffChangeLogFile&gt;${project.basedir}/src/main/resources/db/migrations/${maven.build.timestamp}_changelog.xml&lt;/diffChangeLogFile&gt;                   
-					&lt;propertyFile&gt;liquibase.properties&lt;/propertyFile&gt;
-					&lt;logging&gt;debug&lt;/logging&gt;
-					&lt;contexts&gt;!test&lt;/contexts&gt;
-				&lt;/configuration&gt;
-				&lt;dependencies&gt;
-					&lt;dependency&gt;
-						&lt;groupId&gt;org.liquibase&lt;/groupId&gt;
-						&lt;artifactId&gt;liquibase-core&lt;/artifactId&gt;
-						&lt;version&gt;${liquibase.version}&lt;/version&gt;
-					&lt;/dependency&gt;
-					&lt;dependency&gt;
-						&lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
-						&lt;artifactId&gt;liquibase-hibernate5&lt;/artifactId&gt;
-						&lt;version&gt;${liquibase-hibernate5.version}&lt;/version&gt;
-					&lt;/dependency&gt;
-					&lt;dependency&gt;
-						&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-						&lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
-					&lt;version&gt;${spring-boot.version}&lt;/version&gt; 
-				 &lt;/dependency&gt;
-					&lt;dependency&gt; 
-						&lt;groupId&gt;javax.validation&lt;/groupId&gt;
-						&lt;artifactId&gt;validation-api&lt;/artifactId&gt;  
-						&lt;version&gt;${validation-api.version}&lt;/version&gt; 
-					&lt;/dependency&gt;
-					&lt;dependency&gt;
- 						&lt;groupId&gt;org.javassist&lt;/groupId&gt;
-						&lt;artifactId&gt;javassist&lt;/artifactId&gt;
-						&lt;version&gt;${javassist.version}&lt;/version&gt;
-					&lt;/dependency&gt;
-				&lt;/dependencies&gt;
-			&lt;/plugin&gt;
-		&lt;/plugins&gt;
-	&lt;/build&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+                &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;3.0.0&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;executable&gt;java&lt;/executable&gt;
+                    &lt;arguments&gt;
+                        &lt;argument&gt;-classpath&lt;/argument&gt;
+                        &lt;classpath/&gt;
+                        &lt;argument&gt;com.liquibase.Application&lt;/argument&gt;
+                    &lt;/arguments&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+                &lt;artifactId&gt;liquibase-maven-plugin&lt;/artifactId&gt;
+                &lt;version&gt;${liquibase.version}&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;changeLogFile&gt;master.xml&lt;/changeLogFile&gt;
+                    &lt;outputChangeLogFile&gt;dbchangelog.xml&lt;/outputChangeLogFile&gt;
+                    &lt;diffChangeLogFile&gt;
+                        ${project.basedir}/src/main/resources/db/migrations/${maven.build.timestamp}_changelog.xml
+                    &lt;/diffChangeLogFile&gt;
+                    &lt;propertyFile&gt;src/main/resources/spring.properties&lt;/propertyFile&gt;
+                    &lt;logging&gt;debug&lt;/logging&gt;
+                &lt;/configuration&gt;
+                &lt;dependencies&gt;
+                    &lt;dependency&gt;
+                        &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+                        &lt;artifactId&gt;liquibase-core&lt;/artifactId&gt;
+                        &lt;version&gt;${liquibase.version}&lt;/version&gt;
+                    &lt;/dependency&gt;
+                    &lt;dependency&gt;
+                        &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+                        &lt;artifactId&gt;liquibase-hibernate6&lt;/artifactId&gt;
+                        &lt;version&gt;${liquibase-hibernate6.version}&lt;/version&gt;
+                    &lt;/dependency&gt;
+                    &lt;dependency&gt;
+                        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                        &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+                        &lt;version&gt;3.0.0&lt;/version&gt;
+                    &lt;/dependency&gt;
+                    &lt;dependency&gt;
+                        &lt;groupId&gt;jakarta.validation&lt;/groupId&gt;
+                        &lt;artifactId&gt;jakarta.validation-api&lt;/artifactId&gt;
+                        &lt;version&gt;${validation-api.version}&lt;/version&gt;
+                    &lt;/dependency&gt;
+                    &lt;dependency&gt;
+                        &lt;groupId&gt;org.javassist&lt;/groupId&gt;
+                        &lt;artifactId&gt;javassist&lt;/artifactId&gt;
+                        &lt;version&gt;${javassist.version}&lt;/version&gt;
+                    &lt;/dependency&gt;
+                &lt;/dependencies&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
 &lt;/project&gt;</code></pre>
                 </MadCap:dropDownBody>
             </MadCap:dropDown>
-            <li>Get the additional dependencies by running the following command from the same directory as the <code>pom.xml</code> file:</li><pre><code class="language-text">mvn dependency:copy-dependencies -DoutputDirectory=${project.build.directory}/lib -Dhttps.protocols=TLSv1.2</code></pre>
-            <p>Copy the following jars from <code>./target/lib to $LIQUIBASE_HOME/lib</code>:</p>
-            <ul>
-                <li><code>byte-buddy-1.10.10.jar</code>
-                </li>
-                <li><code>classmate-1.5.1.jar</code>
-                </li>
-                <li><code>dom4j-2.1.3.jar</code>
-                </li>
-                <li><code>hibernate-commons-annotations-5.1.0.Final.jar</code>
-                </li>
-                <li><code>hibernate-core-5.4.21.Final.jar</code>
-                </li>
-                <li><code>jandex-2.1.3.Final.jar</code>
-                </li>
-                <li><code>javax.persistence-api-2.2.jar</code>
-                </li>
-                <li><code>jboss-logging-3.3.2.Final.jar</code>
-                </li>
-                <li><code>jboss-transaction-api_1.2_spec-1.1.1.Final.jar</code>
-                </li>
-            </ul>
+
             <li>Create a JPA configuration file at <code>META-INF/persistence.xml</code>. The <code>persistence.xml</code> file should contain the following content:</li>
             <MadCap:dropDown>
                 <MadCap:dropDownHead>
@@ -177,12 +152,12 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd" version="2.0"&gt;
 	&lt;persistence-unit name="com.liquibase.hibernate.tutorial.jpa" transaction-type="RESOURCE_LOCAL"&gt;
 		&lt;properties&gt;
-			&lt;property name="javax.persistence.schema-generation.database.action" value="none" /&gt;
-			&lt;property name="javax.persistence.provider" value="org.hibernate.jpa.HibernatePersistenceProvider" /&gt;
-			&lt;property name="javax.persistence.jdbc.driver" value="org.h2.Driver" /&gt;
-			&lt;property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost:9090/mem:dev" /&gt;
-			&lt;property name="javax.persistence.jdbc.user" value="dbuser" /&gt;
-			&lt;property name="javax.persistence.jdbc.password" value="letmein" /&gt;
+			&lt;property name="jakarta.persistence.schema-generation.database.action" value="none" /&gt;
+			&lt;property name="jakarta.persistence.provider" value="org.hibernate.jpa.HibernatePersistenceProvider" /&gt;
+			&lt;property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" /&gt;
+			&lt;property name="jakarta.persistence.jdbc.url" value="jdbc:h2:file:~/test" /&gt;
+			&lt;property name="jakarta.persistence.jdbc.user" value="dbuser" /&gt;
+			&lt;property name="jakarta.persistence.jdbc.password" value="letmein" /&gt;
 			&lt;property name="hibernate.connection.handling_mode" value="delayed_acquisition_and_release_after_transaction" /&gt;
 		&lt;/properties&gt;
 	&lt;/persistence-unit&gt;
@@ -198,7 +173,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
                 <MadCap:dropDownBody><pre><code class="language-java">package com.liquibase;
 	
 	import java.io.Serializable;
-	import javax.persistence.*;
+	import jakarta.persistence.*;
 	@Entity
 	public class House implements Serializable {
 		private static final long serialVersionUID = 1L;
@@ -244,7 +219,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
                 <MadCap:dropDownBody><pre><code class="language-java">package com.liquibase;
     
     import java.io.Serializable;
-    import javax.persistence.*;
+    import jakarta.persistence.*;
     @Entity
     public class Item implements Serializable {
     	private static final long serialVersionUID = 1L;
@@ -282,11 +257,20 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http:/
 	}</code></pre>
                 </MadCap:dropDownBody>
             </MadCap:dropDown>
-            <li>If you haven't already, first install the application using the <code>mvnw install</code> command, or <code>mvnw.cmd install</code> for Windows. The generated JAR is what is referenced in the <code><MadCap:variable name="General.liquiPropFile" /></code> file:</li><pre><code class="language-text">classpath=target\\hibernate-liquibase-0.0.1-SNAPSHOT.jar</code></pre>
-            <li>Next, generate a <code>dbchangelog.xml</code> file from Hibernate in your project folder:</li><pre xml:space="preserve"><code class="language-text">liquibase --log-level=INFO --defaultsFile=src/main/resources/<MadCap:variable name="General.liquiPropFile" /> generate-changelog</code></pre>
-            <li>Verify the project configuration by running the <MadCap:variable name="General.Liquibase" /> <code>status</code> command. Open a command prompt and go to the project folder.  Run the following command: </li><pre xml:space="preserve"><code class="language-text">liquibase --log-level=INFO --defaultsFile=src/main/resources/<MadCap:variable name="General.liquiPropFile" /> status</code></pre>
-            <h3>Example output</h3><pre><code class="language-text">Liquibase command 'status' was executed successfully.</code></pre>
+            <li>Install the application using the <code>mvnw install</code> command, or <code>mvnw.cmd install</code> for Windows.</li>
+            <li> The generated JAR is what is referenced in the <code><MadCap:variable name="General.liquiPropFile" /></code> file: <code class="language-text">classpath=target\\hibernate-liquibase-0.0.1-SNAPSHOT.jar</code></li>
+            <li>Next, generate a <code>dbchangelog.xml</code> file from Hibernate in your project folder:</li>
+            <pre xml:space="preserve"><code class="language-text"><MadCap:variable name="General.liquiPropFile" />mvn liquibase:diff</code></pre>
+            <li>A file will be generated at src/main/resources/db/migrations/20221208174852_changelog.xml .
+                You can move and rename it to src/main/resources/dbchangelog.xml, then run <code>mvn install</code> again. </code></li>
+            <li>Verify the project configuration by running the <MadCap:variable name="General.Liquibase" /> <code>status</code> command. Open a command prompt and go to the project folder.  Run the following command: </li>
+            <pre xml:space="preserve"><code class="language-text"><MadCap:variable name="General.liquiPropFile" />mvn liquibase:status</code></pre>
+            <pre xml:space="preserve"><code class="language-text">Example output:</code></pre>
+            <pre xml:space="preserve"><code class="language-text">5 changesets have not been applied to DBUSER@jdbc:h2:file:~/test</code></pre>
+            <li>Now apply the changeset using the command</li>
+            <pre xml:space="preserve"><code class="language-text">mvn liquibase:update</code></pre>
             <li>From a database UI tool, ensure that your database contains the table you added along with the <MadCap:xref href="../../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</li>
+            <li>You can run the application using command <code>mvn exec:exec</code> and it shall work successfully.</li>
         </ol>
         <h2>Congratulations!</h2>
         <p>You have successfully configured your project and can begin creating <MadCap:variable name="General.changeset" />s to migrate changes to your database using Hibernate.</p>
