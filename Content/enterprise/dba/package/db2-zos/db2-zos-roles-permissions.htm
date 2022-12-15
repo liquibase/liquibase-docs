@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+	<head><title><MadCap:variable name="Heading.Level1" /> | Enterprise Docs</title>
+		<meta rel="canonical" href="https://docs.liquibase.com/enterprise/dba/package/db2-zos/db2-zos-roles-permissions.html" />
+		<meta name="description" content="Learn about DB2 on zOS roles and permissions." />
+	</head>
+    <body>
+        <h1>DB2 on zOS Roles and Permissions for <MadCap:variable name="General.LBEnterprise" /></h1>
+        <p>See <MadCap:xref href="../../../devops/db-release-pipelines/overview-db-used/users-roles-passwords.htm">Database Users, Roles, and Passwords</MadCap:xref> for a general discussion of database setup for <MadCap:variable name="General.LBEnterprise" />.</p>
+        <h2>Role-Based Privileges for Service User</h2>
+        <p><MadCap:variable name="General.LBEnterprise" /> does not require special privileges above and beyond what is required to create, alter, and drop the most common database object types that support your database applications. There are two common implementation patterns for configuring <MadCap:variable name="General.LBEnterprise" /> access schemes in DB2: granting privileges to the <MadCap:variable name="General.LBEnterprise" /> Role and granting privileges to a single <MadCap:variable name="General.LBEnterprise" /> User.</p>
+        <h2>Granting Privileges to a <MadCap:variable name="General.LBEnterprise" /> Role</h2>
+        <p>Granting privileges to a <MadCap:variable name="General.LBEnterprise" /> Role is typically chosen in environments where individual team members will use unique credentials to access the database through <MadCap:variable name="General.LBEnterprise" />.  This simplifies the privilege management process by centralizing where GRANTS &amp; REVOKES are performed.  The role is then assigned to the user accounts that require database access with <MadCap:variable name="General.LBEnterprise" />.</p>
+        <h2>Granting Privileges to a Dedicated <MadCap:variable name="General.LBEnterprise" /> User (Service User)</h2>
+        <p>Granting privileges to a dedicated <MadCap:variable name="General.LBEnterprise" /> User allows an organization to drastically reduce the number of individuals with access to the database password.  Because the database password is encoded in <MadCap:variable name="General.LBEnterprise" />, an administrator may create <MadCap:variable name="General.LBEnterprise" /> projects and share them with <MadCap:variable name="General.LBEnterprise" /> users.  The <MadCap:variable name="General.LBEnterprise" /> users can then perform database change tasks without having access to the database password.</p>
+        <h2>Privileges for Managed Databases</h2>
+        <p>To validate and automate database deployments <MadCap:variable name="General.LBEnterprise" /> needs to be able to connect to a database and to perform routine CREATE, ALTER, &amp; DROP statements in the appropriate schema.</p>
+        <ul>
+            <li><b>Database Privileges</b>
+            </li>
+            <ul>
+                <li>CONNECT</li>
+                <li>Grants the authority to access the database.</li>
+            </ul>
+            <li><b>Schema Privileges</b> (use <b>“with grant option”</b> if user/role needs to grant permissions to other users/roles)</li>
+            <ul>
+                <li>CREATEIN</li>
+                <ul>
+                    <li>Grants the privilege to create objects in the schema. Other authorities or privileges required to create the object (such as CREATETAB) are still required. The owner of an explicitly created schema automatically receives CREATEIN privilege. An implicitly created schema has CREATEIN privilege automatically granted to PUBLIC.</li>
+                </ul>
+                <li>ALTERIN</li>
+                <ul>
+                    <li>Grants the privilege to alter or comment on all objects in the schema. The owner of an explicitly created schema automatically receives ALTERIN privilege.</li>
+                </ul>
+                <li>DROPIN</li>
+                <ul>
+                    <li>Grants the privilege to drop all objects in the schema. The owner of an explicitly created schema automatically receives DROPIN privilege.</li>
+                </ul>
+                <li>WITH GRANT OPTION (so the user can grant permissions to other users/roles)</li>
+                <ul>
+                    <li>Allows the specified authorization-names to GRANT privileges to others.</li>
+                    <ul>
+                        <li>Schema level CREATEIN, ALTERIN, DROPIN With Grant Option must be granted to the user for the schema. This will ensure the user has the privilege to grant permissions for any <b>newly created objects</b>.</li>
+                        <li><b>To manage permissions for existing objects</b>, the following privileges must be granted <a href="https://www.ibm.com/support/knowledgecenter/en/SSEPGG_9.5.0/com.ibm.db2.luw.sql.ref.doc/doc/r0000966.html">Learn more here</a></li>
+                        <ul>
+                            <li>Object level CREATEIN, ALTERIN, DROPIN With Grant Option must be granted to the user for the appropriate objects on the database, or</li>
+                            <li>Object level CONTROL privilege must be granted to the user for the appropriate objects on the database</li>
+                        </ul>
+                    </ul>
+                </ul>
+            </ul>
+            <li><b>Data Privileges</b>
+            </li>
+            <ul>
+                <li><a href="https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.1.0/com.ibm.db2.luw.admin.sec.doc/doc/c0053934.html">DATAACCESS </a>
+                </li>
+                <ul>
+                    <li>Access and update data in user tables, views, and materialized query tables in a DB2 subsystem</li>
+                    <li>Execute plans, packages, functions, and procedures.</li>
+                    <li>Select privilege on all system catalog tables and views.</li>
+                </ul>
+            </ul>
+            <li><b>Tablespace Access</b>
+            </li>
+            <ul>
+                <li>GRANT USE OF TABLESPACE &lt;tablespace_name&gt; TO ROLE &lt;role_name&gt;</li>
+                <ul>
+                    <li>Provides access to the desired tablespace</li>
+                </ul>
+            </ul>
+        </ul>
+        <h2>Privileges for the REF Database</h2>
+        <p>You must have SYSADM, SYSCTRL, or SYSMAINT authority to use the backup utility which is required by the Datical Packager.</p>
+        <p>This permission is only needed on user accounts involved in packaging changes in the REF databases. It is not needed in any of the other databases in the environment.</p>
+        <p>Permissions needed to perform GRANTS</p>
+        <p>To perform grants - if you don't use the "WITH GRANT OPTIONS" on CREATEIN/ALTERIN/DROPIN or grant CONTROL, you will also need to grant ACCESSCTRL <a href="https://www.ibm.com/docs/en/db2/10.1.0?topic=authorities-access-control-authority-accessctrl">as documented here</a>.</p>
+        <h2>Example: Creating a Role to Contain Privileges</h2>
+        <p>In the following example you create the DATDB_ROLE, and grant privileges to it, then grant the DATDB_ROLE to user DATDB_USER.</p><pre>		
+		-- Create the role ‘DATDB_ROLE’ and grant the ‘CONNECT’ privilege for the DB to be managed
+		CREATE ROLE DATDB_ROLE
+		GRANT CONNECT ON DATABASE TO ROLE DATDB_ROLE
+			
+		-- Grant ‘ALTERIN’,’CREATEIN’ &amp; ‘DROPIN’ privileges to ‘DATDB_ROLE’ for the desired schema
+		--
+		-- “with grant option” can be optionally added to the following statements if the role needs
+		-- to grant permissions to other users/roles
+		GRANT ALTERIN ON SCHEMA MYAPPSCHEMA TO ROLE DATDB_ROLE WITH GRANT OPTION
+		GRANT CREATEIN ON SCHEMA MYAPPSCHEMA TO ROLE DATDB_ROLE WITH GRANT OPTION
+		GRANT DROPIN ON SCHEMA MYAPPSCHEMA TO ROLE DATDB_ROLE WITH GRANT OPTION
+		
+		-- To be able to grant permissions to existing objects, you will need to either
+		--   Provide object level CREATEIN, ALTERIN, DROPIN With Grant Option privileges, or
+		--   Provide object level CONTROL privilege
+		-- to the DATDB_ROLE
+		GRANT ALTERIN, CREATEIN, DROPIN ON TABLE1 TO ROLE DATDB_ROLE WITH GRANT OPTION
+		--GRANT CONTROL ON TABLE1 TO ROLE DATDB_ROLE WITH GRANT OPTION
+			
+		-- Grant data access on a database to a specific role
+		GRANT DATAACCESS ON DATABASE TO ROLE DATDB_ROLE
+			
+		-- Grant tablespace access to role
+		GRANT USE OF TABLESPACE &lt;tablespace_name&gt; TO ROLE DATDB_ROLE
+			
+		-- Grant the role ‘DATDB_ROLE’ to user ‘DATDB_USER’
+		GRANT ROLE DATDB_ROLE TO USER DATDB_USER</pre>
+        <h2>Example: Granting Privileges Directly to a User</h2>
+        <p>In this example you create user DATDB_USER and grant privileges directly to the user.</p><pre>
+-- Grant the ‘CONNECT’ privilege for the DB to be managed
+GRANT CONNECT ON DATABASE TO USER DATDB_USER
+		
+-- Grant ‘ALTERIN’,’CREATEIN’ &amp; ‘DROPIN’ privileges to ‘DATDB_ROLE’ for the desired schema
+-- “with grant option” can be optionally added to the following statements if the user needs
+-- to grant permissions to other users/roles
+GRANT ALTERIN ON SCHEMA MYAPPSCHEMA TO USER DATDB_USER WITH GRANT OPTION
+GRANT CREATEIN ON SCHEMA MYAPPSCHEMA TO USER DATDB_USER WITH GRANT OPTION
+GRANT DROPIN ON SCHEMA MYAPPSCHEMA TO USER DATDB_USER WITH GRANT OPTION
+		
+-- To be able to grant permissions to existing objects, you will need to either
+--   Provide object level CREATEIN, ALTERIN, DROPIN With Grant Option privileges, or
+--   Provide object level CONTROL privilege
+-- to the DATDB_USER
+GRANT ALTERIN, CREATEIN, DROPIN ON TABLE1 TO ROLE DATDB_USER WITH GRANT OPTION
+--GRANT CONTROL ON TABLE1 TO ROLE DATDB_USER WITH GRANT OPTION
+
+-- Grant data access on a database to a specific role
+GRANT DATAACCESS ON DATABASE TO USER DATDB_USER
+
+-- Grant tablespace access to role
+GRANT USE OF TABLESPACE &lt;tablespace_name&gt; TO USER DATDB_USER</pre>
+        <h2>Example: Viewing User Permissions</h2>
+        <p>The following example shows two ways to view privileges for user DATDB_USER.</p><pre>
+-- Retrieve database permissions for user DATDB_USER
+select * from SYSCAT.DBAUTH  where GRANTEE = 'DATDB_USER'
+		
+-- Retrieve privilege granted to DATDB_USER along with the object name, schema, and type
+SELECT * FROM SYSIBMADM.PRIVILEGES WHERE AUTHIDTYPE = 'U' AND AUTHID = 'DATDB_USER'</pre>
+    </body>
+</html>
