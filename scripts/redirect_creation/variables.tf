@@ -1,6 +1,9 @@
 # REDIRECT STORAGE FOR docs.liquibase.com: specifies redirect sources/destinations for all pagemoves and renames
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
 
+variable "datical_access_key" {}
+variable "datical_secret_key" {}
+
 # stage is a required variable which determines the cdn origin bucket redirects are placed into
 variable "stage" {}
 
