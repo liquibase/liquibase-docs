@@ -2,7 +2,7 @@
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
 
 # stage is a required variable which determines the cdn origin bucket redirects are placed into
-# variable "stage" {}
+variable "stage" {}
 
 # map of redirects
 variable "redirects" {
