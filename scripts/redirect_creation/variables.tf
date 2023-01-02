@@ -16,7 +16,7 @@ variable "redirects" {
     "/2014/11/faq.html"                                                                                        = "/faq.html"
     "/2014/11/home.html"                                                                                       = "/home.html"
     "/2014/11/popular-topics.html"                                                                             = "/popular-topics.html"
-    "/andretest.html"											       = "/faq.html"
+    "/andretest.html"											       = "/popular-topics.html"
     "/change-types/community/add-auto-increment.html"                                                          = "/change-types/add-auto-increment.html"
     "/change-types/community/add-column.html"                                                                  = "/change-types/add-column.html"
     "/change-types/community/add-default-value.html"                                                           = "/change-types/add-default-value.html"
