@@ -23,6 +23,13 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: create Terraform Tfvars
+        id: tfvars
+        run: |
+          cat << EOF > terraform.auto.tfvars
+            stage                 = "staging"
+          EOF
+
       - name: Terraform Format
         id: fmt
         run: terraform fmt
@@ -38,8 +45,6 @@ jobs:
       - name: Terraform Plan
         if: github.event_name == 'push'
         id: plan
-        env:
-          TF_VAR_stage: "staging"
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -48,7 +53,5 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
-        env:
-          TF_VAR_stage: "staging"
         run: terraform apply -auto-approve
 
