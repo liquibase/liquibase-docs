@@ -144,16 +144,24 @@ primarily used when you need to change a <MadCap:variable name="General.changese
         <h2 id="changeset-check-sums"><MadCap:variable name="General.changeset" /> checksums</h2>
         <p>When <MadCap:variable name="General.Liquibase" /> reaches a <MadCap:variable name="General.changeset" />, it computes a checksum and stores it in the <MadCap:variable name="General.databasechangelog" /> table. The value of storing the checksum for <MadCap:variable name="General.Liquibase" /> is to know if 
 something has been changed  in the <MadCap:variable name="General.changeset" /> since it was run.</p>
-        <p>If the <MadCap:variable name="General.changeset" /> has been changed since it was run, <MadCap:variable name="General.Liquibase" /> will exit the migration with an error message like
-<code class="highlighter-rouge">Validation failed: change set check sums &lt;changeset identifer&gt; was: &lt;old checksum&gt; but is now: &lt;newchecksum&gt;</code>. This is because <MadCap:variable name="General.Liquibase" /> cannot identify what was changed and the 
+        <p>If the <MadCap:variable name="General.changeset" /> has been changed since it was run, <MadCap:variable name="General.Liquibase" /> will exit the migration with an error message like:</p><pre xml:space="preserve"><code class="language-text">Validation Failed:
+ 1 change sets check sum
+com/example/changelog.xml::1::example was: 8:63f82d4ff1b9dfa113739b7f362bd37d but is now: 8:b4fd16a20425fe377b00d81df722d604</code></pre>
+        <p>In this example, <code>com/example/changelog.xml::1::example</code> is the <MadCap:variable name="General.changeset" /> identifier, <code>8:63f…</code> is the old checksum, and <code>8:b4f…</code> is the new checksum.</p>
+        <p>This message displays because <MadCap:variable name="General.Liquibase" /> cannot identify what was changed and the 
 database may be in a state different than what the <MadCap:variable name="General.changelog" /> is expecting. If there was a valid reason for the <MadCap:variable name="General.changeset" /> to be changed and you want to ignore this error, there are two options.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can also use the <MadCap:xref href="../../commands/maintenance/clear-checksums.htm">clear-checksums</MadCap:xref> command to resolve the checksum error, however, it will clear the entire column of checksums in your <MadCap:variable name="General.databasechangelog" /> table.</p>
-        <h3>The manual update of the <MadCap:variable name="General.databasechangelog" /> table</h3>
+        <h3>Manual update of the <MadCap:variable name="General.databasechangelog" /> table</h3>
         <p>The first option is to manually update the <MadCap:variable name="General.databasechangelog" /> table so that the row with the corresponding <code>id/author/filepath</code> has a null value for the checksum. You would 
 need to do this for all environments where the <MadCap:variable name="General.changeset" /> has been deployed. The next time you run the <MadCap:variable name="General.Liquibase" /> <code>update</code> command, it will update the checksum value to the new correct value.</p>
-        <h3>The <code class="highlighter-rouge">&lt;validCheckSum&gt;</code> <MadCap:variable name="General.Param/Attribute" /></h3>
-        <p>The second option is to add a <code class="highlighter-rouge">&lt;validCheckSum&gt;</code> element to the <MadCap:variable name="General.changeset" />. The text contents of the element should contain the old checksum from the error message.</p>
-        <h3>The runOnChange <MadCap:variable name="General.Param/Attribute" /></h3>
+        <h3><code class="highlighter-rouge">&lt;validCheckSum&gt;</code>&#160;<MadCap:variable name="General.Param/Attribute" /></h3>
+        <p>The second option is to add a <code class="highlighter-rouge">&lt;validCheckSum&gt;</code> element to the <MadCap:variable name="General.changeset" />. The text contents of the element should contain the new checksum from the error message. For example:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet id="1" author="example"&gt;
+    &lt;validCheckSum&gt;8:b4fd16a20425fe377b00d81df722d604&lt;/validCheckSum&gt;
+    &lt;addColumn tableName="my_table"&gt;
+        &lt;column name="my_column" type="BIGINT"/&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;</code></pre>
+        <h3><code>runOnChange</code>&#160;<MadCap:variable name="General.Param/Attribute" /></h3>
         <p>Checksums are also used in conjunction with the <code>runOnChange</code> <MadCap:variable name="General.changeset" /> <MadCap:variable name="General.Param/Attribute" />. There are times you may not want to add a new <MadCap:variable name="General.changeset" /> because you only need to know 
 about the current version, but you want this change to be applied whenever it is updated. For example, you can do this with stored procedures.</p>
         <p>If you copy the entire 
@@ -164,6 +172,8 @@ when there is a change to the text of it.</p>
         <h2>Related links</h2>
         <ul>
             <li><a href="https://www.liquibase.org/blog/dealing-with-changing-changesets">Dealing with Changing Changesets</a>
+            </li>
+            <li><a href="https://www.liquibase.com/blog/what-affects-changeset-checksums">All About Changeset Checksums</a>
             </li>
         </ul>
     </body>
