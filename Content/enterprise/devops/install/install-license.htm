@@ -10,7 +10,7 @@
         <p>Follow these steps to install or reinstate a license successfully.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you need to reinstate the license, don’t uninstall it. Instead, follow the same steps  for installing the license.</p>
         <h3>Install a License from the GUI</h3>
-        <p>All screenshots are from a Linux OS environment but will still work for Windows </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">All screenshots are from a Linux OS environment but will still work for Windows.</p>
         <ol>
             <li>Obtain a license file from <MadCap:variable name="General.DaticalDB"></MadCap:variable> Support and place it on the system where you are running an instance of <MadCap:variable name="General.DaticalDB"></MadCap:variable>.</li>
             <li>Open the Liquibase Enterprise GUI application.<ul><li><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is important to know that if upon start, <MadCap:variable name="General.LBEnterprise" /> does not have a license installed, a warning dialog will appear. You cannot connect to databases until the license is installed. <br /><br /><img src="../../../Z_Resources/Images/enterprise/install-license/warning-dialog.jpg" class="thumbnail" /><br /></p></li><li><p>Click <b>OK</b>&#160;to dismiss the warning and begin the install process within the GUI.</p></li></ul></li>
@@ -22,11 +22,10 @@
             <li>Click <b>Finish</b> to finish the installation process.<br />The license is successfully installed.</li>
         </ol>
         <h2>Display license and license properties in the GUI</h2>
-        <p>Follow these steps to find your license and license properties.</p>
+        <p>Follow these steps to find your license and license properties. The license properties include, the license key install date, expiration date, and more details about the license.</p>
         <ol>
             <li>Open the Liquibase Enterprise GUI application.</li>
-            <li>Click <b>File</b> in top left corner.</li>
-            <li>Click <b>License Manager</b>.</li>
+            <li>Select <b>File &gt;&#160;License Manager</b> in top left corner.</li>
             <li>Select the type of license you have and click <b>OK</b>.<br /><img src="../../../Z_Resources/Images/enterprise/install-license/install-license-type.png" class="thumbnail" /><br /></li>
             <li>In the popup dialog, select <b>Display the installed license key</b> and click <b>Next</b>.<br /><img src="../../../Z_Resources/Images/enterprise/install-license/display-license.png" class="thumbnail" /><br /></li>
             <li>Your license properties will appear successfully. <br /><img src="../../../Z_Resources/Images/enterprise/install-license/license-properties.png" class="thumbnail" /><br /></li>
@@ -42,6 +41,64 @@
             <li>In the popup dialog, select <b>Uninstall the installed license key</b> and click <b>Next</b>.<br /><img src="../../../Z_Resources/Images/enterprise/install-license/uninstall-license-radio.png" class="thumbnail" /><br /></li>
             <li>Click <b>Uninstall license key</b>.<br /><img src="../../../Z_Resources/Images/enterprise/install-license/uninstall-license-button.png" class="thumbnail" /><br /></li>
             <li>Click <b>Finish</b> to close the license management dialog.<br />The license is successfully uninstalled.</li>
+        </ol>
+        <h2>Install a License with the Command Line (CLI)</h2>
+        <p>If you have the repl subdirectory of your <MadCap:variable name="General.DaticalDB"></MadCap:variable> installation on your path, you can run these hammer commands from any directory. Or if you don't have it in your path, then you need to be in your "&lt;<MadCap:variable name="General.DaticalDB"></MadCap:variable> Installation&gt;/repl" directory to run these commands from the command line:</p>
+        <p>Before installing your new license, you should uninstall all older licenses:</p>
+        <p><code>hammer uninstallLicense</code>
+        </p>
+        <p>The uninstall command will uninstall all of your <MadCap:variable name="General.DaticalDB"></MadCap:variable> licenses.</p>
+        <p>Copy the new license file to the location where you keep your license files.</p>
+        <p>Run the following command to install your new license:</p>
+        <p><code>hammer installLicense &lt;path_to_license_file&gt;</code>
+        </p>
+        <p>For example:</p>
+        <p><code>hammer installLicense /opt/datical/license/&lt;CompanyName&gt;-&lt;ExpirationDate&gt;.lic</code>
+        </p>
+        <p>To check what license is currently installed run the following command:</p>
+        <p><code>hammer show license</code>
+        </p>
+        <h2>Counting Licensed Objects</h2>
+        <p><MadCap:variable name="General.DaticalDB"></MadCap:variable> is licensed by the number of DbDefs managed in a database object. The object licensed depends on the type of database.</p>
+        <ul>
+            <li>Oracle - per instance</li>
+            <li>SQL Server - per database</li>
+            <li>EDB Postgres - per database</li>
+            <li>DB2 LUW - per database</li>
+        </ul>
+        <p>License counting is a routine part of verifying the number of database connections (DbDefs) that you are managing, compared to the number that you are licensed to manage.</p>
+        <p>The license counter reports on the projects that are installed on a host by inspecting the project files.</p>
+        <p>When you run the license counter, specify a starting directory. It walks the file system from that point down and reports on all project files that are found in the hierarchy.</p>
+        <p>To count licenses, do the following:</p>
+        <ol>
+            <li>Log on to a host where you have created <MadCap:variable name="General.DaticalDB" /> projects.</li>
+            <li>
+                <p>Run the license counter. The output goes to <code>stdout</code>, so provide a redirection to a file.</p><pre class="syntaxhighlighter-pre" xml:space="preserve">Linux:   hammer licenseCounter ~/datical &gt; DaticalLicenseCount.txt
+
+Windows: hammer.bat licenseCounter C:\Datical\Projects &gt; DaticalLicenseCount.txt</pre>
+            </li>
+            <li>
+                <p>Inspect the license file to determine the number of licenses in use on the host. The following example shows the format of the report.</p><pre class="syntaxhighlighter-pre" xml:space="preserve">DB2:
+jdbc:db2://192.168.156.21:50000/int_db
+jdbc:db2://ec2-35-175-43-211.compute-1.amazonaws.com:50000/REFDB
+Total Unique DB2 Databases: 2
+Oracle:
+jdbc:oracle:thin:@localhost:1523/orclsid
+jdbc:oracle:thin:@192.168.156.21:1521/orcl
+jdbc:oracle:thin:@localhost:1521/orcl.shusak.com
+jdbc:oracle:thin:@localhost:1523:orclsid
+jdbc:oracle:thin:@localhost:1521:orcl
+jdbc:oracle:thin:@localhost:1521/orcl
+Total Unique Oracle Databases: 6
+MSSQL:
+jdbc:sqlserver://localhost\MSSQLEXPRESS:1433;databaseName=AdventureWorks2014
+jdbc:sqlserver://localhost\SQLEXPRESS:49818;databaseName=mydb2
+jdbc:sqlserver://localhost\SQLEXPRESS:49818;databaseName=mydb
+Total Unique MSSQL Instances: 2
+Total Unique MSSQL Databases: 3
+Total Instances Managed: 10
+Total Databases Managed: 11</pre>
+            </li>
         </ol>
     </body>
 </html>
