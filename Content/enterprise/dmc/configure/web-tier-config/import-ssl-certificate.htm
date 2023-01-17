@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/dmc/configure/web-tier-config/manage-default-ports.html" />
+        <meta name="description" content="The DMC allows you to manage and modify your default ports to meet your workplace protocols whenever you want." />
+    </head>
+    <body>
+        <h1>Import a SSL Certificate to <MadCap:variable name="General.DMCProductShortName" /></h1>
+        <p>A&#160;self-signed certificate is established during installation. Typically a warning regarding this certificate appears upon opening <MadCap:variable name="General.DMCProductShortName" />. To complete the requirements for SSL (and eliminate the warning), you need to create and load your own SSL certificate. It must be signed by a root authority that is trusted by your network.</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is strongly recommended to obtain and import a certificate by a certified authority. Learn how to do so here:&#160;<MadCap:xref href="manage-default-ports.htm">Managing your default ports and HTTP protocols</MadCap:xref> <br /><br />If you must import a SSL certificate, follow the below instructions to do so.</p>
+        <h2>Load the SSL Certificate into DMC</h2>
+        <p>Java's keytool CLI,  which ships with DMC, can  manage a keystore (database) of cryptographic keys, X.509 certificate chains, and trusted certificates.</p>
+        <p>Ultimately, the keystore.p12 file in DATICAL_HOME/data/datical-service/ needs to have the signed public key, private key, and certificate chain included in it under the alias "datical" with a password of “datical”. <br /></p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is usually best to make a backup of the original file before working with it.</p>
+        <ol>
+            <li>Copy the converted certificate and private key (domain.p12) to DATICAL_HOME/data/datical-service on the DMC server.</li>
+            <li>Run: <pre>datical-control service stop all</pre> </li>
+            <li>Delete a certificate that came with DMC:
+            <pre>DATICAL_HOME/jre/bin/keytool -delete -alias datical -keystore keystore.p12</pre></li>
+            <li>Import the PKCS 12 certificate by executing the following command:
+            <pre>DATICAL_HOME/jre/bin/keytool -importkeystore -deststorepass [password] -destkeystore DATICAL_HOME/data/datical-service/keystore.p12 -srckeystore DATICAL_HOME/data/datical-service /domain.p12 -srcstoretype PKCS12</pre></li>
+            <li>Run:<pre>datical-control service start all.</pre></li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Create the SSL Certificate based on OpenSSL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Below is a step-by-step example that covers how to create a SSL Certificate, sign it with your own certificate authority (CA), and convert to PKCS 12 file.</p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The PKCS12 Keystore format is preferable in DMC when you need to replace both private and public key pairs in the Keystore. <br /><br />If you only need to import a signed certificate based on a <MadCap:variable name="General.DMCProductShortName" /> certificate request, then use the certificate in the pem or p7b format. Learn how to do so here:&#160;<MadCap:xref href="manage-default-ports.htm">Managing your default ports and HTTP protocols</MadCap:xref><br /></p>
+                <p>The process to generate a certificate varies based on your network setup, tools you use, and trusted authorities. Consult your system administrator or security administrator for the process used at your site.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The following example is for illustration only.</p>
+                <ol>
+                    <li>Create both the private key and CSR in a separate folder:</li><pre>mkdir ~/certs &amp;&amp; cd ~/certs</pre><pre>openssl req -newkey rsa:2048 -nodes -keyout domain.key -out domain.csr</pre>
+                </ol>
+                <h2>Create a CA-Signed Certificate With Our Own CA</h2>
+                <p>We can be our own certificate authority (CA) by creating a self-signed root CA certificate, and then installing it as a trusted certificate in the local browser.</p>
+                <ol>
+                    <li>Create a private key (ca.key) and a self-signed root CA certificate (ca.crt) from the command line:</li><pre>mkdir ~/ca &amp;&amp; cd ~/ca</pre><pre>openssl req -newkey rsa:2048 -nodes -keyout ca.key -x509 -days 3654 -out ca.crt</pre>
+                </ol>
+                <h2>
+      Sign Our CSR With Root CA
+                </h2>
+                <ol>
+                    <li>Then sign our CSR (domain.csr) with the root CA certificate and its private key:</li><pre>openssl x509 -req -in ~/certs/domain.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out domain.crt -days 365</pre>
+                    <p>The CA-signed certificate is located in the domain.crt file successfully.<br /></p>
+                </ol>
+                <h2>
+       Convert the signed certificate and private key to PKCS 12
+                </h2>
+                <p> Private key information cannot import directly to a Keystore using a CLI keytool. Instead, it is necessary to convert the certificate and private key into a PKCS 12 (.p12) file, and then import the PKCS 12 file into DMC keystore.</p>
+                <ol>
+                    <li>Execute the command:</li><pre>openssl pkcs12 -export -in domain.crt -inkey ~/certs/domain.key -name [hostname] -out domain.p12</pre>
+                </ol>
+                <h2>Useful commands that may help during the process</h2>
+                <ul>
+                    <li>Move an existing keystore entry from the specified alias to datical alias:</li><pre>DATICAL_HOME/jre/bin/keytool -changealias -alias [oldalias] -destalias datical -keystore keystore.p12</pre>
+                    <li>Changes the password used to protect the integrity of the keystore contents to datical</li><pre>DATICAL_HOME/jre/bin/keytool -storepasswd -keystore keystore.p12</pre>
+                    <li>Regenerate the DMC HTTPS keys:</li><pre>datical-control https regenerate-keys</pre>
+                </ul>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>
