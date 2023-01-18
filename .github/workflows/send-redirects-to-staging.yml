@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to release'
+        description: 'Branch with draft redirects'
         required: true
 jobs:
   publish-staging-redirects:
@@ -14,7 +14,10 @@ jobs:
       run:
         working-directory: scripts/redirect_creation
     steps:
-      - uses: actions/checkout@v3
+     - name: Checkout branch with draft redirects
+       uses: actions/checkout@v3
+        with:
+          ref: "context.payload.inputs.branch"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -41,7 +44,6 @@ jobs:
         run: terraform validate -no-color
 
       - name: Terraform Plan
-        if: github.event_name == 'push'
         id: plan
         run: terraform plan -no-color
         continue-on-error: false
