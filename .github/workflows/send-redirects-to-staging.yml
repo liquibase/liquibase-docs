@@ -1,0 +1,51 @@
+# Terraform Action to lint and apply updated redirects
+name: Publish Staging Redirects
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch with draft redirects'
+        required: true
+jobs:
+  publish-staging-redirects:
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: scripts/redirect_creation
+    steps:
+      - name: Checkout branch with draft redirects
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: create Terraform Tfvars
+        id: tfvars
+        run: |
+          cat << EOF > terraform.auto.tfvars
+            stage                 = "staging"
+          EOF
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: false
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
