@@ -1,16 +1,10 @@
 
 # Terraform Action to lint and apply updated redirects
-name: Publish Production Redirects
+name: Publish Production Content and Redirects
 on:
-  pull_request:
-    branches:
-      - master
-    types:
-      - closed
-
+  workflow_dispatch:
 jobs:
-  publish-prod-redirects:
-    if: ${{ github.event.pull_request.merged }}
+  publish-to-prod:
     runs-on: ubuntu-20.04
     defaults:
       run:
@@ -49,3 +43,14 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+      - name: Promote Staging Content to Production
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        with:
+          command: cp
+          source: s3://stage-docsstageliquibasecom-origin/
+          destination: s3://prod-docsliquibasecom-origin/
+          aws_access_key_id: ${{ secrets GH_AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.GH_AWS_KEY }}
+          aws_region: us-east-1
+          flags: --recursive --delete --exclude "robots.txt"
