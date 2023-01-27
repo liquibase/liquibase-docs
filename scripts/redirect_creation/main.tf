@@ -35,9 +35,6 @@ data "terraform_remote_state" "staging" {
 # Need legacy Datical account since s3 buckets for docs are there
 provider "aws" {
   region     = "us-east-1"
-#  alias      = "datical"
-  access_key = var.datical_access_key
-  secret_key = var.datical_secret_key
 }
 
 # 0 byte objects used for redirects

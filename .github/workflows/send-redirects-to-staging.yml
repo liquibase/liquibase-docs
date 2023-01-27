@@ -3,12 +3,7 @@ name: Publish Staging Redirects
 on:
   pull_request:
     branches:
-      - master
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - closed
+      - stage
 jobs:
   publish-staging-redirects:
     runs-on: ubuntu-20.04
@@ -49,6 +44,23 @@ jobs:
         id: plan
         run: terraform plan -no-color
         continue-on-error: false
+
+      - uses: actions/github-script@v6
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+            </details>
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
