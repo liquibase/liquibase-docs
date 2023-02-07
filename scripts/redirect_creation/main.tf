@@ -19,7 +19,6 @@ data "terraform_remote_state" "staging" {
     }
   }
 }
-
 # Need legacy Datical account since s3 buckets for docs are there
 provider "aws" {
   region     = "us-east-1"
