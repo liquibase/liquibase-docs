@@ -41,7 +41,10 @@ jobs:
       - name: Terraform Plan
         if: ${{ github.event_name == 'pull_request' }}
         id: plan
-        run: terraform plan -var='docs_access_key=${{ secrets.DOCS_AWS_KEY_ID }}' -var='docs_secret_key=${{ secrets.DOCS_AWS_KEY }}"'-no-color
+        env:
+          TF_VAR_docs_access_key: ${{ secrets.DOCS_AWS_KEY_ID }}
+          TF_VAR_docs_secret_key: ${{ secrets.DOCS_AWS_KEY }}
+        run: terraform plan -no-color
         continue-on-error: false
 
       - uses: actions/github-script@v6
@@ -63,4 +66,7 @@ jobs:
 
       - name: Terraform Apply
         if: ${{ github.event_name == 'push' }}
-        run: terraform apply -var="docs_access_key=${{ secrets.DOCS_AWS_KEY_ID }}" -var="docs_secret_key=${{ secrets.DOCS_AWS_KEY }}" -auto-approve
+        env:
+          TF_VAR_docs_access_key: ${{ secrets.DOCS_AWS_KEY_ID }}
+          TF_VAR_docs_secret_key: ${{ secrets.DOCS_AWS_KEY }}
+        run: terraform apply -auto-approve
