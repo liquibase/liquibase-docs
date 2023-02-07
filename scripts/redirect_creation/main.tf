@@ -19,12 +19,9 @@ data "terraform_remote_state" "staging" {
     }
   }
 }
-
 # Need legacy Datical account since s3 buckets for docs are there
 provider "aws" {
-  region     = "us-east-1"
-  access_key = var.docs_access_key
-  secret_key = var.docs_secret_key
+  alias      = "datical"
 }
 
 # 0 byte objects used for redirects
