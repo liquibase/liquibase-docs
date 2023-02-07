@@ -25,14 +25,6 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: create Terraform Tfvars
-        id: tfvars
-        run: |-
-          cat > terraform.tfvars <<EOF
-          docs_access_key       = "${{ secrets.DOCS_AWS_KEY_ID }}"
-          docs_secret_key       = "${{ secrets.DOCS_AWS_KEY }}"
-          EOF
-
       - name: Terraform Format
         if: ${{ github.event_name == 'pull_request' }}
         id: fmt
@@ -50,7 +42,7 @@ jobs:
       - name: Terraform Plan
         if: ${{ github.event_name == 'pull_request' }}
         id: plan
-        run: terraform plan -var-file="terraform.tfvars" -no-color
+        run: terraform plan -no-color
         continue-on-error: false
 
       - uses: actions/github-script@v6
@@ -72,4 +64,4 @@ jobs:
 
       - name: Terraform Apply
         if: ${{ github.event_name == 'push' }}
-        run: terraform apply -var-file="scripts/redirect_creation/terraform.tfvars" -auto-approve
+        run: terraform apply -auto-approve
