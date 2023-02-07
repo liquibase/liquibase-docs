@@ -25,6 +25,7 @@ provider "aws" {
   alias      = "datical"
   access_key = var.docs_access_key
   secret_key = var.docs_secret_key
+  role_arn   = "arn:aws:iam::123690493324:user/docsteam"
 }
 
 # 0 byte objects used for redirects
