@@ -25,7 +25,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: create Terraform Tfvars
-        working-directory: ./terraform
+        working-directory: scripts/redirect_creation
         id: tfvars
         run: |-
           cat > pipeline.auto.tfvars <<EOF
@@ -34,24 +34,24 @@ jobs:
           EOF
 
       - name: Terraform Format
-        working-directory: ./terraform
+        working-directory: scripts/redirect_creation
         if: ${{ github.event_name == 'pull_request' }}
         id: fmt
         run: terraform fmt
 
       - name: Terraform Init
-        working-directory: ./terraform
+        working-directory: scripts/redirect_creation
         id: init
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: ./terraform
+        working-directory: scripts/redirect_creation
         if: ${{ github.event_name == 'pull_request' }}
         id: validate
         run: terraform validate -no-color
 
       - name: Terraform Plan
-        working-directory: ./terraform
+        working-directory: scripts/redirect_creation
         if: ${{ github.event_name == 'pull_request' }}
         id: plan
         run: terraform plan  -no-color
@@ -75,6 +75,6 @@ jobs:
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
       - name: Terraform Apply
-        working-directory: ./terraform
+        working-directory: scripts/redirect_creation
         if: ${{ github.event_name == 'push' }}
         run: terraform apply -auto-approve
