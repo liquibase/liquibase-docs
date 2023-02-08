@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/changelogs/attributes/use-psql-integration.html" />
+        <meta name="description" content="The page describes how to use the PSQL integration and runWith attribute with Liquibase Pro and PostgreSQL" />
+    </head>
+    <body>
+        <h1>Use PSQL and <code>runWith</code> on PostgreSQL</h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" />
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>Use <MadCap:variable name="General.Liquibase" /> 4.13 or later</li>
+            <li>Specify how <MadCap:variable name="General.Liquibase" /> can find PSQL by adding PSQL to your PATH. Alternatively, pass its location in the <code>liquibase.psql.conf</code> file or from the command prompt  during runtime. See <code>liquibase.psql.path</code> in <MadCap:xref href="#SQL">PSQL integration arguments</MadCap:xref>.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> searches the PSQL&#160;location in the following order: runtime arguments, .conf file values, your PATH.</p>
+        <h2>Using the PSQL integration</h2>
+        <ol>
+            <li>Add the <code>runWith</code>&#160;<MadCap:variable name="General.Param/Attribute" /> to the needed <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" /> you use:
+            </li>
+            <ul>
+                <li><code>runWith:psql</code> for an SQL <MadCap:variable name="General.changelog" /></li>
+                <li><code>runWith="psql"</code> for an XML <MadCap:variable name="General.changelog" /></li>
+                <li><code>"runWith": "psql"</code> for a JSON <MadCap:variable name="General.changelog" /></li>
+                <li><code>runWith: psql</code> for a YAML <MadCap:variable name="General.changelog" /></li>
+            </ul>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">See <MadCap:xref href="#runWith">runWith and psql examples</MadCap:xref>.</p>
+        </ol>
+        <ol start="2">
+            <li>Specify the <MadCap:xref href="#SQL">PSQL integration arguments</MadCap:xref> in one of the following ways:</li>
+            <ul>
+                <li>Add the values in <code>liquibase.psql.conf</code> or the <MadCap:variable name="General.Liquibase" /> property file.</li>
+            </ul>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can use the <code>liquibase.psql.conf</code> file along with the <MadCap:variable name="General.Liquibase" /> properties file. If you use <MadCap:variable name="General.LBPro" /> and PSQL in automation, set arguments in the <code>liquibase.psql.conf</code> file instead of running them every time at the command prompt.</p>
+            <ul>
+                <li>Set the values as environment variables</li>
+                <li>Run the values as Java system properties (<code>JAVA_OPTS</code>) along with any command at the command prompt:</li>
+            </ul>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 12pt;">Windows</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">set JAVA_OPTS=-Dliquibase.psql.&lt;option&gt;=&lt;value&gt; &amp;&amp; liquibase &lt;command&gt; --changelog-file=psql_script.sql</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 12pt;">macOS/Linux</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">export JAVA_OPTS=-Dliquibase.psql.&lt;option&gt;=&lt;value&gt; &amp;&amp; liquibase &lt;command&gt; --changelog-file=psql_script.sql</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+        </ol>
+        <ol start="3">
+            <li>Run a <MadCap:variable name="General.Liquibase" /> command:
+            </li>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>liquibase update --changelog-file=psql_script.sql</code>
+            </p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the command fails, you will receive an error message. However, if you add a property that is not used in <MadCap:variable name="General.Liquibase" /> to the <code>liquibase.psql.conf</code> file, no error will occur. <MadCap:variable name="General.Liquibase" /> only ignores it.</p>
+        </ol>
+        <h2><a name="SQL"></a>PSQL integration arguments</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/parameter-syntax.flsnp" />
+        <table>
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th>Syntax (<code>--cli</code>, <code>propertiesFile</code>, <code>ENV_VAR</code>)</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-args
+liquibase.psql.args
+LIQUIBASE_PSQL_ARGS</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-args.flsnp" MadCap:conditionTagExpression="include[command-executors.psql]" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-executor
+liquibase.psql.executor
+LIQUIBASE_PSQL_EXECUTOR</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-executor.flsnp" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-keep-temp
+liquibase.psql.keep.temp
+LIQUIBASE_PSQL_KEEP_TEMP</code></pre>
+                    </td>
+                    <td>Boolean</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-keep-temp.flsnp" MadCap:conditionTagExpression="include[command-executors.psql]" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-keep-temp-name
+liquibase.psql.keep.temp.name
+LIQUIBASE_PSQL_KEEP_TEMP_NAME</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-keep-temp-name.flsnp" MadCap:conditionTagExpression="include[command-executors.psql]" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-keep-temp-path
+liquibase.psql.keep.temp.path
+LIQUIBASE_PSQL_KEEP_TEMP_PATH</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-keep-temp-path.flsnp" MadCap:conditionTagExpression="include[command-executors.psql]" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-log-file
+liquibase.psql.logFile
+LIQUIBASE_PSQL_LOG_FILE</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-log-file.flsnp" MadCap:conditionTagExpression="include[command-executors.psql]" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-path
+liquibase.psql.path
+LIQUIBASE_PSQL_PATH</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-path.flsnp" MadCap:conditionTagExpression="include[command-executors.psql]" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--psql-timeout
+liquibase.psql.timeout
+LIQUIBASE_PSQL_TIMEOUT</code></pre>
+                    </td>
+                    <td>Integer</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/executors/cli-global-timeout.flsnp" MadCap:conditionTagExpression="include[command-executors.psql]" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 18pt;"><a name="runWith"></a><code>runWith</code> and <code>psql</code> examples</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h3>Formatted SQL <MadCap:variable name="General.changeset" style="font-style: normal; font-weight: bold;" /> using the <code>runWith</code>&#160;<MadCap:variable name="General.Param/Attribute" style="font-weight: bold;" /></h3><pre xml:space="preserve"><code class="language-html">-- liquibase formatted sql
+				
+-- changeset myauthorname:2314 runWith:psql
+			
+	DECLARE l_emp_name VARCHAR2(250);	
+	l_emp_no NUMBER;	
+	l_salary NUMBER;	
+			
+	l_manager VARCHAR2(250);	
+	BEGIN	
+	INSERT INTO emp(emp_name,emp_no,salary,manager) VALUES('BBB',1000,25000,'AAA');
+	
+	...	
+	END;		
+	/</code></pre>
+                <h3>XML <MadCap:variable name="General.changelog" /> with the inline SQL <MadCap:variable name="General.changeset" style="font-style: normal;" /> using the <code>runWith</code>&#160;<MadCap:variable name="General.Param/Attribute" /></h3><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+&lt;changeSet id="2" author="myauthorname" runWith="psql"&gt; 
+&lt;sql&gt;
+	DECLARE l_emp_name VARCHAR2(250);
+	l_emp_no NUMBER;
+	l_salary NUMBER;
+	l_manager VARCHAR2(250);
+       BEGIN
+	INSERT INTO emp(emp_name,emp_no,salary,manager) VALUES('BBB',1000,25000,'AAA');
+	...
+	END;
+	/
+&lt;/sql&gt; 
+
+&lt;/changeSet&gt;</code></pre>
+                <h3>XML <MadCap:variable name="General.changelog" style="font-style: normal;" /> pointing to an SQL file with raw SQL in it
+                </h3><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />					
+
+&lt;changeSet id="2315" author="myauthorname" runWith="psql"&gt;  
+	&lt;sqlFile
+	path="my/path/file.sql"
+... &gt; 
+&lt;/changeSet&gt;</code></pre>
+                <h3>YAML <MadCap:variable name="General.changelog" style="font-style: normal;" /> pointing to an SQL file with raw SQL in it
+                </h3><pre xml:space="preserve"><code class="language-yaml" data-lang="yaml">databaseChangeLog:
+   - changeSet:
+       id: 1-yaml
+       author: myauthorname
+       runWith: psql
+       changes:
+       - sqlFile:
+           path: person.sql
+           relativeToChangelogFile: true</code></pre>
+                <h3>JSON <MadCap:variable name="General.changelog" style="font-style: normal;" /> pointing to an SQL file with raw SQL in it
+                </h3><pre xml:space="preserve"><code class="language-json" data-lang="json">{
+	"databaseChangeLog": [
+	   {
+		"changeSet": {
+		  "id": "1-json",
+		  "author": "myauthorname",
+		  "runWith": "psql",
+		  "changes": [
+			{
+			      "sqlFile":{
+				      "path": "person.sql",
+				      "relativeToChangelogFile": "true"
+				}
+			 }
+		   ]
+	     }
+       }</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>PSQL best practices</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/parameter-sql-plus-sql-cmd-best-practices.flsnp" MadCap:conditionTagExpression="include[SQLPlusSQLCMD.PSQL]">
+        </MadCap:snippetBlock>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="runwith.htm">runWith</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../change-types/modifychangesets.htm">modifyChangeSets</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../start/install/tutorials/postgresql.html">Using [%=General.Liquibase%] with PostgreSQL</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>

@@ -1,0 +1,460 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/automatic-custom-rollbacks.html" />
+        <meta name="description" content="This page provides information about automatic and custom rollbacks in Liquibase." />
+    </head>
+    <body>
+        <h1>Automatic and Custom Rollbacks</h1>
+        <p><MadCap:variable name="General.Liquibase" /> supports multiple ways to revert your database to a previous state. For many <MadCap:variable name="General.changetypes" />s, such as <MadCap:xref href="../../change-types/create-table.html">createTable</MadCap:xref>, <MadCap:xref href="../../change-types/add-column.html">addColumn</MadCap:xref>, and <MadCap:xref href="../../change-types/rename-column.html">renameColumn</MadCap:xref>, <MadCap:variable name="General.Liquibase" /> <b>automatically generates</b> the SQL&#160;statements necessary to complete the rollback, so you can simply run a command like <code><MadCap:xref href="../../commands/rollback/rollback-by-tag.htm">rollback</MadCap:xref></code> on your desired <MadCap:variable name="General.changeset" />(s) and be done.</p>
+        <p>However, <MadCap:variable name="General.Liquibase" /> cannot automatically generate rollback SQL&#160;for <MadCap:variable name="General.changetypes" />s like <MadCap:xref href="../../change-types/drop-table.html">dropTable</MadCap:xref> and <MadCap:xref href="../../change-types/insert.html">insert</MadCap:xref>. To roll back database updates that include these <MadCap:variable name="General.changeset" />s, you must write <b>custom rollback statements</b> in your desired <MadCap:variable name="General.changeset" />(s) and then run the <code>rollback</code> command. You must write custom rollback statements for all formatted SQL&#160;<MadCap:variable name="General.changelog" />s, as they do not support auto rollback, regardless of the <MadCap:variable name="General.changetypes" />. You can also write your own rollbacks if you want to override the default rollback statement for a <MadCap:variable name="General.changetypes" /> that supports auto rollback.</p>
+        <p>For a complete list of <MadCap:variable name="General.changetypes" />s that allow auto rollback, see the "Auto rollback <MadCap:variable name="General.changetypes" />s" section.</p>
+        <h2>Automatic rollback statements</h2>
+        <p>When you run the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command on a <code>createTable</code>&#160;<MadCap:variable name="General.changeset" />, <MadCap:variable name="General.Liquibase" /> executes the SQL&#160;statement <code>CREATE&#160;TABLE&#160;myTable</code>. When you run the <code>rollback</code> command to revert that <MadCap:variable name="General.changeset" />, <MadCap:variable name="General.Liquibase" /> recognizes that the inverse of the original change is <code>DROP&#160;TABLE&#160;myTable</code> and executes that statement. In this case, you aren't required to add anything special to your <MadCap:variable name="General.changelog" />.</p><pre xml:space="preserve"><code class="language-text">Liquibase command 'rollback' was executed successfully.
+Liquibase: Rollback has been successful.</code></pre>
+        <p>However, if you try to run <code>rollback</code> on <code>dropTable</code>, <MadCap:variable name="General.Liquibase" /> cannot automatically generate the rollback SQL:</p><pre><code class="language-text">Unexpected error running Liquibase: No inverse to liquibase.change.core.DropTableChange created</code></pre>
+        <p>There is only one state the database could be in right before a <code>createTable</code> statement—a state in which the table does not exist. However, there are multiple states the database could be in right before a <code>dropTable</code> statement, so <MadCap:variable name="General.Liquibase" /> cannot reliably look through your <MadCap:variable name="General.changelog" /> to "recreate"&#160;a table you dropped. This is because getting the table to its final state before being dropped may have involved a large number of <MadCap:variable name="General.changeset" />s, raw SQL statements in <code><MadCap:xref href="../../change-types/sql.html">sql</MadCap:xref></code>&#160;or <code>modifySql</code> tags, <MadCap:xref href="../../concepts/changelogs/attributes/contexts.html">Contexts</MadCap:xref>, or manual changes to the <MadCap:variable name="General.changelog" />.</p>
+        <p>To roll back your <code>dropTable</code> statement, you have to specify custom logic in your <MadCap:variable name="General.changelog" /> so that <MadCap:variable name="General.Liquibase" /> knows how to correctly restore your database.</p>
+        <h2>Custom rollback statements</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/code/command-rollback-custom.flsnp" />
+        <h2>Auto rollback <MadCap:variable name="General.changetypes" />s</h2>
+        <p>You can use an automatic rollback with  XML, JSON, and YAML <MadCap:variable name="General.changelog" />s for any <MadCap:variable name="General.changetypes" /> marked as "Supported"&#160;in the following table:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.changetypes" />
+                    </th>
+                    <th>Supported</th>
+                    <th>Behavior</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>addAutoIncrement</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>addCheckConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Drop check constraint</td>
+                </tr>
+                <tr>
+                    <td><code>addColumn</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>addDefaultValue</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>addForeignKeyConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>addLookupTable</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>addNotNullConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>addPrimaryKey</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>addUniqueConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>alterSequence</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>createFunction</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Drop function</td>
+                </tr>
+                <tr>
+                    <td><code>createIndex</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>createPackage</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Drop package</td>
+                </tr>
+                <tr>
+                    <td><code>createPackageBody</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Drop package body</td>
+                </tr>
+                <tr>
+                    <td><code>createProcedure</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Drop procedure</td>
+                </tr>
+                <tr>
+                    <td><code>createSequence</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Drop sequence</td>
+                </tr>
+                <tr>
+                    <td><code>createSynonym</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>createTable</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>createTrigger</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Drop trigger</td>
+                </tr>
+                <tr>
+                    <td><code>createView</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>customChange</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>delete</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>disableCheckConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Enable check constraint</td>
+                </tr>
+                <tr>
+                    <td><code>disableTrigger</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Enable trigger</td>
+                </tr>
+                <tr>
+                    <td><code>dropAllForeignKeyConstraints</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropCheckConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Create check constraint only if <code>&lt;rollback&gt;</code> to do the create included in <MadCap:variable name="General.changeset" />. Otherwise, no auto-rollback possible because we no longer have the constraint parameters.</td>
+                </tr>
+                <tr>
+                    <td><code>dropColumn</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropDefaultValue</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropForeignKeyConstraint</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropFunction</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Create function only if <code>&lt;rollback&gt;</code> to do the create included in <MadCap:variable name="General.changeset" /></td>
+                </tr>
+                <tr>
+                    <td><code>dropIndexNot</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropNotNullConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropPackage</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Create package only if <code>&lt;rollback&gt;</code> to do the create included in <MadCap:variable name="General.changeset" /></td>
+                </tr>
+                <tr>
+                    <td><code>dropPackageBody</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Create package body only if <code>&lt;rollback&gt;</code> to do the create included in <MadCap:variable name="General.changeset" /></td>
+                </tr>
+                <tr>
+                    <td><code>dropPrimaryKey</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropProcedure</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Create procedure only if <code>&lt;rollback&gt;</code> to do the create included in <MadCap:variable name="General.changeset" /></td>
+                </tr>
+                <tr>
+                    <td><code>dropSequence</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropSynonym</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropTable</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropTrigger</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Create trigger only if <code>&lt;rollback&gt;</code> to do the create included in <MadCap:variable name="General.changeset" /></td>
+                </tr>
+                <tr>
+                    <td><code>dropUniqueConstraint</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>dropView</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>empty</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>enableCheckConstraint</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Disable check constraint</td>
+                </tr>
+                <tr>
+                    <td><code>enableTrigger</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Disable trigger</td>
+                </tr>
+                <tr>
+                    <td><code>executeCommand</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>insert</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>loadData</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>loadUpdateData</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>markUnused</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>mergeColumns</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>modifyDataType</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>output</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>renameColumn</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>renameSequence</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>renameTable</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>renameTrigger</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>Rename with <code>oldTriggerName</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>renameView</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>setColumnRemarks</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>setTableRemarks</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>sql</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>sqlFile</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>stop</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>tagDatabase</code>
+                    </td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>update</code>
+                    </td>
+                    <td>Not Supported</td>
+                    <td>&#160;</td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>

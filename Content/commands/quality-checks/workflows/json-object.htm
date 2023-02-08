@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/workflows/quality-checks/concepts/json-object.html" />
+        <meta name="description" content="Reference information and use cases for the quality checks JSON object output. Liquibase Pro lets you format the output of quality checks commands like run and show as a JSON object." />
+    </head>
+    <body>
+        <h1>Quality Checks JSON Object</h1>
+        <a href="https://www.liquibase.com/trial" target="_blank"><MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" /></a>
+        <p>You can format the output of <MadCap:xref href="../home.htm">Quality Checks Commands</MadCap:xref> like <MadCap:xref href="../subcommands/run.htm">run</MadCap:xref> and <MadCap:xref href="../subcommands/show.htm">show</MadCap:xref> as a JSON object. You need a valid <a href="../../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">[%=General.LBPro%] License Key</a> to do this.</p>
+        <h2>Uses</h2>
+        <p>By default, <MadCap:variable name="General.Liquibase" /> sends output to the console in a human-readable text format. By contrast, <a href="https://www.ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf">JSON</a> (JavaScript Object Notation) is a text syntax designed to be easily understood by computers. If your application needs to access information about quality checks, specify <code>json</code> as the value for the <code>format</code> attribute when you run quality checks commands on your database. This way, your application can easily parse through the <MadCap:variable name="General.Liquibase" /> output.</p>
+        <h2>Syntax</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
+        <p>To send JSON output to <code>STDOUT</code>:</p><pre xml:space="preserve"><code class="language-text">liquibase checks run --format=json --check-name=&lt;checkShortName&gt;</code></pre>
+        <p>To send JSON output to a file:</p><pre xml:space="preserve"><code class="language-text">liquibase checks run --format=json --check-name=&lt;checkShortName&gt; --output-file=path/to/myOutput.json</code></pre>
+        <p>To send text output to <code>STDOUT</code>:</p><pre xml:space="preserve"><code class="language-text">liquibase checks run --format=txt --check-name=&lt;checkShortName&gt;</code></pre>
+        <p>If you do not specify a value for <code>format</code>, <MadCap:variable name="General.Liquibase" /> sends text output to <code>STDOUT</code>. For more information about setting parameters, see <MadCap:xref href="../../../parameters/home.htm">[%=General.Liquibase%] Parameters</MadCap:xref>.</p>
+        <h2>Object format</h2>
+        <p>The root schema of the JSON object is called <code>checks</code> and includes the following properties and subschemas:</p>
+        <ul>
+            <li><code>executionDate</code> (string)</li>
+            <li><code>returnCode</code> (int)</li>
+            <li><code>changesetsValidatedCount</code> (int)</li>
+            <li><code>executedChecksCount</code> (int)</li>
+            <li><code>issueCount</code> (int)</li>
+            <li><code>unparseableChangesetsCount</code> (int)</li>
+            <li><code>unlicensedChangesetsCount</code> (int)</li>
+            <li><code>hasProLicense</code> (boolean)</li>
+            <li><code>changelogFilePath</code> (string)</li>
+            <li><code>username</code> (string)</li>
+            <li><code>productVersion</code> (string)</li>
+            <li><code>integration</code> (string)</li>
+            <li><code>issues</code> (array of JSON objects)<ul><li><code>changesetAuthor</code> (string)</li><li><code>changesetFilePath</code> (string)</li><li><code>changesetId</code> (string)</li><li><code>checkMessage</code> (string)</li><li><code>checkName</code> (string)</li><li><code>checkReturnCode</code> (int)</li><li><code>checkSeverity</code> (string)</li><li><code>checkShortName</code> (string)</li></ul></li>
+            <li><code>changesetsValidated</code> (array of JSON objects)<ul><li><code>author</code> (string)</li><li><code>filepath</code> (string)</li></ul><ul><li><code>id</code> (string)</li></ul></li>
+            <li><code>executedChecks</code> (array of JSON objects)<ul><li><code>checkName</code> (string)</li><li><code>checkShortName</code> (string)</li><li><code>description</code> (string)</li><li><code>enabled</code> (boolean)</li><li><code>severity</code> (string)</li></ul></li>
+        </ul>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>If you run <code>liquibase checks run --format=json --check-name=ChangesetCommentCheck</code>, <MadCap:variable name="General.Liquibase" /> displays the following output:</p><pre xml:space="preserve"><code class="language-json">{
+  "checks": {
+    "executionDate": "2022-03-04T20:37:33.467461Z",
+    "returnCode": 0,
+    "changesetsValidatedCount": 3,
+    "executedChecksCount": 1,
+    "issueCount": 3,
+    "unparseableChangesetsCount": 0,
+    "unlicensedChangesetsCount": 0,
+    "hasProLicense": true,
+    "changelogFilePath": "custom-changelog.sql",
+    "username": "liquibase-user",
+    "productVersion": "Liquibase 4.9.0",
+    "integration": "cli",
+    "issues": [
+      {
+        "changesetAuthor": "your.name",
+        "changesetFilePath": "custom-changelog.sql",
+        "changesetId": "1",
+        "checkMessage": "Liquibase recommends that authors include comments about the purpose and impact of a changeset in &lt;comment&gt; elements to prevent the development of undocumented or siloed knowledge and ensure that the purpose of a given changeset is easily understood by other people who use this changelog.",
+        "checkName": "Changesets Must Have a Comment Assigned",
+        "checkReturnCode": 0,
+        "checkSeverity": "INFO",
+        "checkShortName": "ChangesetCommentCheck"
+      },
+      {
+        "changesetAuthor": "your.name",
+        "changesetFilePath": "custom-changelog.sql",
+        "changesetId": "2",
+        "checkMessage": "Liquibase recommends that authors include comments about the purpose and impact of a changeset in &lt;comment&gt; elements to prevent the development of undocumented or siloed knowledge and ensure that the purpose of a given changeset is easily understood by other people who use this changelog.",
+        "checkName": "Changesets Must Have a Comment Assigned",
+        "checkReturnCode": 0,
+        "checkSeverity": "INFO",
+        "checkShortName": "ChangesetCommentCheck"
+      },
+      {
+        "changesetAuthor": "other.dev",
+        "changesetFilePath": "custom-changelog.sql",
+        "changesetId": "3",
+        "checkMessage": "Liquibase recommends that authors include comments about the purpose and impact of a changeset in &lt;comment&gt; elements to prevent the development of undocumented or siloed knowledge and ensure that the purpose of a given changeset is easily understood by other people who use this changelog.",
+        "checkName": "Changesets Must Have a Comment Assigned",
+        "checkReturnCode": 0,
+        "checkSeverity": "INFO",
+        "checkShortName": "ChangesetCommentCheck"
+      }]
+    ,
+    "changesetsValidated": [
+      {
+        "author": "your.name",
+        "filepath": "custom-changelog.sql",
+        "id": "1"
+      },
+      {
+        "author": "your.name",
+        "filepath": "custom-changelog.sql",
+        "id": "2"
+      },
+      {
+        "author": "other.dev",
+        "filepath": "custom-changelog.sql",
+        "id": "3"
+      }]
+    ,
+    "executedChecks": [
+      {
+        "checkName": "Changesets Must Have a Comment Assigned",
+        "checkShortName": "ChangesetCommentCheck",
+        "description": "This check enforces the Liquibase recommendation that comments be added to each changeset to document the purpose of a changeset for other/future consumers of this changelog",
+        "enabled": true,
+        "severity": "0"
+      }]
+    
+  }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../checks/home.htm">List of Quality Checks</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../home.htm">Quality Checks</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>

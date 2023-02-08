@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/change-types/includeall.html" />
+        <meta name="description" content="The includeAll tag allows you to specify a directory that contains multiple changelog files. It is used within your root changelog file to call on the directory and include all XML files as changelog files, and all SQL files as individual changes." />
+    </head>
+    <body>
+        <h1 id="includeall-tag"><code>includeAll</code>
+        </h1>
+        <p>Use the <code>includeAll</code> tag to specify a directory that contains multiple <MadCap:variable name="General.changelog" /> files. It is used within your root <MadCap:variable name="General.changelog" /> file to call on the directory and include all XML, YAML, and JSON files as <MadCap:variable name="General.changelog" /> files, and all SQL files as individual changes. If you use <code>includeAll</code> to specify a directory that contains subdirectories, the tag also includes all files in those subdirectories.</p>
+        <h2>Uses</h2>
+        <p>In <MadCap:variable name="General.Liquibase" />, you can break up your root <MadCap:variable name="General.changelog" /> into more manageable pieces by creating multiple <MadCap:variable name="General.changelog" />s to separate your <MadCap:variable name="General.changeset" />s in a way that makes sense for you. For example, you can separate <MadCap:variable name="General.changeset" />s into their own files, according to features, releases, or other logical boundaries. Breaking up your <MadCap:variable name="General.changelog" />s can make it easier to find and manage complex database schema scripts.</p>
+        <p>If you store all of your <MadCap:variable name="General.changelog" /> files in one directory, you can use the <code>&lt;includeAll&gt;</code> tag to reference the directory containing those files. Alternatively, you can use <code>&lt;includeAll&gt;</code> to reference a single directory containing multiple subdirectories that store all your <MadCap:variable name="General.changelog" /> files.</p>
+        <h2>How to use the <code>includeAll</code> tag</h2>
+        <ol>
+            <li>Create a root <MadCap:variable name="General.changelog" /> file.</li>
+            <p>The root <MadCap:variable name="General.changelog" /> file works as a configuration file that holds all the references to other directories. Your root <MadCap:variable name="General.changelog" /> file must be in an XML, YAML, or JSON format.</p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">At this time, the <code>&lt;includeAll&gt;</code> tag cannot be used in an SQL formatted root <MadCap:variable name="General.changelog" />.</p>
+            <li>Add the <code>&lt;includeAll&gt;</code> tag and file references to your root <MadCap:variable name="General.changelog" />.</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Your <MadCap:variable name="General.changelog" />s inside of the directory can be in SQL, XML, YAML, or JSON file types.</p>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">XML example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <p>In this example, we are using an XML root <MadCap:variable name="General.changelog" /> with two <code>&lt;includeAll&gt;</code> tags referencing one directory each:</p><pre xml:space="preserve"><code class="language-html">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+	&lt;includeAll path="com/example/changelogs/"/&gt;
+	&lt;includeAll path="liquibase/parser/core/yaml/included/"/&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">YAML example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <p>In this example, we are using a YAML root <MadCap:variable name="General.changelog" /> with two <code>&lt;includeAll&gt;</code> tags referencing one directory each:</p><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+   - includeAll:
+       path: com/example/changelogs/
+   - includeAll:
+       path: liquibase/parser/core/yaml/included/</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">JSON example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <p>In this example, we are using a JSON root <MadCap:variable name="General.changelog" /> with two <code>&lt;includeAll&gt;</code> tags referencing one directory each:</p><pre xml:space="preserve"><code class="language-json">{
+   "databaseChangeLog": [
+       {
+           "includeAll": {"path": "com/example/changelogs/"}
+       },
+       {
+           "includeAll": {"path": "liquibase/parser/core/yaml/included/"}
+       }
+   ]
+}</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+        </ol>
+        <h2>How the <code>includeAll</code> tag runs in a <MadCap:variable name="General.changelog" /></h2>
+        <p>All files inside of the included directory are run in alphabetical order.</p>
+        <p>If you  use the <code>includeAll</code> tag, enforce a naming strategy to prevent conflicts and the need to rename and reorder files.</p>
+        <h2>About infinite loops in <MadCap:variable name="General.changelog" />s</h2>
+        <p><MadCap:variable name="General.Liquibase" /> does not check for looping <MadCap:variable name="General.changelog" />s in your root file. However, if you create a <MadCap:variable name="General.changelog" /> loop like the following, you will get an infinite loop which will prevent the operation from completing:</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>root.changelog.xml</code> includes the path <code>com/example/changelogs/</code> which includes a <MadCap:variable name="General.changelog" />&#160;<code>changelogloop.xml</code> which includes <code>root.changelog.xml</code>.</p>
+        <p>Make sure to avoid infinite loops when referencing directories.</p>
+        <p>If you create an infinite loop, <MadCap:variable name="General.Liquibase" /> will display the following error, and will continue to loop until the process runs out of memory:</p><pre><code class="language-text">Unexpected error running <MadCap:variable name="General.Liquibase" />: Unknown reason</code></pre>
+        <h2>Available attributes</h2>
+        <table>
+            <col style="width: 600px;" />
+            <col style="width: 600px;" />
+            <col style="width: 600px;" />
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>path</code>
+                    </td>
+                    <td>Name of the path you want to reference.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>errorIfMissingOrEmpty</code>
+                    </td>
+                    <td>Controls what happens if the path listed does not exist or is an empty directory. <b>Default: true</b>. If set to true, the update will fail.</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>relativeToChangelogFile</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../Z_Resources/Snippets/def/attributes/change-types/change-type-relative-to-changelog-file.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>resourceComparator</code>
+                    </td>
+                    <td>A string containing the name of the class you want to use for sorting.</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>filter</code>
+                    </td>
+                    <td>Allows you to specify a custom filter class to include or exclude files from the <code>&lt;includeAll&gt;</code>&#160;search. Your class must implement the <a href="https://javadocs.liquibase.com/liquibase-core/liquibase/changelog/IncludeAllFilter.html">IncludeAllFilter</a> interface.</td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code>context</code>
+                    </td>
+                    <td>
+                        <p>Appends a context (using an AND statement) to all contained <MadCap:variable name="General.changeset" />s.</p>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Contexts only work with the <code>&lt;includeAll&gt;</code> tag when referencing non-SQL files.</p>
+                        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>&lt;includeAll path="files" contextFilter="deploy_version1"/&gt;</code>
+                        </p>
+                    </td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="include.html">include</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../concepts/changelogs/attributes/labels.html">Labels</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../concepts/changelogs/attributes/contexts.html">Contexts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../concepts/changelogs/home.html">[%=General.changelog%]</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
