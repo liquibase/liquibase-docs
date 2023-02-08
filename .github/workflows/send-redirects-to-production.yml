@@ -1,0 +1,26 @@
+
+# Terraform Action to lint and apply updated redirects
+name: Promote to Production
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-to-prod:
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: scripts/redirect_creation
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
+          aws-region: us-east-1
+
+      - name: Promote Staging Content to Production
+        run:
+          aws s3 sync s3://stage-docsstageliquibasecom-origin/ s3://prod-docsliquibasecom-origin/ --delete --exclude "robots.txt"
+

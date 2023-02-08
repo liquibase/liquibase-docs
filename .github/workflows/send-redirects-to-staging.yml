@@ -1,11 +1,13 @@
 # Terraform Action to lint and apply updated redirects
 name: Publish Staging Redirects
 on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch with draft redirects'
-        required: true
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
 jobs:
   publish-staging-redirects:
     runs-on: ubuntu-20.04
@@ -23,14 +25,15 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: create Terraform Tfvars
-        id: tfvars
-        run: |
-          cat << EOF > terraform.auto.tfvars
-            stage                 = "staging"
-          EOF
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
+          aws-region: us-east-1
 
       - name: Terraform Format
+        if: ${{ github.event_name == 'pull_request' }}
         id: fmt
         run: terraform fmt
 
@@ -39,13 +42,61 @@ jobs:
         run: terraform init
 
       - name: Terraform Validate
+        if: ${{ github.event_name == 'pull_request' }}
         id: validate
         run: terraform validate -no-color
 
       - name: Terraform Plan
+        if: ${{ github.event_name == 'pull_request' }}
         id: plan
-        run: terraform plan -no-color
+        run: |
+          terraform plan -out=plan.tmp
+          terraform show -no-color plan.tmp >${GITHUB_WORKSPACE}/plan.out
         continue-on-error: false
 
+      - name: Terraform Show Plan in PR
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const run_url = process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID
+            const run_link = '<a href="' + run_url + '">Actions</a>.'
+            const fs = require('fs')
+            const plan_file = fs.readFileSync('plan.out', 'utf8')
+            const plan = plan_file.length > 65000 ? plan_file.toString().substring(0, 65000) + " ..." : plan_file
+            const truncated_message = plan_file.length > 65000 ? "Output is too long and was truncated. You can read full Plan in " + run_link + "<br /><br />" : ""
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`\n
+            ${plan}
+            \`\`\`
+            
+            </details>
+            ${truncated_message}
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ github.workspace }}\`, Workflow: \`${{ github.workflow }}\`*`;
+              
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
       - name: Terraform Apply
+        if: ${{ github.event_name == 'push' }}
         run: terraform apply -auto-approve
