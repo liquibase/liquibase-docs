@@ -4,7 +4,7 @@
 variable "redirects" {
   type = map(string)
   default = {
-    # format: "/OLD/LINK.html" = "/NEW/LINK.html"
+    # format: "/OLD/LINK.html" = "/NEW/LINK.html" 
     "/2014/11/contexts-vs-labels.html"                                                                         = "/home.html"
     "/2014/11/faq.html"                                                                                        = "/faq.html"
     "/2014/11/home.html"                                                                                       = "/home.html"
