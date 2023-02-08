@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/remote-files/s3.html" />
+        <meta name="description" content="Reference information and use cases for S3 with Liquibase. Liquibase integrates the use of Amazon S3 to store and retrieve data from anywhere." />
+    </head>
+    <body>
+        <h1>S3 </h1>
+        <MadCap:snippetText src="../../../Resources/Snippets/images/.ver_icon_size_pro.flsnp" />
+        <p><MadCap:variable name="General.Liquibase" /> integrates the use of <a href="https://aws.amazon.com/s3/">Amazon S3</a> to store and retrieve data from anywhere. Extending <MadCap:variable name="General.Liquibase" /> to use remote file locations enables secure, centralized file management. <MadCap:variable name="General.Liquibase" /> files include <MadCap:variable name="General.changelog" />s, snapshots, SQL files, <code><MadCap:variable name="General.liquiPropFile" /></code> files, native executor configuration files, checks settings configuration files, and flow files. Remote file location access allows you to build a reusable repository of <MadCap:variable name="General.Liquibase" /> files. It also removes the need for all developers to have local copies of <MadCap:variable name="General.Liquibase" /> files, which ensures files are always accurate.</p>
+        <h2>Set up S3 with <MadCap:variable name="General.CompanyName" /></h2>
+        <ol>
+            <li>Download <code><a href="https://mvnrepository.com/artifact/org.liquibase/liquibase-s3-extension">liquibase-s3-extension-&lt;version&gt;.jar</a></code> and put it in the <code>liquibase/lib</code> directory. If you use Maven, add this dependency to your <code>pom.xml</code> file:</li><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+    &lt;artifactId&gt;liquibase-s3-extension&lt;/artifactId&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            <li>Download <a href="https://aws.amazon.com/s3/">Amazon S3</a>. Configure your AWS keys via environment variables or <a href="https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials.html">AWS configuration files</a>. That includes the following:<ul><li><code>AWS_SECRET_ACCESS_KEY</code></li><li><code>AWS_ACCESS_KEY_ID</code></li><li><code>AWS_REGION</code></li></ul></li>
+            <li><b>Optional:</b> If you usually store your <MadCap:variable name="General.LBPro" /> license key in a defaults file which you want to store on S3, set up your license in an environment variable, in the CLI, or with another standard property-setting method.</li>
+            <p>Set the <a href="../../../concepts/connections/liquibase-environment-variables.htm">environment variable</a>:</p><pre><code class="language-text">LIQUIBASE_LICENSE_KEY=Enter Key Here</code></pre>
+            <p>Export the key in the CLI:</p><pre xml:space="preserve"><code class="language-text">export LIQUIBASE_LICENSE_KEY="Enter Key Here"</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">A <MadCap:variable name="General.LBPro" /> license key is needed to access remote S3 files. Therefore, the  license key will not be accessible if only stored in a remote S3 defaults file. It is best practice to set up an environment variable that contains the key.</p>
+            <p>Once the AWS keys and <MadCap:variable name="General.LBPro" /> license key are configured, you are ready to begin using S3 with <MadCap:variable name="General.Liquibase" />.</p>
+        </ol>
+        <h2>Create <MadCap:variable name="General.changelog" /></h2>
+        <p>You can create a basic <MadCap:variable name="General.Liquibase" /> project, including a <MadCap:variable name="General.changelog" />, with the <MadCap:xref href="../../../commands/init/project.htm">init project</MadCap:xref> command:</p><pre xml:space="preserve"><code class="language-text">liquibase init project
+  --project-dir=s3://mybucket//init
+  --project-guide=off
+  --changelog-file=dbchangelog.sql</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> creates the <code>check-settings</code> file locally <b>unless</b> you provide the absolute path with the <code>project-dir</code>&#160;<MadCap:variable name="General.Param/Attribute" />, as shown in this example. For more information, see <MadCap:xref href="../../../commands/quality-checks/workflows/using-the-checks-settings-configuration-file.htm">Use the Checks Settings Configuration File</MadCap:xref>.</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">When using <code>init project</code>, you cannot give attributes to <MadCap:variable name="General.changelog" />s. This prevents you from using a relative path with the <MadCap:variable name="General.changelog" />. To solve this, use the <code>--changelog-file</code> property in the <code><MadCap:variable name="General.liquiPropFile" /></code> file to name the <MadCap:variable name="General.changelog" /> file from the CLI when using <code>init project</code> in a non-interactive way. See also: <MadCap:xref href="remote-file-path-rules.htm">Remote File Path Rules</MadCap:xref>.</p>
+        <h2>Run flow file</h2>
+        <p>In the CLI, create a <MadCap:xref href="../../../commands/flow/flow.htm">flow</MadCap:xref> file with the command <code>liquibase flow</code>. Then you can run the flow file using S3:</p><pre xml:space="preserve"><code class="language-text">liquibase
+  --changelog-file=example-changelog.sql
+  --search-path=s3://example/demo
+  --defaults-file=s3://example/demo/liquibase.properties
+flow
+  --flow-file=s3://example/liquibases3/liquibase.s3.advanced.flowfile.yaml</code></pre>
+        <p>For a list of commands you can use with S3, see <MadCap:xref href="s3-commands.htm">Reference S3 Files with [%=General.Liquibase%] Commands</MadCap:xref>. For more information about the <code>search-path</code> property, see <MadCap:xref href="searchpath.htm">Use search-path with S3</MadCap:xref>.</p>
+        <h2>Related videos</h2>
+        <h3>Learn more about Flow in <MadCap:variable name="General.LBPro" /></h3><iframe width="420" height="315" src="https://www.youtube.com/embed/QKV_yiRMHjw" class="center"></iframe>
+        <h3>Learn how to use Flow files with S3</h3><iframe width="420" height="315" src="https://www.youtube.com/embed/nOv2YK8rfqI" class="center"></iframe>
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html">AWS Bucket naming rules</a>
+            </li>
+            <li>
+                <MadCap:xref href="remote-file-path-rules.htm">Remote File Path Rules</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="s3-commands.htm">Reference S3 Files with [%=General.Liquibase%] Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="searchpath.htm">Use search-path with S3</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
