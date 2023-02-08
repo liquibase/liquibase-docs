@@ -4,7 +4,7 @@
 variable "redirects" {
   type = map(string)
   default = {
-    # format: "/OLD/LINK.html" = "/NEW/LINK.html"
+    # format: "/OLD/LINK.html" = "/NEW/LINK.html" 
     "/2014/11/contexts-vs-labels.html"                                                                         = "/home.html"
     "/2014/11/faq.html"                                                                                        = "/faq.html"
     "/2014/11/home.html"                                                                                       = "/home.html"
@@ -566,6 +566,14 @@ variable "redirects" {
     "/tools-integrations/maven/commands/maven-updateTestingRollback.html"                                      = "/tools-integrations/maven/commands/maven-updatetestingrollback.html"
     "/tools-integrations/maven/commands/popular-topics.html"                                                   = "/home.html"
     "/tools-integrations/remote-files/create-changelogs-s3.html"                                               = "/tools-integrations/remote-files/s3.html"
+    "/tools-integrations/remote-files/remote-file-path-rules.html"                                             = "/tools-integrations/extensions/emote-files/remote-file-path-rules.html"
+    "/tools-integrations/remote-files/s3.html"                                                                 = "/tools-integrations/extensions/remote-files/s3.html"
+    "/tools-integrations/remote-files/s3-commands.html"                                                        =  "/tools-integrations/extensions/remote-files/s3-commands.html"
+    "/tools-integrations/remote-files/searchpath.html"                                                         = "/tools-integrations/extensions/remote-files/searchpath.html"
+    "/tools-integrations/secrets-management/aws-secrets-mgr.html"                                              = "/tools-integrations/extensions/secrets-management/aws-secrets-mgr.html"
+    "/tools-integrations/secrets-management/cyberark-pam-vault.html"                                           = "/tools-integrations/extensions/secrets-management/cyberark-pam-vault.html"
+    "/tools-integrations/secrets-management/hashicorp-vault.html"                                              = "/tools-integrations/secrets-management/hashicorp-vault.html"
+    "/tools-integrations/secrets-management/home.html"                                                         = "/tools-integrations/extensions/secrets-management/home.html"
     "/what-is-a-jdbc-url"                                                                                      = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html"
     "/what-is-a-jdbc-url.html"                                                                                 = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html"
     "/workflows/database-setup-tutorials/apache-derby.html"                                                    = "/start/install/tutorials/apache-derby.html"
