@@ -36,7 +36,7 @@ provider "aws" {
 # 0 byte objects used for redirects
 resource "aws_s3_object" "redirects" {
   count            = length(keys(var.redirects))
-  bucket           = "data.terraform_remote_state.${var.env}.outputs.docs_origin_bucket"
+  bucket           = data.terraform_remote_state."${var.env}".outputs.docs_origin_bucket
   key              = element(keys(var.redirects), count.index)
   content_type     = "text/html"
   website_redirect = element(values(var.redirects), count.index)
