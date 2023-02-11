@@ -1,5 +1,9 @@
 # REDIRECT STORAGE FOR docs.liquibase.com: specifies redirect sources/destinations for all pagemoves and renames
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
+variable "env" {
+  type = string
+  description = "Environment to reference.  Should be staging || prod"
+}
 
 variable "redirects" {
   type = map(string)
@@ -254,7 +258,7 @@ variable "redirects" {
     "/commands/quality-checks/using-the-checks-settings-configuration-file.html"                               = "/commands/quality-checks/concepts/using-the-checks-settings-configuration-file.html"
     "/commands/quality-checks/concepts/using-the-checks-settings-configuration-file.html"                      = "/commands/quality-checks/workflows/using-the-checks-settings-configuration-file.html"
     "/commands/quality-checks/working-with-quality-checks.html"                                                = "/commands/quality-checks/concepts/working-with-quality-checks.html"
-    "/commands/quality-checks/concepts/working-with-quality-checks.html"                                       = "/commands/quality-checks/workflows/working-with-quality-checks.html"
+    "/commands/quality-checks/concepts/working-with-quality-checks.html"                                       = "/commands/quality-checks/workflows/home.html"
     "/commands/registerchangelog.html"                                                                         = "/commands/hub/register-changelog.html"
     "/commands/releaselocks.html"                                                                              = "/commands/maintenance/release-locks.html"
     "/commands/rollbackbytag.html"                                                                             = "/commands/rollback/rollback-by-tag.html"
