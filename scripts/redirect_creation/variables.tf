@@ -1,5 +1,9 @@
 # REDIRECT STORAGE FOR docs.liquibase.com: specifies redirect sources/destinations for all pagemoves and renames
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
+variable "env" {
+  type = string
+  description = "Environment to reference.  Should be staging || prod"
+}
 
 variable "redirects" {
   type = map(string)
