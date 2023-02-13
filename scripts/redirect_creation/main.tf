@@ -3,7 +3,7 @@ terraform {
   backend "remote" {
     organization = "liquibase"
     workspaces {
-      name = "liquibase-docs"
+      name = "liquibase-docs-${var.env}"
     }
   }
 }
