@@ -1,11 +1,6 @@
 
 terraform {
-  backend "remote" {
-    organization = "liquibase"
-    workspaces {
-      name = "liquibase-docs"
-    }
-  }
+  backend "remote" {}
 }
 
 # use Terraform Remote State Data stanza to read state from environment-based workspace
@@ -21,7 +16,7 @@ data "terraform_remote_state" "state" {
 
 # Need legacy Datical account since s3 buckets for docs are there
 provider "aws" {
-  alias      = "datical"
+  alias = "datical"
 }
 
 # 0 byte objects used for redirects
