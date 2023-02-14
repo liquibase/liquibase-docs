@@ -7,7 +7,7 @@ The files in the `scripts\redirect_creation` directory comprise the terraform co
 The publishing of site redirects is part of the overall content publishing workflow used by the Liquibase Documentation Team.
 
 ***Please send us pull requests if you see something that needs to be updated!***
-                                                         
+
 How to make docs changes
 ====================================================================
 
