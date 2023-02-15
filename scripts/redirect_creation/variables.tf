@@ -623,6 +623,5 @@ variable "redirects" {
     "/workflows/liquibase-community/creating-config-properties.html"                                           = "/concepts/connections/creating-config-properties.html"
     "/workflows/liquibase-community/generating-docs.html"                                                      = "/commands/change-tracking/db-doc.html"
     "/workflows/liquibase-community/liquibase-auto-rollback.html"                                              = "/workflows/liquibase-community/automatic-custom-rollbacks.html"
-    "/workflows/liquibase-community/jandro.html"                                                               = "/workflows/liquibase-community/automatic-custom-rollbacks.html"
   }
 }
