@@ -1,7 +1,7 @@
 # REDIRECT STORAGE FOR docs.liquibase.com: specifies redirect sources/destinations for all pagemoves and renames
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
 variable "env" {
-  type = string
+  type        = string
   description = "Environment to reference.  Should be staging || prod"
 }
 
@@ -572,7 +572,7 @@ variable "redirects" {
     "/tools-integrations/remote-files/create-changelogs-s3.html"                                               = "/tools-integrations/remote-files/s3.html"
     "/tools-integrations/remote-files/remote-file-path-rules.html"                                             = "/tools-integrations/extensions/emote-files/remote-file-path-rules.html"
     "/tools-integrations/remote-files/s3.html"                                                                 = "/tools-integrations/extensions/remote-files/s3.html"
-    "/tools-integrations/remote-files/s3-commands.html"                                                        =  "/tools-integrations/extensions/remote-files/s3-commands.html"
+    "/tools-integrations/remote-files/s3-commands.html"                                                        = "/tools-integrations/extensions/remote-files/s3-commands.html"
     "/tools-integrations/remote-files/searchpath.html"                                                         = "/tools-integrations/extensions/remote-files/searchpath.html"
     "/tools-integrations/secrets-management/aws-secrets-mgr.html"                                              = "/tools-integrations/extensions/secrets-management/aws-secrets-mgr.html"
     "/tools-integrations/secrets-management/cyberark-pam-vault.html"                                           = "/tools-integrations/extensions/secrets-management/cyberark-pam-vault.html"
@@ -623,5 +623,6 @@ variable "redirects" {
     "/workflows/liquibase-community/creating-config-properties.html"                                           = "/concepts/connections/creating-config-properties.html"
     "/workflows/liquibase-community/generating-docs.html"                                                      = "/commands/change-tracking/db-doc.html"
     "/workflows/liquibase-community/liquibase-auto-rollback.html"                                              = "/workflows/liquibase-community/automatic-custom-rollbacks.html"
+    "/workflows/liquibase-community/demo.html"                                                                 = "/workflows/liquibase-community/automatic-custom-rollbacks.html"
   }
 }
