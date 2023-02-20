@@ -11,7 +11,7 @@
         <p>By default, a database update runs all <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" />, regardless of what you specify in the CLI. If you add a contextFilter to a <MadCap:variable name="General.changeset" />, it only runs when you specify that context in the CLI, but unmarked <MadCap:variable name="General.changeset" />s still run. If you do not specify any contexts in the CLI&#160;at runtime, every <MadCap:variable name="General.changeset" /> in your <MadCap:variable name="General.changelog" /> runs, even if they have contextFilters attached.<br /></p>
         <p>For example, if you want to tag your environment and <b>let the <MadCap:variable name="General.changeset" />s contain the filter logic</b>, set <code>contextFilter</code> in the <MadCap:variable name="General.changeset" /> and use <code>--contexts</code> in the CLI.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to tag your <MadCap:variable name="General.changeset" />s and <b>control the filter logic in the CLI</b>, use <MadCap:xref href="labels.html">Labels</MadCap:xref> instead of contexts.<br /></p>
-        <h3>Examples of SQL, XML, JSON, and YAML <MadCap:variable name="General.changeset" />s using the contextFilter <MadCap:variable name="General.Param/Attribute" />:</h3>
+        <h2>Syntax</h2>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>SQL</MadCap:dropDownHotspot>
@@ -86,10 +86,9 @@ insert into news (id, title) values (1, 'Liquibase 0.8 Released')</code></pre>
                 value: "Liquibase 0.8 Released"</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <h2 id="syntax">Syntax</h2>
-        <p>You can specify a context using <code>AND</code>, <code>OR</code>, <code>!</code>, and parentheses in the <MadCap:variable name="General.changeset" />s. Without parentheses, the order of operations is <code>!</code>, <code>AND</code>, and then <code>OR</code>.</p>
-        <p><strong>Examples:</strong>
-        </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Prior to <MadCap:variable name="General.Liquibase" /> 4.16.0, the syntax to use in a <MadCap:variable name="General.changelog" /> was <code>context="test"</code>. In 4.16.0+, the correct syntax is <code>contextFilter="test"</code> to distinguish from the runtime argument. However, <code>context</code> is still a supported alias.</p>
+        <h3>Context logic</h3>
+        <p>In <MadCap:variable name="General.Liquibase" /> 3.2.0+, you can specify a context using <code>AND</code>, <code>OR</code>, <code>!</code>, and parentheses in the <MadCap:variable name="General.changeset" />s. Without parentheses, the order of operations is <code>!</code>, <code>AND</code>, and then <code>OR</code>. For example:</p>
         <ul>
             <li><code>contextFilter="!test"</code>
             </li>
@@ -98,17 +97,14 @@ insert into news (id, title) values (1, 'Liquibase 0.8 Released')</code></pre>
             <li><code>contextFilter="!qa and !main"</code>
             </li>
         </ul>
-        <p>Using a <code>","</code> to separate contexts works like an <code>OR</code> operation but with the highest precedence.</p>
-        <p><strong>Examples:</strong>
-        </p>
+        <p>Using a <code>","</code> to separate contexts works like an <code>OR</code> operation but with the highest precedence:</p>
         <ul>
-            <li>"test, qa" is the same as "test OR qa"</li>
-            <li>"test, qa and main" is the same as "(test) OR (qa and main)"</li>
+            <li>"<code>test, qa</code>" is the same as "<code>test OR qa</code>"</li>
+            <li>"<code>test, qa and main</code>" is the same as "<code>(test) OR (qa and main)</code>"</li>
         </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Prior to version 4.16.0, the syntax was <code>context="test"</code>&#160;instead of <code>contextFilter="test"</code>. In <MadCap:variable name="General.Liquibase" /> 4.16.0 and beyond, <code>context</code> is a supported alias for <code>contextFilter</code>. Also, "AND, OR, !, parentheses" syntax is supported in 3.2.0+.</p>
-        <h2>Running contexts</h2>
-        <p>You can only specify context filtering logic in a <MadCap:variable name="General.changeset" /> definition, but you can still specify multiple contexts when running <MadCap:variable name="General.Liquibase" /> in the CLI. However, you can only list out all the contexts that apply to the current <MadCap:variable name="General.Liquibase" /> run.</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=changelog.xml --contexts="test" update</code></pre>
-        <p>If your <MadCap:variable name="General.changelog" /> includes several <MadCap:variable name="General.changeset" />s with complex and simple context filters such as <code>contextFilter="qa and main and !dev"</code> for <MadCap:variable name="General.changeset" /> 1 and <code>contextFilter="test"</code> for <MadCap:variable name="General.changeset" /> 2, you need to pass the following on the command line to deploy them:</p><pre xml:space="preserve"><code class="language-text">liquibase --changelog-file=changelog.xml --contexts="test,qa,main" update</code></pre>
+        <h3>Running contexts</h3>
+        <p>You can only specify context filtering logic in a <MadCap:variable name="General.changeset" /> definition, but you can still specify multiple contexts when running <MadCap:variable name="General.Liquibase" /> in the CLI. However, you can only list out all the contexts that apply to the current <MadCap:variable name="General.Liquibase" /> run.</p><pre xml:space="preserve"><code class="language-text">liquibase update --contexts="test" --changelog-file=example-changelog.xml</code></pre>
+        <p>If your <MadCap:variable name="General.changelog" /> includes several <MadCap:variable name="General.changeset" />s with complex and simple context filters such as <code>contextFilter="qa and main and !dev"</code> for <MadCap:variable name="General.changeset" /> 1 and <code>contextFilter="test"</code> for <MadCap:variable name="General.changeset" /> 2, you need to pass the following on the command line to deploy them:</p><pre xml:space="preserve"><code class="language-text">liquibase update --contexts="test,qa,main" --changelog-file=example-changelog.xml</code></pre>
         <h2 id="using-contexts-for-test-data">Using contexts for test data</h2>
         <p>If you  manage your test data with <MadCap:variable name="General.Liquibase" />, it is best practice to have this data  in line with all your other <MadCap:variable name="General.changeset" />s, but marked with a <code>"test"</code> contextFilter.
 When you want your test data inserted, run a database update and specify the <code>"test"</code> context in the CLI. When you need to migrate your production database, 
