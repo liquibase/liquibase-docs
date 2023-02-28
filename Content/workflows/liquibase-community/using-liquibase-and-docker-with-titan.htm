@@ -13,8 +13,6 @@
             <li>Install Docker and Titan by referring to <a href="https://titan-data.io/docs/version/0.5.0/lifecycle/install.html#lifecycle-install">Installation and Configuration</a>. Here is an example of installing Titan and running the data found in the <code>hello-world postgres</code> repository:</li><pre><code class="language-text">titan install
 titan clone s3://titan-data-demo/hello-world/postgres hello-world
 titan ls</code></pre>
-        </ol>
-        <ol start="2">
             <li>Create directories for the PostgreSQL JDBC jar and <MadCap:variable name="General.changelog" /> locally. For example: <code>/home/app/jdbc</code> and <code>/home/app/changelog</code>.</li>
             <li>Run docker network inspect bridge to find the IP address of your Titan PostgreSQL container. For example: <code>172.17.0.3</code>.</li>
             <li>Create an alias to avoid lengthy arguments. Ensure to set <code>update ${JAR}</code>.</li><pre xml:space="preserve"><code class="language-text">alias liquibase="docker run -v /home/app/jdbc:/liquibase/jdbc -v 
@@ -23,39 +21,21 @@ titan ls</code></pre>
 --url="jdbc:postgresql://172.17.0.3:5432/postgres" 
 --changelog-file=/liquibase/changelog/changelog.xml 
 --username=postgres --password=postgres"</code></pre>
-        </ol>
-        <ol start="5">
-            <li>Generate the <MadCap:variable name="General.changelog" /> file for your Titan-provided PostgreSQL database by running:</li><pre><code class="language-text">liquibase --changelog-file=changelog.xml generate-changelog</code></pre>
+            <li>Generate the <MadCap:variable name="General.changelog" /> file for your Titan-provided PostgreSQL database by running:</li><pre><code class="language-text">liquibase generate-changelog --changelog-file=changelog.xml</code></pre>
             <p>The command will create a <code>changelog.xml</code> file that is the baseline of your database. You can find it on your local system in the <code><MadCap:variable name="General.changelog" /></code> folder.</p>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to create an SQL <MadCap:variable name="General.changelog" /> file, add your database type name when specifying the <MadCap:variable name="General.changelog" /> file: <code>liquibase --changelog-file=changelog.oracle.sql generate-changelog</code>. Replace <code>.oracle.sql</code> with your database type. <MadCap:variable name="General.Liquibase" /> also supports JSON and YAML formats. When in doubt about your database type name, check <a href="https://www.liquibase.org/get-started/databases?_ga=2.54550699.1847997156.1612184789-198385488.1595954650">Supported Databases</a>.</p>
-        </ol>
-        <ol start="6">
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to create an SQL <MadCap:variable name="General.changelog" /> file, add your database type name when specifying the <MadCap:variable name="General.changelog" /> file: <code>liquibase generate-changelog --changelog-file=changelog.oracle.sql</code>. Replace <code>.oracle.sql</code> with your database type. <MadCap:variable name="General.Liquibase" /> also supports JSON and YAML formats. When in doubt about your database type name, check <a href="https://www.liquibase.org/get-started/databases?_ga=2.54550699.1847997156.1612184789-198385488.1595954650">Supported Databases</a>.</p>
             <li>Run the following command to synchronize the <MadCap:variable name="General.changelog" /> file with a schema.</li><pre><code class="language-text">liquibase changelog-sync</code></pre>
-        </ol>
-        <ol start="7">
             <li>Examine the <MadCap:variable name="General.databasechangelog" /> table, which is created by <MadCap:variable name="General.Liquibase" />:</li><pre><code class="language-text">psql postgres://postgres:postgres@localhost/postgres -t -c 'SELECT * FROM DATABASECHANGELOG;'</code></pre>
-        </ol>
-        <ol start="8">
             <li>Commit the updated database to the Titan server and check in the <code>changelog.xml</code> file into the same source code repository as your application.</li><pre><code class="language-text">titan commit -m "baselined with Liquibase" hello-world</code></pre>
-        </ol>
-        <ol start="9">
             <li>Add a new <MadCap:variable name="General.changeset" /> to the <MadCap:variable name="General.changelog" /> file:</li><pre><code class="language-text">&lt;changeSet author="liquibase_docker" id="1"&gt;
 	&lt;createTable tableName="newtable"&gt;
 		&lt;column name="colname" type="VARCHAR(255)"/&gt;
 	&lt;/createTable&gt;
 &lt;/changeSet&gt;</code></pre>
-        </ol>
-        <ol start="10">
             <li>Save your file and run the following command to make sure you have updated the file correctly:</li><pre><code class="language-text">liquibase validate</code></pre>
-        </ol>
-        <ol start="11">
             <li>Check the SQL that will be run on the server:</li><pre><code class="language-text">liquibase update-sql</code></pre>
-        </ol>
-        <ol start="12">
             <li>Deploy your new table to the database:</li><pre><code class="language-text">liquibase update</code></pre>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can verify that the table was created by running<br /><code>psql postgres://postgres:postgres@localhost/postgres -t -c ‘\d newtable;’</code>.</p>
-        </ol>
-        <ol start="13">
             <li>Commit your data changes to Titan and your updated changelog to source code control.</li><pre><code class="language-text">titan commit -m "Created table newtable with Liquibase." hello-world</code></pre>
         </ol>
         <p>Now, you can use <MadCap:variable name="General.Liquibase" /> to update database schema change in non-development environments.</p>
