@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /> | Enterprise Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/dmc/administer/azure-ad-oidc.html" />
+        <meta name="description" content="You can create a SAML Connection with Auth0 to DMC. This allows you to authenticate and authorize individuals to use DMC. Follow the steps below to setup this connection." />
+    </head>
+    <body>
+        <h1>Connect DMC to Azure AD via OIDC</h1>
+        <p>You can create an OpenID Connection, or OIDC, with Azure AD to DMC. This allows you to use SSO to authenticate and authorize individuals to use DMC. Follow the steps below to setup this connection.</p>
+        <h2>Instructions</h2>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Before you begin, you need an <a href="https://portal.azure.com/">Azure account</a> with privileges that allow you to manipulate app registrations, groups, and permissions. Then you need an app registration in Azure Active Directory.</p>
+        <h3>Keycloak Steps:</h3>
+        <ol>
+            <li>Go to the Keycloak admin console and find the <b>Identity providers</b> menu.</li>
+            <li>Add an OpenID Connect v1.0 provider.</li>
+        </ol>
+        <h3>Azure AD and Keycloak Configuration Steps</h3>
+        <p>This section covers how to setup an identity provider which provides the connection between Azure AD and OIDC.</p>
+        <ol>
+            <li>Type in the desired <b>Display name</b>.</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This is a visible name for your custom identity provider. In the provided example, we use OpenID Connect Login as the Display name.</p>
+            <li>Obtain the client secret by generating one in the <b>Certificates &amp; secrets</b> section of your <b>Azure AD app registration</b>.</li>
+            <li>Add the <b>client ID</b> and <b>client secret</b> from the <b>Azure AD app registration</b> to the associated fields in the <b>Keycloak Identity Providers</b> section.</li>
+            <li>
+                <p>Obtain the <b>discovery endpoint</b> from this location:<br /><b>Your application &gt; Overview &gt; Endpoints &gt; OpenID Connect Metadata Document</b></p>
+            </li>
+            <li>
+                <p>Next, add the <b>discovery endpoint</b> into it's associated text field.<br />The <b>Discovery endpoint</b> contains the required metadata to use the identity provider.</p>
+            </li>
+            <li>
+                <p>Once all boxes are filled in, click the <b>Add</b> button.<br /><img src="../../../Z_Resources/Images/Assets/Screenshots/administer/auth0-oidc-1.png" class="thumbnail" /></p>
+            </li>
+            <li>
+                <p>Copy the <b>Redirect URL</b> and paste it into your application located here:<br /><b>Application &gt; Overview &gt; Redirect URLs &gt; Redirect URLs</b></p>
+            </li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If an error related to ‘Prompt’ appears, go to the advanced settings tab and change <b>Prompt</b> value from <b>Unspecified</b> to <b>None</b>.</p>
+        <h3>Sign into DMC DB with OpenID Connection</h3>
+        <p>This section covers how to connect DMC with an OpenID to Azure AD.</p>
+        <ol>
+            <li>On the DMC sign in screen, click the OpenID Connect Login link on the bottom of the dialog.<br />This will direct you to the Azure AD login page.<br /><img src="../../../Z_Resources/Images/Assets/Screenshots/administer/auth0-oidc-2.png" class="thumbnail" /></li>
+            <li>Log in to Azure AD.<br />This will direct you back to the DMC DB admin.</li>
+        </ol>
+        <h2>Mappers</h2>
+        <p>Mappers may be used to automate assigning Azure AD users in Keycloak to roles, groups, or other functions. Follow the guide below to enable mapper capability.</p>
+        <h3>Keycloak</h3>
+        <ol>
+            <li>Navigate to your <b>Azure AD identity provider</b> in <b>Keycloak</b> and select the <b>Mappers</b> menu.</li>
+            <ol>
+                <li>Add a custom name.</li>
+                <li>Select a sync mode.<br />Select <b>Force</b> if you want to update the data each time you log in.</li>
+                <li>Select mapper type <b>Advanced Claim to Group</b>.</li>
+                <li>In the <b>Claims</b> section, add <b>groups</b> as the <b>Key</b>.</li>
+                <li>In the <b>Claims</b> section, add your <b>group id</b> from Azure AD as the <b>Value</b>.</li>
+                <li>In the <b>Group</b> section, select which <b>groups</b> you want to assign to the user
+				when the condition is met.</li>
+                <li>Click the <b>Save</b> button.</li>
+            </ol>
+            <li>Navigate to the <b>Client Scopes</b> section and create a new client scope.<ol><li>Add the name <b>groups</b>.
+</li><li>Click the <b>Save</b> button.</li><li>Change the <b>Assigned Type</b> to <b>Default</b>.</li></ol></li>
+            <li>
+                <p>Navigate to the <b>Azure AD app registration</b> page and select <b>Manifest</b>.</p>
+            </li>
+            <li>
+                <p>Change the <b>groupMembershipClaims</b> property value from <b>null</b> to <b>All</b>. <br />After these steps are complete, the user will be assigned to the provided group the next time they login.</p>
+            </li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If there are issues when logging out - change the <b>Backchannel logout</b> toggle value in the <b>identity provider advanced settings</b>.</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is important to note that Azure AD does not support LDAPprotocol or Secure LDAP directly. It is possible to enable Azure AD DS instance on an Azure AD tenant with correctly configured network security groups. <a href="https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-faq#can-i-set-up-a-secure-ldap-connection-with-azure-ad-">Learn more here</a></p>
+    </body>
+</html>
