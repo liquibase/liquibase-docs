@@ -27,14 +27,14 @@
         <p class="title">File Encoding Best Practice</p>
         <p>For best results, scripts should use UTF-8 encoding. Other encoding types can result in lexical issues with <MadCap:variable name="General.DaticalDB" /> that require the affected files to be converted to UTF-8.</p>
         <ul>
-            <li>This conversion is performed automatically when you use the Deploy Packager &amp; the <code>packagemethod</code> is set to <code><code>direct </code>or ddl_direct </code>in the <code><a href="../../package-sql-scripts-for-deployment/configure-packaging/metadata-properties-file.htm" rel="nofollow">metadata.properties</a></code> file that affects the script's directory</li>
+            <li>This conversion is performed automatically when you use the Deploy Packager &amp; the <code>packagemethod</code> is set to <code><code>direct </code>or ddl_direct </code>in the <code><a href="../../dba/package/package-sql-scripts-deployment/configure-packaging/metadata-properties.htm" rel="nofollow">metadata.properties</a></code> file that affects the script's directory</li>
             <li>This conversion <strong>IS NOT</strong> performed when you create change sets that target scripts in the Change Set Wizard of the <MadCap:variable name="General.DaticalDB" /> GUI. These options include:
 				<ul><li>Execute with sqlplus for Oracle Databases</li><li>Execute a DML script with sqlplus for Oracle Databases (Required for DML Forecasting)</li><li>Execute with sqlcmd for Microsoft SQL Server &amp; Azure SQL Databases</li><li>Execute with clpplus for DB2 Databases</li><li>Execute with psql for Postgres Databases</li><li>Execute with edbplus for EnterpriseDB Databases</li><li>Execute a SQL script file using JDBC</li></ul></li>
         </ul>
         <h2 id="WritingSQLScriptsforDaticalDB-UsingtheNLS_LANGenvironmentvariablewithOracle">Using the NLS_LANG environment variable with Oracle</h2>
         <p>The NLS_LANG environment variable can impact the operation of <MadCap:variable name="General.DaticalDB" /> in two ways.</p>
         <h3 id="WritingSQLScriptsforDaticalDB-sqlplusChangeSetExecution"><code>sqlplus</code> Change Set Execution</h3>
-        <p>This setting is used by the database to ensure that script contents are interpreted appropriately when executed and that data values are stored appropriately in the database. This can effect how characters are displayed in query output and in SQL IDEs and workbenches. If you are unable to standardize on UTF-8 as recommended above, it is recommended that all scripts processed for a given <MadCap:variable name="General.DaticalDB" /> project use the same locale and character set designations. You may then set the NLS_LANG value that corresponds to your script in your <MadCap:variable name="General.DaticalDB" /> project as described in <a href="../../how-to-guides/how-to-guides/configure-project-settings.htm">Configuring Project Settings</a></p>
+        <p>This setting is used by the database to ensure that script contents are interpreted appropriately when executed and that data values are stored appropriately in the database. This can effect how characters are displayed in query output and in SQL IDEs and workbenches. If you are unable to standardize on UTF-8 as recommended above, it is recommended that all scripts processed for a given <MadCap:variable name="General.DaticalDB" /> project use the same locale and character set designations. You may then set the NLS_LANG value that corresponds to your script in your <MadCap:variable name="General.DaticalDB" /> project as described in <a href="../dev-how-tos/configure-project-settings.htm">Configuring Project Settings</a></p>
         <h3 id="WritingSQLScriptsforDaticalDB-Log&amp;ConsoleOutput">Log &amp; Console Output</h3>
         <p>The setting also effects the characters sets used for output and logs. If the language and character set of the database does not match the language and character set specified on the client, you may see unexpected characters or question marks in your output instead. This can occur during Deploy operations or during the Backup and Restore phases of the Deploy Packager and, in some cases, can lead to operation failures. It is highly recommended that the NLS_LANG setting on the client system from which the Deploy Packager is executed match the setting on the RefDB. This can be accomplished by setting the NLS_LANG environment prior to executing <MadCap:variable name="General.DaticalDB" /> on the client.
         </p>
@@ -138,7 +138,7 @@ END;</pre>
         <p>See <a href="../dev-user-guides/manage-changesets/changeset-version-strategy.htm">Changeset Versioning: version and versionStrategy</a> for more information about how change set versioning is used in <MadCap:variable name="General.DaticalDB" />.</p>
         <h2>Statement Terminators</h2>
         <p>Use statement terminators in SQL scripts (the semicolon by convention).</p>
-        <p>When a statement is missing the terminator, packager will stop processing and return an error if the script time out setting has been set for REF dbDef. See "CLPPlus Timeout", "SQL*Plus Timeout", "EDB*Plus Timeout", and "SQLCMD Timeout" here: <a href="../../define-release-pipeline/configure-projects/configure-step-settings-dbdefs.htm">Configuring Step Settings (DbDefs)</a>.</p>
+        <p>When a statement is missing the terminator, packager will stop processing and return an error if the script time out setting has been set for REF dbDef. See "CLPPlus Timeout", "SQL*Plus Timeout", "EDB*Plus Timeout", and "SQLCMD Timeout" here: <a href="../dev-how-tos/configure-step-settings-dbdefs.htm">Configuring Step Settings (DbDefs)</a>.</p>
         <h2>Dynamic SQL</h2>
         <p><MadCap:variable name="General.DaticalDB" /> works with "compile-time" or "static" SQL statements in SQL script files.</p>
         <p>It does not work on the SQL code that is generated at run time through features for dynamic SQL.</p>
@@ -150,15 +150,15 @@ END;</pre>
         <p>The <code>CONVERT</code> packaging method (which is used by default in the ddl folder) does not run the actual sql script during the final deploy. The CONVERT packaging method (ddl folder) will deploy the change set that was created by comparing the "before" snapshot to the "after" snapshot where the change set is based on the difference between the two. The CONVERT method (ddl folder) may not preserve the order of statements and it may not include statements that do not result in a change set during the diff process.</p>
         <p>If the order of the statements in the script is critical or if the script contains statements that would not be represented in a change set generated by diffing the before and after states of the database, you could instead package those scripts with the DIRECT method (which is used by default in the sql_direct folder). Scripts packaged with the DIRECT method in the sql_direct folder (or other folders that you have set to use the DIRECT packaging method) will run the actual script, thereby preserving the statements and the order of the statements.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">
-			Note that the possible drawback with using the DIRECT method/ sql_direct folder with some configurations is losing some of the simulation/forecasting/modeling/profiling abilities that may happen with the CONVERT method/ddl folder. For Oracle you could use <MadCap:variable name="General.DaticalDB" />'s optional <a href="../../package-sql-scripts-for-deployment/configure-packaging/sql-parser.htm" rel="nofollow">SQL Parser</a> feature to add forecasting to the DIRECT method/ sql_direct folder (or other folders that you have set to use the DIRECT packaging method). <br /></p>
+			Note that the possible drawback with using the DIRECT method/ sql_direct folder with some configurations is losing some of the simulation/forecasting/modeling/profiling abilities that may happen with the CONVERT method/ddl folder. For Oracle you could use <MadCap:variable name="General.DaticalDB" />'s optional <a href="../../dba/package/package-sql-scripts-deployment/configure-packaging/sql-parser.htm" rel="nofollow">SQL Parser</a> feature to add forecasting to the DIRECT method/ sql_direct folder (or other folders that you have set to use the DIRECT packaging method). <br /></p>
         <h2>Related links</h2>
         <p>Here are pages with additional information such as an overview of the workflows packager uses, packaging methods, packaging folders, and which methods/folders to use for different types of changes:</p>
         <ul>
-            <li><a href="../../package-sql-scripts-for-deployment/overview-packaging/overview-packaging.htm">Overview of Packaging</a>
+            <li><a href="../../dba/package/package-sql-scripts-deployment/overview-packaging/home.htm">Overview of Packaging</a>
             </li>
-            <li><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/files-scm-repository.htm">Placing Files in the SCM Repository</a>
+            <li><a href="../../dba/package/package-sql-scripts-deployment/place-files-scm-repo/files-scm-repository.htm">Placing Files in the SCM Repository</a>
             </li>
-            <li><a href="../../package-sql-scripts-for-deployment/place-files-scm-repo/fixed-folder-names.htm">Fixed Folder Names</a>
+            <li><a href="../../dba/package/package-sql-scripts-deployment/place-files-scm-repo/fixed-folder-names.htm">Fixed Folder Names</a>
             </li>
             <li><a href="../../dba/package/package-sql-scripts-deployment/place-files-scm-repo/flexible-folder-names.htm">Flexible Folder Names</a>
             </li>
@@ -168,9 +168,9 @@ END;</pre>
             </li>
             <li><a href="../../dba/package/package-sql-scripts-deployment/place-files-scm-repo/postgresql-objects-packaging.htm" rel="nofollow">PostgreSQL Server Database Objects and Packaging</a>
             </li>
-            <li><a href="../../package-sql-scripts-for-deployment/configure-packaging/sql-parser.htm">Using SQL Parser</a>
+            <li><a href="../../dba/package/package-sql-scripts-deployment/configure-packaging/sql-parser.htm">Using SQL Parser</a>
             </li>
-            <li><a href="../../how-to-guides/app-dev-how-to-guides/choose-btw-CONVERT-ddl-packaging.htm">How To: Choose Between CONVERT (ddl) and DDL_DIRECT (ddl_direct) Packaging Methods</a>
+            <li><a href="../dev-how-tos/choose-btw-packaging.htm">How To: Choose Between CONVERT (ddl) and DDL_DIRECT (ddl_direct) Packaging Methods</a>
             </li>
             <li><a href="../../troubleshoot/difference-between-ddl-sql-folders.htm">What is the difference between "ddl" and "sql_direct" folders?</a>
             </li>
