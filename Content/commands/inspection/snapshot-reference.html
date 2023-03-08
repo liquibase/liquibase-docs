@@ -7,26 +7,7 @@
     <body>
         <h1><code>snapshot-reference</code>
         </h1>
-        <p>The <code>snapshot-reference</code> command captures the current state of the <code>referenceURL</code> database, which is the source database.</p>
-        <p>The <MadCap:xref href="snapshot.html">snapshot</MadCap:xref> command has two modes:</p>
-        <ul>
-            <li>When run without options, it gathers the current state of the database and shows a text-based version of the schema to <code>STDOUT</code>.</li>
-            <li>When run with the <code>--snapshot-format=json</code> option, it creates a JSON file that represents the current state of the referenceURL database. Alternatively, you can have a YAML-based output by using the <code>--snapshot-format=yaml</code> <MadCap:variable name="General.Param/Attribute" />.</li>
-        </ul>
-        <h2>Uses</h2>
-        <p>The <code>snapshot-reference</code> command is typically used when you want to see changes in your source database or keep a record of your current database state.</p>
-        <p>The snapshot can be used in the <MadCap:xref href="diff.htm">diff</MadCap:xref> command or <MadCap:xref href="diff-changelog.html">diff-changelog</MadCap:xref> command.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is best practice to use the <code>--snapshot-format=json</code> option for the <code>diff</code> and <code>diff-changelog</code> commands. Otherwise, you will get only a text report of your source database. This text report cannot be used for comparison in the future.</p>
-        <p>It can also be used to compare:</p>
-        <ul>
-            <li>A previous database state to an online database.</li>
-            <li>A previous database state to another snapshot.</li>
-        </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Running a diff command by using at least one <code>snapshot.json</code> file is faster than using a <code>diff</code> command with two online databases. However, keep in mind that a snapshot will no longer reflect the current state of the database if the database is changed with the <code>update</code> command or if it is changed manually.</p>
-        <h2>Syntax</h2>
-        <p>To run the <code>snapshot-reference</code> command, specify the driver, classpath, and URL in the <MadCap:variable name="General.Liquibase" /> properties file. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Create and Configure a [%=General.liquiPropFile%] File</MadCap:xref>. You can also specify these properties in your command line.</p>
-        <p>Then run the <code>snapshot-reference</code> command:</p><pre><code class="language-text">liquibase snapshot-reference</code></pre>
-        <p>To create a JSON file, add the <code>--snapshot-format=json</code> <MadCap:variable name="General.Param/Attribute" />:</p><pre><code class="language-text">liquibase --output-file=mySnapshot.json snapshot-reference --snapshotFormat=json</code></pre>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-snapshot-intro-uses-syntax.flsnp" MadCap:conditionTagExpression="include[command-snapshot.snapshot-reference]" />
         <h2>Global arguments</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
         <table style="margin-right: auto;">
@@ -130,29 +111,16 @@
             </tbody>
         </table>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-username-password.flsnp" />
-        <h2>Using <code>snapshot-reference</code> in the <code>diff</code> and <code>diff-changelog</code> commands</h2>
-        <p>You can use the JSON format snapshot file in the <code>diff</code> and <code>diff-changelog</code> commands. One of the typical workflows is the following:</p>
-        <ol>
-            <li>Make sure your local environment is up-to-date by getting the latest <MadCap:variable name="General.changelog" /> from source control.</li>
-            <li>Configure the <MadCap:variable name="General.Liquibase" /> properties file to point to a local development database and run the <code>update</code> command to ensure your target database matches the <MadCap:variable name="General.changelog" /> file.</li>
-            <li>Take a snapshot of the local development database by running the <code>snapshot-reference</code> command:</li><pre><code class="language-text">liquibase --output-file=mySnapshot.json snapshot-reference --snapshot-format=json</code></pre>
-            <li>Manually change the local development database if needed.</li>
-            <li>Append changes to the <MadCap:variable name="General.changelog" /> by running the <code>diff-changelog</code> command:</li><pre><code class="language-text">liquibase diff-changelog --url=jdbc:oracle:thin://localhost:9090/mem:test --referenceUrl=offline:mysql?snapshot=mySnapshot.json</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to see changes without appending them to the <MadCap:variable name="General.changelog" /> file, <code>add --changelog-file=mydiffchangelog.xml</code> to the <code>diff-changelog</code> command:</p><pre><code class="language-text">liquibase diff-changelog --url=jdbc:oracle:thin://localhost:9090/mem:test --referenceUrl=offline:mysql?snapshot=mySnapshot.json --changelog-file=mydiffchangelog.xml</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The format for the referenceUrl is the following: offline:<code>&lt;db_type&gt;?snapshot=&lt;path/to/snapshot.json&gt;</code>. Use the name of your database type from the list of the <a href="https://www.liquibase.org/get-started/databases">supported databases</a> in place of <code>&lt;db_type&gt;</code> and the path relative to where the command is running in place of <code>&lt;path/to/snapshot.json&gt;</code>: <code>"offline:&lt;db_type&gt;?snapshot=&lt;path/to/snapshot.json&gt;"</code>.</p>
-            <li>Review the <MadCap:variable name="General.changelog" /> file to ensure that it matches your expectations of the manual changes that were made.</li>
-            <li>Mark the manual changes as deployed in the local development database by running the <MadCap:xref href="../change-tracking/changelog-sync.htm">changelog-sync</MadCap:xref> command:</li><pre><code class="language-text">liquibase changelog-sync</code></pre>
-            <li>Commit the changes to the source control.</li>
-        </ol>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-snapshot-diff-diff-changelog.flsnp" MadCap:conditionTagExpression="include[command-snapshot.snapshot-reference]" />
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody>
-                <p>When running the <code>snapshot-reference</code> command with the <code>--snapshotFormat</code> <MadCap:variable name="General.Param/Attribute" />, the output can be as follows:</p><pre xml:space="preserve"><code class="language-text">Liquibase Community 4.9.1 by Liquibase
+                <p>When running the <code>snapshot-reference</code> command with the <code>--snapshot-format</code> <MadCap:variable name="General.Param/Attribute" />, the output can be as follows:</p><pre xml:space="preserve"><code class="language-text">Liquibase Community 4.9.1 by Liquibase
 Output saved to C:\Users\Amber Williams\Documents\Maven_h2\mySnapshot.json
 Liquibase command 'snapshot-reference' was executed successfully.</code></pre>
-                <p>When running the <code>snapshot-reference</code> command without indicating the <code>--snapshotFormat</code>, you receive the following output:</p><pre xml:space="preserve"><code class="language-text">Liquibase Community 4.9.1 by Liquibase
+                <p>When running the <code>snapshot-reference</code> command without indicating the <code>--snapshot-format</code>, you receive the following output:</p><pre xml:space="preserve"><code class="language-text">Liquibase Community 4.9.1 by Liquibase
 Database snapshot for jdbc:h2:tcp://localhost:9090/mem:integration
 -----------------------------------------------------------------
 Database type: H2
@@ -195,27 +163,5 @@ liquibase.structure.core.UniqueConstraint
 liquibase.structure.core.View</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <p><MadCap:variable name="General.LBCommunity" /> <code>snapshot-reference</code> categories:</p>
-        <ul>
-            <li>Catalog</li>
-            <li>Column</li>
-            <li>Foreign Key</li>
-            <li>Index</li>
-            <li>Primary Key</li>
-            <li>Schema</li>
-            <li>Sequence</li>
-            <li>Unique Constraints</li>
-            <li>View</li>
-        </ul>
-        <p><MadCap:variable name="General.LBPro" /> <code>snapshot-reference</code> categories:</p>
-        <ul>
-            <li>Package</li>
-            <li>Package Body</li>
-            <li>Procedures</li>
-            <li>Function</li>
-            <li>Trigger</li>
-            <li>Synonyms</li>
-            <li>Check Constraints</li>
-        </ul>
     </body>
 </html>
