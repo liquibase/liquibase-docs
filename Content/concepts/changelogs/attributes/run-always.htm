@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/changelogs/attributes/run-always.html" />
+        <meta name="description" content="Reference information for the runAlways attribute. The runAlways executes the changeset on every run, even if it has been run before." />
+    </head>
+    <body>
+        <h1><code>runAlways</code>
+        </h1>
+        <p>You can use the <code>runAlways</code>&#160;<MadCap:variable name="General.Param/Attribute" /> to execute a <MadCap:variable name="General.changeset" /> every time you make a database deployment, even if it has been run before.</p>
+        <h2>Uses</h2>
+        <p>Normally, when you deploy a <MadCap:variable name="General.changeset" /> to your database with the <MadCap:xref href="../../../commands/update/update.html">update</MadCap:xref> command, <MadCap:variable name="General.Liquibase" /> adds a row to the <MadCap:xref href="../../tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> to keep track of it. In every later deployment, <MadCap:variable name="General.Liquibase" /> checks the <MadCap:variable name="General.databasechangelog" /> table, sees that the <MadCap:variable name="General.changeset" /> has already been deployed, and skips it.</p>
+        <p>However, if you need a <MadCap:variable name="General.changeset" /> to repeat an action on every deployment, you can set <code>runAlways</code> to <code>true</code> for that <MadCap:variable name="General.changeset" />. Possible workflows include:</p>
+        <ul>
+            <li>Using <MadCap:xref href="../../../change-types/update.html">update</MadCap:xref> to specify the current timestamp in a table in your database</li>
+            <li>Using <MadCap:xref href="../../../change-types/tag-database.html">tagDatabase</MadCap:xref> to tag the current state of your database</li>
+            <li>Using <MadCap:xref href="../../../change-types/sql.html">sql</MadCap:xref> or <MadCap:xref href="../../../change-types/sql-file.html">sqlFile</MadCap:xref> to run a script that dynamically updates object permissions</li>
+        </ul>
+        <p>In these examples, you wouldn't necessarily change the <MadCap:variable name="General.changeset" />s themselves in a deployment. However, you would want these <MadCap:variable name="General.changeset" />s to run again because they behave based on how other parts of your database will have changed.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Setting <code>runAlways</code> to <code>true</code> on <MadCap:variable name="General.changeset" />s that don't need to be run more than once may slow down your database updates.</p>
+        <p>If you want to run a <MadCap:variable name="General.changeset" /> on deployment only if it was updated since the last deployment, you should use <MadCap:xref href="runonchange.htm">runOnChange</MadCap:xref> instead of <code>runAlways</code>.</p>
+        <h2>Syntax</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/changeset-attribute-camel.flsnp" />
+        <p>The default value for <code>runAlways</code> is <code>false</code>.  Set <code>runAlways</code> to <code>true</code> on <MadCap:variable name="General.changeset" />s that you want to execute on every migration.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql" data-lang="sql">--changeset your.name:1 runAlways:true
+UPDATE deployment_log SET latest=CURRENT_TIMESTAMP;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;changeSet  id="1"  author="your.name"  runAlways="true"&gt;
+    &lt;update  tableName="deployment_log"&gt;
+        &lt;column  name="latest"  type="DATETIME"/&gt;
+    &lt;/update&gt;
+&lt;/changeSet&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml" data-lang="yaml">databaseChangeLog:
+  -  changeSet:  
+      id:  1
+      author:  your.name
+      runAlways:  true
+      changes:
+        -  update:
+            tableName:  deployment_log
+            columns:
+              -  column:
+                  name:  latest</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+  "changeSet": {
+    "id": "1",
+    "author": "your.name",
+    "runAlways": "true",
+    "changes": [
+      {
+        "update": {
+          "tableName": "deployment_log",
+          "columns": [
+            {
+              "column": {
+                "name": "latest"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="runonchange.htm">runOnChange</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="runwith.htm">runWith</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
