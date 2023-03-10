@@ -18,12 +18,12 @@
             <img src="../../Z_Resources/Images/Screenshots/commands/rollbackoneupdate.jpg" />
         </p>
         <p>The image above shows <code class="highlighter-rouge">deploymentIds</code> 1 through 5, with <code class="highlighter-rouge">deploymentId</code> 2 incorporating all the <MadCap:variable name="General.changeset" />s we want to roll back. As you can see, the <code class="highlighter-rouge">rollback-one-update</code> command allows you to target <code class="highlighter-rouge">deploymentId</code> 2 and revert all <MadCap:variable name="General.changeset" />s associated with the same <code class="highlighter-rouge">deploymentId</code> to its previous state without impacting the others.</p>
-        <h2 id="the-impacts-of-rollback-one-update">The impacts of <code class="highlighter-rouge">rollback-one-update</code></h2>
+        <h2 id="the-impacts-of-rollback-one-update">Impact</h2>
         <p>Like any cherry-picking tool, using the <code class="highlighter-rouge">rollback-one-update</code> command comes with risks which may be unintended.</p>
         <p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;"> Look for potential unintended consequences <strong style="font-weight: normal; font-style: italic;">before</strong> using this command.</p>
         <p>It is a best practice to run the <MadCap:xref href="rollback-one-update-sql.html">rollback-one-update-sql</MadCap:xref> command because it allows you to inspect the <code class="highlighter-rouge">rollback-one-update</code> SQL and search for any potential mistakes before you execute the <code class="highlighter-rouge">rollback-one-update</code> command.</p>
         <p>The use of <code class="highlighter-rouge">rollback-one-update</code> comes with <strong>risk of unintended consequences</strong>, so you must also specify <code class="highlighter-rouge">--force</code> to indicate that you intend to run the command.</p>
-        <h2 id="additional-impacts-to-the-databasechangelog-table">Additional impacts to the <MadCap:variable name="General.databasechangelog" /> table</h2>
+        <h3><MadCap:variable name="General.databasechangelog" /> table</h3>
         <p>Running the <code class="highlighter-rouge">rollback-one-update</code> command will remove the deployment record from the <MadCap:variable name="General.databasechangelog" /> table. As a user, you must decide on what to do with your <MadCap:variable name="General.changeset" />s after the <code class="highlighter-rouge">rollback-one-changeset</code> command has been run.</p>
         <p>Depending on your desired outcome, consider doing one of the following:</p>
         <ul>
@@ -31,13 +31,34 @@
             <li>Do nothing to the <MadCap:variable name="General.changeset" /> in the <MadCap:variable name="General.changelog" /> file and have it be re-deployed.</li>
             <li>Delete the <MadCap:variable name="General.changeset" /> in the <MadCap:variable name="General.changelog" /> file.</li>
         </ul>
-        <h2 id="running-the-rollback-one-update-command">Running the <code class="highlighter-rouge">rollback-one-update</code> command</h2>
-        <p>Before running the <code>rollback-one-update</code> command, you can get the optional <code>deploymentId</code> of the deployment you want to revert by running the <MadCap:xref href="../change-tracking/history.html">history</MadCap:xref> command.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"> If the <code class="highlighter-rouge">deploymentId</code> is not supplied, <MadCap:variable name="General.LBPro" /> will look up the most recent <code class="highlighter-rouge">deploymentId</code> from the <MadCap:variable name="General.databasechangelog" /> table and use it for the rollback.</p>
-        <p>Then run the <code class="highlighter-rouge">rollback-one-update</code> command, with your information:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">liquibase rollback-one-update --changelog-file=example-changelog.xml --deploymentId=068379006 --force</code></pre>
+        <h2 id="running-the-rollback-one-update-command">Syntax</h2>
+        <p>Before running the <code>rollback-one-update</code> command, you can get the ID of the deployment you want to revert by running the <MadCap:xref href="../change-tracking/history.html">history</MadCap:xref> command.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"> If the <code class="highlighter-rouge">deployment-id</code> is not supplied, <MadCap:variable name="General.LBPro" /> will look up the most recent <code class="highlighter-rouge">deploymentId</code> from the <MadCap:variable name="General.databasechangelog" /> table and use it for the rollback.</p>
+        <p>Then run the <code class="highlighter-rouge">rollback-one-update</code> command, with your information:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">liquibase rollback-one-update --changelog-file=example-changelog.xml --deployment-id=068379006 --force</code></pre>
         <p>For more command-specific help, type <code class="highlighter-rouge">liquibase rollback-one-update --help</code> into the command prompt.</p>
-        <h2><code class="highlighter-rouge">rollback-one-update</code> global <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <h2>Global arguments</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Definition</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--license-key</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-license-key.flsnp" />
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Command arguments</h2>
         <table style="margin-left: auto;margin-right: auto;width: 100%;">
             <thead>
                 <tr>
@@ -50,67 +71,10 @@
                 <tr>
                     <td><code>--changelog-file</code> *</td>
                     <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-changelog-file.flsnp" />
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-changelog-file.flsnp" />
                     </td>
                     <td><b>Required</b>
                     </td>
-                </tr>
-                <tr>
-                    <td><code>--url</code>
-                    </td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-url.flsnp" />
-                    </td>
-                    <td><b>Required</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>--username</code>
-                    </td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-username.flsnp" />
-                    </td>
-                    <td><b>Required</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>--password</code>
-                    </td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-password.flsnp" />
-                    </td>
-                    <td><b>Required</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>--license-key</code>
-                    </td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-license-key.flsnp" />
-                    </td>
-                    <td><b>Required</b>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <p>* <MadCap:variable name="General.Liquibase" /> will check nested <MadCap:variable name="General.changelog" />s for definitions of the <MadCap:variable name="General.changeset" />s to rollback.</p>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-username-password.flsnp" />
-        <h2><code class="highlighter-rouge">rollback-one-update</code> command <MadCap:variable name="General.Param/Attribute" />s</h2>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;">
-            <thead>
-                <tr>
-                    <th>Parameter</th>
-                    <th>Definition</th>
-                    <th>Requirement</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>--deploymentId</code> *</td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-deployment-id.flsnp" />
-                    </td>
-                    <td>Optional</td>
                 </tr>
                 <tr>
                     <td><code>--force</code>
@@ -122,6 +86,88 @@
                     </td>
                 </tr>
                 <tr>
+                    <td><code>--url</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-url.flsnp" />
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>--username</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-username.flsnp" />
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>--password</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-password.flsnp" />
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>--change-exec-listenter-class</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-change-exec-listener-class.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>--change-exec-listener-properties-flie</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-change-exec-listener-properties-file.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>--default-catalog-name</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-default-catalog-name.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>--default-schema-name</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-default-schema-name.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>--deployment-id</code> *</td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-deployment-id.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>--driver</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-driver.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>--driver-properties-file</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-global-driver-properties-file.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
                     <td><code>--rollback-script</code>
                     </td>
                     <td>
@@ -131,7 +177,8 @@
                 </tr>
             </tbody>
         </table>
-        <p>* If not supplied, <MadCap:variable name="General.LBPro" /> will look up the most recent <code class="highlighter-rouge">deploymentId</code> from the <MadCap:variable name="General.databasechangelog" /> table and use it for the rollback.</p>
+        <p>* <MadCap:variable name="General.Liquibase" /> will check nested <MadCap:variable name="General.changelog" />s for definitions of the <MadCap:variable name="General.changeset" />s to rollback.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-username-password.flsnp" />
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>Output</MadCap:dropDownHotspot>
@@ -157,11 +204,13 @@ rollback-one-update executed for DBUSER@jdbc:h2:tcp://localhost:9090/mem:dev
 Liquibase command 'rollback-one-update' was executed successfully..</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <h2 style="text-align: center;"><a target="_blank" href="https://www.liquibase.com/trial">Like what you read? Try this command in Pro for Free.</a>
-        </h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-try-pro.flsnp" />
         <h2>Related links</h2>
         <ul>
             <li><a href="https://www.liquibase.com/blog/targeted-rollback">Targeted Rollback for One Change</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../tools-integrations/maven/commands/maven-rollbackoneupdate.html">Maven rollbackOneUpdate</MadCap:xref>
             </li>
         </ul>
     </body>
