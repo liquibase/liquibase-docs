@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /> | Enterprise Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/devops/dmcdb/administer/configure-keycloak-ldap.html" />
+        <meta name="description" content="Learn how to configure Keycloak for active directory and LDAP integration." />
+    </head>
+    <body>
+        <h1>Configure Keycloak for active directory and LDAP integration</h1>
+        <MadCap:snippetBlock src="../../../../Resources/Snippets/images/.ver_icon_size_enterprise.flsnp" />
+        <p style="text-align: center;"><iframe width="560" height="315" src="https://www.youtube.com/embed/HYZNuz-4m4E" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
+        </p>
+        <p>This guide covers how to configure Single Sign-On (SSO) for <MadCap:variable name="General.LBEnterprise" /> users and groups through Keycloak.</p>
+        <p>This process includes three steps in this consecutive order:</p>
+        <ol>
+            <li>Ensure that your servers communicate with each other successfully by creating an LDAP Provider</li>
+            <li>Configure  group mappers to the LDAP Provider</li>
+            <li>Configure user and group permissions</li>
+        </ol>
+        <h2>Create a new LDAP Provider in Keycloak</h2>
+        <p> Creating a new LDAP Provider that communicates with your server is the first step to configure SSO through Keycloak. Follow the below steps to complete this step.<br /></p>
+        <ol>
+            <li>Login to <MadCap:variable name="General.DMCProductShortName" />.</li>
+            <li>Navigate to the <b>Keycloak</b> tab and log into Keycloak with your username and password.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/keycloak-tab.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Select the <b>User Federation</b> tab.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/user-fed.png" class="img.thumbnail" /><br /><br /></li>
+            <li>In the <b>User Federation</b> tab, select <b>ldap</b> from the <b>Add provider</b> drop-down menu.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/keycloak-ldap.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Provide the required LDAP configuration details. (see section below for more information).<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/ldap-config.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Click the <b>Save</b> button at the bottom of the page.<br /></li>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Required LDAP configuration fields</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>In the <b>User federation: Add new provider</b> section, add the following required settings:</p>
+                <table>
+                    <col />
+                    <col />
+                    <col />
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Edit Mode</td>
+                            <td>
+                                <p>UNSYNCHED</p>
+                            </td>
+                            <td> UNSYNCHED pulls data from the LDAP provider and won't push the data back. This provides the safest scenario because, if there is an error, it won't break anything on the customer's LDAP side. <br /><br />You may choose the value that fits your goals best.</td>
+                        </tr>
+                        <tr>
+                            <td>Vendor</td>
+                            <td>Select the LDAP vendor you are using</td>
+                            <td>You may select the LDAP vendor you are using. In the example, Active Directory is the chosen vendor.</td>
+                        </tr>
+                        <tr>
+                            <td>Username LDAP Attribute</td>
+                            <td>Attribute that contains the user name.</td>
+                            <td>
+                                <p>Set this value to <u>username</u> and then configure mappers to designate the desired attribute to map to it. If you want to sync a group or multiple groups, see the <b>Configure Group Settings and Mappers</b> and<b>Attribute Mappers</b> sections below for more information.</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Settings</td>
+                            <td>RDN LDAP Attribute</td>
+                            <td>CN</td>
+                            <td>--</td>
+                        </tr>
+                        <tr>
+                            <td>Connection URL</td>
+                            <td>The connection URL to your LDAP server.</td>
+                            <td>
+                                <p>	
+
+Usually of the following format: <code>ldaps://LDAP_HOST:636</code><![CDATA[
+]]></p>
+                                <p>Select the <b>Test Connection</b> button to confirm.</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Users DN</td>
+                            <td>The full DN of the LDAP tree where your users are located.</td>
+                            <td>
+                                <p>This DN is the LDAP user parent. </p>
+                                <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">It would be <code>CN=users,DC=example,DC=com</code> assuming that your typical user has a DN like: <code>uid=john,ou=users,dc=example,dc=com</code></p>
+                                <p>This is not a group DN. You must specify a node that contains users.</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bind type</td>
+                            <td>Simple</td>
+                            <td>--</td>
+                        </tr>
+                        <tr>
+                            <td>Bind DN</td>
+                            <td>DN of the administrative or service user that accesses the information to use.</td>
+                            <td>
+                                <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>CN=Administrator,CN=Users,DC=demo,DC=example,DC=com</code>
+                                    <br />
+                                    <br /><b>Group Example:</b>
+                                    <br /><code>OU=test,DC=test,DC=datical,DC=net</code>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bind Credentials</td>
+                            <td>Password of LDAP admin</td>
+                            <td>
+                                <p>Select <b>Test Authentication</b> to test the Bind DN/Bind Credential pair. Continue if it passes. 
+
+    </p>
+                                <ul>
+                                    <li>If it fails, check the Keycloak log to find the reason. Run the following command: <code>datical-control logs keycloak</code></li>
+                                    <li>If the reason is PKIX Path building failed, see note below on PKIX</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LDAP Filter</td>
+                            <td>Filter value</td>
+                            <td>
+                                <p>Used to filter the full list of users and groups in the "Users DN" node to just the users and groups you want to import into Keycloak.
+
+    </p>
+                                <ul>
+                                    <li>Can use a filter like <b>(mail=*)</b> to only include users with an email address (excludes service account users)
+    </li>
+                                    <li>Can filter based on <b>groups</b> or anything else you need</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Search Scope</td>
+                            <td>Subtree or One Level</td>
+                            <td>If the node listed in "Users DN" contains nested nodes with users, select "Subtree". Otherwise select "one level".</td>
+                        </tr>
+                        <tr>
+                            <td>Other Attributes</td>
+                            <td>Default or as you need</td>
+                            <td>--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Configure group settings and mappers</h2>
+        <p>The next section describes how to associate groups with the LDAP provider by means of a mapper.<br /></p>
+        <ol>
+            <li>Once the LDAP provider is created, select it from the <b>User federation</b>.</li>
+            <p>
+                <img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/ldap-provider.png" class="img.thumbnail" />
+            </p>
+            <li>Select the <b>Mappers</b> tab.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/mapper-tab.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Select the <b>Add mapper</b> button.<br /></li>
+            <li>Type the name of the mapper and select the Mapper type. <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To map a group, <b>group-ldap-mapper</b> must be the selected mapper type.</p><br />Once a Mapper type is selected, the rest of the configuration options will appear.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/mapper.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Provide the required LDAP mapper configuration details in  the <b>Mappers</b> tab. (see section below for more information).<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/group-mapper.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Click the <b>Save</b> button.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">All other fields in the <b>Add user federation provider</b> section may need values changed depending on your particular ADD configuration.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Required LDAP Mapper configuration fields</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>In the <b>Add user federation provider</b> section, add the following required settings:</p>
+                <table>
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                    <thead>
+                        <tr>
+                            <th>Tab</th>
+                            <th>Field</th>
+                            <th>Value</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Name</td>
+                            <td>
+                                <p>Title of the mapper</p>
+                            </td>
+                            <td> </td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Mapper type</td>
+                            <td>Map single attributes form LDAP user to attribute of UserModel in Keycloak DB</td>
+                            <td>
+                                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The Mapper type for groups must be: <b>group-ldap-mapper</b></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Group Name LDAP Attribute</td>
+                            <td>Attribute that contains the group name.</td>
+                            <td>
+                                <p>This attribute is used in a group objects name and RDN group. A typical group/role object may have DN.</p>
+                                <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">dn=Group1,ou=groups,dc=example,dc=org</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Group Object Classes</td>
+                            <td>group</td>
+                            <td>This is the Object class (or classes) of the group object. Divide by commas if more classes are necessary. Typically in LDAP deployment, this value appears as:<br /><b>groupOfNames</b>In an Active Directory the value is usually <b>group</b>.</td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Preserve Group Inheritance</td>
+                            <td>On</td>
+                            <td>
+                                <p>This radio button allows you to decide whether group inheritance from LDAP should be propagated to Keycloak.<br /><b>On: Default</b><br />Group inheritance is preserved into Keycloak but the group sync may fail if LDAP structure contains recursions or multiple parent groups per child groups.</p>
+                                <p><b>Off:</b>
+                                    <br />All LDAP Groups will map as flat top-level groups in Keycloak.</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Ignore Missing Groups</td>
+                            <td>On</td>
+                            <td>This radio button allows you to ignore missing groups in the group hierarchy. It should be on to ensure that groups are found successfully.</td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Membership LDAP Attribute</td>
+                            <td>member</td>
+                            <td>
+                                <p>When <b>Membership Attribute Type</b> is <b>UID</b> then <b>Membership LDAP Attribute</b> could typically be <b>memberUid</b>. The value will be member in all other scenarios.</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Membership Attribute Type</td>
+                            <td>DN</td>
+                            <td>
+                                <p>DN: This LDAP group has its members declared in form of their full DN. </p>
+                                <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">member: uid=hohn, ou=users,dc=example,dc=com.</p>
+                                <p>UID means that LDAP group has members declared in form of pure user uids.</p>
+                                <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">UID: john</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Membership User LDAP Attribute</td>
+                            <td>cn</td>
+                            <td>
+                                <p> It is the name of the LDAP attribute on the user, which is used for membership mappings. Used only if Membership Attribute Type is UID.  For example if value of 'Membership User LDAP Attribute' is 'uid' and LDAP group has 'memberUid: john', then it is expected that particular LDAP user will have attribute 'uid: john' .</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>LDAP Filter</td>
+                            <td>--</td>
+                            <td>LDAP Filter adds additional custom filters to the whole query to retreive LDAP groups. Leave this empty if no additional filtering is needed and you want to retreive all groups from LDAP. Ensure each filter is contained within (parenthesis).</td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>Mode</td>
+                            <td>READ_ONLY</td>
+                            <td><b>LDAP_ONLY</b> means that all group mappings of users are retrieved from LDAP and are saved as LDAP. <br /><b>READ_ONLY</b> is Read-only LDAP mode where group mappings are retrieved from both LDAP and DB and merged together. New group joins are not saved to LDAP but to DB. <br /><b>IMPORT</b> is Read-only LDAP mode where group mappings are retrieved from LDAP just at the time when user is imported from LDAP and then they are saved to local keycloak DB.</td>
+                        </tr>
+                        <tr>
+                            <td>Mapper</td>
+                            <td>User Groups Retreive Strategy</td>
+                            <td>LOAL_GROUPS_BY_MEMBER_ATTRIBUTE</td>
+                            <td>Specify how to retrieve groups of user. <br /><b>LOAD_GROUPS_BY_MEMBER_ATTRIBUTE</b> means that roles of user will be retrieved by sending LDAP query to retrieve all groups where 'member' is our user. <br /><b>GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE</b> means that groups of user will be retrieved from 'memberOf' attribute of our user. Or from the other attribute specified by 'Member-Of LDAP Attribute' . <br style="font-weight: bold;" /><b>LOAD_GROUPS_BY_MEMBER_ATTRIBUTE_RECURSIVELY </b>is applicable just in Active Directory and it means that groups of user will be retrieved recursively with usage of LDAP_MATCHING_RULE_IN_CHAIN Ldap extension.</td>
+                        </tr>
+                        <tr>
+                            <td class="TableStyle-TableStyles-BodyB-Column1-Body1">Mapper</td>
+                            <td class="TableStyle-TableStyles-BodyB-Column1-Body1">Member of LDAP Attribute</td>
+                            <td class="TableStyle-TableStyles-BodyB-Column1-Body1">memberOf</td>
+                            <td class="TableStyle-TableStyles-BodyA-Column1-Body1">Used just when 'User Roles Retrieve Strategy' is GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE . It specifies the name of the LDAP attribute on the LDAP user, which contains the groups, which the user is member of. Usually it will be 'memberOf' and that's also the default value.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Configure User and Group Permissions</h2>
+        <p> Once the group mapper is configured for the LDAP provider, you will need to add specific users and groups to the project. Doing so allows those users and groups to use SSO for each specified project. Follow the below instructions to learn how to configure permissions.</p>
+        <h3>User Permissions</h3>
+        <p>Permissions can be configured in the User Settings or Project Settings. </p>
+        <ol>
+            <li>Click on the User Settings tab under Administration.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/user-settings-tab.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Search for and select the user you would like to give permissions to.</li>
+            <li>Once on the user's page, check the box next to the project that you would like the user to have access to.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/user-checkbox.png" class="img.thumbnail" /><br /></li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Permissions save automatically.</p>
+        <h3>Group Permissions</h3>
+        <p>Permissions can be configured in the User Settings or Project Settings. </p>
+        <ol>
+            <li>Click on the Project Settings tab under Administration.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/project-settings-tab.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Search for and select the project you want a  group to have permissions to.</li>
+            <li>Once on the project's page, select the Permissions tab.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/permissions.png" class="img.thumbnail" /><br /><br /></li>
+            <li>Check the box next to the group that you want to view the project.<br /><br /><img src="../../../../Z_Resources/Images/enterprise/ldap-imgs/checkbox.png" class="img.thumbnail" /><br /></li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Permissions save automatically.</p>
+        <p>Your LDAP provider, groups, and permissions are configured successfully.<br /><br /></p>
+        <h2>Attribute mapper notes:</h2>
+        <p>By default, Keycloak does not copy all attributes it sees in the Active Directory to the Mappers tab in the user federation admin section to view mappings.</p>
+        <p>Default attribute mappings:</p>
+        <ul>
+            <li>email	mail</li>
+            <li>cn	username</li>
+        </ul>
+        <p>To use a value other than CN for logging in, modify the username LDAP Mapper.  Set User Model Attribute to the name of the Active Directory field that contains the user name you want to use.</p>
+        <p>You can set it to whatever attribute is used for user logins in your environment. Examples:</p>
+        <ul>
+            <li>sAMAccountName</li>
+            <li>email</li>
+        </ul>
+        <h2>Related Links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../../../dmc/administer/pkix-path-build-fail.htm"> Troubleshoot "PKIX Path Building Failed" Error</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
