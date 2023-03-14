@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/concepts/changelogs/attributes/fail-on-error.html" />
+        <meta name="description" content="Reference information for the failOnError attribute. The failOnError attribute defines whether a database migration will fail if an error occurs while executing the changeset." />
+    </head>
+    <body>
+        <h1><code>failOnError</code>
+        </h1>
+        <p>The <code>failOnError</code>&#160;<MadCap:variable name="General.Param/Attribute" /> defines whether a database migration will fail if an error occurs while executing the <MadCap:variable name="General.changeset" />. The default value is <code>true</code>.</p>
+        <h2>Uses</h2>
+        <p>Normally, if you run the <MadCap:xref href="../../../commands/update/update.html">update</MadCap:xref> command and <MadCap:variable name="General.Liquibase" /> detects an error in a <MadCap:variable name="General.changeset" />, the migration fails. However, if you set <code>failOnError</code> to <code>false</code> on a <MadCap:variable name="General.changeset" />, <MadCap:variable name="General.Liquibase" /> suppresses all error caching for that <MadCap:variable name="General.changeset" />, so the migration continues as though there were no error.</p>
+        <p>Some databases contain complex logic or objects added outside of <MadCap:variable name="General.Liquibase" />  that may cause certain <MadCap:variable name="General.changeset" />s to fail. To ensure your migrations succeed, it is a best practice to write one or more <a href="../preconditions.html">preconditions</a> to control the execution of these <MadCap:variable name="General.changeset" />s. However,  if the precondition(s) would be very complicated to write, it may be more convenient to set <code>failOnError</code> to <code>false</code> on the affected <MadCap:variable name="General.changeset" />s.</p>
+        <p>If you have a <MadCap:variable name="General.changeset" /> that only runs successfully with certain databases or environments, it is also possible to set <code>failOnError</code> on it as a "quick fix" to control its execution. However, instead of relying on <code>failOnError</code>, it is a best practice to use the <code>dbms</code> <MadCap:variable name="General.Param/Attribute" /> to control whether a <MadCap:variable name="General.changeset" /> applies to different databases. Similarly, it is a best practice to use <a href="contexts.html">contexts</a> or <a href="labels.html">labels</a> to control <MadCap:variable name="General.changeset" /> execution across multiple environments, such as <code>test</code> versus <code>dev</code>.</p>
+        <h3>Using <code>failOnError</code> with <code>--rollback-on-error</code> (<MadCap:variable name="General.LBPro" />)</h3>
+        <p>You can use the <code>failOnError</code>&#160;<MadCap:variable name="General.changeset" />&#160;<MadCap:variable name="General.Param/Attribute" /> with the <code>update</code> command argument <code>--rollback-on-error</code>. The following table displays the outcomes of running <code>update</code> on a <MadCap:variable name="General.changeset" /> that contains an error based on each possible configuration.</p>
+        <table style="width: 100%;">
+            <col />
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th><code>failOnError</code> value</th>
+                    <th><code>--rollback-on-error</code> value</th>
+                    <th>Migration state</th>
+                    <th>Rollback behavior</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>true</code>
+                    </td>
+                    <td><code>true</code>
+                    </td>
+                    <td rowspan="2">Fails</td>
+                    <td>All changes in the migration are rolled back</td>
+                </tr>
+                <tr>
+                    <td><code>true</code>
+                    </td>
+                    <td><code>false</code>
+                    </td>
+                    <td rowspan="3">No rollback</td>
+                </tr>
+                <tr>
+                    <td><code>false</code>
+                    </td>
+                    <td><code>true</code>
+                    </td>
+                    <td rowspan="2">Continues</td>
+                </tr>
+                <tr>
+                    <td><code>false</code>
+                    </td>
+                    <td><code>false</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>--rollback-on-error</code> requires a <MadCap:variable name="General.LBPro" /> license key to use. For more information, see <MadCap:xref href="../../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">How to Apply Your [%=General.LBPro%] License Key</MadCap:xref>.</p>
+        <h2>Syntax</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/changeset-attribute-camel.flsnp" />
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">SQL example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql" data-lang="sql">--changeset adrian:1 failOnError:false
+create table company (
+    id int primary key,
+    address varchar(255)
+);</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml" data-lang="xml">&lt;changeSet  id="1"  author="adrian"  failOnError="false"&gt;
+    &lt;createTable  tableName="company"&gt;
+        &lt;column  name="address"  type="varchar(255)"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml" data-lang="yaml">databaseChangeLog:
+  -  changeSet:  
+      id:  1
+      author:  adrian
+      failOnError:  false
+      changes:
+        -  createTable:
+            tableName:  company
+            columns:
+              -  column:
+                  name:  address</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+  "changeSet": {
+    "id": "1",
+    "author": "adrian",
+    "failOnError": "false",
+    "changes": [
+      {
+        "createTable": {
+          "tableName": "company",
+          "columns": [
+            {
+              "column": {
+                "name": "address"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>
