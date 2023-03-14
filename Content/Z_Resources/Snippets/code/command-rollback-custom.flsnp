@@ -14,20 +14,99 @@ insert into example1 values ('2','The Second', 'Country2')
 -- rollback delete from example1 where id='1'
 -- rollback delete from example1 where id='2'</code></pre>
         <h3>Override default rollback commands</h3>
-        <p>The <code>&lt;rollback&gt;</code> tag describes how to roll back a change using SQL statements, <MadCap:variable name="General.changetypes"></MadCap:variable>s, or a reference to a previous <MadCap:variable name="General.changeset"></MadCap:variable>.</p>
-        <p>You can have plain SQL in the content part of the <code>&lt;rollback&gt;</code> element. <MadCap:variable name="General.Liquibase" /> treats the text in the element as the <code>&lt;sql&gt;</code><MadCap:variable name="General.changetypes" /> with <code>stripComments</code> set to <code>true</code>, <code>splitStatements</code> set to <code>true</code>, and <code>endDelimiter</code> set to <code>;</code>. For more details, see the XML example from the <MadCap:xref href="../../../change-types/sql.html">sql</MadCap:xref> documentation. Example:</p><pre><code class="language-xml">&lt;changeSet id="1" author="bob"&gt;
+        <p>The <code>&lt;rollback&gt;</code> tag describes how to roll back a change using SQL statements, <MadCap:variable name="General.changetypes" />s, or a reference to a previous <MadCap:variable name="General.changeset" />. You can use any <MadCap:variable name="General.changetypes" /> in the <code>&lt;rollback&gt;</code> element, such as <MadCap:xref href="../../../change-types/drop-table.html">dropTable</MadCap:xref> or <MadCap:xref href="../../../change-types/sql.html">sql</MadCap:xref>:</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-xml">&lt;changeSet id="1" author="liquibaseuser"&gt;
     &lt;createTable tableName="testTable"&gt;
-    &lt;rollback&gt;
-        drop table testTable
-    &lt;/rollback&gt;
-&lt;/changeSet&gt;</code></pre>
-        <p>Also, you can have any <MadCap:variable name="General.changetypes" /> in the <code>&lt;rollback&gt;</code> element:</p><pre><code class="language-xml">&lt;changeSet id="1" author="bob"&gt;
-    &lt;createTable tableName="testTable"&gt;
+        &lt;column name="id" type="int"/&gt;
+    &lt;/createTable&gt;
     &lt;rollback&gt;
         &lt;dropTable tableName="testTable"/&gt;
     &lt;/rollback&gt;
 &lt;/changeSet&gt;</code></pre>
-        <p>You can also specify multiple <code>rollback</code> statements:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet id="multiRollbackTest" author="rs"&gt;
+                <p>Alternatively, you can have raw SQL in the content part of the <code>&lt;rollback&gt;</code> element. <MadCap:variable name="General.Liquibase" /> treats the raw SQL within <code>&lt;rollback&gt;</code> the same as in the <code>&lt;sql&gt;</code><MadCap:variable name="General.changetypes" />, with <code>stripComments</code> set to <code>true</code>, <code>splitStatements</code> set to <code>true</code>, and <code>endDelimiter</code> set to <code>;</code>. For more details, see the XML example from the <MadCap:xref href="../../../change-types/sql.html">sql</MadCap:xref> documentation. For example:</p><pre><code class="language-xml">&lt;changeSet id="1" author="liquibaseuser"&gt;
+    &lt;createTable tableName="testTable"&gt;
+        &lt;column name="id" type="int"/&gt;
+    &lt;/createTable&gt;
+    &lt;rollback&gt;
+        drop table testTable
+    &lt;/rollback&gt;
+&lt;/changeSet&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- changeSet:
+    id: 1
+    author: liquibaseuser
+    changes:
+      - createTable:
+          tableName: testTable
+          columns:
+            - column:
+                name: id
+    rollback:
+      - dropTable:
+          tableName: testTable</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+  "changeSet": {
+    "id": 1,
+    "author": "liquibaseuser",
+    "changes": [
+      {
+        "createTable": {
+          "tableName": "testTable"
+        }
+      }
+    ],
+    "rollback": [
+      {
+        "dropTable": {
+          "tableName": "testTable"
+        }
+      }
+    ]
+  }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h3>Multiple rollbacks</h3>
+        <p>You can also specify multiple <MadCap:variable name="General.changetypes" />s within a single <code>&lt;rollback&gt;</code>&#160;statement or across multiple <code>&lt;rollback&gt;</code> statements:</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p><MadCap:variable name="General.changetypes" /> syntax:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet id="multiRollbackTest" author="liquibaseuser"&gt;
+    &lt;createTable tableName="multiRollback1"&gt;
+        &lt;column name="id" type="int"/&gt;
+    &lt;/createTable&gt;
+    &lt;createTable tableName="multiRollback2"&gt;
+        &lt;column name="id" type="int"/&gt;
+    &lt;/createTable&gt;
+    &lt;createTable tableName="multiRollback3"&gt;
+        &lt;column name="id" type="int"/&gt;
+    &lt;/createTable&gt;
+    &lt;rollback&gt;
+        &lt;dropTable tableName="multiRollback1"/&gt;
+        &lt;dropTable tableName="multiRollback2"/&gt;
+    &lt;/rollback&gt;
+    &lt;rollback&gt;
+      &lt;dropTable tableName="multiRollback3"/&gt;
+    &lt;/rollback&gt;
+&lt;/changeSet&gt;</code></pre>
+                <p>Raw SQL:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet id="multiRollbackTest" author="liquibaseuser"&gt;
     &lt;createTable tableName="multiRollback1"&gt;
         &lt;column name="id" type="int"/&gt;
     &lt;/createTable&gt;
@@ -43,32 +122,199 @@ insert into example1 values ('2','The Second', 'Country2')
     &lt;/rollback&gt;
     &lt;rollback&gt;drop table multiRollback3&lt;/rollback&gt;
 &lt;/changeSet&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- changeSet:
+    id: multiRollbackTest
+    author: liquibaseuser
+    changes:
+      - createTable:
+          tableName: multiRollback1
+          columns:
+            - column:
+                name: id
+      - createTable:
+          tableName: multiRollback2
+          columns:
+            - column:
+                name: id
+      - createTable:
+          tableName: multiRollback3
+          columns:
+            - column:
+                name: id
+    rollback:
+      - dropTable:
+          tableName: multiRollback1
+      - dropTable:
+          tableName: multiRollback2
+    rollback:
+      - dropTable:
+          tableName: multiRollback3</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+  "changeSet": {
+    "id": multiRollbackTest,
+    "author": "liquibaseuser",
+    "changes": [
+      {
+        "createTable": {
+          "tableName": "multiRollback1",
+          "columns": [
+            {
+              "column": {
+                "name": "id"
+              }
+            }
+          ]
+        },
+        "createTable": {
+          "tableName": "multiRollback2"
+          "columns": [
+            {
+              "column": {
+                "name": "id"
+              }
+            }
+          ]
+        },
+        "createTable": {
+          "tableName": "multiRollback3"
+          "columns": [
+            {
+              "column": {
+                "name": "id"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "rollback": [
+      {
+        "dropTable": {
+          "tableName": "multiRollback1"
+        },
+        "dropTable": {
+          "tableName": "multiRollback2"
+        }
+      }
+    ],
+    "rollback": [
+      {
+        "dropTable": {
+          "tableName": "multiRollback3"
+        }
+      }
+    ],
+  }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
         <h3>Directly reference <MadCap:variable name="General.changeset" /></h3>
-        <p>The following example shows how you can refer a <code>&lt;rollback&gt;</code> element to another <MadCap:variable name="General.changeset"></MadCap:variable>. To roll back the <MadCap:variable name="General.changeset"></MadCap:variable> with <code>id="2"</code>, apply the <MadCap:variable name="General.changeset"></MadCap:variable> with <code>id="1"</code>:</p><pre><code class="language-xml">&lt;changeSet id="2" author="bob"&gt;
+        <p>The following example shows how you can use a <code>&lt;rollback&gt;</code> tag to reference the <MadCap:variable name="General.changeset" /> that originally created a statement, in this case using <MadCap:variable name="General.changeset" /> <code>2</code> to implement rollback logic against <MadCap:variable name="General.changeset" /> <code>1</code>:</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre><code class="language-xml">&lt;changeSet id="1" author="liquibaseuser"&gt;
+    &lt;createTable tableName="testTable"/&gt;
+&lt;/changeSet&gt;
+
+&lt;changeSet id="2" author="liquibaseuser"&gt;
     &lt;dropTable tableName="testTable"/&gt;
-    &lt;rollback changeSetId="1" changeSetAuthor="bob"/&gt;
+    &lt;rollback changeSetId="1" changeSetAuthor="liquibaseuser"/&gt;
 &lt;/changeSet&gt;</code></pre>
-        <p>To reference the <MadCap:variable name="General.changeset" /> that originally created a statement, use the <code>&lt;rollback&gt;</code> tag with  <code>changeRollback2-create</code>:</p><pre><code class="language-xml">&lt;changeSet id="changeRollback2-drop" author="liquibase"&gt;
-    &lt;dropTable tableName="changeRollback2"/&gt;
-    &lt;rollback changeSetId="changeRollback2-create" changeSetAuthor="liquibase"/&gt;
-&lt;/changeSet&gt;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- changeSet:
+    id: 1
+    author: liquibaseuser
+    changes:
+      - createTable:
+          tableName: testTable
+          columns:
+            - column:
+                name: id
+- changeSet:
+    id: 2
+    author: liquibaseuser
+    rollback:
+      - dropTable:
+          tableName: testTable
+      changeSetId: 1
+      changeSetAuthor: liquibaseuser</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+  "changeSet": {
+    "id": 1,
+    "author": "liquibaseuser",
+    "changes": [
+      {
+        "createTable": {
+          "tableName": "testTable"
+        }
+      }
+    ]
+{
+  "changeSet": {
+    "id": 2,
+    "author": "liquibaseuser",
+    "changes": [
+      {
+        "createTable": {
+          "tableName": "testTable"
+        }
+      }
+    ],
+    "rollback": [
+      {
+        "dropTable": {
+          "tableName": "testTable"
+        }
+      },
+      "changeSetId": "1",
+      "changeSetAuthor": "liquibaseuser"
+    ]
+  }
+}</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
         <h3>Empty rollback statements</h3>
         <p>If you do not want to revert a change in a rollback mode, use either the keyword <code>empty</code> or the keyword <code>not required</code> inside the <code>rollback</code> tag. In XML, YAML, and JSON <MadCap:variable name="General.changelog" />s, you can also use an empty string inside the <code>rollback</code> tag.</p>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">SQL</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">SQL</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">-- changeset liquibaseuser:1
-create table example1 ( id int primary key, name varchar(255) );
+create table testTable ( id int primary key, name varchar(255) );
 -- rollback empty</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">XML</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;changeSet id="3" author="liquibaseuser"&gt;
-    &lt;createTable tableName="changeRollback"&gt;
+    &lt;createTable tableName="testTable"&gt;
         &lt;column name="id" type="int"/&gt;
     &lt;/createTable&gt;
     &lt;rollback&gt;empty&lt;/rollback&gt;
@@ -78,25 +324,25 @@ create table example1 ( id int primary key, name varchar(255) );
         </MadCap:dropDown>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">YAML</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- changeSet:
     id: 1
     author: liquibase
     changes:
       - createTable:
-          tableName: person
+          tableName: testTable
           columns:
             - column:
                 name: id
                 type: int
     rollback: empty</code></pre>
-                <p>You can also use an empty string&#160;(<code>rollback: ""</code>).</p>
+                <p>You can also use an empty string (<code>rollback: ""</code>).</p>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">JSON</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
   "changeSet": {
@@ -105,7 +351,7 @@ create table example1 ( id int primary key, name varchar(255) );
     "changes": [
       {
         "createTable": {
-          "tableName": "person",
+          "tableName": "testTable",
           "columns": [
             {
               "column": {
