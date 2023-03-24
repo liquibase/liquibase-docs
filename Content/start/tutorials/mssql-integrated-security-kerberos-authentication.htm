@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/start/tutorials/mssql-integrated-security-kerberos-authentication.html" />
+        <meta name="description" content="This page guides you through the process of using Liquibase and MSSQL Server with Integrated Security and Kerberos Authentication." />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> and MSSQL Server with Integrated Security and Kerberos Authentication</h1>
+        <p>If your application runs on a Linux or Windows-based intranet, you can use the integrated authentication to access your database. Integrated security uses the identity established on the operating system thread to access MSSQL Server.</p>
+        <p>Kerberos is an authentication protocol that works based on tickets to provide strong authentication for client/server applications by using secret-key cryptography. The Kerberos authentication protocol does not store passwords locally or send them over the Internet.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.Liquibase" style="font-size: 18pt;" /><span style="font-size: 18pt;"> and MSSQL Server with Integrated Security and Kerberos Authentication on Windows</span>
+                </MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h3>Prerequisites</h3>
+                <ul>
+                    <li>Set up <MadCap:variable name="General.Liquibase" /> and MSSQL Server with Windows Integrated Security by following <MadCap:xref href="mssql-windows-integrated-security.htm">Using [%=General.Liquibase%] and MSSQL Server with Windows Integrated Security</MadCap:xref>.</li>
+                    <li>Set up Active Directory and integrate it with Kerberos.</li>
+                    <li>Have the <code>krb5.conf</code> file.</li>
+                </ul>
+                <h3>Using <MadCap:variable name="General.Liquibase" /> and MSSQL Server with Windows Integrated Security and Kerberos Authentication</h3>
+                <p>To ensure the configuration of <MadCap:variable name="General.Liquibase" /> and Windows Integrated Security works with Kerberos:</p>
+                <ol>
+                    <li>Open the command prompt as an administrator and set the service principal name:</li><pre xml:space="preserve"><code class="language-text">setspn -s "MSSQLSvc/&lt;dns&gt;" "domain\username"</code></pre>
+                    <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">	If you use a MSSQL Server RDS instance, convert the endpoint to a fully qualified domain name (FQDN). If the endpoint is <code>&lt;hostname&gt;.czd233xxxyyyyyzz.us-east-1.rds.amazonaws.com</code>, the equivalent FQDN is <code>&lt;hostname&gt;.&lt;parent domain&gt;.&lt;net or com, or others&gt;</code>.</p>
+                    <li>Verify that the service principal name works by running the following command:</li><pre xml:space="preserve"><code class="language-text">setspn -T * -F -Q MSSQLSvc/&lt;hostname&gt;*</code></pre>
+                    <MadCap:dropDown>
+                        <MadCap:dropDownHead>
+                            <MadCap:dropDownHotspot style="font-size: 12pt;">Sample output</MadCap:dropDownHotspot>
+                        </MadCap:dropDownHead>
+                        <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">C:\Users\admin\Desktop&gt;setspn -T * -F -Q MSSQLSvc/mssql-kerberos*
+Checking forest DC=DOMAINNAME,DC=DOMAINNAME2,DC=net
+CN=EC2AMAZ-BQEU7B1,OU=RDS,OU=AWS Reserved,DC=DOMAINNAME,DC=net
+MSSQLSvc/mssql-kerberos.example.net:1433
+...
+Existing SPN found!</code></pre>
+                        </MadCap:dropDownBody>
+                    </MadCap:dropDown>
+                    <li>Open SQL Server Management Studio as an Active Directory user and log in with Authentication set to <b>Windows Authentication</b>.</li>
+                    <p>
+                        <img src="../../Z_Resources/Images/Screenshots/workflows/sql-server-integrated-security-kerberos(1).png" />
+                    </p>
+                    <li>From the command line, run the following query to ensure authentication is running with Kerberos:</li><pre xml:space="preserve"><code class="language-text">SELECT auth_scheme FROM sys.dm_exec_connections WHERE session_id = @@spid ;</code></pre>
+                    <p>
+                        <img src="../../Z_Resources/Images/Screenshots/workflows/sql-server-integrated-security-kerberos(2).png" />
+                    </p>
+                </ol>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.Liquibase" style="font-size: 18pt;" /><span style="font-size: 18pt;"> and MSSQL Server with Integrated Security and Kerberos Authentication on Linux</span>
+                </MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Kerberos usernames use the full Kerberos principal user username and must be uppercase.  For example: <code>USER@DOMAIN.COM</code></p>
+                <ol>
+                    <li>Set up MSSQL Server and Active Directory. Check <MadCap:xref href="mssql-windows-integrated-security.htm">Using [%=General.Liquibase%] and MSSQL Server with Windows Integrated Security</MadCap:xref> and <a href="https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-active-directory-auth-overview?view=sql-server-ver15">Active Directory authentication for SQL Server on Linux</a> for more details.</li>
+                    <li>Create a <code>keytab</code> file using the <a href="https://web.mit.edu/kerberos/krb5-1.12/doc/admin/admin_commands/ktutil.html" target="_blank">ktutil</a> utility:</li>
+                    <ul>
+                        <li>From the command line, enter <code>ktutil</code> to launch the utility.</li>
+                        <li>Enter the following commands:</li>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Username is the Kerberos principal user.</p><pre xml:space="preserve"><code class="language-text">add_entry -password -p &lt;username&gt; -k 1 -e des3-cbc-sha1-kd
+	add_entry -password -p &lt;username&gt; -k 1 -e arcfour-hmac-md5
+	add_entry -password -p &lt;username&gt; -k 1 -e des-hmac-sha1
+	add_entry -password -p &lt;username&gt; -k 1 -e des-cbc-md5
+	add_entry -password -p &lt;username&gt; -k 1 -e des-cbc-md4</code></pre>
+                    </ul>
+                    <ul>
+                        <li>Following the command prompt instructions, enter the password for the principal user.</li>
+                        <li>Enter the following commands to create the <code>keytab</code> file:</li><pre xml:space="preserve"><code class="language-text">wkt /path/to/&lt;user name&gt;.keytab</code></pre>
+                        <li>Enter <code>q</code> to quit the <code>ktutil</code> utility</li>
+                        <li>Check the registered user in the <code>keytab</code> file by running the following command:</li><pre xml:space="preserve"><code class="language-text">klist -k path/to/&lt;username&gt;.keytab</code></pre>
+                    </ul>
+                    <li>Create the <code>/etc/krb5.conf</code> file.</li>
+                    <MadCap:dropDown>
+                        <MadCap:dropDownHead>
+                            <MadCap:dropDownHotspot style="font-size: 12pt;">A sample <code>/etc/krb5.conf</code> file</MadCap:dropDownHotspot>
+                        </MadCap:dropDownHead>
+                        <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+[libdefaults]
+ clockskew = 6000
+ forwardable = true
+ default_realm = MYDOMAIN.COM
+ default_ccache_name = /path/to/krb5cc
+[realms]
+MYDOMAIN.NET = {
+ kdc = domainserver.mydomain.com
+ admin_server = domainserver.mydomain.com
+ }
+[domain_realm]
+ .MYDOMAIN.COM = MYDOMAIN.COM
+ MYDOMAIN.COM = MYDOMAIN.COM</code></pre>
+                        </MadCap:dropDownBody>
+                    </MadCap:dropDown>
+                    <li>Create the <code>/etc/JDBCDriverLogin.conf</code> file:</li>
+                    <MadCap:dropDown>
+                        <MadCap:dropDownHead>
+                            <MadCap:dropDownHotspot style="font-size: 12pt;">A sample <code>JDBCDriverLogin.conf</code> file</MadCap:dropDownHotspot>
+                        </MadCap:dropDownHead>
+                        <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">SQLJDBCDriver {
+  com.sun.security.auth.module.Krb5LoginModule required
+  useKeyTab=true
+  useTicketCache=true
+  storeKey=true
+  keyTab="/path/to/&lt;keytabname&gt;.keytab"
+  principal="&lt;AD username&gt;@MYDOMAIN.COM";
+};
+KrbLogin {
+  com.sun.security.auth.module.Krb5LoginModule required
+  useKeyTab=true
+  storeKey=true
+  keyTab="/path/to/&lt;username&gt;.keytab"
+  useTicketCache=true
+  debug=true;
+};</code></pre>
+                        </MadCap:dropDownBody>
+                    </MadCap:dropDown>
+                </ol>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information, see the <a href="https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-active-directory-authentication?view=sql-server-ver15" target="_blank">Use Active Directory authentication with SQL Server on Linux</a> page.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Configuring the <MadCap:variable name="General.Liquibase" /> and Kerberos connection</h2>
+        <ol>
+            <li>Run the <a href="https://docs.oracle.com/javase/7/docs/technotes/tools/windows/kinit.html">kinit command</a> to obtain and cache Kerberos ticket-granting tickets. To verify and list the new information from the <code>krb5cc</code> file, you can also run the <code>klist</code> command. For example:
+            </li><pre xml:space="preserve"><code class="language-text">kinit lbuser
+Password for lbuser@MYDOMAIN.COM:
+klist
+Ticket cache: FILE:/temp/krb5cc
+Default principal: @MYDOMAIN.COM</code></pre>
+            <li>
+                <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
+            </li><pre xml:space="preserve"><code class="language-text">url: jdbc:sqlserver://&lt;host name or endpoint&gt;:1433;IntegratedSecurity=true;databaseName=&lt;database name&gt;;authenticationScheme=JavaKerberos;useTicketCache=true;doNotPrompt=true;moduleBanner=false;ServerSpn=MSSQLSvc/&lt;hostname&gt;&lt;FQDN&gt;:1433@MYDOMAIN.COM;</code></pre>
+            <li>Include the following <code>JAVA_OPTS</code> arguments to ensure you have all the necessary Java arguments:
+            </li><pre xml:space="preserve"><code class="language-text">JAVA_OPTS="-Djava.security.krb5.conf=/path/to/krb5.conf -Dsun.security.krb5.debug=true -Dcom.sun.security.auth.module.Krb5LoginModule=required -DuseTicketCache=true -Djava.security.auth.login.config=/path/to/JDBCDriverLogin.conf"</code></pre>
+            <li>Run the <code>liquibase status</code> command to ensure the connection works.</li><pre xml:space="preserve"><code class="language-text">JAVA_OPTS="-Djava.security.krb5.conf=/etc/krb5.conf -Dsun.security.krb5.debug=true -Dcom.sun.security.auth.module.Krb5LoginModule=required -DuseTicketCache=true -Djava.security.auth.login.config=/etc/JDBCDriverLogin.conf" 
+liquibase status --verbose</code></pre>
+        </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 18pt;">Sample output</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">Starting Liquibase at 14:56:40
+Liquibase Version: 4.5.0
+Liquibase Community 4.5.0
+&gt;&gt;&gt;KinitOptions cache name is /tmp/krb5cc_1000
+&gt;&gt;&gt; KeyTabInputStream, readName(): MYDOMAIN.COM
+&gt;&gt;&gt; KeyTabInputStream, readName(): lbuser
+&gt;&gt;&gt; KeyTab: load() entry length: 68; type: 16
+&gt;&gt;&gt; KeyTabInputStream, readName(): MYDOMAIN.COM
+&gt;&gt;&gt; KeyTabInputStream, readName(): lbuser
+&gt;&gt;&gt; KeyTab: load() entry length: 60; type: 23
+&gt;&gt;&gt; KeyTabInputStream, readName(): MYDOMAIN.COM
+&gt;&gt;&gt; KeyTabInputStream, readName(): lbuser
+&gt;&gt;&gt; KeyTab: load() entry length: 52; type: 8
+&gt;&gt;&gt; KeyTabInputStream, readName(): MYDOMAIN.COM
+&gt;&gt;&gt; KeyTabInputStream, readName(): lbuser
+&gt;&gt;&gt; KeyTab: load() entry length: 52; type: 3
+&gt;&gt;&gt; KeyTabInputStream, readName(): MYDOMAIN.COM
+&gt;&gt;&gt; KeyTabInputStream, readName(): lbuser
+&gt;&gt;&gt; KeyTab: load() entry length: 52; type: 2
+Looking for keys for: MYDOMAIN.COM
+Java config name: /etc/krb5.conf
+Loading krb5 profile at /etc/krb5.conf
+...
+...
+&gt;&gt;&gt; DEBUG: ----Credentials----
+client: MYDOMAIN.COM
+server: MSSQLSvc/xxx:1433@MYDOMAIN.COM
+ticket: sname: MSSQLSvc/xxx:1433@MYDOMAIN.COM
+startTime: 1635951401000
+endTime: 1635987401000
+----Credentials end----
+Subject is readOnly;Kerberos Service ticket not stored
+Using builtin default etypes for default_tgs_enctypes
+default etypes for default_tgs_enctypes: 18 17 20 19 16 23.
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.ArcFourHmacEType
+&gt;&gt;&gt; CksumType: sun.security.krb5.internal.crypto.HmacMd5ArcFourCksumType
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.ArcFourHmaEType
+&gt;&gt;&gt; KrbKdcReq send: kdc=MYDOMAIN.COM TCP:88, timeout=30000, number of retries =3, #bytes=1482
+&gt;&gt;&gt; KDCCommunication: kdc=MYDOMAIN.COM TCP:88, timeout=30000,Attempt =1, #bytes=1482
+&gt;&gt;&gt;DEBUG: TCPClient reading 1442 bytes
+&gt;&gt;&gt; KrbKdcReq send: #bytes read=1442
+&gt;&gt;&gt; KdcAccessibility: remove MYDOMAIN.COM
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.ArcFourHmacEType
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.Aes256CtsHmacShaEType
+&gt;&gt;&gt; KrbApReq: APOptions are 00100000 00000000 00000000 00000000
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.Aes256CtsHmacShaEType
+Krb5Context setting mySeqNumber to: 00000
+Created InitSecContextToken:
+0000: 01 00 6E 82 0B 91 30 82   0B 8D A0 03 02 01 05 A1  ..n...0.........
+0010: 03 02 01 0E A2 07 03 05   00 20 00 00 00 A3 82 04  ......... ......
+0020: EA 61 82 04 E6 30 82 04   E2 A0 03 02 01 05 A1 13  .a...0..........
+0030: 1B 11 4C 42 2D 43 53 2E   44 41 54 49 43 41 4C 2E  ..MYDOMAIN.
+0040: 4E 45 54 A2 3D 30 3B A0   03 02 01 00 A1 34 30 32  com.=0;......402
+0050: 1B 08 4D 53 53 51 4C 53   76 63 1B 26 6D 73 73 71  ..MSSQLSvc.&amp;mssq
+...
+Entered Krb5Context.initSecContext with state=STATE_IN_PROCESS
+&gt;&gt;&gt; EType: sun.security.krb5.internal.crypto.Aes256CtsHmacShaEType
+Krb5Context setting peerSeqNumber to: 1481374XX
+username@jdbc:sqlserver://xxx:1433;maxResultBuffer=-1;
+sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;
+useFmtOnly=false;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;
+jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;
+enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;
+authenticationScheme=JavaKerberos;xopenStates=false;sendTimeAsDatetime=true;trustStoreType=JKS;trustServerCertificate=false;
+TransparentNetworkIPResolution=true;serverSpn=MSSQLSvc/xxx:1433@MYDOMAIN.COM;serverNameAsACE=false;sendStringParametersAsUnicode=true;
+selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=15;lockTimeout=-1;
+lastupdate-count=true;encrypt=false;disableStatementPooling=true;databaseName=WF_DEV;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;
+applicationIntent=readwrite; is up to date
+Liquibase command 'status' was executed successfully.</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>
