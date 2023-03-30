@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>MongoDB Pro Extension</h1>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">MongoDB is available in <MadCap:variable name="General.LBPro" /> version 4.20.1</p>
+        <p>The MongoDB&#160;Pro Extension streamlines the workflow for MongoDB users. It allows you to use MongoDB's native language in changesets and change types. All of this is possible because  MongoDB&#160;Shell (mongosh) is compatible with <MadCap:variable name="General.LBPro" />. You now have the opportunity to use <MadCap:variable name="General.Liquibase" /> alongside MongoDB which will increase MongoDB also supports  Targeted Rollback, Flows, and <MadCap:variable name="General.changelog" />-level quality checks with <MadCap:variable name="General.LBPro" />. Learn the details and how to implement this functionality below.</p>
+        <h2>MongoDB Pro Extension Functionality</h2>
+        <p>Some inherent <MadCap:variable name="General.Liquibase" /> functionality is different in the MongoDB Pro Extension because of the nature of Mongo. This does not limit the use of MongoDB, it simply means that you must be aware of these nuances to successfully use this extension. The points below are essential to using the Pro extension successfully.<br /></p>
+        <ul>
+            <li>As of <MadCap:variable name="General.LBPro" /> version 4.20.1, JSON&#160;and YAML&#160;<MadCap:variable name="General.changelog" />s are supported along with the legacy support of XML changelogs.</li>
+            <li>MongoDB is a noSQL database, which means you are unable to use any <code>--sql</code> commands. Learn more about <MadCap:xref href="../../commands/home.htm">[%=General.Liquibase%] Commands</MadCap:xref> here.<ul><li>Rollback commands are supported with the exception of any rollback <code>--sql</code> commands.</li><li>Change tracking commands are supported with the exception of any <code>--sql</code> commands.</li></ul></li>
+            <li>The only Quality Checks that work with the MongoDB&#160;Pro Extension are Changelog-level Quality Checks. Learn more about <MadCap:xref href="../../commands/quality-checks/home.htm">Quality Checks</MadCap:xref> here.</li>
+            <li>These quality checks work only if you have created your own from the regex template. Liquibase uses the <a href="https://docs.oracle.com/en/java/javase/13/docs/api/java.base/java/util/regex/Pattern.html">java.util.regex</a> engine to match regular expressions. </li>
+            <li><code>mongo </code>and <code>mongoFile </code>are the two <MadCap:variable name="General.changetypes" />s allowed. They must use the Native Executor, Mongo Shell (mongosh).</li>
+        </ul>
+        <h2>Implement the MongoDB Pro Extension</h2>
+        <ol>
+            <li>If you have the current open source MongoDB&#160;version installed, remove it and the associated drivers from your machine.</li>
+            <li><a href="https://www.mongodb.com/try/download/shell">Download and Install mongosh</a> if it is not already installed on your machine. <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Mongosh is mandatory to use MongoDB&#160;with <MadCap:variable name="General.LBPro" />. This allows you to interact with MongoDB in NodeJS REPL and run all possible queries conveniently.</p></li>
+            <li>Follow the Prerequisite steps:<br /></li>
+            <p>
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
+            </p>
+            <li>Download the ZIP file that contains the MongoDB&#160;Pro Extension and drivers from (insert link once available).</li>
+            <li>Extract the single JAR&#160;file and install the extension.</li>
+            <li>Implement your Liquibase Pro key. Learn <MadCap:xref href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">How to Apply Your [%=General.LBPro%] License Key here.</MadCap:xref></li>
+        </ol>
+        <h2>Test your connection</h2>
+        <ol>
+            <li>Ensure your MongoDB database is configured. See <a href="https://www.mongodb.com/docs/manual/installation/">Install MongoDB</a> for more information.</li>
+            <li>
+                <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
+            </li><pre xml:space="preserve"><code class="language-html">url: mongodb://hostname:27017/myDatabase</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you are unsure about how to configure the <code>url</code> property, refer to <a href="https://docs.mongodb.com/manual/reference/connection-string/">Connection String URI Format</a>.</p>
+            <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-license-key.flsnp" />
+            <li>Create a text file called <a href="../../concepts/changelogs/home.html">changelog</a> (<code>.xml</code>) in your project directory and add a <a href="../../concepts/changelogs/changeset.html">changeset</a>.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The use of JSON&#160;and YAML <MadCap:variable name="General.changelog" />s is available in  <MadCap:variable name="General.Liquibase" /> version 4.20.1</p><br /></li>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">XML example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody><pre><code class="language-json">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+<MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+	&lt;changeSet id="1" author="bob"&gt;
+		&lt;ext:createCollection collectionName="myCollection"&gt;
+			&lt;ext:options&gt;
+			{
+				validator: {
+					$jsonSchema: {
+						bsonType: "object",
+						required: ["name", "address"],
+						properties: {
+							name: {
+								bsonType: "string",
+								description: "The Name"
+							},
+							address: {
+								bsonType: "string",
+								description: "The Address"
+							}
+						}
+					}
+				},
+				validationAction: "warn",
+				validationLevel: "strict"
+			}
+			&lt;/ext:options&gt;
+		&lt;/ext:createCollection&gt;
+	&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">YAML example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody><pre>
+databaseChangeLog:<br />---------CREATE AND DROP COLLECTION---------
+<br />- changeSet:
+	id: 1
+	author: as
+	changes:
+	- createCollection:
+	collectionName: towns_yaml
+							
+- changeSet:
+	id: 2
+	author: as
+	changes:
+		- dropCollection:
+		collectionName: towns_yaml 
+<br />---------INSERT ONE---------
+
+	- changeSet:
+		id: 3
+		author: as
+		changes:
+			- insertOne:
+				collectionName: towns_yaml
+				document: |
+					{
+					name: "New York",
+					population: 222000000,
+					lastCensus: ISODate("2016-07-01"),
+					famousFor: [ "the MOMA", "food", "Derek Jeter" ],
+					mayor: {
+					name: "Bill de Blasio",
+					party: "D"
+					}
+					}
+				- rollback:
+        
+---------INSERT MANY---------
+        
+	- changeSet:
+	id: 4
+	author: as
+	changes:
+		- insertMany:
+			collectionName: countries_yaml
+			documents: |
+			[
+			{
+			_id : "us",
+			name : "United States",
+			exports : {
+			foods : [
+			{name : "bacon", tasty : "true" },
+			{name : "burger"}
+			]
+			}
+			},
+			{
+			_id : "ca",
+			name : "Canada",
+			exports : {
+			foods : [
+			{name : "bacon", tasty : false },
+			{name : "syrup", tasty : true}
+			]
+			}
+			},
+			{
+			_id : "mx",
+			name : "Mexico",
+			exports : {
+			foods : [
+			{name : "salsa", tasty : true, condiment : true}
+			]
+			}
+			}
+			]
+		- rollback:
+			runCommand:
+			command: |
+			{
+			delete: "countries_yaml",
+			deletes: [ { q: { }, limit: 0 } ]
+			}
+                
+---------CREATE AND DROP INDEX---------        
+        
+- changeSet:
+	id: 5
+	author: as
+	changes:
+		- createIndex:
+			collectionName: countries_yaml
+			keys: '{ name: 1, type: 1}'
+			options: '{unique: true, name: "ui_countries"}'        
+            
+- changeSet:
+	id: 6
+	author: as
+	changes:
+		- dropIndex:
+			collectionName: countries_yaml
+			keys: '{ name: 1, type: 1}'
+			options: '{unique: true, name: "ui_countries"}'
+            
+---------RUN COMMAND---------             
+            
+- changeSet:
+	id: 7
+	author: as
+	changes:
+		- runCommand:
+			command: |
+			{
+			buildInfo: 1
+			}
+		- rollback:            
+        
+---------ADMIN COMMAND---------        </pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">JSON example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody><pre>
+						{
+						"databaseChangeLog": [
+						---------------------------CREATE AND DROP COLLECTION---------------------------
+						{
+						"changeSet": {
+						"id": "1",
+						"author": "as",
+						"labels": "test_label",
+						"context": "test_context",
+						"comment": "test_comment",
+						"changes": [
+						{
+						"createCollection": {
+						"collectionName": "countries_json"
+						}
+						}
+						]
+						}
+						},
+						{
+						"changeSet": {
+						"id": "2",
+						"author": "as",
+						"changes": [
+						{
+						"dropCollection": {
+						"collectionName": "towns_json"
+						}
+						}
+						],
+						"rollback": ""
+						}
+						},
+						---------------------------INSERT ONE---------------------------		
+						{
+						"changeSet": {
+						"id": "3",
+						"author": "as",
+						"changes": [
+						{
+						"insertOne": {
+						"collectionName": "towns_json",
+						"document": {
+						"$rawJson": {
+						"name": "New York",
+						"population": 222000000,
+						"famousFor": [ "the MOMA", "food", "Derek Jeter" ],
+						"mayor": {
+						"name": "Bill de Blasio",
+						"party": "D"
+						}
+						}
+						}
+						}
+						}
+						],
+						"rollback": ""
+						}
+						},	
+						---------------------------INSERT MANY---------------------------	
+						{
+						"changeSet": {
+						"id": "4",
+						"author": "as",
+						"changes": [
+						{
+						"insertMany": {
+						"collectionName": "countries_json",
+						"documents": {
+						"$rawJson": [
+						{
+						"_id" : "us",
+						"name" : "United States",
+						"exports" : {
+						"foods" : [
+						{"name" : "bacon", "tasty" : "true" },
+						{"name" : "burger"}
+						]
+						}
+						},
+						{
+						"_id" : "ca",
+						"name" : "Canada",
+						"exports" : {
+						"foods" : [
+						{"name" : "bacon", "tasty" : false },
+						{"name" : "syrup", "tasty" : true}
+						]
+						}
+						},
+						{
+						"_id" : "mx",
+						"name" : "Mexico",
+						"exports" : {
+						"foods" : [
+						{"name" : "salsa", "tasty" : true, "condiment" : true}
+						]
+						}
+						}
+						]
+						}
+						}
+						}
+						],
+						"rollback": {
+						"runCommand": {
+						"command": "{ delete: \"countries_json\", deletes: [{q: { }, limit: 0}] }"
+						}
+						}
+						}
+						},
+						---------------------------CREATE AND DROP INDEX---------------------------		
+						{
+						"changeSet": {
+						"id": "5",
+						"author": "as",
+						"changes": [
+						{
+						"createIndex": {
+						"collectionName": "countries_json",
+						"keys": {
+						"$rawJson": {
+						"name": 1,
+						"type": 1
+						}
+						},
+						"options": {
+						"$rawJson": {
+						"unique": true,
+						"name": "ui_countries_json"
+						}
+						}
+						}
+						}
+						]
+						}
+						},
+						{
+						"changeSet": {
+						"id": "6",
+						"author": "as",
+						"changes": [
+						{
+						"dropIndex": {
+						"collectionName": "countries_json",
+						"keys": {
+						"$rawJson": {
+						"name": 1,
+						"type": 1
+						}
+						},
+						"options": {
+						"$rawJson": {
+						"unique": true,
+						"name": "ui_countries_json"
+						}
+						}
+						}
+						}
+						]
+						}
+						},
+						---------------------------RUN COMMAND---------------------------		
+						{
+						"changeSet": {
+						"id": "7",
+						"author": "as",
+						"changes": [
+						{
+						"runCommand": {
+						"command": "{ buildInfo: 1 }"
+						}
+						}
+						],
+						"rollback": ""
+						}
+						},
+						---------------------------ADMIN COMMAND---------------------------			
+						{
+						"changeSet": {
+						"id": "8",
+						"author": "as",
+						"changes": [
+						{
+						"adminCommand": {
+						"command": "{ buildInfo: 1 }"
+						}
+						}
+						],
+						"rollback": ""
+						}
+						}
+						]
+					}</pre>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve"><code class="language-text">liquibase status --username=test --password=test --changelog-file=&lt;changelog.xml&gt;</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can pass arguments in the CLI or keep them in the <MadCap:variable name="General.Liquibase" /> properties file.</p>
+            <li>Make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command.</li><pre xml:space="preserve"><code class="language-text">liquibase update --changelog-file=&lt;changelog.xml&gt;</code></pre>
+            <li>From a database UI tool, ensure that your database contains <code>myCollection</code> along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</li>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">You can use <a href="https://www.mongodb.com/products/compass">MongoDB Compass</a> to easily view collections in your database. For example, run the commands <code>use myDatabase</code> and <code>db.myCollection.find()</code>.</p>
+        </ol>
+    </body>
+</html>
