@@ -505,7 +505,7 @@ variable "redirects" {
     "/start/get-started/getting-started-liquibase-json-windows.html"                                           = "/start/get-started/liquibase-json.html"
     "/start/get-started/getting-started-liquibase-sql-linux.html"                                              = "/start/get-started/liquibase-sql.html"
     "/start/get-started/getting-started-liquibase-sql-macos.html"                                              = "/start/get-started/liquibase-sql.html"
-    '/start/get-started/getting-started-liquibase-sql-windows.html"                                            = "/start/get-started/liquibase-sql.html"
+    "/start/get-started/getting-started-liquibase-sql-windows.html"                                            = "/start/get-started/liquibase-sql.html"
     "/start/get-started/getting-started-liquibase-xml-linux.html"                                              = "/start/get-started/liquibase-xml.html"
     "/start/get-started/getting-started-liquibase-xml-macos.html"                                              = "/start/get-started/liquibase-xml.html"
     "/start/get-started/getting-started-liquibase-xml-windows.html"                                            = "/start/get-started/liquibase-xml.html"
