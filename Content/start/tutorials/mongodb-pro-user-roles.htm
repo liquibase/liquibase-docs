@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/start/tutorials/mongodb-pro-user-roles.html" />
+        <meta name="description" content="You can access data and commands through role-based authorization in the MongoDB Pro Extension." />
+    </head>
+    <body>
+        <h1>MongoDB&#160;Pro Extension User Roles</h1>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">MongoDB is available in <MadCap:variable name="General.LBPro" /> version 4.20.1</p>
+        <p>You can access data and commands through role-based authorization in MongoDB. This guide covers two easy methods to create a user that has the correct permissions required to run <MadCap:variable name="General.Liquibase" /> alongside the MongoDB&#160;Pro extension. The methods include using <a href="https://www.mongodb.com/docs/manual/reference/built-in-roles/#:~:text=MongoDB grants access to data,of actions on defined resources.">built-in roles</a> to Mongo or using the <a href="https://www.mongodb.com/docs/manual/core/security-user-defined-roles/">user-defined role</a> method. The built-in role method allows you to provide different levels of access commonly needed in a database system. The  user-defined role method allows for custom role creation and it lends itself to a scenario in which the built-in roles cannot describe the privileges necessary for the job.</p>
+        <h2>Built-in Roles Method</h2>
+        <p>This method allows you to create a user that has readWrite and dbAdmin roles. This user will be able to run the Liquibase Pro MongoDB&#160;extension directly.<br /></p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Without dbAdmin role permissions, you will not be able to run the MongoDB&#160;Pro extension directly.</p>
+        <p>Create a user with the built-in readWrite and dbAdmin roles by adding the following code with your own user, password, and database content to the <MadCap:variable name="General.liquiPropFile" /> file:</p><pre>db.createUser(
+	{
+		user: "lbuser",
+		pwd: "password",
+		roles: [
+			{
+			 role: "readWrite",
+			 db: "yourdb"
+			},
+			{
+			 role: "dbAdmin",
+			 db: "yourdb"
+			}
+		]
+	}
+);</pre>
+        <h2>User-Defined Roles Method</h2>
+        <p>This method allows you to create a custom user-defined role which is inherited from the readWrite role.  If a user does not need the dbAdmin role for security purposes, this will be your desired method.</p>
+        <p>Create a role with readWrite with only one additional collMod privilege by adding the two sections of code to your <MadCap:variable name="General.liquiPropFile" /> file below:</p>
+        <p>This section allows you to create a role with the specific action:</p><pre>
+db.createRole(
+	{
+		role: "liquibase_role",
+		privileges: [{resource: {db: 'yourdb', collection: ''}, actions: ['collMod']}],
+		roles: [
+			{ role: "readWrite", db: "yourdb" }
+		]
+	}
+)</pre>
+        <p>This section then takes the role and then assigns it to your created user:</p><pre>
+db.createUser(
+	{
+		user: "lbuser",
+		pwd: "password",
+		roles: [
+		    {
+		      	 role: "liquibase_role",
+			 db: "yourdb"
+		    }
+		]
+	}
+);</pre>
+        <h2>Related Links:</h2>
+        <p><a href="https://www.mongodb.com/docs/manual/reference/built-in-roles/#database-user-roles">MongoDB&#160;Built-In Roles</a>
+        </p>
+        <p><a href="https://www.mongodb.com/docs/manual/core/security-user-defined-roles/">MongoDB&#160;User-Defined Roles</a>
+        </p>
+    </body>
+</html>
