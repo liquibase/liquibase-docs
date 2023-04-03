@@ -492,6 +492,7 @@ variable "redirects" {
     "/popular-topics.html"                                                                                     = "/home.html"
     "/quality-checks"                                                                                          = "/commands/quality-checks/home.html"
     "/quality-checks.html"                                                                                     = "/commands/quality-checks/home.html"
+    "/release-notes/home.html"                                                                                 = "/start/release-notes/home.html"
     "/s3"                                                                                                      = "/tools-integrations/extensions/remote-files/s3.html"
     "/s3.html"                                                                                                 = "/tools-integrations/extensions/remote-files/s3.html"
     "/secrets-management"                                                                                      = "/tools-integrations/extensions/secrets-management/home.html"
