@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="Default.EXCLUDE">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/start/tutorials/mongodb-pro.html" />
+        <meta name="description" content="The MongoDB&#160;Pro Extension streamlines the workflow for MongoDB users. It allows you to use MongoDB's native language in changesets and change types. All of this is possible because MongoDB Shell (mongosh) is compatible with Liquibase Pro." />
+    </head>
+    <body>
+        <h1>MongoDB Pro Extension</h1>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">MongoDB is available in <MadCap:variable name="General.LBPro" /> version 4.20.1</p>
+        <p>The MongoDB&#160;Pro Extension streamlines the workflow for MongoDB users. It allows you to use MongoDB's native language in changesets and <MadCap:variable name="General.changetypes" />s. All of this is possible because  MongoDB&#160;Shell (mongosh) is compatible with <MadCap:variable name="General.LBPro" />.  MongoDB also supports  Targeted Rollback, Flows, and <MadCap:variable name="General.changelog" />-level quality checks with <MadCap:variable name="General.LBPro" />. Learn the details and how to implement this functionality below.</p>
+        <h2>MongoDB Pro extension functionality</h2>
+        <p>Some inherent <MadCap:variable name="General.Liquibase" /> functionality is different in the MongoDB Pro Extension because of the nature of Mongo. This does not limit the use of MongoDB, it simply means that you must be aware of these nuances to successfully use this extension. The points below are essential to using the Pro extension successfully.<br /></p>
+        <ul>
+            <li>As of <MadCap:variable name="General.LBPro" /> version 4.20.1, JSON&#160;and YAML&#160;<MadCap:variable name="General.changelog" />s are supported along with the legacy support of XML <MadCap:variable name="General.changelog" />s.</li>
+            <li>MongoDB is a noSQL database, which means you are unable to use any commands that generate <code>sql</code> output. Learn more about <MadCap:xref href="../../commands/home.htm">[%=General.<MadCap:variable name="General.Liquibase" />%] Commands</MadCap:xref> here.<ul><li>Rollback commands are supported with the exception of any rollback commands that generate <code>sql</code> output.</li><li>Change tracking commands are supported with the exception of any commands that generate <code>sql</code> output.</li></ul></li>
+            <li>The only Quality Checks that work with the MongoDB&#160;Pro Extension are Changelog-level Quality Checks. Learn more about <MadCap:xref href="../../commands/quality-checks/home.htm">Quality Checks</MadCap:xref> here.</li>
+            <li>These quality checks work only if you have created your own from the regex template. <MadCap:variable name="General.Liquibase" /> uses the <a href="https://docs.oracle.com/en/java/javase/13/docs/api/java.base/java/util/regex/Pattern.html">java.util.regex</a> engine to match regular expressions. </li>
+            <li><code>mongo </code>and <code>mongoFile </code>are the two <MadCap:variable name="General.changetypes" />s allowed. They must use the Native Executor, Mongo Shell (mongosh).</li>
+        </ul>
+        <h2>Implement the MongoDB Pro extension</h2>
+        <ol>
+            <li>If you have the current open source MongoDB&#160;version installed, remove it and the associated drivers from your machine.</li>
+            <li><a href="https://www.mongodb.com/try/download/shell">Download and Install mongosh</a> if it is not already installed on your machine. <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Mongosh is mandatory to use MongoDB&#160;with <MadCap:variable name="General.LBPro" />. This allows you to interact with MongoDB in NodeJS REPL and run all possible queries conveniently.</p></li>
+            <li>Follow the Prerequisite steps:<br /></li>
+            <p>
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
+            </p>
+            <li>Download the ZIP file that contains the MongoDB&#160;Pro Extension and drivers from (insert link once available).</li>
+            <li>Extract the single Uber JAR&#160;file and install the extension.</li>
+            <li>Implement your <MadCap:variable name="General.LBPro" /> key. Learn <MadCap:xref href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">How to Apply Your [%=General.LBPro%] License Key here.</MadCap:xref></li>
+            <li>Configure the TLS/SSL&#160;encrypted connection for the MongoDB&#160;Pro extension.<ol><li>Configure the MongoDB&#160;instance by first following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl/">Mongo's configuration guide here</a>.</li><li>Then verify that it works by following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl-clients/#connect-to-mongodb-instance-using-encryption--tls-options-">Mongo's verification guide here</a>.</li><li>Add the <code>--tlsCertificateKeyFile</code> certificate that is produced in the configuration step above to the Java keystore:<ul><li>On Linux:<pre>sudo keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE/mongodb-cert.crt -cacerts -storepass changeit -alias MongoDB</pre></li><li>On Windows: Open terminal in Administrator mode and run<pre>keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE\\mongodb-cert.crt -cacerts -storepass changeit -alias mongodb</pre></li></ul><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><b>changeit</b> is the default password for keystore.</p></li><li><p>Add the URL parameter to the <MadCap:variable name="General.liquiPropFile" /> file or set it as an environment variable:<br /></p><p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><br /><MadCap:variable name="General.liquiPropFile" /> file:<br /><code>liquibase.command.url: mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /><br />environment variable:<br /><code>LIQUIBASE_COMMAND_URL: mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /></p></li><li><p>If you are using a Java keystore that is not the default, you must add the necessary environment variables before running <MadCap:variable name="General.Liquibase" /> commands.</p><ul><li>On Linux:<pre>export JAVA_OPTS="-Djavax.net.ssl.keyStore=PATH_TO_KEYSTORE/cacerts -Djavax.net.ssl.keyStorePassword=PASSWORD"</pre></li><li>On Windows:<pre>set JAVA_OPTS=-Djavax.net.ssl.keyStore="PATH_TO_KEYSTORE\\cacerts" -Djavax.net.ssl.keyStorePassword=PASSWORD</pre>Do not use <code>setx</code> as it adds keyStorePassword to system environment variables</li></ul></li></ol></li>
+        </ol>
+        <h3>Troubleshoot Windows error</h3>
+        <p>After connecting <MadCap:variable name="General.Liquibase" /> with the MongoDB&#160;Pro Extension on a Windows machine, you may come across an error that states:</p><pre>Error: Could not find or load main class Files\\Java\\{jdk-version}.security.cacerts Caused by: java.lang.ClassNotFoundException: Files\\Java\\{jdk-version}.security.cacerts</pre>
+        <p>This means that <MadCap:variable name="General.LBPro" /> is struggling to find the certification file. To resolve the issue, run the following command in the CLI:</p>
+        <ul>
+            <li>
+                <p>On Windows:</p><pre>set JAVA_OPTS=-Djavax.net.ssl.keyStore="%JAVA_HOME%\\lib\\security\\cacerts"</pre>
+            </li>
+        </ul>
+        <h2>Test your connection</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/test-your-connection-mongodb.flsnp" />
+    </body>
+</html>
