@@ -10,13 +10,14 @@
             </pre>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you are unsure about how to configure the <code>url</code> property, refer to <a href="https://docs.mongodb.com/manual/reference/connection-string/">Connection String URI Format</a>.</p>
             <MadCap:snippetBlock src="../note/database-license-key.flsnp" />
-            <li>Create a text file called <a href="../../../concepts/changelogs/home.html">changelog</a> (<code>.xml</code>) in your project directory and add a <a href="../../../concepts/changelogs/changeset.html">changeset</a>.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The use of JSON&#160;and YAML <MadCap:variable name="General.changelog" />s is available in  <MadCap:variable name="General.Liquibase" /> version 4.20.1</p><br /></li>
+            <li>Create a text file called <a href="../../../concepts/changelogs/home.html">changelog</a> (<code>.xml</code>) in your project directory and add a <a href="../../../concepts/changelogs/changeset.html">changeset</a>.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The use of JSON&#160;and YAML <MadCap:variable name="General.changelog" />s is available in  <MadCap:variable name="General.Liquibase" /> version 4.20.1</p></li>
             <MadCap:dropDown>
                 <MadCap:dropDownHead>
-                    <MadCap:dropDownHotspot style="font-size: 18pt;">XML example</MadCap:dropDownHotspot>
+                    <MadCap:dropDownHotspot>XML&#160;example 1</MadCap:dropDownHotspot>
                 </MadCap:dropDownHead>
-                <MadCap:dropDownBody><pre><code class="language-json">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-<MadCap:snippetText src="../code/liquibase-xsd-xml-changelog-closed.flsnp" />
+                <MadCap:dropDownBody>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: XML;">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
 
 	&lt;changeSet id="1" author="bob"&gt;
 		&lt;ext:createCollection collectionName="myCollection"&gt;
@@ -44,16 +45,63 @@
 			&lt;/ext:options&gt;
 		&lt;/ext:createCollection&gt;
 	&lt;/changeSet&gt;
-&lt;/databaseChangeLog&gt;</code></pre>
+&lt;/databaseChangeLog&gt;</MadCap:codeSnippetBody>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">XML example 2</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: XML;">&lt;databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mongodb-pro="http://www.liquibase.org/xml/ns/pro-mongodb"
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+http://www.liquibase.org/xml/ns/pro-mongodb http://www.liquibase.org/xml/ns/pro-mongodb/liquibase-pro-mongodb-latest.xsd"&gt;
+	&lt;changeSet id="1" author="nvoxland" runWith="mongosh"&gt;
+		&lt;mongodb-pro:mongo&gt;
+db = db.getSiblingDB( 'mydb' );
+db.createCollection('person2');
+&lt;/mongodb-pro:mongo&gt;
+		&lt;rollback&gt;
+			&lt;mongodb-pro:mongo&gt;
+db = db.getSiblingDB( 'mydb' );
+db.person2.drop();
+&lt;/mongodb-pro:mongo&gt;
+		&lt;/rollback&gt;
+	&lt;/changeSet&gt;
+	&lt;changeSet id="2" author="nvoxland" runWith="mongosh"&gt;
+		&lt;mongodb-pro:mongoFile path="scriptFile.js" relativeToChangelogFile="true"/&gt;
+		&lt;rollback&gt;
+			&lt;mongodb-pro:mongoFile path="scriptFile-rollback.js" relativeToChangelogFile="true"/&gt;
+		&lt;/rollback&gt;
+	&lt;/changeSet&gt;
+	&lt;changeSet id="3" author="nvoxland" runWith="mongosh"&gt;
+		&lt;mongodb-pro:mongo&gt;
+db.products.insertMany( [
+{ item: "card", qty: 15 },
+{ item: "envelope", qty: 20 },
+{ item: "stamps" , qty: 30 }
+] );
+&lt;/mongodb-pro:mongo&gt;
+		&lt;rollback&gt;
+			&lt;mongodb-pro:mongo&gt;
+db.products.deleteMany( { } );
+&lt;/mongodb-pro:mongo&gt;
+		&lt;/rollback&gt;
+	&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</MadCap:codeSnippetBody>
                 </MadCap:dropDownBody>
             </MadCap:dropDown>
             <MadCap:dropDown>
                 <MadCap:dropDownHead>
                     <MadCap:dropDownHotspot style="font-size: 18pt;">YAML example</MadCap:dropDownHotspot>
                 </MadCap:dropDownHead>
-                <MadCap:dropDownBody><pre>
-databaseChangeLog:<br />---------CREATE AND DROP COLLECTION---------
-<br />- changeSet:
+                <MadCap:dropDownBody>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">databaseChangeLog:---------CREATE AND DROP COLLECTION---------
+- changeSet:
 	id: 1
 	author: as
 	changes:
@@ -66,7 +114,7 @@ databaseChangeLog:<br />---------CREATE AND DROP COLLECTION---------
 	changes:
 		- dropCollection:
 		collectionName: towns_yaml 
-<br />---------INSERT ONE---------
+---------INSERT ONE---------
 
 	- changeSet:
 		id: 3
@@ -168,14 +216,17 @@ databaseChangeLog:<br />---------CREATE AND DROP COLLECTION---------
 			}
 		- rollback:            
         
----------ADMIN COMMAND---------        </pre>
+---------ADMIN COMMAND---------        </MadCap:codeSnippetBody>
                 </MadCap:dropDownBody>
             </MadCap:dropDown>
             <MadCap:dropDown>
                 <MadCap:dropDownHead>
                     <MadCap:dropDownHotspot style="font-size: 18pt;">JSON example</MadCap:dropDownHotspot>
                 </MadCap:dropDownHead>
-                <MadCap:dropDownBody><pre>
+                <MadCap:dropDownBody>
+                    <MadCap:codeSnippet>
+                        <MadCap:codeSnippetCopyButton />
+                        <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">JSON example
 						{
 						"databaseChangeLog": [
 						---------------------------CREATE AND DROP COLLECTION---------------------------
@@ -369,7 +420,8 @@ databaseChangeLog:<br />---------CREATE AND DROP COLLECTION---------
 						}
 						}
 						]
-					}</pre>
+					}</MadCap:codeSnippetBody>
+                    </MadCap:codeSnippet>
                 </MadCap:dropDownBody>
             </MadCap:dropDown>
             <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../../commands/change-tracking/status.htm">status</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve">
