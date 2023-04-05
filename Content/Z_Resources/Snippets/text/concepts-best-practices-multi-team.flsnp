@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <p>This document discusses use-cases when there are multiple teams that deploy to the same database<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver"> instance</MadCap:conditionalText>. We will discuss the following two use-cases in this scenario:</p>
+        <ol>
+            <li>Each team has one or more dedicated <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>(s) in the same database <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">instance</MadCap:conditionalText></li>
+            <li>Multiple teams write to one or more shared <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText> in the same database <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">instance</MadCap:conditionalText></li>
+        </ol>
+        <h2>Use-case 1: Each team has one or more dedicated <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText> in the same <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">database</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">instance</MadCap:conditionalText></h2>
+        <p>This is a common use-case for applications that integrate multiple subsystems. Multiple teams, each with their own Git repository, deploy database changes into their own dedicated <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText> in the same database <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">instance</MadCap:conditionalText>.</p>
+        <table MadCap:conditions="concepts-best-practices-multi-team.oracle">
+            <col />
+            <col />
+            <tbody>
+                <tr>
+                    <th>Team</th>
+                    <th>Schema</th>
+                </tr>
+                <tr>
+                    <td>Team 1</td>
+                    <td>SchemaA</td>
+                </tr>
+                <tr>
+                    <td>Team 2</td>
+                    <td>SchemaB</td>
+                </tr>
+                <tr>
+                    <td>Team 3</td>
+                    <td>SchemaC</td>
+                </tr>
+                <tr>
+                    <td>Team4</td>
+                    <td>SchemaD</td>
+                </tr>
+            </tbody>
+        </table>
+        <table MadCap:conditions="concepts-best-practices-multi-team.sqlserver">
+            <col />
+            <col />
+            <col />
+            <tbody>
+                <tr>
+                    <th>Team</th>
+                    <th>Service account</th>
+                    <th>Database</th>
+                </tr>
+                <tr>
+                    <td>Team 1</td>
+                    <td>svc_team1_dbA</td>
+                    <td>DatabaseA</td>
+                </tr>
+                <tr>
+                    <td>Team 2</td>
+                    <td>svc_team2_dbB</td>
+                    <td>DatabaseB</td>
+                </tr>
+                <tr>
+                    <td>Team 3</td>
+                    <td>svc_team3_dbC</td>
+                    <td>DatabaseC</td>
+                </tr>
+                <tr>
+                    <td>Team 4</td>
+                    <td>svc_team4_dbD</td>
+                    <td>DatabaseD</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Structuring Git repository</h3>
+        <p>Each team will dedicate a directory in their repository for database changes. In this directory, they can manage all their scripts along with the <code>changelog.xml</code> file. The team can also create a directory for their <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>.</p>
+        <p MadCap:conditions="concepts-best-practices-multi-team.oracle">
+            <img src="../../Images/best-practices/multi-schema-1.png" />
+        </p>
+        <p MadCap:conditions="concepts-best-practices-multi-team.sqlserver">
+            <img src="../../Images/best-practices/multi-team-sqlserver1.png" />
+        </p>
+        <p>In the case of a team deploying to multiple <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText>, they could organize their repository where they have a subdirectory for each <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>.</p>
+        <p MadCap:conditions="concepts-best-practices-multi-team.oracle">
+            <img src="../../Images/best-practices/multi-schema-2.png" />
+        </p>
+        <p MadCap:conditions="concepts-best-practices-multi-team.sqlserver">
+            <img src="../../Images/best-practices/multi-team-sqlserver2.png" />
+        </p>
+        <p>The team needs a main <MadCap:variable name="General.changelog" /> file which can control the flow of all changes to all <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText>.</p>
+        <p>See the section "Deploying with <MadCap:variable name="General.Liquibase" />" later in this document for sample scripts.</p>
+        <h2>Use-case 2: Multiple teams write to one or more shared <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText> in the same <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">database</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">instance</MadCap:conditionalText></h2>
+        <p>In this use-case, multiple teams, each with their own Git repository, deploy database changes to one or more shared <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText>. This use-case is common for legacy applications that have added subsystems over time or other complex application architectures.</p>
+        <table>
+            <col />
+            <col />
+            <tbody>
+                <tr>
+                    <th>Team</th>
+                    <th>
+                        <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">Schema</MadCap:conditionalText>
+                        <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">Database</MadCap:conditionalText>
+                    </th>
+                </tr>
+                <tr>
+                    <td>Team 1</td>
+                    <td rowspan="4">
+                        <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">Schema</MadCap:conditionalText>
+                        <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">Database</MadCap:conditionalText>A, <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">Schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">Database</MadCap:conditionalText>B, <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">Schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">Database</MadCap:conditionalText>C</td>
+                </tr>
+                <tr>
+                    <td>Team 2</td>
+                </tr>
+                <tr>
+                    <td>Team 3</td>
+                </tr>
+                <tr>
+                    <td>Team 4</td>
+                </tr>
+            </tbody>
+        </table>
+        <p MadCap:conditions="concepts-best-practices-multi-team.sqlserver">There are three important considerations here:</p>
+        <ol>
+            <li>You will use a single URL and credentials to connect to all databases. This requires that you use a single service account which has permissions to multiple databases.</li>
+            <li>Within SQL scripts, each object would need to be fully qualified with database name, schema name and object name. This is a requirements because of the single service account used to deploy to multiple databases.</li>
+            <li><MadCap:variable name="General.Liquibase" /> tracking tables (<code>DATABASECHANGELOG</code> and <code>DATABASECHANGELOGLOCK</code>) will be created only in one database that is specified in the URL. Deployments to multiple databases will be tracked by a single <code>DATABASECHANGELOG</code> tracking table in the database specified in the URL.</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is important to understand that teams must communicate with each other about their database changes going into shared <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText>. Database changes often have dependencies, and these changes need to be coordinated so that they are deployed in the correct order.</p>
+        <h3>Structuring Git repository</h3>
+        <p>When multiple teams share common <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText>, it is not possible to use each team's own application repository. This use case requires setting up a dedicated SQL repository for shared <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText>.</p>
+        <p MadCap:conditions="concepts-best-practices-multi-team.oracle">
+            <img src="../../Images/best-practices/multi-schema-4.png" />
+        </p>
+        <p MadCap:conditions="concepts-best-practices-multi-team.sqlserver">
+            <img src="../../Images/best-practices/multi-team-sqlserver3.png" />
+        </p>
+        <p>The team needs a main <MadCap:variable name="General.changelog" /> file that can control the flow of all changes to all <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText>.</p>
+        <p>See the section "Deploying with <MadCap:variable name="General.Liquibase" />" later in this document for sample scripts.</p>
+        <h2>Sample <code>mainChangelog.xml</code></h2>
+        <p>Here is a sample <code>mainChangelog.xml</code> file which can be used in a multi-<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText> repository:</p><pre xml:space="preserve"><code class="language-xml">
+&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd
+        http://www.liquibase.org/xml/ns/pro
+        http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.6.xsd "&gt;
+
+    &lt;include file="<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>A/changelog.xml" <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">context="schemaA"</MadCap:conditionalText>/&gt;
+    &lt;include file="<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>B/changelog.xml" <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">context="schemaB"</MadCap:conditionalText>/&gt;
+    &lt;include file="<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>C/changelog.xml" <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">context="schemaC"</MadCap:conditionalText>/&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+        <h2>Deploying with <MadCap:variable name="General.Liquibase" /></h2>
+        <p>The basic script for deploying with <MadCap:variable name="General.Liquibase" /> using a single service account to deploy to multiple shared <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schemas</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">databases</MadCap:conditionalText> looks like this:</p><pre xml:space="preserve"><code class="language-shell"># add liquibase path to the environment variable
+export PATH=&lt;Path to Liquibase&gt;:${PATH}
+
+# git clone or retrieve a versioned artifact
+git clone &lt;GIT URL to the repo&gt; 
+
+cd &lt;Repo&gt;/sql_code
+
+# run the "status" command
+liquibase status --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          -–verbose
+
+# run the "update" command
+liquibase update --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt;
+
+# run the "history" command
+liquibase history --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt;</code></pre>
+        <p MadCap:conditions="concepts-best-practices-multi-team.oracle">The script for deploying with <MadCap:variable name="General.Liquibase" /> using proxy users to deploy to one schema at a time looks like this. This is for the Oracle use case:</p>
+        <p MadCap:conditions="concepts-best-practices-multi-team.sqlserver">The script for deploying with <MadCap:variable name="General.Liquibase" /> using proxy users to deploy to one database at a time looks like this. This is for the SQL Server use case (not the use of <code>--default-catalog-name argument</code>):</p><pre xml:space="preserve"><code class="language-shell"># add liquibase path to the environment variable
+export PATH=&lt;Path to Liquibase&gt;:${PATH}
+
+# git clone or retrieve a versioned artifact
+git clone &lt;GIT URL to the repo&gt;
+cd &lt;Repo&gt;/sql_code
+LB<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">SCHEMA</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">DATABASE</MadCap:conditionalText>NAMES="${1:-"HR OC OE SH"}"
+
+for LB<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">SCHEMA</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">DATABASE</MadCap:conditionalText> in $LB<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">SCHEMA</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">DATABASE</MadCap:conditionalText>NAMES
+do
+
+# run the "status" command
+liquibase status --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          --default-<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText>-name=${LB<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">SCHEMA</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">DATABASE</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">DATABASE</MadCap:conditionalText>} \
+          –-verbose
+
+# run the "update" command
+liquibase update –-changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          --default-<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText>-name=${LB<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">SCHEMA</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">DATABASE</MadCap:conditionalText>}
+
+# run the "history" command
+liquibase history --changelog-file=masterChangelog.xml \
+          --url=&lt;Database URL&gt; \
+          --username=&lt;username&gt; \
+          --password=&lt;password&gt; \
+          --default-<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText>-name=${LB<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">SCHEMA</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">DATABASE</MadCap:conditionalText>}
+done</code></pre>
+        <p><MadCap:variable name="General.Liquibase" /> automatically creates <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tables (also called DBCL tables) for tracking deployments. These tables are created in the default <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText> for the user connecting to the <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">database</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">instance</MadCap:conditionalText>.</p>
+        <p>If you want your DBCL tables to be created in another <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>, e.g., a dedicated <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText> for <MadCap:variable name="General.Liquibase" /> tracking only, then you can use <code>--liquibase-<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText>-name=&lt;<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>&gt;</code> to indicate your specific <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>. You need to make sure that the service account allows creating DBCL tables in this <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">database</MadCap:conditionalText>, and allows querying these tables.</p>
+        <ul>
+            <li><code>--liquibase-<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText>-name=&lt;schema&gt;</code>
+                <ul>
+                    <li>The parameter specifies the <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText> to use for the creation of <MadCap:variable name="General.Liquibase" /> objects, like the <MadCap:variable name="General.databasechangelog" /> and <MadCap:variable name="General.databasechangeloglock" /> tracking tables.</li>
+                </ul>
+            </li>
+            <li><code>--default-<MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText>-name=&lt;schema&gt;</code>
+                <ul>
+                    <li>The parameter specifies the default <MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.oracle">schema</MadCap:conditionalText><MadCap:conditionalText MadCap:conditions="concepts-best-practices-multi-team.sqlserver">catalog</MadCap:conditionalText> name to use for the database connection.</li>
+                </ul>
+            </li>
+        </ul>
+    </body>
+</html>
