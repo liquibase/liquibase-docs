@@ -34,51 +34,72 @@
             <li><code>--labelFilter="v.0.1, v.1.0 and v.1.1"</code> is the same as <code>--labelFilter="(v.0.1) OR (v.1.0 and v.1.1)"</code></li>
         </ul>
         <p>You can run the <code>--labelFilter</code> <MadCap:variable name="General.Param/Attribute" /> to determine which <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" /> to evaluate based on its label. <a href="../../../enterprise/devops/cli-commands/register-project-dmcdb.htm#https://www.liquibase.com/blog/this-is-a-story-about-control-context-filter-label-filter">Learn more about the labelFilter logic at this blog post.</a></p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to tag your <MadCap:variable name="General.changeset" />s and <b>control the filter logic in the CLI</b>, use <MadCap:xref href="labels.html">Labels</MadCap:xref> instead of contexts.<br /></p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to <b>control the filter logic in your <MadCap:variable name="General.changeset" />s</b>, use <MadCap:xref href="contexts.html">Contexts</MadCap:xref> instead of labels.<br /></p>
         <ul>
             <li>In your <MadCap:variable name="General.changelog" />, you can specify only a simple list of labels to apply to the <MadCap:variable name="General.changeset" />. For example,  <code>labels="v.0.1, v.1.0"</code>.</li>
             <li>	At runtime, you can specify a complex expression with the labels that you want to execute. For example, <code>--labelFilter="!v.0.1"</code> or <code>--labelFilter="v.1.0 or (v.1.1 and v.1.2)"</code>.</li>
         </ul>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Prior to version 4.16.0, the CLI argument was <code>--labels</code> rather than <code>--labelFilter</code>. In 4.16.0 and beyond, <code>--labels</code> is a supported alias for <code>--labelFilter</code>.</p>
         <h2>How to work with labels</h2>
-        <p>It is best practice to enumerate your <MadCap:variable name="General.changeset" />s or describe what a <MadCap:variable name="General.changeset" /> is used for. An example of labels indicating the version or a specific feature can be <code>"1.0"</code> or <code> "shopping_cart"</code>. In this case, labels will allow you to run changes with:</p>
+        <p>It is best practice to enumerate your <MadCap:variable name="General.changeset" />s or describe what a <MadCap:variable name="General.changeset" /> is used for. An example of labels indicating the version or a specific feature can be <code>"1.0"</code> or <code>"shopping_cart"</code>. In this case, labels will allow you to run changes with:</p>
         <ul>
             <li><code>--labelFilter=1.0</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s or <code>--labelFilter=shopping_cart</code> to deploy the <MadCap:variable name="General.changeset" />s related to the shopping cart.</li>
-            <li><code>--labelFilter="1.0 or (1.1 and shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and only the 1.1. features related to the shopping cart.</li>
-            <li><code>--labelFilter="1.0 or (1.1 and !shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and the 1.1. features that are not related to the shopping cart.</li>
+            <li><code>--labelFilter="1.0 or (1.1 and shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and only the 1.1 features related to the shopping cart.</li>
+            <li><code>--labelFilter="1.0 or (1.1 and !shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and the 1.1 features that are not related to the shopping cart.</li>
         </ul>
-        <p>You can see an example of running the <code>update</code> command with complex <code>labelFilter</code> statements:</p><pre><code class="language-text">liquibase update --changelog-file=changelog.xml --output-file=update.txt --labelFilter="1.0 or (1.1 and !shopping_cart)"</code></pre>
-        <p>If your <MadCap:variable name="General.changelog" /> includes <MadCap:variable name="General.changeset" />s that have labels and <MadCap:variable name="General.changeset" />s that don't have them, <MadCap:variable name="General.changeset" />s without labels will match any label.</p>
-        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">If you run the <code>liquibase update --labelFilter=release3</code> command, it will deploy all <MadCap:variable name="General.changeset" />s with the label <code>release3</code> and all <MadCap:variable name="General.changeset" />s without any label.</p>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
-<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />       
-&lt;changeSet  author="Liquibase User"    id="1"  labels="1.0"  objectQuotingStrategy="QUOTE_ALL_OBJECTS"&gt;
-       &lt;createTable  schemaName="proschema"  tableName="primary_table"&gt;
-       &lt;column  name="name"  type="CHAR(20)"/&gt;
-       &lt;/createTable&gt;
-&lt;/changeSet&gt;
-
-&lt;/databaseChangeLog&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+        <p>You can see an example of running the <code>update</code> command with complex <code>labelFilter</code> statements:</p><pre><code class="language-text">liquibase --output-file=update.txt update --changelog-file=changelog.xml --labelFilter="1.0 or (1.1 and !shopping_cart)"</code></pre>
+        <p>If a <MadCap:variable name="General.changeset" /> doesn't have a label, it will always run. If you make a deployment without specifying any labels in the label filter, all <MadCap:variable name="General.changeset" />s will run.</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">If you run the <code>liquibase update --labelFilter=1.0</code> command, it will deploy all <MadCap:variable name="General.changeset" />s with the label <code>1.0</code> and all <MadCap:variable name="General.changeset" />s without any label. If you run <code>liquibase update</code>, it will deploy all <MadCap:variable name="General.changeset" />s, whether they have labels or not.</p>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
 
---changeset Liquibase User:1 labels:1.0
-create table primary_table (  
-   id int primary key,
-   name varchar(50) not null,
-   address1 varchar(50),
-   address2 varchar(50),
-   city varchar(30)
-)</code></pre>
+--changeset your.name:1 labels:1.0,prod,shopping_cart
+CREATE TABLE person (firstname VARCHAR(255) NULL);
+
+--changeset your.name:2 labels:2.0,test
+ALTER TABLE person ADD address VARCHAR(255) NULL;
+
+--changeset your.name:3 labels:shopping_cart
+ALTER TABLE person ADD favorite_color VARCHAR(255) NULL;
+
+--changeset your.name:4
+CREATE TABLE no_label (no_label_col VARCHAR(255) NULL);</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+    &lt;changeSet  author="your.name"  id="1"  labels="1.0,prod,shopping_cart"&gt;
+        &lt;createTable  tableName="person"&gt;
+            &lt;column  name="firstname"  type="VARCHAR(255)"/&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet  author="your.name"  id="2"  labels="2.0,test"&gt;
+        &lt;addColumn  tableName="person"&gt;
+            &lt;column  name="address"  type="VARCHAR(255)"/&gt;
+        &lt;/addColumn&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet  author="your.name"  id="3"  labels="shopping_cart"&gt;
+        &lt;addColumn  tableName="person"&gt;
+            &lt;column  name="favorite_color"  type="VARCHAR(255)"/&gt;
+        &lt;/addColumn&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet  author="your.name"  id="4"&gt;
+        &lt;createTable  tableName="no_label"&gt;
+            &lt;column  name="no_label_col"  type="VARCHAR(255)"/&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <MadCap:dropDown>
@@ -88,30 +109,47 @@ create table primary_table (
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
       id: '1'
-      author: Liquibase User
-      labels: '1.0'
+      author: your.name
+      labels: '1.0,prod,shopping_cart'
       changes:
         - createTable:
-            tableName: primary_table
+            tableName: person
             columns:
               - column:
-                  name: id
-                  type: int
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
                   name: firstname
-                  type: varchar(50)
+                  type: varchar(255)
+  - changeSet:
+      id: '2'
+      author: your.name
+      labels: '2.0,test'
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
               - column:
-                  name: lastname
-                  type: varchar(50)
-                  constraints:
-                    nullable: false
+                  name: address
+                  type: varchar(255)
+  - changeSet:
+      id: '3'
+      author: your.name
+      labels: 'shopping_cart'
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
               - column:
-                  name: state
-                  type: char(2)</code></pre>
+                  name: favorite_color
+                  type: varchar(255)
+  - changeSet:
+      id: '4'
+      author: your.name
+      changes:
+        - createTable:
+            tableName: no_label
+            columns:
+              - column:
+                  name: no_label_col
+                  type: varchar(255)</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <MadCap:dropDown>
@@ -119,47 +157,86 @@ create table primary_table (
                 <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
-    "databaseChangeLog": [
-      {
-       "changeSet": {
-          "id": "1",
-          "author": "Liquibase User",
-          "labels": "1.0",
-          "changes": [
-            {
-              "createTable": {
-              "tableName": "primary_table",
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "your.name",
+        "labels": "1.0,prod,shopping_cart",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "person",
               "columns": [
-    	        {
-                 "column": {
-                   "name": "id",
-                   "type": "int",
-                   "autoIncrement": true,
-                   "constraints": {
-                     "primaryKey": true,
-                     "nullable": false
-                   }
-                  }
-                },
                 {
                   "column": {
                     "name": "firstname",
-                    "type": "varchar(50)"
+                    "type": "varchar(255)"
                   }
-                },
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "your.name",
+        "labels": "2.0,test",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "person",
+              "columns": [
                 {
                   "column": {
-                    "name": "lastname",
-                    "type": "varchar(50)",
-                    "constraints": {
-        	          "nullable": false
-                    }
-                  }		
-                },
+                    "name": "address",
+                    "type": "varchar(255)"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "your.name",
+        "labels": "shopping_cart",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "person",
+              "columns": [
                 {
                   "column": {
-                    "name": "state",
-                    "type": "char(2)"
+                    "name": "favorite_color",
+                    "type": "varchar(255)"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "4",
+        "author": "your.name",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "no_label",
+              "columns": [
+                {
+                  "column": {
+                    "name": "no_label_col",
+                    "type": "varchar(255)"
                   }
                 }
               ]
