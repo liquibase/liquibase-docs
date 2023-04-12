@@ -9,7 +9,7 @@
         <p><a href="https://cloud.google.com/bigquery/">Google BigQuery</a> is a fully managed analytics data warehouse. For more information, see <a href="https://cloud.google.com/bigquery/docs">BigQuery Documentation</a>.</p>
         <h2>Supported versions</h2>
         <ul>
-            <li>2.13.6</li>
+            <li>2.13.6+</li>
         </ul>
         <h2 MadCap:conditions="Default.EXCLUDE">Verification level</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/database-verification-level-compatible.flsnp" MadCap:conditions="Default.EXCLUDE" />
@@ -17,16 +17,15 @@
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
-        <p>To use <MadCap:variable name="General.Liquibase" /> and BigQuery, you need two JAR&#160;files:</p>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and BigQuery, you need several JAR files:</p>
         <ul>
-            <li><a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers">JDBC&#160;driver</a> (<a href="https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery/2.13.6">Maven download</a>)</li>
-            <li><a href="https://github.com/liquibase/liquibase-bigquery"><MadCap:variable name="General.Liquibase" /> extension for Google BigQuery</a>
-            </li>
+            <li> All the JAR files in the <a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers">BigQuery JDBC&#160;ZIP&#160;file</a> (under "Current JDBC driver")</li>
+            <li>The <a href="https://github.com/liquibase/liquibase-bigquery"><MadCap:variable name="General.Liquibase" /> extension for Google BigQuery</a></li>
         </ul>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[database-driver.driver-manually-installed or database-driver.maven-jar-public]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
     &lt;artifactId&gt;google-cloud-bigquery&lt;/artifactId&gt;
-    &lt;version&gt;2.13.6&lt;/version&gt;
+    &lt;version&gt;2.24.4&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
@@ -39,99 +38,69 @@
             <li>
                 <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
             </li><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://https://googleapis.com/bigquery/v2:443/&lt;dbname&gt;;ProjectId=&lt;STR&gt;;OAuthType=&lt;INT&gt;;</code></pre>
-            <p>Specify the name of your database in place of <code>dbname</code>. Specify the ID&#160;of your BigQuery project as the value of <code>ProjectId</code>. Specify  your BigQuery authentication method as the value of <code><a href="https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/options/oauthtype.htm">OAuthType</a></code>:</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th><code>OAuthType</code>
-                        </th>
-                        <th>Description</th>
-                        <th>Notes</th>
-                        <th>Example</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>0</code>
-                        </td>
-                        <td>Google Services Account</td>
-                        <td>
-                            <p>You must also specify the options <code>OAuthServiceAcctEmail</code> and <code>OAuthPvtKeyPath</code> in your <code>url</code> property. For more information, see:</p>
-                            <ul>
-                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/serviceaccount.htm">Simba:&#160;Using a Google Services Account</a>
-                                </li>
-                                <li><a href="https://developers.google.com/identity/protocols/oauth2/service-account">Google: Using OAuth 2.0 for Server to Server Applications</a>
-                                </li>
-                            </ul>
-                        </td>
-                        <td><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+            <p>Specify the name of your database in place of <code>dbname</code>. Specify the ID of your BigQuery project as the value of <code>ProjectId</code>. Specify your BigQuery authentication method as the value of <code>OAuthType</code>. Click on the following tabs to see example JDBC URLs for each authentication type:</p>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 14pt;"><code>OAuthType=0</code> (Google Services)</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <p>Requires the options <code>OAuthServiceAcctEmail</code> and <code>OAuthPvtKeyPath</code> in your <code>url</code> property. For example:</p><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
 ProjectId=myProject;
 OAuthType=0;
 OAuthServiceAcctEmail=lbtest@bq123.iam.gserviceaccount.com;
 OAuthPvtKeyPath=C:\path\serviceKey.p12;</code></pre>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>1</code>
-                        </td>
-                        <td>Google User Account</td>
-                        <td>
-                            <p>Requires your user account credentials. For more information, see:</p>
-                            <ul>
-                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/useraccount.htm">Simba: Using a Google User Account</a>
-                                </li>
-                                <li><a href="https://cloud.google.com/docs/authentication/end-user">Google:&#160;Authenticating as an end user</a>
-                                </li>
-                            </ul>
-                        </td>
-                        <td><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+                    <p>For more information, see:</p>
+                    <ul>
+                        <li><a href="https://cloud.google.com/bigquery/docs/authentication/service-account-file">BigQuery: Authenticating with a service account key file</a>
+                        </li>
+                        <li><a href="https://developers.google.com/identity/protocols/oauth2/service-account">Google: Using OAuth 2.0 for Server to Server Applications</a>
+                        </li>
+                    </ul>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 14pt;"><code>OAuthType=1</code> (Google User Account)</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <p>Requires your user account credentials. For example:</p><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
 ProjectId=myProject;
 OAuthType=1;</code></pre>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>2</code>
-                        </td>
-                        <td>Google Authorization Server Access Token</td>
-                        <td>
-                            <p>You must also specify the options <code>OAuthAccessToken</code>, <code>OAuthRefreshToken</code>, <code>OAuthClientId</code>, and <code>OAuthClientSecret</code> in your <code>url</code> property. For more information, see:</p>
-                            <ul>
-                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/pregentoken.htm">Simba: Using&#160;Pre-Generated Access and&#160;Refresh Tokens</a>
-                                </li>
-                                <li><a href="https://developers.google.com/identity/protocols/oauth2">Google: Using OAuth 2.0 to Access Google APIs</a>
-                                </li>
-                            </ul>
-                        </td>
-                        <td><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+                    <p>For more information, see <a href="https://cloud.google.com/docs/authentication/end-user">Google:&#160;Authenticate installed apps with user accounts</a>.</p>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 14pt;"><code>OAuthType=2</code> (Google Authorization Server Access Token)</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <p>Requires the options <code>OAuthAccessToken</code>, <code>OAuthRefreshToken</code>, <code>OAuthClientId</code>, and <code>OAuthClientSecret</code> in your <code>url</code> property. For example:</p><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
 ProjectId=myProject;
 OAuthType=2;
 OAuthAccessToken=a25c7cfd36214f94a79d;
 OAuthRefreshToken=2kl0Qvuw9qt4abia54qga5t97;
 OAuthClientId=22n6627g243322f7;
 OAuthClientSecret=cDE+F2g3Hcjk4K5lazM;</code></pre>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>3</code>
-                        </td>
-                        <td>Application Default Credentials</td>
-                        <td>
-                            <p>For more information, see:</p>
-                            <ul>
-                                <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/authenticating/appdefaultcred.htm">Simba:&#160;Using Application Default Credentials</a>
-                                </li>
-                                <li><a href="https://cloud.google.com/docs/authentication/production">Google: Authenticating as a service account</a>
-                                </li>
-                            </ul>
-                        </td>
-                        <td><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
+                    <p>For more information, see:</p>
+                    <ul>
+                        <li><a href="https://cloud.google.com/bigquery/docs/authorization">BigQuery: Authorizing API requests</a>
+                        </li>
+                        <li><a href="https://developers.google.com/identity/protocols/oauth2">Google: Using OAuth 2.0 to Access Google APIs</a>
+                        </li>
+                    </ul>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 14pt;"><code>OAuthType=3</code> (Application Default Credentials)</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <p>For example:</p><pre xml:space="preserve"><code class="language-text">jdbc:bigquery://https://googleapis.com/bigquery/v2:443/myDatabase;
 ProjectId=myProject;
 OAuthType=3;</code></pre>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <p>For more information, see <a href="https://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/bq/options/intro-auth.htm">Simba JDBC&#160;Authentication Driver Configuration Options</a>.</p>
+                    <p>For more information, see <a href="https://cloud.google.com/docs/authentication#service-accounts">Google: Authenticating as a service account</a>.</p>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
             <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-license-key.flsnp" />
         </ol>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-changelog-test-connection.flsnp" />
@@ -862,8 +831,6 @@ OAuthType=3;</code></pre>
             </li>
             <li>
                 <MadCap:xref href="../../commands/home.htm">[%=General.Liquibase%] Commands</MadCap:xref>
-            </li>
-            <li><a href="http://simba.wpengine.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/d-intro.htm">Simba Google BigQuery JDBC&#160;Connector Documentation</a>
             </li>
         </ul>
     </body>
