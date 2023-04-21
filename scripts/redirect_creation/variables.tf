@@ -1,4 +1,5 @@
 # REDIRECT STORAGE FOR docs.liquibase.com: specifies redirect sources/destinations for all pagemoves and renames
+# See https://datical.atlassian.net/wiki/spaces/DOC/pages/edit-v2/2929426585
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
 variable "env" {
   type        = string
