@@ -1,4 +1,5 @@
 # REDIRECT STORAGE FOR docs.liquibase.com: specifies redirect sources/destinations for all pagemoves and renames
+# See https://datical.atlassian.net/wiki/spaces/DOC/pages/2929426585/Working+in+the+MadCap+Flare+-+AWS+VM
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
 variable "env" {
   type        = string
@@ -167,7 +168,7 @@ variable "redirects" {
     "/commands/config-ref/logfile-parameter.html"                                                              = "/parameters/log-file.html"
     "/commands/config-ref/logicalfilepath.html"                                                                = "/concepts/changelogs/attributes/logicalfilepath.html"
     "/commands/config-ref/loglevel.html"                                                                       = "/parameters/log-level.html"
-    "/commands/config-ref/objectquotingstrategy.html"                                                          = "/parameters/object-quoting-strategy.html"
+    "/commands/config-ref/objectquotingstrategy.html"                                                          = "/concepts/changelogs/attributes/objectquotingstrategy.html"
     "/commands/config-ref/outputfile-parameter.html"                                                           = "/parameters/output-file.html"
     "/commands/config-ref/output-file-encoding.html"                                                           = "/parameters/output-file-encoding.html"
     "/commands/config-ref/output-line-separator.html"                                                          = "/parameters/output-line-separator.html"
