@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /> | Enterprise Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/devops/move-changes-pipeline/roll-back-changes/precise-rollback.html" />
+        <meta name="description" content="The  rollback feature allows you to undo changes you have deployed to a database." />
+    </head>
+    <body>
+        <h1>Precise Rollback</h1>
+        <p>Normally rollback works by "rewinding" the database to a specified point.&#160; All  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s deployed after that point are rolled back.</p>
+        <p>Precise rollback targets specific  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s to modify. To use it, you need to do the following:</p>
+        <ul>
+            <li>Use the precise option on a <code>rollback</code> command.</li>
+            <li>Use search options to specify the  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s to modify</li>
+            <li>Use a preview to review the effects before running the rollback.</li>
+        </ul>
+        <p>When the rollback is run, the specified  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> entries are removed from the DATABASECHANGELOG table.</p>
+        <h2>Syntax for Precise Rollback</h2><pre>hammer rollback &lt;dbdef&gt; precise [--preview] [--&lt;search-option&gt;=&lt;value&gt;, ...]</pre>
+        <p>The search options determine&#160;<b>which </b><MadCap:variable name="General.changeset" style="font-weight: bold;" /><b>s to modify</b>. They select a list of <MadCap:variable name="General.changeset" style="font-weight: normal;" />s for the modify options to work on.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Searches are not case-sensitive.</p>
+        <ul>
+            <li>Multiple values in one statement are OR'ed together.</li>
+            <li>Multiple search option statements are ANDed together.</li>
+        </ul>
+        <p>Search option statements take one or a comma-separated list of values. They are provided for  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> attributes as follows:</p>
+        <ul>
+            <li><code>searchIds</code>&#160;-&#160;<code>id</code></li>
+            <li><code>searchLabels</code>&#160;-&#160;<code>label</code></li>
+            <li><code>searchContexts</code>&#160;-&#160;<code>context</code></li>
+            <li><code>searchIgnore</code>&#160;-&#160;<code>ignore</code>&#160;-&#160;<code>true</code>&#160;|&#160;<code>false</code> -&#160;Searches for false also return  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s where the ignore attribute is not set.&#160;<code>true</code>&#160;|&#160;<code>false</code></li>
+            <li><code>searchOrigFilePaths</code>&#160;-&#160;<code>origFilePath</code></li>
+            <li><code>searchOrigFileNames</code>&#160;-&#160;<code>origFileName</code></li>
+            <li><code>searchVersion</code>&#160;-&#160;<code>version</code>, an integer.</li>
+        </ul>
+        <h2>Conditions for Precise Rollback</h2>
+        <p> <MadCap:variable name="General.changeset" style="font-weight: normal;" />s must meet the following criteria when evaluated (previewed) for a precise rollback:</p>
+        <ul>
+            <li> <MadCap:variable name="General.changeset" style="font-weight: normal;" />s must be deployed on the specified databases</li>
+            <li>Transient scripts:</li>
+            <ul>
+                <li>A rollback script is provided with the original SQL script</li>
+            </ul>
+            <li>Non-transient scripts: either condition must be true.</li>
+            <ul>
+                <li>A rollback script is provided&#160;with the original SQL script</li>
+                <li>The current version is equal or greater than 1 and the previous version of the  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> exists in the changelog.</li>
+            </ul>
+        </ul>
+        <h2>Additional Considerations</h2>
+        <p>Normal rollbacks rewind the changelog to a defined point, undoing all  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s deployed after that point.</p>
+        <p>Precise rollback removes individual  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s from the changelog.&#160; Take care not to remove  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s that later deployments built on.</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">
+            <br />
+            <br />Deploy a create table<br /><br />Deploy a view on that table</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you now attempt to roll back only the  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> that created the table, then the view becomes invalid.</p>
+        <h2>Rolling Back Non-Transient or Rerunnable  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s</h2>
+        <p>Non-transient  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s are modified in place and versioned.</p>
+        <ul>
+            <li>Typically these are changes in stored logic (functions, procedures, triggers, views; Oracle packages and packagebodies).</li>
+            <li>Starting in version 4.37, they may also be identified by&#160;rerunnable=true. The rerunnable property is new.</li>
+        </ul>
+        <h3>Requirements for  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s to be Eligible for Rollback</h3>
+        <p>You may roll back the current&#160;version (most recently deployed) to the previous version if its version number is equal equal or greater than 1.</p>
+        <ul>
+            <li>You may perform multiple rollback operations as long as the version number is equal or greater than 1.</li>
+            <li>You can roll back only one version at a time.</li>
+        </ul>
+        <p>If the search conditions for a precise rollback return more than one version of change, the most recent one is used.</p>
+        <h3>Rollback Operation</h3>
+        <p>The rollback operation uses the rollback script for the current version if one is provided. If a rollback script is not provided, the operation attempts to locate the  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> for the previous version in the changelog and use it:</p>
+        <ol>
+            <li>Check for a provided rollback script. If one exists, do the following:</li>
+            <ol>
+                <li>Run the rollback script</li>
+                <li>If the rollback script is successful, delete the  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> for the current version from the DATABASECHANGELOG.</li>
+            </ol>
+            <li>If no rollback script exists, do the following:</li>
+            <ol>
+                <li>Check the changelog for the previous version of the  <MadCap:variable name="General.changeset" style="font-weight: normal;" />. Exit if it does not exist.</li>
+                <li>Run the previous version of the  <MadCap:variable name="General.changeset" style="font-weight: normal;" />.</li>
+                <li>Remove the current version of the  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> from the&#160;DATABASECHANGELOG.</li>
+            </ol>
+        </ol>
+        <h2>Rolling Back Transient Scripts</h2>
+        <p>Precise rollback is available for transient scripts that <b>do NOT use the convert_sql process.</b></p>
+        <p style="font-weight: bold;">It is not available for the following:</p>
+        <ul>
+            <li>Workflow files for DDL/convert. This can include -cleanup, -ignore, -unignore and more.</li>
+            <li>Scripts packaged as convert&#160;(flexible folder names)</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">DDL/convert files are supported in Liquibase Enterprise 8.3 and later if a rollback file is provided.</p>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The original script may have created multiple  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s.</p>
+            <li>A rollback script must exist. Exception: the change is one for which Datical provides an auto-rollback. See&#160;Auto-rollback Support by Database Object Change Type.</li>
+        </ul>
+        <h3>During processing:</h3>
+        <ol>
+            <li>Assemble the  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s to roll back (based on search criteria).</li>
+            <li>Execute the rollback script on those  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s</li>
+            <li>Remove  <MadCap:variable name="General.changeset" style="font-weight: normal;" /> entries from the changelog (DATABASECHANGELOG table)</li>
+        </ol>
+        <h2>Previewing a Precise Rollback</h2>
+        <p>When you use the <code>--preview</code> argument, a preview report is generated but no changes are made.</p>
+        <p>The preview report includes the following information:</p>
+        <ul>
+            <li>List of  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s affected - the list is generated by the search criteria.</li>
+            <li>Ineligible  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s - any  <MadCap:variable name="General.changeset" style="font-weight: normal;" />s that cannot be rolled back</li>
+        </ul>
+        <h2>Logging</h2>
+        <p>The log for the rollback is stored in the Reports directory with other reports for the dbdef (step).&#160; See&#160;Available Log Files and Reports.</p><pre>MyProject/Reports/YYYY/NN-MM/&lt;dbdef&gt;/rollback_&lt;dbdef&gt;_&lt;date&gt;</pre>
+    </body>
+</html>
