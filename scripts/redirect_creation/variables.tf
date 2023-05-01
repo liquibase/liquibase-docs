@@ -487,6 +487,7 @@ variable "redirects" {
     "/install/tutorials/voltdb.html"                                                                           = "/start/tutorials/voltdb.html"
     "/install/tutorials/yugabytedb.html"                                                                       = "/start/tutorials/yugabytedb.html"
     "/mdc"                                                                                                     = "/tools-integrations/observability/structured-logging.html"
+    "/mongodb"                                                                                                 = "/start/tutorials/mongodb-pro.html"
     "/parameters/command-parameters.html"                                                                      = "/parameters/home.html"
     "/parameters/logical-file-path.html"                                                                       = "/concepts/changelogs/attributes/logicalfilepath.html"
     "/parameters/object-quoting-strategy.html"                                                                 = "/parameters/object-quoting-strategy.html"
