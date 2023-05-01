@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <meta name="description" content="Liquibase Enterprise Documentation" />
@@ -6,8 +6,8 @@
     <body>
         <h1>Non-elevated user for SQL Server</h1>
         <MadCap:snippetText src="../../Z_Resources/Snippets/images/icon-enterprise-top.flsnp" />
-        <p><MadCap:variable name="General.DaticalDB" />'s Deployment Packager for SQL Server requires elevated permissions as documented here:
-			<a href="../devops/db-release-pipelines/sql-setup/roles-permissions-sql-server.htm" rel="nofollow">SQL Server Roles and Permissions for <MadCap:variable name="General.DaticalDB" /></a>
+        <p><MadCap:variable name="General.LBEnterprise" />'s Deployment Packager for SQL Server requires elevated permissions as documented here:
+			<a href="../devops/db-release-pipelines/sql-setup/roles-permissions-sql-server.htm" rel="nofollow">SQL Server Roles and Permissions for <MadCap:variable name="General.LBEnterprise" /></a>
 		. These roles inclue:</p>
         <ul>
             <li>dbcreator - server-level permission</li>
@@ -23,12 +23,12 @@
         </ul>
         <p>This document discusses another approach that does not requires above-mentioned SQL Server privileges for packaging.</p>
         <h2 id="Non-elevateduserforSQLServer-Overview">Overview</h2>
-        <p>This approach leverages <MadCap:variable name="General.DaticalDB" />'s baselineto capture the state of the database (establish baseline before you do anything else - this will populate changelog.xml with initial change sets). Then use custom backup/restore script that doesn't use the native SQL Server backup/restore mechanism (and require the associated privileges).</p>
+        <p>This approach leverages <MadCap:variable name="General.LBEnterprise" />'s baselineto capture the state of the database (establish baseline before you do anything else - this will populate changelog.xml with initial change sets). Then use custom backup/restore script that doesn't use the native SQL Server backup/restore mechanism (and require the associated privileges).</p>
         <p>This script, as part of restoring the database, performs drop of all objects to clean out the database. By configuring to use "on_demand" backup mode,&#160;Deployment Packager will use the changelog instead of the backup file to restore the database.</p>
         <h2 id="Non-elevateduserforSQLServer-Requirements">Requirements</h2>
         <p>This approach requires the following setup:</p>
         <ul>
-            <li>The database must be baselined so that all objects in the database have a corresponding change set in <MadCap:variable name="General.DaticalDB" />'s changelog. The baseline (change sets) serve as backup of the database from which databases will be rebuilt in case restore operation needs to be performed.</li>
+            <li>The database must be baselined so that all objects in the database have a corresponding change set in <MadCap:variable name="General.LBEnterprise" />'s changelog. The baseline (change sets) serve as backup of the database from which databases will be rebuilt in case restore operation needs to be performed.</li>
             <li>Deployment Packager must be configured with <code>databaseBackupMode=on_demand</code></li>
             <li>Use the attached groovy script for custom backup/restore method.
                 <ul><li>Groovy script: <a href="https://datical-cs.atlassian.net/wiki/download/attachments/826737010/BackupRestoreSqlServerNoBackupFile-v5.4.groovy?version=1&amp;modificationDate=1555940986232&amp;cacheVersion=1&amp;api=v2">BackupRestoreSqlServerNoBackupFile-v5.4.groovy</a>.
@@ -52,7 +52,7 @@ GO
 GRANT VIEW DATABASE STATE to [datical_user]
 GO</pre></li></ol></li>
         </ol>
-        <p><MadCap:variable name="General.DaticalDB" /> SME:</p>
+        <p><MadCap:variable name="General.LBEnterprise" /> SME:</p>
         <ol>
             <li>Save the groovy script (<a href="https://datical-cs.atlassian.net/wiki/download/attachments/826737010/BackupRestoreSqlServerNoBackupFile-v5.4.groovy?version=1&amp;modificationDate=1555940986232&amp;cacheVersion=1&amp;api=v2">BackupRestoreSqlServerNoBackupFile-v5.4.groovy</a>) to a path within Datical install directory, e.g.,&#160;<code>C://apps//DaticalDB//repl//scripts//extensions</code>.
                 <ol><li>Rename the file to <code>BackupRestoreSqlServerNoBackupFile.groovy</code></li><li>The script performs the following operations:
