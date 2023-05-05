@@ -6,14 +6,14 @@
     </head>
     <body>
         <h1>Choose a Changelog Structure</h1>
-        <p>Your <a href="home.html"><MadCap:variable name="General.changelog" /></a> is the core of your <MadCap:variable name="General.Liquibase" /> project. While you can use one <MadCap:variable name="General.changelog" /> for all your deployments, this may not scale well. Instead, you can use multiple <MadCap:variable name="General.changelog" />s for different purposes. To organize multiple <MadCap:variable name="General.changelog" />s, you can use the <code><MadCap:xref href="../../change-types/include.html">include</MadCap:xref></code> and <code><MadCap:xref href="../../change-types/includeall.html">includeAll</MadCap:xref></code> tags to create a main <MadCap:variable name="General.changelog" /> and one or more nested <MadCap:variable name="General.changelog" />s. This document explains some best practices on structuring your <MadCap:variable name="General.changelog" />s.</p>
+        <p>Your <a href="home.html"><MadCap:variable name="General.changelog" /></a> is the core of your <MadCap:variable name="General.Liquibase" /> project. While you can use one <MadCap:variable name="General.changelog" /> for all your deployments, this may not scale well. Instead, you can use multiple <MadCap:variable name="General.changelog" />s for different purposes. To organize multiple <MadCap:variable name="General.changelog" />s, you can use the <code><MadCap:xref href="../../change-types/include.html">include</MadCap:xref></code> and <code><MadCap:xref href="../../change-types/includeall.html">includeAll</MadCap:xref></code> tags to create a main (root/parent) <MadCap:variable name="General.changelog" /> and one or more nested (child) <MadCap:variable name="General.changelog" />s. This document explains some best practices on structuring your <MadCap:variable name="General.changelog" />s.</p>
         <h2>Prerequisites</h2>
         <p>If you're new to <MadCap:variable name="General.Liquibase" />, make sure you understand the fundamentals before creating your own project:</p>
         <ol>
             <li>
-                <MadCap:xref href="install/home.htm">Install [%=General.Liquibase%]</MadCap:xref> – Download <MadCap:variable name="General.Liquibase" /> on your machine</li>
+                <MadCap:xref href="../../start/install/home.htm">Install [%=General.Liquibase%]</MadCap:xref> – Download <MadCap:variable name="General.Liquibase" /> on your machine</li>
             <li>
-                <MadCap:xref href="home.htm">Get Started with [%=General.Liquibase%]</MadCap:xref> – Learn how to use <MadCap:variable name="General.Liquibase" /> with an example database</li>
+                <MadCap:xref href="../../start/home.htm">Get Started with [%=General.Liquibase%]</MadCap:xref> – Learn how to use <MadCap:variable name="General.Liquibase" /> with an example database</li>
         </ol>
         <h2>Create a project</h2>
         <p>The Get Started guide linked previously shows you how <MadCap:variable name="General.Liquibase" /> deployments work using a sample database and <MadCap:variable name="General.changelog" />. However, your organization's needs go beyond a demonstration. To create a new <MadCap:variable name="General.Liquibase" /> project, run the <code><MadCap:xref href="../../commands/init/project.htm">init project</MadCap:xref></code> command in your command line:</p><pre><code class="language-text">liquibase init project</code></pre>
@@ -23,9 +23,10 @@
         <p>teams</p>
         <h3>Multiple schemas</h3>
         <h2>Choose a <MadCap:variable name="General.changelog" /> structure</h2>
-        <p>When designing your <MadCap:variable name="General.Liquibase" /> project, it is a best practice to replicate the structure of your existing code repository. It is most common to design your <MadCap:variable name="General.changelog" />s around objects in your database or your software's releases:</p>
+        <p>When designing your <MadCap:variable name="General.Liquibase" /> project, it is a best practice to create a simple main <MadCap:variable name="General.changelog" /> that you don't have to modify directly. Instead, you can make changes to each of the <MadCap:variable name="General.changelog" />s beneath it, which you can reference with the <code><MadCap:xref href="../../change-types/include.html">include</MadCap:xref></code> and <code><MadCap:xref href="../../change-types/includeall.html">includeAll</MadCap:xref></code> tags. The nested <MadCap:variable name="General.changelog" />s can be modified and deployed independently, but you can also deploy all changes in a single <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code> from the main <MadCap:variable name="General.changelog" />. There are two common <MadCap:variable name="General.changelog" /> design patterns, <b>object-oriented</b> and <b>release-oriented</b>. The design you choose should correspond to the structure of your existing code repository and workflow.</p>
         <h3>Object-oriented</h3>
-        <p>In an object-oriented <MadCap:variable name="General.changelog" /> structure, you create one <MadCap:variable name="General.changelog" /> per object or group of objects. For example:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">For most organizations, it is a best practice to use an object-oriented <MadCap:variable name="General.changelog" /> design pattern.</p>
+        <p>In an object-oriented <MadCap:variable name="General.changelog" /> structure, you create one <MadCap:variable name="General.changelog" /> per object or object type. For example:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
   example
     db
       changelog
@@ -34,8 +35,23 @@
         changelog-procedure.xml
         changelog-table.xml
         changelog-view.xml</code></pre>
+        <p>In this example, we have a main <MadCap:variable name="General.changelog" /> called <code>changelog-main.xml</code> which contains <code>include</code> tags referencing <code>changelog-index.xml</code>, <code>changelog-procedure.xml</code>, <code>changelog-table.xml</code>, and <code>changelog-view.xml</code>.</p>
+        <p>Alternatively, you&#160;can create directories for each type of object, each containing one or more <MadCap:variable name="General.changelog" />s per particular database object:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
+  example
+    db
+      changelog
+        changelog-main.xml
+        changelog-indexes
+          my-favorite-index.xml
+          that-other-index.xml
+        changelog-tables
+          employees.xml
+          customers.xml</code></pre>
+        <p>In this example, we have a main <MadCap:variable name="General.changelog" /> called <code>changelog-main.xml</code> which contains <code>includeAll</code> tags referencing the directories <code>/changelog-indexes</code> and <code>/changelog-tables</code>. The <MadCap:variable name="General.changelog" />s you modify regularly are contained in the nested directories rather than in the main <code>/changelog</code> directory.</p>
+        <p>These designs are useful because they allow you to easily see changes made over time to specific objects (like a particular table) or groups of objects (like all tables in your database). An object-oriented <MadCap:variable name="General.changelog" /> format makes it easier to roll back changes to particular objects without worrying about unrelated changes in the <MadCap:variable name="General.changelog" />.</p>
+        <p>Having a more detailed <MadCap:variable name="General.changelog" /> structure can also potentially simplify the Source Control Management (SCM) process. If all your developers work in the same <MadCap:variable name="General.changelog" />, they may experience source control merge conflicts more frequently. By separating your <MadCap:variable name="General.changelog" />s into use-cases for different objects, developers are likely to be working in different files and therefore will not overwrite each other's code.</p>
         <h3>Release-oriented</h3>
-        <p>If a release-oriented <MadCap:variable name="General.changelog" /> structure, you create one <MadCap:variable name="General.changelog" /> per release. For example:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
+        <p>If a release-oriented <MadCap:variable name="General.changelog" /> structure, you create one <MadCap:variable name="General.changelog" /> per release or release group. For example:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
   example
     db
       changelog
@@ -43,6 +59,20 @@
         changelog-1.0.xml
         changelog-1.1.xml
         changelog-2.0.xml</code></pre>
+        <p>In this example, we have a main <MadCap:variable name="General.changelog" /> called <code>changelog-main.xml</code> which contains <code>include</code> tags referencing <code>changelog-1.0.xml</code>, <code>changelog-1.1.xml</code>, and <code>changelog-2.0.xml</code>.</p>
+        <p>Alternatively, you can create directories for each major release (or other release group), each containing one or more <MadCap:variable name="General.changelog" />s per minor release:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
+  example
+    db
+      changelog
+        changelog-main.xml
+        changelog-1.x
+          changelog-1.0.xml
+          changelog-1.1.xml
+        changelog-2.x
+          changelog-2.0.xml</code></pre>
+        <p>In this example, we have a main <MadCap:variable name="General.changelog" /> called <code>changelog-main.xml</code> which contains <code>includeAll</code> tags referencing the directories <code>/changelog-1.x</code> and <code>/changelog-2.x</code>. The <MadCap:variable name="General.changelog" />s you modify for a particular release are contained in the nested directories rather than in the main <code>/changelog</code> directory.</p>
+        <p>A release-oriented <MadCap:variable name="General.changelog" /> structure lets you bundle all content associated with a release in one place. However, this design can be difficult to maintain. If you want to see changes made to a particular object over time, the release-oriented structure requires you to look in multiple locations for that information.</p>
+        <p>Additionally, having a single <MadCap:variable name="General.changelog" /> per release (even minor release) may lead to more frequent source control merge conflicts. You can solve this by creating multiple <MadCap:variable name="General.changelog" />s within each release directory, such as <code>/changelog-1.0/indexes.xml</code> and <code>/changelog-1.0/tables.xml</code>. However, this structure may be more complicated to navigate and maintain than a pure object-oriented <MadCap:variable name="General.changelog" /> design.</p>
         <h2>Artifact stuff?</h2>
         <p>&lt;recommend against branch environments?&gt;</p>
         <h2>&lt;something&gt;</h2>
@@ -50,9 +80,9 @@
         <h2>Next steps</h2>
         <ol>
             <li>
-                <MadCap:xref href="tutorials/home.html">[%=General.Liquibase%] Database Tutorials</MadCap:xref> – Configure <MadCap:variable name="General.Liquibase" /> to work with your own database</li>
+                <MadCap:xref href="../../start/tutorials/home.html">[%=General.Liquibase%] Database Tutorials</MadCap:xref> – Configure <MadCap:variable name="General.Liquibase" /> to work with your own database</li>
             <li>
-                <MadCap:xref href="../concepts/bestpractices.html">Best Practices</MadCap:xref> – Read about best practices to follow with <MadCap:variable name="General.Liquibase" /></li>
+                <MadCap:xref href="../bestpractices.html">Best Practices</MadCap:xref> – Read about best practices to follow with <MadCap:variable name="General.Liquibase" /></li>
         </ol>
     </body>
 </html>
