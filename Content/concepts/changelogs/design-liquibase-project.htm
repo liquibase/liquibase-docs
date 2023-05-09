@@ -5,7 +5,7 @@
         <meta name="description" content="Reference information and best practices on how to structure your Liquibase changelogs." />
     </head>
     <body>
-        <h1>Choose a Changelog Structure</h1>
+        <h1>Design Your <MadCap:variable name="General.Liquibase" /> Project</h1>
         <p>Your <a href="home.html"><MadCap:variable name="General.changelog" /></a> is the core of your <MadCap:variable name="General.Liquibase" /> project. While you can use one <MadCap:variable name="General.changelog" /> for all your deployments, this may not scale well. Instead, you can use multiple <MadCap:variable name="General.changelog" />s for different purposes. To organize multiple <MadCap:variable name="General.changelog" />s, you can use the <code><MadCap:xref href="../../change-types/include.html">include</MadCap:xref></code> and <code><MadCap:xref href="../../change-types/includeall.html">includeAll</MadCap:xref></code> tags to create a main (root/parent) <MadCap:variable name="General.changelog" /> and one or more nested (child) <MadCap:variable name="General.changelog" />s. This document explains some best practices on structuring your <MadCap:variable name="General.changelog" />s.</p>
         <h2>Prerequisites</h2>
         <p>If you're new to <MadCap:variable name="General.Liquibase" />, make sure you understand the fundamentals before creating your own project:</p>
@@ -19,9 +19,20 @@
         <p>The Get Started guide linked previously shows you how <MadCap:variable name="General.Liquibase" /> deployments work using a sample database and <MadCap:variable name="General.changelog" />. However, your organization's needs go beyond a demonstration. To create a new <MadCap:variable name="General.Liquibase" /> project, run the <code><MadCap:xref href="../../commands/init/project.htm">init project</MadCap:xref></code> command in your command line:</p><pre><code class="language-text">liquibase init project</code></pre>
         <p>This generates a new <MadCap:variable name="General.changelog" /> and <a href="../connections/creating-config-properties.html"><code><MadCap:variable name="General.liquiPropFile" /></code> file</a> that you can customize and expand. You can use the default settings or specify your own. For more information on command arguments, see the <code>init project</code> page.</p>
         <h2>Choose a schema design pattern</h2>
+        <p>You can use <MadCap:variable name="General.Liquibase" /> in two ways:</p>
+        <ul>
+            <li><b>Shared schema:</b> All developers work in a single, shared database schema</li>
+            <li><b>Multi-schema:</b>&#160;Each team works in a different database schema</li>
+        </ul>
+        <p>To choose what's best for your organization, consider the processes your developers currently use to deploy changes to the database.</p>
         <h3>Shared schema</h3>
-        <p>teams</p>
+        <p>If you use a shared schema with <MadCap:variable name="General.Liquibase" />, all your developers work on the same database schema.</p>
+        <p>Using a single schema can make it simple to design, manage, and query your database. You may also find it easier to keep your data consistent and error-free if you use a single schema. However, using a single schema in a large database may become confusing as you create more objects. If you need to write long queries to navigate complex object structures in a single-schema database, the queries may negatively affect performance.</p>
+        <p>Also, using a shared schema requires additional coordination between teams to ensure they don't overwrite or break each other's work. For example, if one team makes a change to a script that is a dependency of another team's automated system, their workflow may break. To solve this, you must agree on a development process that minimizes conflicts. One solution is to keep all schema content in a single repository owned by one team. When other teams want to make changes, they submit pull requests from their source control tool. Alternatively, each team can work in their own directory in the schema and try to minimize cross-team dependencies.</p>
         <h3>Multiple schemas</h3>
+        <p>If you use multiple schemas with <MadCap:variable name="General.Liquibase" />, you create one or more schemas in your database for different teams.</p>
+        <p>Using multiple schemas may make it easier to organize your data:&#160;you can structure and customize the data in each schema individually. This may be helpful in large databases containing many unique data structures. Also, using multiple schemas may prevent conflicts with source control merges or broken dependencies and may help you store data backups. Using multiple schemas can also improve security by allowing you to limit permissions for different users and applications in each schema.</p>
+        <p>However, using multiple schemas means you may have to duplicate some of your data, which can make consistency more difficult. You may also need to call <MadCap:variable name="General.Liquibase" /> multiple times to send your code to production. Depending on your automation tooling and workflow, this design may require extra maintenance from your DevOps team, but you may be able to deploy across all schemas from a single <MadCap:variable name="General.Liquibase" /> connection with a superuser account.</p>
         <h2>Choose a <MadCap:variable name="General.changelog" /> structure</h2>
         <p>When designing your <MadCap:variable name="General.Liquibase" /> project, it is a best practice to create a simple main <MadCap:variable name="General.changelog" /> that you don't have to modify directly. Instead, you can make changes to each of the <MadCap:variable name="General.changelog" />s beneath it, which you can reference with the <code><MadCap:xref href="../../change-types/include.html">include</MadCap:xref></code> and <code><MadCap:xref href="../../change-types/includeall.html">includeAll</MadCap:xref></code> tags. The nested <MadCap:variable name="General.changelog" />s can be modified and deployed independently, but you can also deploy all changes in a single <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code> from the main <MadCap:variable name="General.changelog" />. There are two common <MadCap:variable name="General.changelog" /> design patterns, <b>object-oriented</b> and <b>release-oriented</b>. The design you choose should correspond to the structure of your existing code repository and workflow.</p>
         <h3>Object-oriented</h3>
@@ -73,10 +84,11 @@
         <p>In this example, we have a main <MadCap:variable name="General.changelog" /> called <code>changelog-main.xml</code> which contains <code>includeAll</code> tags referencing the directories <code>/changelog-1.x</code> and <code>/changelog-2.x</code>. The <MadCap:variable name="General.changelog" />s you modify for a particular release are contained in the nested directories rather than in the main <code>/changelog</code> directory.</p>
         <p>A release-oriented <MadCap:variable name="General.changelog" /> structure lets you bundle all content associated with a release in one place. However, this design can be difficult to maintain. If you want to see changes made to a particular object over time, the release-oriented structure requires you to look in multiple locations for that information.</p>
         <p>Additionally, having a single <MadCap:variable name="General.changelog" /> per release (even minor release) may lead to more frequent source control merge conflicts. You can solve this by creating multiple <MadCap:variable name="General.changelog" />s within each release directory, such as <code>/changelog-1.0/indexes.xml</code> and <code>/changelog-1.0/tables.xml</code>. However, this structure may be more complicated to navigate and maintain than a pure object-oriented <MadCap:variable name="General.changelog" /> design.</p>
-        <h2>Artifact stuff?</h2>
+        <h2>Managing your <MadCap:variable name="General.changelog" />s</h2>
+        <p>Contexts, labels, etc.</p>
+        <p>When you publish updates to your software, it is a best practice to release separate artifacts for each step in your development pipeline, such as artifacts for <code>dev</code>, <code>qa</code>, and <code>prod</code>. You can easily version artifacts and run checks on them with automation tools</p>
+        <p>Simulating environments in your source control tool using branches is <b>not recommended</b> because</p>
         <p>&lt;recommend against branch environments?&gt;</p>
-        <h2>&lt;something&gt;</h2>
-        <p>Contexts, labels, etc. (earlier in doc?)</p>
         <h2>Next steps</h2>
         <ol>
             <li>
