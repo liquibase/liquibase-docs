@@ -10,13 +10,13 @@
         <p>To do this, you must first complete the integrated security setup complete on your server. For more information, see <a href="https://docs.microsoft.com/en-us/previous-versions/aspnet/bsz5788z(v=vs.100)">How to: Access SQL Server Using Windows Integrated Security</a>. Then you can set up <MadCap:variable name="General.Liquibase" /> to manage your changes.</p>
         <p>To set up <MadCap:variable name="General.Liquibase" /> with MSSQL without using Windows Integrated Security, see <MadCap:xref href="mssql.html">Using [%=General.Liquibase%] with MSSQL</MadCap:xref>.</p>
         <h2>Prerequisites</h2>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-prerequisites.flsnp" />
         <ul>
             <li><a href="https://docs.microsoft.com/en-us/previous-versions/aspnet/bsz5788z(v=vs.100)">Set up your SQL&#160;Server database with Windows Integrated Security</a>.</li>
         </ul>
         <h2>Install drivers</h2>
         <p>To use <MadCap:variable name="General.Liquibase" /> and Microsoft SQL Server, you need the <a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server">JDBC driver JAR file</a> (<a href="https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc">Maven download</a>).</p>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-driver.flsnp" MadCap:conditionTagExpression="include[database-driver.driver-pre-installed or database-driver.maven-jar-public]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-driver.flsnp" MadCap:conditionTagExpression="include[database-driver.driver-pre-installed or database-driver.maven-jar-public]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;com.microsoft.sqlserver&lt;/groupId&gt;
     &lt;artifactId&gt;mssql-jdbc&lt;/artifactId&gt;
     &lt;version&gt;10.2.0.jre8&lt;/version&gt;
@@ -48,15 +48,18 @@ MARKET varchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
 )
 --rollback DROP TABLE salesTableZ</code></pre>
             </li>
-            <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve"><code class="language-text">liquibase status --username=test --password=test --changelog-file=&lt;changelog.xml&gt;</code></pre>
-            <li>
-                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can pass arguments in the CLI or keep them in the <MadCap:variable name="General.Liquibase" /> properties file.</p>
-            </li>
-            <li>Inspect the SQL with  the <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref> command. Then make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command:</li><pre xml:space="preserve"><code class="language-text">liquibase update-sql --changelog-file=&lt;changelog.xml&gt;
-liquibase update --changelog-file=&lt;changelog.xml&gt;</code></pre>
-            <li>From a database UI tool, ensure that your database contains the table you added along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</li>
+            <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve"><code class="language-text">liquibase status --username=test --password=test --changelog-file=myChangeLog.sql</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can specify arguments in the CLI or keep them in the <a href="../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.Liquibase" /> properties file</a>.</p>
+            <p>If your connection is successful, you'll see a message like this:</p><pre xml:space="preserve"><code class="language-text">4 changesets have not been applied to &lt;your_jdbc_url&gt;
+Liquibase command 'status' was executed successfully.</code></pre>
+            <li>Inspect the SQL with  the <MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref> command. Then make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command.</li><pre xml:space="preserve"><code class="language-text">liquibase update-sql --changelog-file=myChangeLog.sql
+liquibase update --changelog-file=myChangeLog.sql</code></pre>
+            <p>If your <code>update</code> is successful, <MadCap:variable name="General.Liquibase" /> runs each <MadCap:variable name="General.changeset" /> and displays a summary message ending with:</p><pre xml:space="preserve"><code class="language-text">Liquibase: Update has been successful.
+Liquibase command 'update' was executed successfully.</code></pre>
+            <li>From a database UI tool, ensure that your database contains the <code>salesTableZ</code> object you added along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</li>
         </ol>
-        <p>For more information, including a list of supported commands and <MadCap:variable name="General.changetypes" />s in MSSQL, see <MadCap:xref href="mssql.html">Using [%=General.Liquibase%] with MSSQL</MadCap:xref>.</p>
+        <p>Now you're ready to start making deployments with <MadCap:variable name="General.Liquibase" />!</p>
+        <p>For more information, including a list of supported commands and <MadCap:variable name="General.changetypes" />s in Microsoft SQL Server, see <MadCap:xref href="mssql.html">Using [%=General.Liquibase%] with MSSQL</MadCap:xref>.</p>
         <h2>Related links</h2>
         <ul>
             <li><a href="https://docs.microsoft.com/en-us/aspnet/web-api/overview/security/integrated-windows-authentication">Microsoft: Integrated Windows Authentication</a>
