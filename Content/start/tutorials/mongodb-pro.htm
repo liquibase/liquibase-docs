@@ -9,21 +9,32 @@
         <p>
             <MadCap:snippetText src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         </p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The MongoDB Pro Extnesion requires <MadCap:variable name="General.Liquibase" /> core version 4.20. It is only available to <MadCap:variable name="General.LBPro" /> users.<br /><br />This extension requires Java 11.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The MongoDB Pro Extnesion requires <MadCap:variable name="General.Liquibase" /> core version 4.20. It is only available to <MadCap:variable name="General.LBPro" /> users. This extension requires Java 11.</p>
         <p>The MongoDB&#160;Pro Extension streamlines the workflow for MongoDB users. It allows you to use MongoDB's native language in changesets and <MadCap:variable name="General.changetypes" />s. All of this is possible because  MongoDB&#160;Shell (mongosh) is compatible with <MadCap:variable name="General.LBPro" />.  MongoDB also supports  Targeted Rollback, Flows, and <MadCap:variable name="General.changelog" />-level quality checks with <MadCap:variable name="General.LBPro" />. Learn the details and how to implement this functionality below.</p>
-        <h2>Supported version compatibility matrix</h2>
+        <p>This guide is intended for use with MongoDB&#160;products and services provided directly by MongoDB, Inc. This includes MongoDB Atlas, MongoDB Enterprise Server, and MongoDB Community Server. It does not imply support for third-party clones or emulations of Mongo.</p>
+        <h2>Features</h2>
+        <p>Some <MadCap:variable name="General.Liquibase" /> functionality is different with the MongoDB Pro Extension than with other databases:<br /></p>
+        <ul>
+            <li>As of <MadCap:variable name="General.LBPro" /> 4.20.1, JSON&#160;and YAML&#160;<MadCap:variable name="General.changelog" />s are supported along with the legacy support of XML <MadCap:variable name="General.changelog" />s.</li>
+            <li>MongoDB is a NoSQL database, which means you are unable to use any commands that generate SQL output. Learn more about <MadCap:xref href="../../commands/home.htm">[%=General.<MadCap:variable name="General.Liquibase" />%] Commands</MadCap:xref> here.<ul><li>Rollback commands are supported except for commands that generate SQL output.</li><li>Change tracking commands are supported except for commands that generate SQL output.</li></ul></li>
+            <li>Quality Check functionality that works with the MongoDB&#160;Pro Extension is limited to checks targeting the <MadCap:variable name="General.changelog" /> scope. Learn more about <MadCap:xref href="../../commands/quality-checks/home.htm">Quality Checks</MadCap:xref> here. The pre-packaged Quality Check content currently relevant to MongoDB&#160;are these two items:<ul><li>Checks that focus on <MadCap:variable name="General.changeset" /> metadata, such as <MadCap:xref href="../../commands/quality-checks/checks/rollback-required.htm">RollbackRequired</MadCap:xref> and <MadCap:xref href="../../commands/quality-checks/checks/changeset-label-check.htm">ChangesetLabelCheck</MadCap:xref>.</li><li>The generic regex-based check <MadCap:xref href="../../commands/quality-checks/checks/sql-user-defined-pattern-check.htm">SqlUserDefinedPatternCheck</MadCap:xref>.<br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These quality checks work only if you have created your own from the regex template. <MadCap:variable name="General.Liquibase" /> uses the <a href="https://docs.oracle.com/en/java/javase/13/docs/api/java.base/java/util/regex/Pattern.html">java.util.regex</a> engine to match regular expressions.</p></li></ul></li>
+            <li><code>mongo</code> and <code>mongoFile</code> are the two new <MadCap:variable name="General.changetypes" />s available to <MadCap:variable name="General.Liquibase" />. They require a user to configure the native executor, Mongo Shell (mongosh), prior to use.</li>
+        </ul>
+        <h2>Verified versions</h2>
         <table style="width: 100%;">
             <col />
             <col />
             <col />
             <col />
-            <tbody>
+            <thead>
                 <tr>
-                    <td>MongoDB&#160;Tested Versions</td>
-                    <td>MongoDB&#160;Shell Tested Versions</td>
-                    <td><MadCap:variable name="General.LBPro" /> Compatible Version</td>
-                    <td>Supported Auth mechanisms</td>
+                    <th>MongoDB Tested Versions</th>
+                    <th>MongoDB Shell Tested Versions</th>
+                    <th><MadCap:variable name="General.LBPro" /> Compatible Version</th>
+                    <th>Supported Auth mechanisms</th>
                 </tr>
+            </thead>
+            <tbody>
                 <tr>
                     <td>4.4.x</td>
                     <td>1.6.x<br />1.7.x<br />1.8.x - Recommended</td>
@@ -44,24 +55,18 @@
                 </tr>
             </tbody>
         </table>
-        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">LDAP and Kerberos Authentication are not supported at this time. Learn more about MongoDB&#160;Authentication here: <a href="https://www.mongodb.com/docs/v6.0/core/authentication/">authentication</a><br /><br />Regarding relational databases, MongoDB does not support:&#160;the database inspection commands family,  or the <code>-sql</code> command variants (such as <code>update-sql</code>, <code>changelog-sync-sql</code>, etc.).<br /><br />Liquibase Pro Quality Checks have limited support. Changelog-scoped Quality Checks are supported <b>as long as they are not SQL-specific or relational-specific</b>. Database-scoped Checks are not supported because they are database specific.<br /><br />Supported checks:<br /><br /><ul><li><code>RollbackRequired</code></li><li><code>ChangesetContextCheck</code><br /></li><li><code>ChangesetCommentCheck</code></li><li><code>ChangesetLabelCheck</code></li><li><code>RequiredChangesetDisUUID</code></li><li><code>SqlUserDefinedPatternCheck</code></li></ul><br />This guide is intended for use with MongoDB&#160;products and services provided directly by MongoDB, Inc. This includes MongoDB Atlas, MongoDB Enterprise Server, and MongoDB Community Server. It does not imply support for 3rd-party clones or emulations of Mongo.<br /></p>
-        <h2>MongoDB Pro extension functionality</h2>
-        <p>Some inherent <MadCap:variable name="General.Liquibase" /> functionality is different in the MongoDB Pro Extension because of the nature of Mongo. This does not limit the use of MongoDB, it simply means that you must be aware of these nuances to successfully use this extension. The points below are essential to using the Pro extension successfully.<br /></p>
-        <ul>
-            <li>As of <MadCap:variable name="General.LBPro" /> version 4.20.1, JSON&#160;and YAML&#160;<MadCap:variable name="General.changelog" />s are supported along with the legacy support of XML <MadCap:variable name="General.changelog" />s.</li>
-            <li>MongoDB is a noSQL database, which means you are unable to use any commands that generate <code>sql</code> output. Learn more about <MadCap:xref href="../../commands/home.htm">[%=General.<MadCap:variable name="General.Liquibase" />%] Commands</MadCap:xref> here.<ul><li>Rollback commands are supported with the exception of any rollback commands that generate <code>sql</code> output.</li><li>Change tracking commands are supported with the exception of any commands that generate <code>sql</code> output.</li></ul></li>
-            <li>Quality Check functionality that works with the MongoDB&#160;Pro Extension is limited to checks targeting the changelog scope. There is limited Mongo-relevant content currently. Learn more about <MadCap:xref href="../../commands/quality-checks/home.htm">Quality Checks</MadCap:xref> here.<ul><li>The pre-packaged Quality Check content currently relevant to MongoDB&#160;are these two items:<ul><li>Checks that focus on changeset metadata such as <MadCap:xref href="../../commands/quality-checks/checks/rollback-required.htm">RollbackRequired</MadCap:xref> or <MadCap:xref href="../../commands/quality-checks/checks/changeset-label-check.htm">ChangesetLabelCheck</MadCap:xref>, etc.</li><li>The generic regex-based check <MadCap:xref href="../../commands/quality-checks/checks/sql-user-defined-pattern-check.htm">SqlUserDefinedPatternCheck</MadCap:xref>.<br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These quality checks work only if you have created your own from the regex template. <MadCap:variable name="General.Liquibase" /> uses the <a href="https://docs.oracle.com/en/java/javase/13/docs/api/java.base/java/util/regex/Pattern.html">java.util.regex</a> engine to match regular expressions.</p></li></ul></li></ul></li>
-            <li><code>mongo </code>and <code>mongoFile </code>are the two new <MadCap:variable name="General.changetypes" />s available to <MadCap:variable name="General.Liquibase" />. They require a user to configure the Native Executor, Mongo Shell (mongosh) prior to use.</li>
-        </ul>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">LDAP and Kerberos Authentication are not supported at this time. Learn more about MongoDB&#160;Authentication here: <a href="https://www.mongodb.com/docs/v6.0/core/authentication/">authentication</a><br /></p>
+        <h3>Command support</h3>
+        <p>MongoDB does not support&#160;the database inspection commands family  or the <code>-sql</code> command variants (such as <code>update-sql</code> and <code>changelog-sync-sql</code>).</p>
+        <p><MadCap:variable name="General.LBPro" /> Quality Checks have limited support. Changelog-scoped quality checks are supported <b>as long as they are not SQL-specific or relational-specific</b>. Database-scoped Checks are not supported because they are database-specific.</p>
+        <p>Supported quality checks:<br /><ul><li><code>RollbackRequired</code></li><li><code>ChangesetContextCheck</code><br /></li><li><code>ChangesetCommentCheck</code></li><li><code>ChangesetLabelCheck</code></li><li><code>RequiredChangesetDisUUID</code></li><li><code>SqlUserDefinedPatternCheck</code></li></ul></p>
+        <h2>Prerequisites</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
         <h2>Implement the MongoDB Pro extension</h2>
         <ol>
             <li>If you have the current open source MongoDB&#160;version installed, remove it and the associated drivers from your machine.</li>
             <li>Ensure that your <MadCap:xref href="mongodb-pro-user-roles.htm">MongoDB&#160;Pro Extension User Roles</MadCap:xref> are established before continuing.</li>
-            <li><a href="https://www.mongodb.com/try/download/shell">Download and Install mongosh</a> if it is not already installed on your machine. <br /><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">We suggest that you add mongosh to the system path environment variable.</p><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>mongosh</code> is mandatory to use MongoDB&#160;with <MadCap:variable name="General.LBPro" /> and it must be accessible to <MadCap:variable name="General.Liquibase" />. We recommend that mongosh is in the system PATH&#160;environment variable. If it is not, that location of mongosh must be manually specified in the <code>liquibase.mongosh.conf</code> file.</p></li>
-            <li>Follow the Prerequisite steps:<br /></li>
-            <p>
-                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-prerequisites.flsnp" />
-            </p>
+            <li><a href="https://www.mongodb.com/try/download/shell">Download and Install mongosh</a> if it is not already installed on your machine. <br /><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">We suggest that you add mongosh to the system <code>PATH</code> environment variable.</p><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>mongosh</code> is mandatory to use MongoDB&#160;with <MadCap:variable name="General.LBPro" /> and it must be accessible to <MadCap:variable name="General.Liquibase" />. We recommend that mongosh is in the system <code>PATH</code>&#160;environment variable. If it is not, that location of mongosh must be manually specified in the <code>liquibase.mongosh.conf</code> file.</p></li>
             <li>
                 <p><a href="https://www.oracle.com/java/technologies/downloads/#java11">Download Java 11</a>, this extension requires it. </p>
                 <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Java 11 may already be present on your machine if you used the installer to install <MadCap:variable name="General.Liquibase" />. We recommend installing <MadCap:variable name="General.Liquibase" /> with Java 11 with the <a href="https://github.com/liquibase/liquibase/releases">installer asset available on GitHub</a>.</p>
@@ -74,7 +79,7 @@
             <li>Extract the single <code>liquibase-commercial-mongodb-1.0.0.jar</code>&#160;file and install the extension.</li>
             <li>Place it in the <code>liquibase/lib</code> directory.</li>
             <li>Implement your <MadCap:variable name="General.LBPro" /> key. Learn <MadCap:xref href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">How to Apply Your [%=General.LBPro%] License Key here.</MadCap:xref></li>
-            <li>If you are using TLS/SSL, configure the TLS/SSL&#160;encrypted connection for the MongoDB&#160;Pro extension.<p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">This is only required if you are using SSL/TLS because it is active on your Mongo server or because  you are using MongoDB Atlas.</p><ol><li>Configure the MongoDB&#160;instance by first following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl/">Mongo's configuration guide here</a>.</li><li>Then verify that it works by following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl-clients/#connect-to-mongodb-instance-using-encryption--tls-options-">Mongo's verification guide here</a>.</li><li>Add the <code>--tlsCertificateKeyFile</code> certificate that is produced in the configuration step above to the Java keystore. The --tlsCertificateKeyFile specifies the .pem file that contains mongosh's certificate.:<ul><li>On Linux:<pre>sudo keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE/mongodb-cert.crt -cacerts -storepass changeit -alias MongoDB</pre></li><li>On Windows: Open terminal in Administrator mode and run<pre>keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE\\mongodb-cert.crt -cacerts -storepass changeit -alias mongodb</pre></li></ul><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><b>changeit</b> is the default password for keystore.</p></li><li><p>Add the URL parameter to the CLI, <MadCap:variable name="General.liquiPropFile" /> file, or set it as an environment variable:<br /></p><p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><br /><MadCap:variable name="General.liquiPropFile" /> file:<br />Format: <code>liquibase.command.url=mongodb+srv://&lt;hostname&gt;/&lt;database&gt;</code><br /><code>liquibase.command.url: mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /><br />environment variable:<br />Format: <code>LIQUIBASE_COMMAND_URL=mongodb+srv://&lt;hostname&gt;/&lt;database&gt;</code><br /><code>LIQUIBASE_COMMAND_URL: mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /></p></li><li><p>If you are using a Java keystore that is not the default, you must add the necessary environment variables before running <MadCap:variable name="General.Liquibase" /> commands.</p><ul><li>On Linux:<pre>export JAVA_OPTS="-Djavax.net.ssl.keyStore=PATH_TO_KEYSTORE/cacerts -Djavax.net.ssl.keyStorePassword=PASSWORD"</pre></li><li>On Windows:<pre>set JAVA_OPTS=-Djavax.net.ssl.keyStore="PATH_TO_KEYSTORE\\cacerts" -Djavax.net.ssl.keyStorePassword=PASSWORD</pre>Do not use <code>setx</code> as it adds keyStorePassword to system environment variables</li></ul></li></ol></li>
+            <li>If you are using TLS/SSL, configure the TLS/SSL&#160;encrypted connection for the MongoDB&#160;Pro extension.<p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">This is only required if you are using SSL/TLS because it is active on your Mongo server or because  you are using MongoDB Atlas.</p><ol><li>Configure the MongoDB&#160;instance by first following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl/">Mongo's configuration guide here</a>.</li><li>Then verify that it works by following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl-clients/#connect-to-mongodb-instance-using-encryption--tls-options-">Mongo's verification guide here</a>.</li><li>Add the <code>--tlsCertificateKeyFile</code> certificate that is produced in the configuration step above to the Java keystore. The --tlsCertificateKeyFile specifies the .pem file that contains mongosh's certificate.:<ul><li>On Linux:<pre>sudo keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE/mongodb-cert.crt -cacerts -storepass changeit -alias MongoDB</pre></li><li>On Windows: Open terminal in Administrator mode and run<pre>keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE\\mongodb-cert.crt -cacerts -storepass changeit -alias mongodb</pre></li></ul><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><b>changeit</b> is the default password for keystore.</p></li><li><p>Add the URL parameter to the CLI, <MadCap:variable name="General.liquiPropFile" /> file, or set it as an environment variable:<br /></p><p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><br /><MadCap:variable name="General.liquiPropFile" /> file:<br />Format: <code>liquibase.command.url=mongodb+srv://&lt;hostname&gt;/&lt;database&gt;</code><br /><code>liquibase.command.url: mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /><br />environment variable:<br />Format: <code>LIQUIBASE_COMMAND_URL=mongodb+srv://&lt;hostname&gt;/&lt;database&gt;</code><br /><code>LIQUIBASE_COMMAND_URL: mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /></p></li><li><p>If you are using a Java keystore that is not the default, you must add the necessary environment variables before running <MadCap:variable name="General.Liquibase" /> commands.</p><ul><li>On Linux:<pre>export JAVA_OPTS="-Djavax.net.ssl.keyStore=PATH_TO_KEYSTORE/cacerts -Djavax.net.ssl.keyStorePassword=PASSWORD"</pre></li><li>On Windows:<pre>set JAVA_OPTS=-Djavax.net.ssl.keyStore="PATH_TO_KEYSTORE\\cacerts" -Djavax.net.ssl.keyStorePassword=PASSWORD</pre>Do not use <code>setx</code> as it adds <code>keyStorePassword</code> to system environment variables</li></ul></li></ol></li>
         </ol>
         <h3>Troubleshoot error</h3>
         <p>After connecting <MadCap:variable name="General.Liquibase" /> with the MongoDB&#160;Pro Extension, you may come across an error that states:</p><pre>Error: Could not find or load main class Files\\Java\\{jdk-version}.security.cacerts Caused by: java.lang.ClassNotFoundException: Files\\Java\\{jdk-version}.security.cacerts</pre>
@@ -88,7 +93,363 @@
             </li>
         </ul>
         <h2>Test your connection</h2>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/test-your-connection-mongodb.flsnp" />
+        <ol>
+            <li>Ensure your MongoDB database is configured. See <a href="https://www.mongodb.com/docs/manual/installation/">Install MongoDB</a> for more information.</li>
+            <li>
+                <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-properties-url.flsnp" />
+            </li><pre xml:space="preserve"><code class="language-html">url: mongodb://hostname:27017/myDatabase</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you are unsure about how to configure the <code>url</code> property, refer to <a href="https://docs.mongodb.com/manual/reference/connection-string/">Connection String URI Format</a>.</p>
+            <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-license-key.flsnp" />
+            <li>Create a text file called <a href="../../concepts/changelogs/home.html">changelog</a> (<code>.xml</code>) in your project directory and add a <a href="../../concepts/changelogs/changeset.html">changeset</a>.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The use of JSON&#160;and YAML <MadCap:variable name="General.changelog" />s is available in  <MadCap:variable name="General.Liquibase" /> Pro MongoDB commercial version 1.0.0</p></li>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">XML example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippet>
+                        <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: XML;">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mongodb-pro="http://www.liquibase.org/xml/ns/pro-mongodb"
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+http://www.liquibase.org/xml/ns/pro-mongodb http://www.liquibase.org/xml/ns/pro-mongodb/liquibase-pro-mongodb-latest.xsd"&gt;
+	&lt;changeSet id="1" author="nvoxland" runWith="mongosh"&gt;
+		&lt;mongodb-pro:mongo&gt;
+db = db.getSiblingDB( 'mydb' );
+db.createCollection('person2');
+&lt;/mongodb-pro:mongo&gt;
+		&lt;rollback&gt;
+			&lt;mongodb-pro:mongo&gt;
+db = db.getSiblingDB( 'mydb' );
+db.person2.drop();
+&lt;/mongodb-pro:mongo&gt;
+		&lt;/rollback&gt;
+	&lt;/changeSet&gt;
+	&lt;changeSet id="2" author="nvoxland" runWith="mongosh"&gt;
+		&lt;mongodb-pro:mongoFile path="scriptFile.js" relativeToChangelogFile="true"/&gt;
+		&lt;rollback&gt;
+			&lt;mongodb-pro:mongoFile path="scriptFile-rollback.js" relativeToChangelogFile="true"/&gt;
+		&lt;/rollback&gt;
+	&lt;/changeSet&gt;
+	&lt;changeSet id="3" author="nvoxland" runWith="mongosh"&gt;
+		&lt;mongodb-pro:mongo&gt;
+db.products.insertMany( [
+{ item: "card", qty: 15 },
+{ item: "envelope", qty: 20 },
+{ item: "stamps" , qty: 30 }
+] );
+&lt;/mongodb-pro:mongo&gt;
+		&lt;rollback&gt;
+			&lt;mongodb-pro:mongo&gt;
+db.products.deleteMany( { } );
+&lt;/mongodb-pro:mongo&gt;
+		&lt;/rollback&gt;
+	&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</MadCap:codeSnippetBody>
+                    </MadCap:codeSnippet>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">YAML example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <MadCap:codeSnippet>
+                        <MadCap:codeSnippetCopyButton />
+                        <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">databaseChangeLog:
+- changeSet:
+      id:  1
+      author:  your.name
+      labels: example-label
+      context: example-context
+      comment: example-comment
+      changes:
+       - createTable:
+            tableName:  person
+            columns:
+              - column:
+                  name:  id
+                  type:  int
+                  autoIncrement:  true
+                  constraints:
+                    primaryKey:  true
+                    nullable:  false
+              - column:
+                  name:  name
+                  type:  varchar(50)
+                  constraints:
+                    nullable:  false
+              - column:
+                  name:  address1
+                  type:  varchar(50)
+              - column:
+                  name:  address2
+                  type:  varchar(50)
+              - column:
+                  name:  city
+                  type:  varchar(30)
+
+- changeSet:
+      id:  2
+      author:  your.name
+      labels: example-label
+      context: example-context
+      comment: example-comment
+      changes:
+       - createTable:
+            tableName:  company
+            columns:
+              - column:
+                  name:  id
+                  type:  int
+                  autoIncrement:  true
+                  constraints:
+                    primaryKey:  true
+                    nullable:  false
+              - column:
+                  name:  name
+                  type:  varchar(50)
+                  constraints:
+                    nullable:  false
+              - column:
+                  name:  address1
+                  type:  varchar(50)
+              - column:
+                  name:  address2
+                  type:  varchar(50)
+              - column:
+                  name:  city
+                  type:  varchar(30)
+
+- changeSet:
+      id:  3
+      author:  other.dev
+      labels: example-label
+      context: example-context
+      comment: example-comment
+      changes:
+       - addColumn:
+            tableName:  person
+            columns:
+              - column:
+                  name:  country
+                  type:  varchar(2) 
+</MadCap:codeSnippetBody>
+                    </MadCap:codeSnippet>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <MadCap:dropDown>
+                <MadCap:dropDownHead>
+                    <MadCap:dropDownHotspot style="font-size: 18pt;">JSON example</MadCap:dropDownHotspot>
+                </MadCap:dropDownHead>
+                <MadCap:dropDownBody>
+                    <MadCap:codeSnippet>
+                        <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">JSON example
+						{
+						"databaseChangeLog": [
+						---------------------------CREATE AND DROP COLLECTION---------------------------
+						{
+						"changeSet": {
+						"id": "1",
+						"author": "as",
+						"labels": "test_label",
+						"context": "test_context",
+						"comment": "test_comment",
+						"changes": [
+						{
+						"createCollection": {
+						"collectionName": "countries_json"
+						}
+						}
+						]
+						}
+						},
+						{
+						"changeSet": {
+						"id": "2",
+						"author": "as",
+						"changes": [
+						{
+						"dropCollection": {
+						"collectionName": "towns_json"
+						}
+						}
+						],
+						"rollback": ""
+						}
+						},
+						---------------------------INSERT ONE---------------------------		
+						{
+						"changeSet": {
+						"id": "3",
+						"author": "as",
+						"changes": [
+						{
+						"insertOne": {
+						"collectionName": "towns_json",
+						"document": {
+						"$rawJson": {
+						"name": "New York",
+						"population": 222000000,
+						"famousFor": [ "the MOMA", "food", "Derek Jeter" ],
+						"mayor": {
+						"name": "Bill de Blasio",
+						"party": "D"
+						}
+						}
+						}
+						}
+						}
+						],
+						"rollback": ""
+						}
+						},	
+						---------------------------INSERT MANY---------------------------	
+						{
+						"changeSet": {
+						"id": "4",
+						"author": "as",
+						"changes": [
+						{
+						"insertMany": {
+						"collectionName": "countries_json",
+						"documents": {
+						"$rawJson": [
+						{
+						"_id" : "us",
+						"name" : "United States",
+						"exports" : {
+						"foods" : [
+						{"name" : "bacon", "tasty" : "true" },
+						{"name" : "burger"}
+						]
+						}
+						},
+						{
+						"_id" : "ca",
+						"name" : "Canada",
+						"exports" : {
+						"foods" : [
+						{"name" : "bacon", "tasty" : false },
+						{"name" : "syrup", "tasty" : true}
+						]
+						}
+						},
+						{
+						"_id" : "mx",
+						"name" : "Mexico",
+						"exports" : {
+						"foods" : [
+						{"name" : "salsa", "tasty" : true, "condiment" : true}
+						]
+						}
+						}
+						]
+						}
+						}
+						}
+						],
+						"rollback": {
+						"runCommand": {
+						"command": "{ delete: \"countries_json\", deletes: [{q: { }, limit: 0}] }"
+						}
+						}
+						}
+						},
+						---------------------------CREATE AND DROP INDEX---------------------------		
+						{
+						"changeSet": {
+						"id": "5",
+						"author": "as",
+						"changes": [
+						{
+						"createIndex": {
+						"collectionName": "countries_json",
+						"keys": {
+						"$rawJson": {
+						"name": 1,
+						"type": 1
+						}
+						},
+						"options": {
+						"$rawJson": {
+						"unique": true,
+						"name": "ui_countries_json"
+						}
+						}
+						}
+						}
+						]
+						}
+						},
+						{
+						"changeSet": {
+						"id": "6",
+						"author": "as",
+						"changes": [
+						{
+						"dropIndex": {
+						"collectionName": "countries_json",
+						"keys": {
+						"$rawJson": {
+						"name": 1,
+						"type": 1
+						}
+						},
+						"options": {
+						"$rawJson": {
+						"unique": true,
+						"name": "ui_countries_json"
+						}
+						}
+						}
+						}
+						]
+						}
+						},
+						---------------------------RUN COMMAND---------------------------		
+						{
+						"changeSet": {
+						"id": "7",
+						"author": "as",
+						"changes": [
+						{
+						"runCommand": {
+						"command": "{ buildInfo: 1 }"
+						}
+						}
+						],
+						"rollback": ""
+						}
+						},
+						---------------------------ADMIN COMMAND---------------------------			
+						{
+						"changeSet": {
+						"id": "8",
+						"author": "as",
+						"changes": [
+						{
+						"adminCommand": {
+						"command": "{ buildInfo: 1 }"
+						}
+						}
+						],
+						"rollback": ""
+						}
+						}
+						]
+					}</MadCap:codeSnippetBody>
+                    </MadCap:codeSnippet>
+                </MadCap:dropDownBody>
+            </MadCap:dropDown>
+            <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref> command to see whether the connection is successful:</li><pre xml:space="preserve"><code class="language-text">liquibase status --username=test --password=test --changelog-file=&lt;changelog.xml&gt;</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can pass arguments in the CLI or keep them in the <MadCap:variable name="General.Liquibase" /> properties file.</p>
+            <li>Make changes to your database with the <MadCap:xref href="../../commands/update/update.html">update</MadCap:xref> command.</li><pre xml:space="preserve"><code class="language-text">liquibase update --changelog-file=&lt;changelog.xml&gt;</code></pre>
+            <li>From a database UI tool, ensure that your database contains <code>myCollection</code> along with the <MadCap:xref href="../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</li>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">You can use <a href="https://www.mongodb.com/products/compass">MongoDB Compass</a> to easily view collections in your database. For example, run the commands <code>use myDatabase</code> and <code>db.myCollection.find()</code>.</p>
+        </ol>
         <h2>Related links</h2>
         <ul>
             <li>
