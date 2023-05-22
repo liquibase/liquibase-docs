@@ -17,7 +17,7 @@
         </ul>
         <p>You can use all <MadCap:variable name="General.Liquibase" /> preconditions in XML, YAML, and JSON&#160;<MadCap:variable name="General.changelog" />s. The only supported precondition for SQL&#160;<MadCap:variable name="General.changelog" />s is <code>sqlCheck</code>. For a list of preconditions, see <MadCap:xref href="#available-preconditions">Available preconditions</MadCap:xref>.</p>
         <h2>Syntax</h2>
-        <p>You can use one <code>&lt;preConditions&gt;</code> tag per <MadCap:variable name="General.changeset" /> and one overarching <code>&lt;preConditions&gt;</code>&#160;tag in the <MadCap:variable name="General.changelog" /> (outside any <MadCap:variable name="General.changeset" />). In XML, YAML, and JSON <MadCap:variable name="General.changelog" />s, you can use conditional logic to add multiple preconditions within a single <code>&lt;preConditions&gt;</code> tag.</p>
+        <p>You can use one <b>local</b>&#160;<code>&lt;preConditions&gt;</code> tag per <MadCap:variable name="General.changeset" /> and one <b>global</b>&#160;<code>&lt;preConditions&gt;</code> tag in the <MadCap:variable name="General.changelog" /> (outside any <MadCap:variable name="General.changeset" />). In XML, YAML, and JSON <MadCap:variable name="General.changelog" />s, you can use conditional logic to add multiple preconditions within a single <code>&lt;preConditions&gt;</code> tag.</p>
         <p>Preconditions at the <MadCap:variable name="General.changelog" /> level are applied to all <MadCap:variable name="General.changeset" />s, not just those listed in the current <MadCap:variable name="General.changelog" /> or its child <MadCap:variable name="General.changelog" />s.</p>
         <p>The following example XML, YAML, and JSON <MadCap:variable name="General.changelog" />s will only be run if the database executed against is Oracle and the database user executing the script is <code>SYSTEM</code>. Also, they will run the <MadCap:variable name="General.changeset" /> with the <code>sqlCheck</code> precondition and <MadCap:xref href="../../change-types/create-table.html">createTable</MadCap:xref>. The example SQL <MadCap:variable name="General.changelog" /> only runs the <code>sqlCheck</code> precondition and <code>createTable</code>.</p>
         <p>If the preconditions check fails, you will receive a warning and it will continue executing the <MadCap:variable name="General.changeset" /> as normal because of the <code>onFail="WARN"</code> precondition. To prevent the execution of the <MadCap:variable name="General.changeset" /> when the precondition fails, you can set <code>HALT</code> or <code>CONTINUE</code> values. For more information, see <MadCap:xref href="#onFail/onError">onFail/onError values</MadCap:xref>.</p>
@@ -253,8 +253,8 @@ create table example_table (
         <h2 id="handling-failures-and-errors">Handling failures and errors</h2>
         <p><MadCap:variable name="General.Liquibase" /> defines two types of preconditions:</p>
         <ul>
-            <li>Precondition failures which represent that the check failed</li>
-            <li>Precondition errors that are the exceptions thrown in the execution of a check</li>
+            <li>Precondition <b>failures</b> which represent that the check failed</li>
+            <li>Precondition <b>errors</b> that are the exceptions thrown in the execution of a check</li>
         </ul>
         <p>The process of both can be controlled through the <code>onFail</code> and <code>onError</code> <MadCap:variable name="General.Param/Attribute" />s on the <code>&lt;preConditions&gt;</code> tag.</p>
         <h3 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h3>
@@ -356,6 +356,17 @@ create table example_table (
                 </tr>
             </tbody>
         </table>
+        <p>Failures and errors will cause <MadCap:variable name="General.Liquibase" /> to return non-zero exit codes in command output. Warnings will cause <MadCap:variable name="General.Liquibase" /> to return exit codes of zero.</p>
+        <h3>Example failures/errors</h3>
+        <p>The following is a sample failure on a <MadCap:variable name="General.changelog" />:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: Validation Failed:
+1 preconditions failed
+myChangelog.xml : DBMS Precondition failed: expected oracle, got postgresql</code></pre>
+        <p>The following is a sample error on a <MadCap:variable name="General.changelog" />:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: Validation Failed:
+1 preconditions generated an error
+myChangelog.xml : liquibase.precondition.core.SqlPrecondition@5745ca0e : ERROR: relation "public.table_does_not_exist" does not exist</code></pre>
+        <p>The following is a sample warning on a <MadCap:variable name="General.changeset" />:</p><pre xml:space="preserve"><code class="language-text">WARNING: Executing myChangelog.xml::01-new::wonder.woman despite precondition failure due to onFail='WARN':
+1 preconditions failed
+myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         <h2 id="available-preconditions"><a name="available-preconditions"></a>Available preconditions</h2>
         <p>The examples of preconditions shown in the table doesn't include the <code>schemaName</code> <MadCap:variable name="General.Param/Attribute" />. It is best practice not to keep the <code>schemaName</code> in the <MadCap:variable name="General.changeset" /> and rely on the default schema except for times you don’t want to create something in the default schema.</p>
         <p>Additionally, you can include the <code>onError</code> or <code>onFail</code> <MadCap:variable name="General.Param/Attribute" />s with the <code>WARN</code>, <code>HALT</code>, <code>CONTINUE</code>, or <code>MARK_RAN</code> value in the preconditions tag, however, the <code>CONTINUE</code> and <code>MARK_RAN</code> options can only be applied to preconditions inside a <MadCap:variable name="General.changeset" />.</p>
