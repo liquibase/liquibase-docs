@@ -701,7 +701,7 @@ variable "redirects" {
     "/tools-integrations/springboot/home.html"                                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/"
     "/tools-integrations/springboot/springboot.html"                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/springboot/"
     "/tools-integrations/springboot/using-springboot-sql-plus-kerberos.html"                                   = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/"
-    "/tools-integrations/springboot/using-springboot-with-maven.html"                                          = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/using-springboot-with-maven/"
+    "/tools-integrations/springboot/using-springboot-with-maven.html"                                          = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/using-springboot-with-maven/"
     "/what-is-a-jdbc-url"                                                                                      = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html"
     "/what-is-a-jdbc-url.html"                                                                                 = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html"
     "/workflows/database-setup-tutorials/apache-derby.html"                                                    = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/"
