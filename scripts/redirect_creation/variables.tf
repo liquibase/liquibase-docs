@@ -490,7 +490,7 @@ variable "redirects" {
     "/parameters/command-parameters.html"                                                                      = "/parameters/home.html"
     "/parameters/logical-file-path.html"                                                                       = "/concepts/changelogs/attributes/logicalfilepath.html"
     "/parameters/object-quoting-strategy.html"                                                                 = "/parameters/object-quoting-strategy.html"
-    "/parameters/on-missing-include-changelog.html"                                                            = "/parameters/on-missing-include.html"
+    "/parameters/on-missing-include.html"                                                                      = "/parameters/on-missing-include-changelog.html"
     "/parameters/parameters.html"                                                                              = "/parameters/home.html"
     "/popular-topics.html"                                                                                     = "/home.html"
     "/quality-checks"                                                                                          = "/commands/quality-checks/home.html"
