@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>Database Migration Between DMC&#160;Demo Mode Instances</h1>
+        <p>To prevent data loss, you may need to  migrate your database from one Demo Mode instance to another. This guide covers why you would need to migrate between&#160;Demo Mode instances and how to do so successfully.</p>
+        <h2>Multiple Demo Mode Instances</h2>
+        <p>Users often have two instances of an application setup in their DevOps toolchain. There are two scenarios below that cover why this feature is helpful for users.</p>
+        <ul>
+            <li>
+                <p>If you would like to test a new DMC version, you can install two instances of Demo Mode. One for production and one for testing. </p>
+            </li>
+            <li>You can install two or more instances if you need to upgrade the server that DMC&#160;is installed on. For example, when upgrading all servers from RHEL 7 to RHEL 8, you will need to first install DMC&#160;on RHEL&#160;8. This confirms it works as expected before the change is applied to the production infrastructure.</li>
+        </ul>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">If  an upgrade from RHEL&#160;7 to RHEL&#160;8 is necessary and DMC is running indefinitely in Demo Mode, you will need to use this guide to ensure all of your data is retained. If you are in DMC&#160;Demo Mode and  update from RHEL 7 to 8 without backing up your database to a separate instance, data may be lost in the process. You will need to backup the existing database to a second instance to upgrade RHEL in the first instance. Then you will migrate the database back to the first instance after the RHEL upgrade.  Learn how to use this migration process in the guide below.</p>
+        <h2>Part 1: Backup existing database and some cluster.config properties (instance1)</h2>
+        <ol>
+            <li>Login to <b>instance1</b></li>
+            <li>If DMC&#160;is actively running, stop all services with the following command:</li>
+            <p>Example: <code>sudo datical-control service stop all</code></p>
+            <li>Then, start <b>postgresql</b> service with the following command:</li>
+            <p>Example: <code>sudo datical-control service start postgresql</code></p>
+            <li>Execute <b>pg_dump</b> to backup the <b>Liquibase Enterprise</b> database.</li>
+            <p>Example of <b>pg_dump</b> command run:</p><code>&lt;datical-service-install-dir&gt;/postgresql13/bin/pg_dump <br />-F t datical &gt; ~/datical_database_backup.tar
+            '-F' argument selects the format of the output
+            <br />'t' argument is tar format of backup file
+            <br />'enterprise'argument is name of database which is default name in demo mode
+            <br />'&gt;' argument is to specify where backup file should be saved</code>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Liquibase Enterprise will save the database backup to <b>~/datical_database_backup.tar</b> file.</p>
+            <li>Save the two properties listed below from the <code>&lt;datical-service-install-dir&gt;/config/cluster.properties</code> file. <br /><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">These properties will  be added to a new configuration file on a new instance. This is covered in <b>Part 2:&#160;Step 6</b> on this page.</p></li>
+            <ul>
+                <li><code>datical.keycloak.internalPassword</code>
+                </li>
+                <li><code>datical.keycloak.internalClientSecret</code> properties</li>
+            </ul>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Don’t forget to start all services if you need working instance</p>
+        </ol>
+        <h2>Part 2: Restore backup and update properties in cluster config properties file (instance2)</h2>
+        <ol>
+            <li>Login to <b>instance2</b> and install datical-service (DMC) if it’s not already installed.</li>
+            <li>If DMC&#160;is actively running, stop all services with the following command:</li>
+            <p>Example: <code>sudo datical-control service stop all</code></p>
+            <li>Then, start <b>postgresql</b> service with the following command:</li>
+            <p>Example: <code>sudo datical-control service start postgresql</code></p>
+            <li>Copy the backup file and save it in a secure location.</li>
+            <li>Execute <code>pg_restore</code> to restore the database.</li>
+            <p>Example of <code>pg_restore </code>command run:</p><code>&lt;datical-service-install-dir&gt;/pg_restore -c -Ft -d datical &lt; /home/datical/datical_database_backup.tar
+<br />'-c' argument is to clean database before restore
+<br />'-F' argument selects the format of the output
+<br />'t' argument is tar format of backup file
+<br />'-d' argument is to specify database name for restore
+<br />'&lt;' argument is to specify backup file location which will be used for restore</code>
+            <li>Then you need to update <code>datical.keycloak.internalPassword</code>, <code>datical.keycloak.internalClientSecret</code> properties in <code>&lt;datical-service-install-dir&gt;/config/cluster.properties</code> file with values copied from <b>instance1</b><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">This is mentioned in <b>Part 1:&#160;Step 5</b> at the top of this page.</p></li>
+            <li>Start all services: <code>sudo datical-control service start all</code> to establish the DMC&#160;Demo Mode successfully.</li>
+        </ol>
+        <p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">It’s highly <b>not recommended</b> to <b>migrate data to a newer version of DMC</b> because restoration cleans the source database and backup from the older database instance. An older database instance may have a different table structure from newer tables which are required for keycloak, enterprise-service backend, or may not have some table structures at all.</p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">You have DMC 7.7 in demo mode on <b>instance1</b>, but you want to install DMC 8.1 on <b>instance2</b> and migrate data using the steps described above.<br /><br />In this case, you need to:<br /><ol><li>Install DMC 7.7 on instance2.</li> <li>Migrate your data using the steps from above.</li> <li>After that, update DMC instance1 to 8.1 using DMC 8.1 installer script.</li></ol></p>
+    </body>
+</html>
