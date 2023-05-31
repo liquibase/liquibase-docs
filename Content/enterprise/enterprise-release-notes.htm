@@ -4744,5 +4744,2257 @@ oracleRestoreErrorWhitelist=ORA-31684,ORA-39111,ORA-39151</code></p>
                 </MadCap:dropDown>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.17 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p><b>Starting with the 6.10 release,</b> Datical DB will run in the OpenJDK runtime instead of the Oracle Java runtime. If you are installing release 6.10 or greater of Datical DB from scratch in it's own folder, the installer will provide the new OpenJDK runtime. There are no additional steps for you to take.  This is the recommended course of action.</p>
+                <p><b>If you are updating an older version of Datical DB (6.9 or earlier) using the Datical software update site or the composite repo</b>, you will need to replace the old Oracle Java runtime with the OpenJDK runtime.  For instructions expand the link below. </p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownHead>
+                        <MadCap:dropDownHotspot>Datical DB now runs on OpenJDK</MadCap:dropDownHotspot>
+                    </MadCap:dropDownHead>
+                    <MadCap:dropDownBody>
+                        <p>Starting with the 6.10 release, Datical DB will bundle OpenJDK instead of the Oracle Java Runtime.  The decision to migrate was prompted by a change in Oracle's licensing that would have impeded our ability to provide security patches to the Java distribution in our frequent releases.</p>
+                        <p><b>NOTE:</b> Datical will only install the new Java distribution as part of a fresh install of the product.  If you prefer to update an existing installation using Datical's update site or the composite repo follow the steps below to manually replace the Oracle Java Runtime with OpenJDK:</p>
+                        <ol>
+                            <li>Log in to software.datical.com and go to COMMON/Java_JDK/OpenJDK</li>
+                            <li>Download the archive for your client platform</li>
+                            <ul>
+                                <li><b>Linux:</b> OpenJDK8U-jre_x64_linux_hotspot_8u222b10.tar.gz</li>
+                                <li><b>Windows:</b> OpenJDK8U-jre_x64_windows_hotspot_8u222b10.zip</li>
+                            </ul>
+                            <li>Close Datical DB if it's open, including Windows command line and Linux terminal sessions</li>
+                            <li>Rename the root folder of the current JRE in the Datical installation</li>
+                            <ul>
+                                <li>BEFORE: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                <li>AFTER:    &lt;DDB_INSTALL_ROOT&gt;/oracle.jre</li>
+                            </ul>
+                            <li>Extract the JRE archive downloaded in step 2 to the Datical DB Install root</li>
+                            <ol>
+                                <li>Extracting the archive should create a new directory that will need to be renamed</li>
+                                <ul>
+                                    <li>Extracted directory name: &lt;DDB_INSTALL_ROOT&gt;/jdk8u222-b10-jre</li>
+                                    <li>Rename directory to: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                </ul>
+                            </ol>
+                            <li>Test the Datical DB GUI by launching the client to ensure it opens without issue</li>
+                            <li>Test Datcial DB CLI by running 'hammer show version' from a terminal or or the Windows command line</li>
+                            <li>At this point you may delete &lt;DDB_INSTALL_ROOT&gt;/oracle.jre at your leisure</li>
+                        </ol>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+                <h2>New Features</h2>
+                <h3>Certification of Oracle 19c and Oracle 19c on Amazon RDS</h3>
+                <p>Oracle 19c (direct installation and on Amazon RDS) has been fully tested and added to the platform configurations used in automated certification tests at Datical.</p>
+                <h3>Generating Change Sets to Drop Stored Logic in the Deploy Packager</h3>
+                <p>In previous releases, deleting a file from the SQL code repository that contained a stored logic object definition that had previously been packaged would result in a change set being added to the changelog.xml that dropped that object.  To allow more precise control over when stored logic objects are dropped, this workflow has been changed.</p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><b>BEHAVIOR CHANGE</b>
+                    <br />As of Datical 6.17, deleting a stored logic file from the SQL code repository will no longer result in a drop of that object being added to the change log.  File deletion will be noted in the log, but won't have any effect on the Datical Project.</p>
+                <p>To generate a change set to drop a stored logic object in version 6.17 and subsequent releases replace the object definition in the file with a valid drop SQL statement for that object.  During the next execution of Deploy Packager for that project, the drop statement will be recognized and the appropriate change set created to drop the object in question.</p>
+                <table style="width: 100%;">
+                    <col style="width: 33%;" />
+                    <col style="width: 33%;" />
+                    <col style="width: 33%;" />
+                    <thead>
+                        <tr>
+                            <th>Description of Change</th>
+                            <th>SQL&#160;FIle Contents:&#160;Contents of procPrintHelloWorld.sql</th>
+                            <th>Change Type Produced by Packager</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Create a procedure called <code>procPrintHelloWorld</code></td>
+                            <td><code>CREATE OR REPLACE PROCEDURE procPrintHelloWorld
+IS
+BEGIN
+   
+  DBMS_OUTPUT.PUT_LINE('Hello VIDEO_TEST_World!');
+ 
+END;</code>
+                            </td>
+                            <td><code>&lt;createProcedure path="procedure/20190827160559730_procPrintHelloWorld.sql" procedureName="procPrintHelloWorld"/&gt;</code><![CDATA[
+]]></td>
+                        </tr>
+                        <tr>
+                            <td>Drop a procedure called <code>procPrintHelloWorld</code></td>
+                            <td><![CDATA[
+]]><code>DROP PROCEDURE procPrintHelloWorld;</code></td>
+                            <td><code>&lt;dropProcedure procedureName="procPrintHelloWorld"/&gt;</code><![CDATA[
+]]></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>For more information see <MadCap:xref href="developer/write-sql-scripts/home.htm">Write SQL Scripts for [%=General.LBEnterprise%]</MadCap:xref></p>
+                <h3>Final Release of Datical Service with Docker &amp; Kubernetes</h3>
+                <p>We have updated the embedded Datical DB client and upgraded the following components of Datical Service to address vulnerabilities:</p>
+                <ul>
+                    <li>Postgresql</li>
+                    <li>RabbitMQ</li>
+                    <li>Keycloak</li>
+                    <li>Groovy</li>
+                </ul>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">6.17 marks the final release of Datical Service with Docker &amp; Kubernetes.  Datical will be release a new webapp for centralized status and reporting that is lighter weight and easier to manage in March 2020</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-3835	</td>
+                                    <td>Incorrect Packager log message "Found 1 TYPE statements in the SQL Script" when COMMENT contains "TYPE"
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3677	</td>
+                                    <td>Packager: Provide Better Mechanism to Drop Stored Logic
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3667	</td>
+                                    <td>DDB_USER and DDB_PASS environment variables do not work with "hammer groovy database_backup_restore.groovy"
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3272	</td>
+                                    <td>TFS: Packager fails after a drop procedure or rename or revert procedure is attempted
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2729	</td>
+                                    <td>Datical Eclipse GUI: missing data_dml option when creating Manifest file with the Datical DB GUI Manifest wizard
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2608	</td>
+                                    <td>Hammer forecast or deploy output shows "unable to determine pipeline" when --pipeline is not used
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.17</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.17.6410	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.17.6410	</td>
+                                    <td>DaticalDbCompositeRepo-6.17.6410.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.17.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Liquibase Enterprise Deployment Monitoring Console (DMC)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.17	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>Starting with release 7.0, Liquibase includes a web-based Deployment Monitoring Console (DMC) that provides a centralized location to view a pipeline status and reporting information for all your Liquibase Business &amp; Enterprise projects.</p>
+                        <p style="font-weight: bold;">Liquibase Enterprise &amp; Business Clients (Datical DB) and DMC Compatibility</p>
+                        <p>Each DMC release only works with certain releases of Liquibase Enterprise Desktop. Consult the Deployment Monitoring Console Compatibility Matrix to ensure compatibility.</p>
+                        <MadCap:snippetBlock src="../Resources/Snippets/get-started-dmc.flsnp">
+                        </MadCap:snippetBlock>
+                        <MadCap:snippetBlock src="../Resources/Snippets/dmc-update-instructions.flsnp">
+                        </MadCap:snippetBlock>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.16 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p><b>Starting with the 6.10 release,</b> Datical DB will run in the OpenJDK runtime instead of the Oracle Java runtime. If you are installing release 6.10 or greater of Datical DB from scratch in it's own folder, the installer will provide the new OpenJDK runtime. There are no additional steps for you to take.  This is the recommended course of action.</p>
+                <p><b>If you are updating an older version of Datical DB (6.9 or earlier) using the Datical software update site or the composite repo</b>, you will need to replace the old Oracle Java runtime with the OpenJDK runtime.  For instructions expand the link below. </p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownHead>
+                        <MadCap:dropDownHotspot>Datical DB now runs on OpenJDK</MadCap:dropDownHotspot>
+                    </MadCap:dropDownHead>
+                    <MadCap:dropDownBody>
+                        <p>Starting with the 6.10 release, Datical DB will bundle OpenJDK instead of the Oracle Java Runtime.  The decision to migrate was prompted by a change in Oracle's licensing that would have impeded our ability to provide security patches to the Java distribution in our frequent releases.</p>
+                        <p><b>NOTE:</b> Datical will only install the new Java distribution as part of a fresh install of the product.  If you prefer to update an existing installation using Datical's update site or the composite repo follow the steps below to manually replace the Oracle Java Runtime with OpenJDK:</p>
+                        <ol>
+                            <li>Log in to software.datical.com and go to COMMON/Java_JDK/OpenJDK</li>
+                            <li>Download the archive for your client platform</li>
+                            <ul>
+                                <li><b>Linux:</b> OpenJDK8U-jre_x64_linux_hotspot_8u222b10.tar.gz</li>
+                                <li><b>Windows:</b> OpenJDK8U-jre_x64_windows_hotspot_8u222b10.zip</li>
+                            </ul>
+                            <li>Close Datical DB if it's open, including Windows command line and Linux terminal sessions</li>
+                            <li>Rename the root folder of the current JRE in the Datical installation</li>
+                            <ul>
+                                <li>BEFORE: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                <li>AFTER:    &lt;DDB_INSTALL_ROOT&gt;/oracle.jre</li>
+                            </ul>
+                            <li>Extract the JRE archive downloaded in step 2 to the Datical DB Install root</li>
+                            <ol>
+                                <li>Extracting the archive should create a new directory that will need to be renamed</li>
+                                <ul>
+                                    <li>Extracted directory name: &lt;DDB_INSTALL_ROOT&gt;/jdk8u222-b10-jre</li>
+                                    <li>Rename directory to: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                </ul>
+                            </ol>
+                            <li>Test the Datical DB GUI by launching the client to ensure it opens without issue</li>
+                            <li>Test Datcial DB CLI by running 'hammer show version' from a terminal or or the Windows command line</li>
+                            <li>At this point you may delete &lt;DDB_INSTALL_ROOT&gt;/oracle.jre at your leisure</li>
+                        </ol>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.16</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.16.6376	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.16.6376	</td>
+                                    <td>DaticalDbCompositeRepo-6.16.6376.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.16.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Liquibase Enterprise Deployment Monitoring Console (DMC)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.9	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.9
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>Starting with release 7.0, Liquibase includes a web-based Deployment Monitoring Console (DMC) that provides a centralized location to view a pipeline status and reporting information for all your Liquibase Business &amp; Enterprise projects.</p>
+                        <p style="font-weight: bold;">Liquibase Enterprise &amp; Business Clients (Datical DB) and DMC Compatibility</p>
+                        <p>Each DMC release only works with certain releases of Liquibase Enterprise Desktop. Consult the Deployment Monitoring Console Compatibility Matrix to ensure compatibility.</p>
+                        <MadCap:snippetBlock src="../Resources/Snippets/get-started-dmc.flsnp">
+                        </MadCap:snippetBlock>
+                        <MadCap:snippetBlock src="../Resources/Snippets/dmc-update-instructions.flsnp">
+                        </MadCap:snippetBlock>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.15 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p><b>Starting with the 6.10 release,</b> Datical DB will run in the OpenJDK runtime instead of the Oracle Java runtime. If you are installing release 6.10 or greater of Datical DB from scratch in it's own folder, the installer will provide the new OpenJDK runtime. There are no additional steps for you to take.  This is the recommended course of action.</p>
+                <p><b>If you are updating an older version of Datical DB (6.9 or earlier) using the Datical software update site or the composite repo</b>, you will need to replace the old Oracle Java runtime with the OpenJDK runtime.  For instructions expand the link below. </p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownHead>
+                        <MadCap:dropDownHotspot>Datical DB now runs on OpenJDK</MadCap:dropDownHotspot>
+                    </MadCap:dropDownHead>
+                    <MadCap:dropDownBody>
+                        <p>Starting with the 6.10 release, Datical DB will bundle OpenJDK instead of the Oracle Java Runtime.  The decision to migrate was prompted by a change in Oracle's licensing that would have impeded our ability to provide security patches to the Java distribution in our frequent releases.</p>
+                        <p><b>NOTE:</b> Datical will only install the new Java distribution as part of a fresh install of the product.  If you prefer to update an existing installation using Datical's update site or the composite repo follow the steps below to manually replace the Oracle Java Runtime with OpenJDK:</p>
+                        <ol>
+                            <li>Log in to software.datical.com and go to COMMON/Java_JDK/OpenJDK</li>
+                            <li>Download the archive for your client platform</li>
+                            <ul>
+                                <li><b>Linux:</b> OpenJDK8U-jre_x64_linux_hotspot_8u222b10.tar.gz</li>
+                                <li><b>Windows:</b> OpenJDK8U-jre_x64_windows_hotspot_8u222b10.zip</li>
+                            </ul>
+                            <li>Close Datical DB if it's open, including Windows command line and Linux terminal sessions</li>
+                            <li>Rename the root folder of the current JRE in the Datical installation</li>
+                            <ul>
+                                <li>BEFORE: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                <li>AFTER:    &lt;DDB_INSTALL_ROOT&gt;/oracle.jre</li>
+                            </ul>
+                            <li>Extract the JRE archive downloaded in step 2 to the Datical DB Install root</li>
+                            <ol>
+                                <li>Extracting the archive should create a new directory that will need to be renamed</li>
+                                <ul>
+                                    <li>Extracted directory name: &lt;DDB_INSTALL_ROOT&gt;/jdk8u222-b10-jre</li>
+                                    <li>Rename directory to: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                </ul>
+                            </ol>
+                            <li>Test the Datical DB GUI by launching the client to ensure it opens without issue</li>
+                            <li>Test Datcial DB CLI by running 'hammer show version' from a terminal or or the Windows command line</li>
+                            <li>At this point you may delete &lt;DDB_INSTALL_ROOT&gt;/oracle.jre at your leisure</li>
+                        </ol>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Notable In This Release</h2>
+                        <h3>Improvements and Bug Fixes in the Oracle SQL Parser</h3>
+                        <p>The Oracle SQL Parser enables you to gain the benefit of the change management simulator and the rules engine in Forecast operations for changes packaged using the DIRECT package method or change sets created manually that include appdba:sqlplus change types. If you'd like to know more, check out the documentation here: <MadCap:xref href="dba/package/package-sql-scripts-deployment/configure-packaging/sql-parser.htm">SQL Parser</MadCap:xref></p>
+                        <p>In this release we have addressed issues and expanded statement support in our Oracle SQL Parser.</p>
+                        <ul>
+                            <li>New SQL Statements Supported</li>
+                            <ul>
+                                <li>ALTER TABLE DROP CONSTRAINT</li>
+                                <li>CREATE MATERIALIZED VIEW</li>
+                                <li>CREATE TABLE &lt;with subquery&gt;</li>
+                                <li>DROP MATERIALIZED VIEW</li>
+                                <li>SET COLUMN REMARKS - May also be known by other database-specific name, like "comments on column"</li>
+                                <li>SET TABLE REMARKS - May also be known by another database-specific name, like "comments on table"</li>
+                            </ul>
+                            <li>Simulation support for tables, views and materialized views with indeterminate column definitions</li>
+                            <ul>
+                                <li>When Datical can not determine the column configuration of a table, view or materialized view (due to the manner of its creation or alteration), subsequent statements that target the columns of that object will now produce warnings instead of errors.</li>
+                            </ul>
+                        </ul>
+                        <h3>Known Issues with Oracle SQL Parser</h3>
+                        <p>There are a few statement types which require special formatting or that may lead false reports of expected errors during Forecast.  For more information see the Limitations of SQL Parser section of the Oracle <MadCap:xref href="dba/package/package-sql-scripts-deployment/configure-packaging/sql-parser.htm">SQL Parser</MadCap:xref> documentation.</p>
+                        <h2>Issues Addressed</h2>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;" />
+                            <col style="width: 50%;" />
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-1668	</td>
+                                    <td>Oracle: Packager folders should not treat schema in scripts as case sensitive (function, package, procedure, view)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2004	</td>
+                                    <td>Parse COMMENT statements to SetRemarks change object</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2427	</td>
+                                    <td>Parser failed forecast with rule violation because of incomplete parsing coverage on "comments on table"
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2428	</td>
+                                    <td>Parser failed forecast with rule violation because of incomplete parsing coverage on "comments on column"
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2593	</td>
+                                    <td>setTableRemarks/setColumnRemarks for View &amp; Materialized View fails during forecast with "no such table" error
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3342	</td>
+                                    <td>
+                                        <p>GUI: Import project with copy into workspace is missing the files in rules, resources, and snapshots folders </p>
+                                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">
+This was determined to be an issue in our underlying application framework that is not managed by Datical.  We have updated our documentation to guide you through the import process in a way that avoids this issue. <MadCap:xref href="developer/define-release-pipeline/initialize-database-project/baseline-initialize-project/import-projects.htm">Import Projects </MadCap:xref> </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3704
+
+</td>
+                                    <td>Datical should be able to handle the GO statement for SQL Server properly
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3758	</td>
+                                    <td>java.sql.SQLException: Invalid object name error being thrown in SQL Server trying to alter column to NOT NULL
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3973	</td>
+                                    <td>Forecast profiling does not recognize existing foreign keys in model and gives inaccurate simulation results
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.15</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.15.6361	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.15.6361	</td>
+                                    <td>DaticalDbCompositeRepo-6.15.6361.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.15.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Liquibase Enterprise Deployment Monitoring Console (DMC)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.9	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.9
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="font-weight: bold;">Liquibase Enterprise &amp; Business Clients (Datical DB) and DMC Compatibility</p>
+                        <p>Each DMC release only works with certain releases of Liquibase Enterprise Desktop. Consult the Deployment Monitoring Console Compatibility Matrix to ensure compatibility.</p>
+                        <MadCap:snippetBlock src="../Resources/Snippets/get-started-dmc.flsnp">
+                        </MadCap:snippetBlock>
+                        <MadCap:snippetBlock src="../Resources/Snippets/dmc-update-instructions.flsnp">
+                        </MadCap:snippetBlock>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.14 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p><b>Starting with the 6.10 release,</b> Datical DB will run in the OpenJDK runtime instead of the Oracle Java runtime. If you are installing release 6.10 or greater of Datical DB from scratch in it's own folder, the installer will provide the new OpenJDK runtime. There are no additional steps for you to take.  This is the recommended course of action.</p>
+                <p><b>If you are updating an older version of Datical DB (6.9 or earlier) using the Datical software update site or the composite repo</b>, you will need to replace the old Oracle Java runtime with the OpenJDK runtime.  For instructions expand the link below. </p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownHead>
+                        <MadCap:dropDownHotspot>Datical DB now runs on OpenJDK</MadCap:dropDownHotspot>
+                    </MadCap:dropDownHead>
+                    <MadCap:dropDownBody>
+                        <p>Starting with the 6.10 release, Datical DB will bundle OpenJDK instead of the Oracle Java Runtime.  The decision to migrate was prompted by a change in Oracle's licensing that would have impeded our ability to provide security patches to the Java distribution in our frequent releases.</p>
+                        <p><b>NOTE:</b> Datical will only install the new Java distribution as part of a fresh install of the product.  If you prefer to update an existing installation using Datical's update site or the composite repo follow the steps below to manually replace the Oracle Java Runtime with OpenJDK:</p>
+                        <ol>
+                            <li>Log in to software.datical.com and go to COMMON/Java_JDK/OpenJDK</li>
+                            <li>Download the archive for your client platform</li>
+                            <ul>
+                                <li><b>Linux:</b> OpenJDK8U-jre_x64_linux_hotspot_8u222b10.tar.gz</li>
+                                <li><b>Windows:</b> OpenJDK8U-jre_x64_windows_hotspot_8u222b10.zip</li>
+                            </ul>
+                            <li>Close Datical DB if it's open, including Windows command line and Linux terminal sessions</li>
+                            <li>Rename the root folder of the current JRE in the Datical installation</li>
+                            <ul>
+                                <li>BEFORE: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                <li>AFTER:    &lt;DDB_INSTALL_ROOT&gt;/oracle.jre</li>
+                            </ul>
+                            <li>Extract the JRE archive downloaded in step 2 to the Datical DB Install root</li>
+                            <ol>
+                                <li>Extracting the archive should create a new directory that will need to be renamed</li>
+                                <ul>
+                                    <li>Extracted directory name: &lt;DDB_INSTALL_ROOT&gt;/jdk8u222-b10-jre</li>
+                                    <li>Rename directory to: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                </ul>
+                            </ol>
+                            <li>Test the Datical DB GUI by launching the client to ensure it opens without issue</li>
+                            <li>Test Datcial DB CLI by running 'hammer show version' from a terminal or or the Windows command line</li>
+                            <li>At this point you may delete &lt;DDB_INSTALL_ROOT&gt;/oracle.jre at your leisure</li>
+                        </ol>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Notable In This Release</h2>
+                        <h3>ixed and Optimized Status Operations for General Performance Improvements</h3>
+                        <p>6.14 delivers bug fixes and performance optimizations for Status operations in the GUI &amp; CLI.  The performance issues with status affected many of our previous 2019.x and 6.x releases.  We <b>highly recommended that you update to 6.14 as a result</b>.</p>
+                        <p>Areas where you may notice improvements:</p>
+                        <ul>
+                            <li>Status/Pipeline Status operations in the Datical DB UI</li>
+                            <li>'status' &amp; 'statusDetails' commands in the CLI</li>
+                            <li>Complex operations which run status implicitly (CLI &amp; GUI)</li>
+                            <ul>
+                                <li>All types of 'deploy' operations</li>
+                                <li>All types of 'rollback' operations</li>
+                                <li>Deploy Packager</li>
+                                <li>Convert SQL</li>
+                                <li>Change Log Sync</li>
+                            </ul>
+                        </ul>
+                        <h2>Issues Addressed</h2>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;" />
+                            <col style="width: 50%;" />
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-2195	</td>
+                                    <td>Provide system requirements of how much memory is needed to package and deploy large DML scripts (UPDATED DOCUMENTATION) <MadCap:xref href="troubleshoot/improve-performance/recommendations-large-dml-scripts.htm">Recommendations for Working with Large DML Scripts</MadCap:xref></td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2586	</td>
+                                    <td>Schema name in metadata.properties file is given case sensitive treatment
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2590	</td>
+                                    <td>Packager: schemaName property in metadata.properties doesn't work if you put quotes around schema value
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3176	</td>
+                                    <td>GUI: New Deployment Plan: corrected hostname is not used for fetching schema list
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3557	</td>
+                                    <td>Generate rollback script in UI fails, when choosing Rollback Last Deploy
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3591	</td>
+                                    <td>
+                                        <p>Passing --labels to hammer groovy deployPackager.groovy does not apply the labels to the changesets but does not throw error.  Command needs labels without the --. (UPDATED DOCUMENTATION) <MadCap:xref href="devops/best-practices/deploy-packager-config.htm">Deployment Packager Configuration</MadCap:xref></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3624	</td>
+                                    <td>Better log and messaging when packager fails due to unsuccessful commit to SCM (near the end of packager)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3656	</td>
+                                    <td>Command output from sqlcmd during deploy missing from daticaldb.log
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3679	</td>
+                                    <td>Generate SQL for Rollback Last Deploy Doesn't Work
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3684	</td>
+                                    <td>Oracle backup restore broken for single schema projects by unnecessary &lt;schemas name=""/&gt; node in datical.project files
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3733	</td>
+                                    <td>Provide documentation for Datical CLI (hammer) silent install (UPDATED DOCUMENTATION) Variation: <MadCap:xref href="devops/install/install-windows/cli-composite-repo-install.htm">Variation: Using the CLI and the Composite Repository to install [%=General.LBEnterprise%]</MadCap:xref></td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3803	</td>
+                                    <td>Eclipse GUI: ClassCastException PlainPackageBinding cannot be cast  to TypeBinding on WINDOWS
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3830	</td>
+                                    <td>Have the version be "INFO" level logging (instead of "DEBUG")
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3904	
+</td>
+                                    <td>GUI: Status taking too long when multiple pipelines share the same dbDef
+
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3938	</td>
+                                    <td>GUI: Deploy taking too long when the same dbDef is in multiple pipelines
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4008	</td>
+                                    <td>Part of GIT user password revealed in stdout when packager fails to perform final push to DDB repo with HTTPS url &amp; special characters '%' or '{' are in password 
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.14</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.14.6344	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.14.6344	</td>
+                                    <td>DaticalDbCompositeRepo-6.14.6344.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.14.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2><MadCap:variable name="General.DaticalService-ProdName" />
+                        </h2>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Datical Service and also use the Internal Jenkins Client within Datical Service, note that you need to use the same version of Datical DB and Datical Service, such as Datical DB 6.9 and matching Datical Service 6.9. However, if you do NOT use the Internal Jenkins Client, you could run the current Datical DB 6.12 with Datical Service versions 5.8 or higher.</p>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.9	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.9
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.12 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p><b>Starting with the 6.10 release,</b> Datical DB will run in the OpenJDK runtime instead of the Oracle Java runtime. If you are installing release 6.10 or greater of Datical DB from scratch in it's own folder, the installer will provide the new OpenJDK runtime. There are no additional steps for you to take.  This is the recommended course of action.</p>
+                <p><b>If you are updating an older version of Datical DB (6.9 or earlier) using the Datical software update site or the composite repo</b>, you will need to replace the old Oracle Java runtime with the OpenJDK runtime.  For instructions expand the link below. </p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownHead>
+                        <MadCap:dropDownHotspot>Datical DB now runs on OpenJDK</MadCap:dropDownHotspot>
+                    </MadCap:dropDownHead>
+                    <MadCap:dropDownBody>
+                        <p>Starting with the 6.10 release, Datical DB will bundle OpenJDK instead of the Oracle Java Runtime.  The decision to migrate was prompted by a change in Oracle's licensing that would have impeded our ability to provide security patches to the Java distribution in our frequent releases.</p>
+                        <p><b>NOTE:</b> Datical will only install the new Java distribution as part of a fresh install of the product.  If you prefer to update an existing installation using Datical's update site or the composite repo follow the steps below to manually replace the Oracle Java Runtime with OpenJDK:</p>
+                        <ol>
+                            <li>Log in to software.datical.com and go to COMMON/Java_JDK/OpenJDK</li>
+                            <li>Download the archive for your client platform</li>
+                            <ul>
+                                <li><b>Linux:</b> OpenJDK8U-jre_x64_linux_hotspot_8u222b10.tar.gz</li>
+                                <li><b>Windows:</b> OpenJDK8U-jre_x64_windows_hotspot_8u222b10.zip</li>
+                            </ul>
+                            <li>Close Datical DB if it's open, including Windows command line and Linux terminal sessions</li>
+                            <li>Rename the root folder of the current JRE in the Datical installation</li>
+                            <ul>
+                                <li>BEFORE: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                <li>AFTER:    &lt;DDB_INSTALL_ROOT&gt;/oracle.jre</li>
+                            </ul>
+                            <li>Extract the JRE archive downloaded in step 2 to the Datical DB Install root</li>
+                            <ol>
+                                <li>Extracting the archive should create a new directory that will need to be renamed</li>
+                                <ul>
+                                    <li>Extracted directory name: &lt;DDB_INSTALL_ROOT&gt;/jdk8u222-b10-jre</li>
+                                    <li>Rename directory to: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                </ul>
+                            </ol>
+                            <li>Test the Datical DB GUI by launching the client to ensure it opens without issue</li>
+                            <li>Test Datcial DB CLI by running 'hammer show version' from a terminal or or the Windows command line</li>
+                            <li>At this point you may delete &lt;DDB_INSTALL_ROOT&gt;/oracle.jre at your leisure</li>
+                        </ol>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>New Features &amp; Enhancements</h2>
+                        <h3>Stored Logic Validity Check during deployPackager has been optimized for performance</h3>
+                        <p>The Stored Logic Validity Check that identifies objects that have become invalid as part of a Deployment was being run multiple times during deployPackager jobs that processed a DDL script using the 'CONVERT' package method.  This was leading to long run times for projects with a lot of stored logic objects.  This check will now only be run once at the end of the packaging job to reduce run time.</p>
+                        <h3>Change in Behavior: Labels added during deployPackager processing are now 'scrubbed' of special characters</h3>
+                        <p>To address errors that were arising after SQL code repository merges when filenames and filename labels included certain special characters, labels added to change sets in deployPackager jobs will now be sanitized.  Characters allowed in labels are:</p>
+                        <ul>
+                            <li>Alphanumeric characters</li>
+                            <li>Dashes</li>
+                            <li>Underscores</li>
+                            <li>Periods</li>
+                        </ul>
+                        <p>All other characters will be replaced with underscores prior to being added to the change log.  There is no need to update old change sets as we've also made the code that handles SQL code repo merges more tolerant of special characters.</p>
+                        <h2>Issues Addressed</h2>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;" />
+                            <col style="width: 50%;" />
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-3503	</td>
+                                    <td>StoredLogicValidityCheck: Limited does not scope down to affected objects and deps and works exactly like local for Oracle
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3490	</td>
+                                    <td>Packager logs an error trying to lookup a rollback file for deleted files
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3236	
+</td>
+                                    <td>Disable Stored Logic Validity checks during Packager for all but the final Deployment
+
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3172	</td>
+                                    <td>As a user, I would like ability to name the snapshot being created
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3161	</td>
+                                    <td>ON DEMAND Backup for Postgres is broken
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3152	
+</td>
+                                    <td>
+                                        <p>Fixed Folder Names page lists different storedlogic packaging order than what is shown in logs
+
+</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2468	
+</td>
+                                    <td>disableSqlParser=true metadata.properties does not work for files packaged with data_dml package method
+
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2042	</td>
+                                    <td>Packager should scrub labels input to remove potentially problematic special characters from labels strings so they don't cause Packaging or Deployment Failures unnecessarily
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3699	</td>
+                                    <td>dbDef label with invalid characters prevent files to be deployed
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.12</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.12.6306	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.12.6306	</td>
+                                    <td>DaticalDbCompositeRepo-6.12.6306.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.12.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2><MadCap:variable name="General.DaticalService-ProdName" />
+                        </h2>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Datical Service and also use the Internal Jenkins Client within Datical Service, note that you need to use the same version of Datical DB and Datical Service, such as Datical DB 6.9 and matching Datical Service 6.9. However, if you do NOT use the Internal Jenkins Client, you could run the current Datical DB 6.12 with Datical Service versions 5.8 or higher.</p>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.9	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.9
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.10 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p><b>Starting with the 6.10 release,</b> Datical DB will run in the OpenJDK runtime instead of the Oracle Java runtime. If you are installing release 6.10 or greater of Datical DB from scratch in it's own folder, the installer will provide the new OpenJDK runtime. There are no additional steps for you to take.  This is the recommended course of action.</p>
+                <p><b>If you are updating an older version of Datical DB (6.9 or earlier) using the Datical software update site or the composite repo</b>, you will need to replace the old Oracle Java runtime with the OpenJDK runtime.  For instructions expand the link below. </p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownHead>
+                        <MadCap:dropDownHotspot>Datical DB now runs on OpenJDK</MadCap:dropDownHotspot>
+                    </MadCap:dropDownHead>
+                    <MadCap:dropDownBody>
+                        <p>Starting with the 6.10 release, Datical DB will bundle OpenJDK instead of the Oracle Java Runtime.  The decision to migrate was prompted by a change in Oracle's licensing that would have impeded our ability to provide security patches to the Java distribution in our frequent releases.</p>
+                        <p><b>NOTE:</b> Datical will only install the new Java distribution as part of a fresh install of the product.  If you prefer to update an existing installation using Datical's update site or the composite repo follow the steps below to manually replace the Oracle Java Runtime with OpenJDK:</p>
+                        <ol>
+                            <li>Log in to software.datical.com and go to COMMON/Java_JDK/OpenJDK</li>
+                            <li>Download the archive for your client platform</li>
+                            <ul>
+                                <li><b>Linux:</b> OpenJDK8U-jre_x64_linux_hotspot_8u222b10.tar.gz</li>
+                                <li><b>Windows:</b> OpenJDK8U-jre_x64_windows_hotspot_8u222b10.zip</li>
+                            </ul>
+                            <li>Close Datical DB if it's open, including Windows command line and Linux terminal sessions</li>
+                            <li>Rename the root folder of the current JRE in the Datical installation</li>
+                            <ul>
+                                <li>BEFORE: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                <li>AFTER:    &lt;DDB_INSTALL_ROOT&gt;/oracle.jre</li>
+                            </ul>
+                            <li>Extract the JRE archive downloaded in step 2 to the Datical DB Install root</li>
+                            <ol>
+                                <li>Extracting the archive should create a new directory that will need to be renamed</li>
+                                <ul>
+                                    <li>Extracted directory name: &lt;DDB_INSTALL_ROOT&gt;/jdk8u222-b10-jre</li>
+                                    <li>Rename directory to: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                </ul>
+                            </ol>
+                            <li>Test the Datical DB GUI by launching the client to ensure it opens without issue</li>
+                            <li>Test Datcial DB CLI by running 'hammer show version' from a terminal or or the Windows command line</li>
+                            <li>At this point you may delete &lt;DDB_INSTALL_ROOT&gt;/oracle.jre at your leisure</li>
+                        </ol>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>New Features &amp; Enhancements</h2>
+                        <p>Datical DB now runs on OpenJDK</p>
+                        <p>Starting with the 6.10 release, Datical DB will bundle OpenJDK instead of the Oracle Java Runtime.  The decision to migrate was prompted by a change in Oracle's licensing that would have impeded our ability to provide security patches to the Java distribution in our frequent releases.</p>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"> Datical will only install the new Java distribution as part of a fresh install of the product.  If you prefer to update an existing installation using Datical's update site or the composite repo follow the steps below to manually replace the Oracle Java Runtime with OpenJDK:</p>
+                        <ol>
+                            <li>Log in to software.datical.com and go to COMMON/Java_JDK/OpenJDK</li>
+                            <li>Download the archive for your client platform</li>
+                            <ul>
+                                <li><b>Linux:</b> OpenJDK8U-jre_x64_linux_hotspot_8u222b10.tar.gz</li>
+                                <li><b>Windows:</b> OpenJDK8U-jre_x64_windows_hotspot_8u222b10.zip</li>
+                            </ul>
+                            <li>Close Datical DB if it's open, including Windows command line and Linux terminal sessions</li>
+                            <li>Rename the root folder of the current JRE in the Datical installation</li>
+                            <ul>
+                                <li><b>BEFORE:</b> &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                <li><b>AFTER:</b>    &lt;DDB_INSTALL_ROOT&gt;/oracle.jre</li>
+                            </ul>
+                            <li>Extract the JRE archive downloaded in step 2 to the Datical DB Install root</li>
+                            <ol>
+                                <li>Extracting the archive should create a new directory that will need to be renamed</li>
+                                <ul>
+                                    <li>Extracted directory name: &lt;DDB_INSTALL_ROOT&gt;/jdk8u222-b10-jre</li>
+                                    <li>Rename directory to: &lt;DDB_INSTALL_ROOT&gt;/jre</li>
+                                </ul>
+                            </ol>
+                            <li>Test the <b>Datical DB GUI</b> by launching the client to ensure it opens without issue</li>
+                            <li>Test <b>Datcial DB CLI</b> by running 'hammer show version' from a terminal or or the Windows command line</li>
+                            <li>At this point you may delete &lt;DDB_INSTALL_ROOT&gt;/oracle.jre at your leisure</li>
+                        </ol>
+                        <h2>Issues Addressed</h2>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;" />
+                            <col style="width: 50%;" />
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-3420	</td>
+                                    <td>Command Output in deployReport is empty for SQL Server's "update ..." script
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3523	</td>
+                                    <td>DiffChangelog: Duplicate alterSequence change sets for minValue
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2719	
+</td>
+                                    <td>Deploy Packager: replace new line with space in commitPrefix in Datical Checkin Messages
+
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.10</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.10.6265	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.10.6265	</td>
+                                    <td>DaticalDbCompositeRepo-6.10.6265.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.10.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2><MadCap:variable name="General.DaticalService-ProdName" />
+                        </h2>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Datical Service and also use the Internal Jenkins Client within Datical Service, note that you need to use the same version of Datical DB and Datical Service, such as Datical DB 6.9 and matching Datical Service 6.9. However, if you do NOT use the Internal Jenkins Client, you could run the current Datical DB 6.12 with Datical Service versions 5.8 or higher.</p>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.9	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.9
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.9 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>New Features &amp; Enhancements</h2>
+                        <h3>Deploy and Deploy Packager Overrides for the storedLogicValidityAction Project Setting</h3>
+                        <p>In 6.7 a new project setting (storedLogicValidityAction) was introduced that allows the user define whether a Deploy operation should treat deployments that result in new invalid stored logic objects as failed deployments.  In this release an override for this project setting has been included for Deploy &amp; Deploy Packager operations initiated from the CLI and the GUI.  This override can be set in one of two ways:</p>
+                        <ul>
+                            <li>In the "Deploy with Options" and "Deploy Packager" dialogs in the GUI, you can check or uncheck the option: <code>Fail Deployments that produce new invalid object errors</code></li>
+                            <li>When using the CLI to perform a deploy operation or run <code>deployPackager.groovy</code>, you can set the <code>--invalidsAction</code> option to one of the values below. <b>NOTE</b>: Option would be applied when Stored Logic Validity Check is not disabled.</li>
+                            <ul>
+                                <li><b>warn</b>: Set to either warn (default), current behavior. New invalid stored logic will cause the Deploy to flag as deployment warning.</li>
+                                <li><b>fail</b>: New invalid stored logic will cause a deployment to be marked as a failure.</li>
+                            </ul>
+                        </ul>
+                        <p>For more information, consult the following pages:</p>
+                        <ul>
+                            <li>
+                                <MadCap:xref href="devops/move-changes-pipeline/deploy-changes.htm">Deploy Changes</MadCap:xref>
+                            </li>
+                            <li>
+                                <MadCap:xref href="devops/cli-commands/cli-commands.htm">CLI Commands Overview</MadCap:xref>
+                            </li>
+                            <li>
+                                <MadCap:xref href="devops/best-practices/deploy-packager-config.htm">Deployment Packager Configuration</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Issues Addressed</h2>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;" />
+                            <col style="width: 50%;" />
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-1948	</td>
+                                    <td>Packager: Feature Merge Packager Reports Go To Wrong Directory
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-2459	</td>
+                                    <td>Better error reporting when unable to find matching change set for developer workflow files (ignore, unignore, cleanup and replace)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3065	</td>
+                                    <td>Eclipse GUI: Tracking Schema changes disappear when you mouse over the Tracking Schema field
+</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p>DAT-3155</p>
+                                        <p>DAT-3201</p>
+                                    </td>
+                                    <td>Using project_creator.groovy and project_baseline.groovy force causes NullPointer Exception
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3440	
+</td>
+                                    <td>Update the Oracle Custom Backup &amp; Restore Stub to Include DATAPUMP API Usage
+
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.9</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.9.6242	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.9.6242	</td>
+                                    <td>DaticalDbCompositeRepo-6.9.6242.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.9.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2><MadCap:variable name="General.DaticalService-ProdName" />
+                        </h2>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Datical Service and also use the Internal Jenkins Client within Datical Service, note that you need to use the same version of Datical DB and Datical Service, such as Datical DB 6.9 and matching Datical Service 6.9. However, if you do NOT use the Internal Jenkins Client, you could run the current Datical DB 6.12 with Datical Service versions 5.8 or higher.</p>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.9	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.9
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.8 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>New Features &amp; Enhancements</h2>
+                        <h3>Deploy and Deploy Packager Overrides for the storedLogicValidityAction Project Setting</h3>
+                        <p>In 6.7 a new project setting (storedLogicValidityAction) was introduced that allows the user define whether a Deploy operation should treat deployments that result in new invalid stored logic objects as failed deployments.  In this release an override for this project setting has been included for Deploy &amp; Deploy Packager operations initiated from the CLI and the GUI.  This override can be set in one of two ways:</p>
+                        <ul>
+                            <li>In the "Deploy with Options" and "Deploy Packager" dialogs in the GUI, you can check or uncheck the option: <code>Fail Deployments that produce new invalid object errors</code></li>
+                            <li>When using the CLI to perform a deploy operation or run <code>deployPackager.groovy</code>, you can set the <code>--invalidsAction</code> option to one of the values below. <b>NOTE</b>: Option would be applied when Stored Logic Validity Check is not disabled.</li>
+                            <ul>
+                                <li><b>warn</b>: Set to either warn (default), current behavior. New invalid stored logic will cause the Deploy to flag as deployment warning.</li>
+                                <li><b>fail</b>: New invalid stored logic will cause a deployment to be marked as a failure.</li>
+                            </ul>
+                        </ul>
+                        <p>For more information, consult the following pages:</p>
+                        <ul>
+                            <li>
+                                <MadCap:xref href="devops/move-changes-pipeline/deploy-changes.htm">Deploy Changes</MadCap:xref>
+                            </li>
+                            <li>
+                                <MadCap:xref href="devops/cli-commands/cli-commands.htm">CLI Commands Overview</MadCap:xref>
+                            </li>
+                            <li>
+                                <MadCap:xref href="devops/best-practices/deploy-packager-config.htm">Deployment Packager Configuration</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Issues Addressed</h2>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;" />
+                            <col style="width: 50%;" />
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-3431	
+</td>
+                                    <td>Forecast performance is slow on Windows and causing heap overflow
+
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3325	</td>
+                                    <td>Restore when using BackupRestoreOracleDatapump does not limit restore operation to schemas in metadata.properties
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3290	</td>
+                                    <td>Packager: unexpected DROP procedure/trigger after reverting a preexisting change
+</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p>DAT-3181</p>
+                                    </td>
+                                    <td>DiffChangelog comparing Sequences with same name but some differences now results in drop sequence and create sequence change sets
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3165	</td>
+                                    <td>Adding, deleting then adding a procedure script and then packaging results in Datical trying to drop the procedure (and fails in forecast) when versionStrategy is set to deployLatest
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.8</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.8.6207	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.8.6207	</td>
+                                    <td>DaticalDbCompositeRepo-6.8.6207.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.8.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2><MadCap:variable name="General.DaticalService-ProdName" />
+                        </h2>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Datical Service and also use the Internal Jenkins Client within Datical Service, note that you need to use the same version of Datical DB and Datical Service, such as Datical DB 6.9 and matching Datical Service 6.9. However, if you do NOT use the Internal Jenkins Client, you could run the current Datical DB 6.12 with Datical Service versions 5.8 or higher.</p>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.8	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.9
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot><MadCap:variable name="General.LBEnterprise" /> and <MadCap:variable name="General.DMCProductShortName" /> 6.7 release notes</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <h2>Software Downloads</h2>
+                <p>Go to <a href="https://download.liquibase.com/">Liquibase Software Updates</a> to download files.</p>
+                <h2>Customer Notices for Upgrades</h2>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you are upgrading from version 5.12 or earlier, see Customer Notices for Upgrades from 5.12 or Earlier for important information <b>before you install or upgrade</b>.<br /><br />Installation for the Datical DB GUI client requires special attention.</p>
+                <MadCap:dropDown>
+                    <MadCap:dropDownBody>
+                        <h2>Issues Addressed</h2>
+                        <h3>Liquibase Enterprise &amp; Business Issues</h3>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;">
+                            </col>
+                            <col style="width: 50%;">
+                            </col>
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-4106	</td>
+                                    <td>Incorrect property substitution during forecast
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-4093	</td>
+                                    <td>DATAPUMP API: Issues because job names get truncated (since our job names exceed Oracle's 30 character limit)
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3967	</td>
+                                    <td>SQL Server Multi-Catalog/Multi-Schema projects not targeting Snapshots to specific Catalog
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Known Issues</h2>
+                        <h3>Checksum Errors when Performing Status on Deployed AddUniqueConstraints Changes</h3>
+                        <p>If you deploy AddUniqueConstraint changes using Datical DB v6.7 or later AND you deploy changes using an older version of Datical DB, you get errors during Status operations. The error is reported when the status command performs checksum validation. Checksum creation was changed in version 2019.2.</p>
+                        <p>Starting in v6.7, the Status operation accepts "old" checksums. However, if you attempt a Status operation using an old client, it reports an error on changes deployed by a new client.</p>
+                        <ul>
+                            <li><b>Old -</b> before version 2019.2</li>
+                            <li><b>New -</b> version 2019.2 or later</li>
+                        </ul>
+                        <table style="width: 100%;">
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <col style="width: 33%;" />
+                            <thead>
+                                <tr>
+                                    <th>&#160;</th>
+                                    <th>Change deployed by old (4.x/5.x)	</th>
+                                    <th>Change deployed by new (2019.x/6.x))
+</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Status run using old (4.x/5.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Does not work. Upgrade required.
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Status run using new (2019.x/6.x)	</td>
+                                    <td>Works	</td>
+                                    <td>Works	</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>New Features &amp; Enhancements</h2>
+                        <h3>Oracle: Datapump API Support for Backup and Restore</h3>
+                        <p>You now have the choice of setting a Deployment Packager option that causes it to use the Oracle Datapump API to perform backup and restore during packaging.</p>
+                        <p>The default method is to run expdp/impdp locally, which requires that you download it and call it through the Oracle Full Client.</p>
+                        <p>If you set Deployment Packager to use the Oracle Datapump API, you do not need to install the Oracle full client or the expdp/impdp binaries.</p>
+                        <p>See <MadCap:xref href="dba/package/package-sql-scripts-deployment/configure-packaging/configure-oracle-datapump.htm">Configure Deployment Packager to Use the Oracle Datapump API for Backup and Restore</MadCap:xref>.</p>
+                        <h3>New Project Option: storedLogicValidityAction</h3>
+                        <p>You can now change the way failures in the stored logic validity check are handled. Currently a warning message is printed.</p>
+                        <p>Starting with v6.7:</p>
+                        <ul>
+                            <li>Use the Datical DB GUI to choose warn or fail in the storedLogicValidityAction option. If set to fail, prints an error when the stored logic validity check returns errors.</li>
+                            <li>Use the CLI to set invalidsAction to warn or fail.</li>
+                        </ul>
+                        <p>Additional methods for setting this option will come in a future release.</p>
+                        <p>See storedLogicValidityAction in <MadCap:xref href="developer/dev-how-tos/configure-project-settings.htm">Configure Project Settings</MadCap:xref>.</p>
+                        <h3>Version Numbers</h3>
+                        <p>Starting with this version (v6.7), we are returning to delivering releases using a sequential version numbering scheme.</p>
+                        <p>Previously we experimented with a quarterly feature release scheme and produced maintenance releases for bug fixes between the feature releases.</p>
+                        <h2>Issues Addressed</h2>
+                        <table style="width: 100%;">
+                            <col style="width: 50%;" />
+                            <col style="width: 50%;" />
+                            <thead>
+                                <tr>
+                                    <th>Issue ID</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>DAT-3431	
+</td>
+                                    <td>Forecast performance is slow on Windows and causing heap overflow
+
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3325	</td>
+                                    <td>Restore when using BackupRestoreOracleDatapump does not limit restore operation to schemas in metadata.properties
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3290	</td>
+                                    <td>Packager: unexpected DROP procedure/trigger after reverting a preexisting change
+</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p>DAT-3181</p>
+                                    </td>
+                                    <td>DiffChangelog comparing Sequences with same name but some differences now results in drop sequence and create sequence change sets
+</td>
+                                </tr>
+                                <tr>
+                                    <td>DAT-3165	</td>
+                                    <td>Adding, deleting then adding a procedure script and then packaging results in Datical trying to drop the procedure (and fails in forecast) when versionStrategy is set to deployLatest
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2>Documentation for v6.7</h2>
+                        <ul>
+                            <li>Documentation is available in the following locations:</li>
+                            <li>
+                                <MadCap:xref href="product-documentation-home.htm">[%=General.LBEnterprise%] Documentation Home</MadCap:xref>
+                            </li>
+                        </ul>
+                        <h2>Liquibase Enterprise &amp; Business Clients (Desktop &amp; CLI)</h2>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.7.6180	</td>
+                                    <td>Choose the Linux or Windows installation file for your system</td>
+                                </tr>
+                                <tr>
+                                    <td>Composite Installation Repository</td>
+                                    <td>COMMON/Datical_DB_Software/Datical_DB_6.7.6180	</td>
+                                    <td>DaticalDbCompositeRepo-6.7.6180.zip
+</td>
+                                </tr>
+                                <tr>
+                                    <td>Liquibase Enterprise Documentation</td>
+                                    <td>COMMON/Datical_Documentation/Datical_DB_Documentation</td>
+                                    <td>datical_db_docs_v6.7.pdf
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2><MadCap:variable name="General.DaticalService-ProdName" />
+                        </h2>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use Datical Service and also use the Internal Jenkins Client within Datical Service, note that you need to use the same version of Datical DB and Datical Service, such as Datical DB 6.9 and matching Datical Service 6.9. However, if you do NOT use the Internal Jenkins Client, you could run the current Datical DB 6.12 with Datical Service versions 5.8 or higher.</p>
+                        <table style="width: 100%;">
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <col>
+                            </col>
+                            <tbody>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Path</th>
+                                    <th>File</th>
+                                </tr>
+                                <tr>
+                                    <td>Software</td>
+                                    <td>COMMON/Datical_Service_Software/Datical_Service_v6.7	
+</td>
+                                    <td>
+                                        <ul>
+                                            <li><code>datical-service-&lt;version&gt;.tar.part</code>* - The main Datical Service files. 
+</li>
+                                            <li><code>datical-jenkins-*.part*</code> - (optional) Datical client used internally by Datical Service to run Datical operations. If you run operations from DMC (Forecast, Deploy), these files are required. </li>
+                                            <li><![CDATA[
+]]><code>datical-service-preinstallcheck_&lt;version&gt;.sh</code> - Script to run a pre-installation check of your host environment and host resources to determine if the necessary resources are available for Datical Service. The script tells you if you need to make changes in its report.
+</li>
+                                            <li><code>datical-service-install.sh</code> - Script to run the installation.</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation	</td>
+                                    <td>COMMON/Datical_Service_Documentation/	</td>
+                                    <td>DaticalServiceDocumentation_v6.7
+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </MadCap:dropDownBody>
+                </MadCap:dropDown>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
     </body>
 </html>
