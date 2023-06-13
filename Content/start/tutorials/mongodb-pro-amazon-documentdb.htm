@@ -8,16 +8,12 @@
         <p>You can use <MadCap:variable name="General.LBPro" /> with <a href="https://docs.aws.amazon.com/documentdb/latest/developerguide/what-is.html">Amazon DocumentDB</a>, which is a NoSQL database that offers partial MongoDB compatibility. You can use most of the same drivers, application code, and tools in Amazon DocumentDB as you do in MongoDB. There are some functional differences between MongoDB&#160;and Amazon DocumentDB, but you can configure your <MadCap:variable name="General.Liquibase" /> project to work with DocumentDB with only a few tweaks. You need a valid <MadCap:variable name="General.LBPro" /> license key to use <MadCap:variable name="General.Liquibase" /> with Amazon DocumentDB.</p>
         <p>DocumentDB emulates the MongoDB&#160;API while running over Amazon Aurora on the back-end. Your Amazon DocumentDB database contains one or more "clusters" containing your database instance. Clusters are deployed within an Amazon Virtual Private Cloud (Amazon VPC) environment.</p>
         <p>If you want to use <MadCap:variable name="General.LBPro" /> with MongoDB itself, see <MadCap:xref href="mongodb-pro.htm">Using [%=General.Liquibase%] with the MongoDB Pro Extension</MadCap:xref>.</p>
-        <h2>MongoDB&#160;and Amazon DocumentDB&#160;differences</h2>
-        <p>You can use the same connection information in Amazon DocumentDB&#160;as you use in MongoDB. However, you must specify additional parameters in your JDBC&#160;URL for Amazon DocumentDB. If you use a tl</p>
-        <p>This guide</p>
         <h2>Verified versions</h2>
-        <ul>
-            <li>?</li>
-        </ul>
+        <p>Amazon&#160;DocumentDB versions do not correspond directly to MongoDB versions. <MadCap:variable name="General.Liquibase" /> has been tested on this version on Amazon DocumentDB:</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/verified-versions/amazon-documentdb.flsnp" />
         <h2>Verification level</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/database-verification-levels.flsnp" />
-        <p>?</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/database-verification-level-foundational.flsnp" />
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
@@ -27,21 +23,25 @@
     &lt;artifactId&gt;liquibase-commercial-mongodb&lt;/artifactId&gt;
     &lt;version&gt;1.0.0&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-        <h2>Implement Amazon DocumentDB&#160;with MongoDB&#160;compatibility</h2>
+        <h2>Implement Amazon DocumentDB</h2>
         <ol>
-            <li>&#160;</li>
             <li><a href="https://www.mongodb.com/try/download/shell">Download and Install mongosh</a> if it is not already installed on your machine. <br></br></li>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>mongosh</code> is mandatory to use MongoDB&#160;with <MadCap:variable name="General.LBPro" /> and it must be accessible to <MadCap:variable name="General.Liquibase" />. We recommend that mongosh is in the system <code>PATH</code>&#160;environment variable. If it is not, that location of mongosh must be manually specified in the <code>liquibase.mongosh.conf</code> file.</p>
-            <li>&#160;</li>
+            <li><a href="https://www.oracle.com/java/technologies/downloads/#java11">Download Java 11</a>.  The MongoDB&#160;Pro extension requires it.</li>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Java 11 may already be present on your machine if you used the installer to install <MadCap:variable name="General.Liquibase" />. We recommend installing <MadCap:variable name="General.Liquibase" /> with Java 11 with the <a href="https://github.com/liquibase/liquibase/releases">installer asset available on GitHub</a>.</p>
+            <li>Set the <code>liquibase.mongodb.supportsValidator: false</code> argument  in the CLI, <code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file, as an environment variable, or with any other standard method to set arguments.</li>
+            <li>Set the <code>liquibase.mongodb.retryWrites: false</code> argument with any standard method. You can also specify it directly in the JDBC URL you use to connect. See the examples in the next section for syntax.</li>
+            <li>(Optional) If you are using TLS/SSL, configure the TLS/SSL encrypted connection for Amazon DocumentDB. For a step-by-step guide, see <MadCap:xref href="mongodb-pro-aws-doc-config.htm">MongoDB Pro and Amazon DocumentDB TLS/SSL&#160;Configuration</MadCap:xref>.</li>
         </ol>
-        <h3>TLS/SSL encrypted connection</h3>
-        <p>If you are using TLS/SSL, configure the TLS/SSL encrypted connection for Amazon DocumentDB. For a step-by-step guide, see <MadCap:xref href="mongodb-pro-aws-doc-config.htm">MongoDB Pro and Amazon DocumentDB TLS/SSL&#160;Configuration</MadCap:xref>.</p>
         <h2>Test your connection</h2>
         <ol>
             <li>Ensure your Amazon DocumentDB&#160;database is configured. For more information, see <a href="https://docs.aws.amazon.com/documentdb/latest/developerguide/get-started-guide.html">AWS Documentation:&#160;Get Started with Amazon DocumentDB</a>.</li>
             <li>
                 <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-tutorials/database-properties-url.flsnp" />
-            </li><pre><code class="language-text">a</code></pre>
+            </li>
+            <p>TLS on:</p><pre><code class="language-text">url: jdbc:mongodb://localhost:27070/lbcat?tls=true&amp;tlsAllowInvalidHostnames=true&amp;retryWrites=false&amp;tlsCAFile=rds-combined-ca-bundle.pem</code></pre>
+            <p>TLS off:</p><pre><code class="language-text">url: jdbc:mongodb://localhost:27069/lbcat?tls=false&amp;retryWrites=false</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>retryWrites</code> does not follow the standard cascading hierarchy of argument priority in <MadCap:variable name="General.Liquibase" />. If you set <code>retryWrites</code> to <code>false</code> anywhere in your <MadCap:variable name="General.Liquibase" /> project—in the CLI, in your <code><MadCap:variable name="General.liquiPropFile" /></code> file, as an environment variable, in the <code>url</code> argument, and so on—that value of <code>false</code> will always take priority, even if you set it to <code>true</code> at runtime or anywhere else.</p>
             <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-license-key.flsnp" />
         </ol>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-changelog-test-connection.flsnp" MadCap:conditionTagExpression="include[database.mongodb]" />
