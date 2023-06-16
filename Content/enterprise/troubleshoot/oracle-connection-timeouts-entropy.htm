@@ -1,28 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <meta name="description" content="Liquibase Enterprise Documentation" />
+    <head><title><MadCap:variable name="Heading.Level1" /> | Enterprise Docs</title>
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/troubleshoot/oracle-connection-timeouts-entropy" />
+        <meta name="description" content="This page covers how to troubleshoot issues with Oracle Database Connection Timeouts due to low entropy." />
     </head>
     <body>
-        <h1>Troubleshooting: Oracle Database Connection Timeouts (due to low entropy)</h1>
+        <h1>Troubleshooting: Oracle Database Connection Timeouts due to low entropy</h1>
         <MadCap:snippetText src="../../Z_Resources/Snippets/images/icon-enterprise-top.flsnp" />
-        <h2 id="Troubleshooting:OracleDatabaseConnectionTimeouts(duetolowentropy)-Problem:">Problem:</h2>
-        <p>You see the following timeout error on the client machine that connects to a remote database.</p><pre class="syntaxhighlighter-pre" xml:space="preserve">[ERROR]: Unable to connect to database instance 'SSDEV' and generate report
+        <h2>Problem:</h2>
+        <p>You see the following timeout error on the client machine that connects to a remote database.</p><pre>[ERROR]: Unable to connect to database instance 'SSDEV' and generate report
 [ERROR]: Connection could not be created to jdbc:oracle:thin:@//&lt;hostname&gt;:1521/&lt;service_name&gt; with driver 'oracle.jdbc.OracleDriver'. Last message was '  Timed out after 30 seconds while attempting connection 1 of 1'
 [ERROR]: Command '-p /tmp/datical deploy SSDEV --report=/app/web/htdocs/DATICAL' exiting with error status 1
 [ERROR]: Execution failed with exit code 1</pre>
-        <p><span style="font-size: 20.0px;">Diagnose:</span>
-        </p>
-        <p>Execute the linux "entropy_avail" command to chack the netropy level on the client machine that connects via JDBC to the database server</p><pre class="syntaxhighlighter-pre" xml:space="preserve">$ cat /proc/sys/kernel/random/entropy_avail
+        <p>Diagnose:</p>
+        <p>Execute the linux "entropy_avail" command to chack the netropy level on the client machine that connects via JDBC to the database server</p><pre>$ cat /proc/sys/kernel/random/entropy_avail
 		152</pre>
-        <p><span style="font-size: 20.0px;">Workaround:</span>
-        </p>
+        <p>Workaround:</p>
         <p>We discovered that this timeout was due to low hardware entropy on the machine that was running <MadCap:variable name="General.LBEnterprise" />. Hardware entropy is used to generate random numbers. When entropy is low, random numbers are unable to be generated, causing the JDBC driver for Oracle to hang, and eventually timeout as it waits for the random number it needs.</p>
         <p>The quick fix is to force the driver to use a software-based random number generator rather than the hardware-based random number generator by removing the hardware random number generator and linking it instead to the software random number generator.</p>
-        <p>To accomplish, <strong>execute the following as root</strong>:</p><pre class="syntaxhighlighter-pre" xml:space="preserve">rm /dev/random
+        <p>To accomplish, <strong>execute the following as root</strong>:</p><pre>rm /dev/random
 		ln -s /dev/urandom /dev/random</pre>
         <p>However, note that this is a temporary fix that will go away each time the machine is rebooted. To make it sticky, you'll want to add the same commands to the VM's initialization scripts.</p>
-        <h2 id="Troubleshooting:OracleDatabaseConnectionTimeouts(duetolowentropy)-Solution:">Solution:</h2>
+        <h2>Solution:</h2>
         <p>Install and setup rng-tools to fix the entropy issue.</p>
         <blockquote>
             <ul>
@@ -39,7 +38,7 @@
                 <li>cat /proc/sys/kernel/random/entropy_avail # should show over 3000+</li>
             </ul>
         </blockquote>
-        <h2 id="Troubleshooting:OracleDatabaseConnectionTimeouts(duetolowentropy)-FurtherReading:">Further Reading:</h2>
+        <h2>Further Reading:</h2>
         <ul>
             <li><a class="external-link" href="https://oraculix.com/2017/06/16/jdbc-linux-and-entropy/" rel="nofollow">https://oraculix.com/2017/06/16/jdbc-linux-and-entropy/</a>
             </li>
