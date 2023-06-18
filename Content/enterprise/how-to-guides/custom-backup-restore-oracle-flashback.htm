@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-	<head><title><MadCap:variable name="Heading.Level1" /></title>
-		<meta rel="canonical" href="https://docs.liquibase.com/enterprise/how-to-guides/custom-backup-restore-oracle-flashback" />
-		<meta name="description" content="Learn how to perform a custom backup and restore with Oracle Flashback." />
-	</head>
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/how-to-guides/custom-backup-restore-oracle-flashback" />
+        <meta name="description" content="Learn how to perform a custom backup and restore with Oracle Flashback." />
+    </head>
     <body>
         <h1>How To: Custom Backup and Restore using Oracle Flashback Database</h1>
         <MadCap:snippetText src="../../Z_Resources/Snippets/images/icon-enterprise-top.flsnp" />
@@ -18,7 +18,7 @@
             <li>This is required so that the DATICAL_USER can connect to the database from the build server while the database is closed.</li>
         </ul>
         <ol>
-            <li><strong>&#160;Enable archive logging on the REF database.</strong><b>setup db for flashback</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- This is a one-time operation to enable flashback database.
+            <li><strong>&#160;Enable archive logging on the REF database.</strong><b>setup db for flashback</b><pre>-- This is a one-time operation to enable flashback database.
 					sqlplus / as sysdba
 					shutdown immediate
 					startup mount
@@ -27,7 +27,7 @@
             </li>
             <li><strong>Create a static listener registration for REF database</strong>
                 <p><a class="external-link" href="https://www.funoracleapps.com/2019/04/static-and-dynamic-listener-concepts-in.html" rel="nofollow">https://www.funoracleapps.com/2019/04/static-and-dynamic-listener-concepts-in.html</a>
-                </p><b>setup listener and reload oralistener</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- This is a one-time setup that is required to allow a remote sql client to flashback the database. Dynamic listener registration does not work because the SQL client must connect to the DB while it is shutdown in order to perform flashback.
+                </p><b>setup listener and reload oralistener</b><pre>-- This is a one-time setup that is required to allow a remote sql client to flashback the database. Dynamic listener registration does not work because the SQL client must connect to the DB while it is shutdown in order to perform flashback.
 					Login as oracle on the DB server.
 					lsnrctl status
 					-- Identify the location of the Listener Parameter File. It is typically under the ORACLE_HOME or GRID_HOME and is named listener.ora.
@@ -41,7 +41,7 @@
 				-- There should be a listing for the DB instance with status UNKNOWN.</pre>
             </li>
             <li>
-                <p><strong><strong>Grant SYSDBA or SYSBACKUP to DATICAL_USER<br /><br /></strong></strong>– SYSDBA or SYSBACKUP is required to shutdown/startup the database during the flashback operation.</p><pre class="syntaxhighlighter-pre" xml:space="preserve">sqlplus / as sysdba
+                <p><strong><strong>Grant SYSDBA or SYSBACKUP to DATICAL_USER<br /><br /></strong></strong>– SYSDBA or SYSBACKUP is required to shutdown/startup the database during the flashback operation.</p><pre>sqlplus / as sysdba
 				grant sysdba to datical_user;</pre>
                 <p><strong><br /><br /></strong>
                 </p>
@@ -54,7 +54,7 @@
                 <p><strong>Create scripts to execute Oracle commands via sqlplus to create a restore point and flashback the database.</strong>
                     <br />-- The scripts will be called by the custom BackupRestoreOracleFlashback.groovy script.<br />-- Place the scripts in DaticalDB/repl/scripts/extensions<br />-- Permissions should be 765. The unix user running the Jenkins job must be able to execute the scripts.</p>
                 <p><strong>Bash shell option</strong>
-                </p><b>datical_create_restore_point.sh</b><pre class="syntaxhighlighter-pre" xml:space="preserve">#!/bin/bash
+                </p><b>datical_create_restore_point.sh</b><pre>#!/bin/bash
 					CONNECT_STRING=$1
 					echo "Running datical_create_restore_point.sh"sqlplus /nolog &lt;&lt; EOF
 					whenever sqlerror exit failure
@@ -65,7 +65,7 @@
 					create restore point datical_backup guarantee flashback database;
 					exit;
 					EOF</pre>
-                <p>-- Do not drop the restore point after flashback. The restore may be performed more than once by the deployPackager if errors are encountered during the deploy to REF.</p><b>datical_restore_point_flashback.sh</b><pre class="syntaxhighlighter-pre" xml:space="preserve">#!/bin/bash
+                <p>-- Do not drop the restore point after flashback. The restore may be performed more than once by the deployPackager if errors are encountered during the deploy to REF.</p><b>datical_restore_point_flashback.sh</b><pre>#!/bin/bash
 					CONNECT_STRING=$1
 					echo "Running datical_restore_point_flashback.sh"sqlplus /nolog &lt;&lt; EOF
 					whenever sqlerror exit failure
@@ -79,7 +79,7 @@
             </li>
             <li>
                 <p><strong>Create a custom BackupRestore script to use flashback database.</strong>
-                    <br />The script should be located in DaticalDB/repl/scripts/extensions. Use the script below as an example.<br /><br /></p><b>BackupRestoreOracleFlashback.groovy</b><pre class="syntaxhighlighter-pre" xml:space="preserve">package com.datical.hammer.scripts.backup
+                    <br />The script should be located in DaticalDB/repl/scripts/extensions. Use the script below as an example.<br /><br /></p><b>BackupRestoreOracleFlashback.groovy</b><pre>package com.datical.hammer.scripts.backup
 import com.datical.db.project.DatabaseDef
 import com.datical.db.project.Project
 import com.datical.hammer.repl.command.DaticalDBHelper
@@ -321,7 +321,7 @@ class BackupRestoreCustomStub implements BackupRestore {
 }</pre>
             </li>
             <li>
-                <p><strong>Update deployPackager.properties to use the custom databaseBackupRestoreMethod</strong> (per <a href="custom-backup-restore-oracle-flashback.htm">Custom Backup and Restore Methods</a>)</p><b>deployPackager.properties</b><pre class="syntaxhighlighter-pre" xml:space="preserve">#databaseBackupRestoreMethod=&lt;name of custom backup script without the .groovy extension&gt;databaseBackupRestoreMethod=BackupRestoreOracleFlashback
+                <p><strong>Update deployPackager.properties to use the custom databaseBackupRestoreMethod</strong> (per <a href="custom-backup-restore-oracle-flashback.htm">Custom Backup and Restore Methods</a>)</p><b>deployPackager.properties</b><pre>#databaseBackupRestoreMethod=&lt;name of custom backup script without the .groovy extension&gt;databaseBackupRestoreMethod=BackupRestoreOracleFlashback
 databaseBackupMode=always
 packageOrderStrategy = default
 ddbScmSystem=git
@@ -339,7 +339,7 @@ disableTraceFile = false</pre>
             </li>
             <li>
                 <p><strong>Create a Jenkins test harness to test flashback without packaging.</strong>
-                    <br />-- This is optional. The Jenkins job executes hammer commands to backup and restore the database allowing testing without running the full packaging process.</p><b>Jenkins job</b><pre class="syntaxhighlighter-pre" xml:space="preserve">#!/usr/bin/env groovy
+                    <br />-- This is optional. The Jenkins job executes hammer commands to backup and restore the database allowing testing without running the full packaging process.</p><b>Jenkins job</b><pre>#!/usr/bin/env groovy
 // Packager declarative pipeline
 //
 pipeline {
