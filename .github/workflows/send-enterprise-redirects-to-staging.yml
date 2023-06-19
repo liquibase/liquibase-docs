@@ -1,6 +1,11 @@
 # Terraform Action to lint and apply updated redirects
-name: Publish EnterpriseDocs Staging Redirects
+name: Publish Redirects to Staging for EnterpriseDocs 
 on:
+  workflow_run:
+    workflows:
+      - "Publish Redirects to Staging for Docs"
+    types:
+      - completed
   push:
     branches:
       - master
@@ -103,6 +108,6 @@ jobs:
               body: output
             })
 
-      # - name: Terraform Apply
-      #   if: ${{ github.event_name == 'push' }}
-      #   run: terraform apply aws_s3_object.enterprise_redirects -auto-approve
+      - name: Terraform Apply
+        if: ${{ github.event_name == 'push' }}
+        run: terraform apply -target=aws_s3_object.enterprise_redirects -auto-approve
