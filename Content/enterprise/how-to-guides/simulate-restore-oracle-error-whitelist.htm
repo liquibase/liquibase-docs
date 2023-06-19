@@ -1,16 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <meta name="description" content="Liquibase Enterprise Documentation" />
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/how-to-guides/simulate-restore-oracle-error-whitelist" />
+        <meta name="description" content="Learn how to simulate Restore ORA Errors for testing oracleRestoreErrorWhitelist with Liquibase Enterprise." />
     </head>
     <body>
         <h1>How To: Simulate Restore ORA Errors for Testing oracleRestoreErrorWhitelist</h1>
         <MadCap:snippetText src="../../Z_Resources/Snippets/images/icon-enterprise-top.flsnp" />
         <p>Below is an example of how to simulate errors in Oracle's Datapump API. The example is to highlight how Liquibase can be configured to ignore certain ORA errors during the restore process. This demonstration is for QA purposes <u>only</u> and should be used on a REF database that has been setup specifically for testing.</p>
         <p>Do not perform this particular Scenario on REF databases being used in production or other application environment pipelines. It should only be used to showcase whitelist functionality.</p>
-        <h2 id="HowTo:SimulateRestoreORAErrorsforTestingoracleRestoreErrorWhitelist-Scenario">Scenario</h2>
+        <h2>Scenario</h2>
         <p>In this scenario we will be adding a database <strong>trigger</strong> for <strong>'drop on database'</strong> that will perform a select on an invalid table. This trigger will force errors during the Packager's restore operation. We will then whitelist the errors and Re-package to show a successful run.</p>
-        <p>To setup the scenario, add the following trigger in your REF database using the <strong>DATICAL_USER</strong>:</p><pre class="syntaxhighlighter-pre" xml:space="preserve">create or replace trigger drop_trigger
+        <p>To setup the scenario, add the following trigger in your REF database using the <strong>DATICAL_USER</strong>:</p><pre>create or replace trigger drop_trigger
 before drop on database
 declare
 n number;
@@ -18,12 +19,12 @@ begin
 execute immediate 'select count(*) from not_a_table' into n;
 end;
 /</pre>
-        <h2 id="HowTo:SimulateRestoreORAErrorsforTestingoracleRestoreErrorWhitelist-InitialProjectSetup">Initial Project Setup</h2>
+        <h2>Initial Project Setup</h2>
         <ol>
             <li>
                 <p>In the <strong>ddb repo</strong>, the <strong>deployPackager.properties</strong> should be set with below:</p>
                 <ol>
-                    <li><pre class="syntaxhighlighter-pre" xml:space="preserve">databaseBackupRestoreMethod=BackupRestoreOracleDatapump
+                    <li><pre>databaseBackupRestoreMethod=BackupRestoreOracleDatapump
 databaseBackupMode=always</pre>
                     </li>
                 </ol>
@@ -31,19 +32,19 @@ databaseBackupMode=always</pre>
             <li>
                 <p>In the <strong>sql repo</strong>, the <strong>ddl folder</strong>'s <strong>metadata.properties</strong> should be set with below:</p>
                 <ol>
-                    <li><pre class="syntaxhighlighter-pre" xml:space="preserve">#Ensure that Backup &amp; Restore will occur
+                    <li><pre>#Ensure that Backup &amp; Restore will occur
 packageMethod=convert</pre>
                     </li>
                 </ol>
             </li>
         </ol>
-        <h2 id="HowTo:SimulateRestoreORAErrorsforTestingoracleRestoreErrorWhitelist-RunPackager">Run Packager</h2>
+        <h2>Run Packager</h2>
         <ol>
             <li>
                 <p>Add a create table statement to the ddl folder and check-in to SCM:</p>
                 <ol>
                     <li>
-                        <p>In this example we're using a file called <strong>add_vehicle_reg_tbl_10.sql</strong>:</p><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE TABLE CAPS.VEHICLE_REG_10
+                        <p>In this example we're using a file called <strong>add_vehicle_reg_tbl_10.sql</strong>:</p><pre>CREATE TABLE CAPS.VEHICLE_REG_10
 (
 VEHICLE_ID     NUMBER              NOT NULL,
 VEHICLE_DESC   VARCHAR2(100 BYTE)  NULL,
@@ -57,7 +58,7 @@ CONSTRAINT PK_VEHICLE_REG_10 PRIMARY KEY (VEHICLE_ID) USING INDEX TABLESPACE CAP
             <li>
                 <p>Run the <strong>Packager</strong> process. Depending on the existing objects in your REF database, you should see the following errors during the Restore operation in the daticaldb.log:</p>
                 <ol>
-                    <li><pre class="syntaxhighlighter-pre" xml:space="preserve">10:18:55.007 [main] DEBUG TraceFile - ----------------stack trace----------------
+                    <li><pre>10:18:55.007 [main] DEBUG TraceFile - ----------------stack trace----------------
 ...
 Starting "DATICAL_USER"."datical_imp_20210115_102010_90":  
 Processing object type SCHEMA_EXPORT/USER
@@ -81,12 +82,12 @@ stdout:
                 </ol>
             </li>
         </ol>
-        <h2 id="HowTo:SimulateRestoreORAErrorsforTestingoracleRestoreErrorWhitelist-WhitelisttheORAerrorsandRe-runPackager">Whitelist the ORA errors and Re-run Packager</h2>
+        <h2>Whitelist the ORA errors and Re-run Packager</h2>
         <ol>
             <li>
                 <p>To whitelist the errors, in the <strong>ddb repo</strong>, add the following to <strong>deployPackager.properties</strong>:</p>
                 <ol>
-                    <li><pre class="syntaxhighlighter-pre" xml:space="preserve">oracleRestoreErrorWhitelist=ORA-31684,ORA-39151,ORA-39111</pre>
+                    <li><pre>oracleRestoreErrorWhitelist=ORA-31684,ORA-39151,ORA-39111</pre>
                     </li>
                 </ol>
             </li>
@@ -108,11 +109,11 @@ stdout:
                 </ol>
             </li>
         </ol>
-        <h2 id="HowTo:SimulateRestoreORAErrorsforTestingoracleRestoreErrorWhitelist-PackagerLogsfromDemonstration">Packager Logs from Demonstration</h2>
-        <p class="media-group"><span class="confluence-embedded-file-wrapper conf-macro output-inline"><a class="confluence-embedded-file" href="https://datical-cs.atlassian.net/wiki/download/attachments/2087485445/packager-secondRun.log?version=1&amp;modificationDate=1611090365877&amp;cacheVersion=1&amp;api=v2"><img src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2087485445/packager-secondRun.log?version=1&amp;modificationDate=1611090365877&amp;cacheVersion=1&amp;api=v2&amp;viewType=fileMacro" height="250" /></a></span><span class="confluence-embedded-file-wrapper conf-macro output-inline"><a class="confluence-embedded-file" href="https://datical-cs.atlassian.net/wiki/download/attachments/2087485445/packager-firstRun.log?version=1&amp;modificationDate=1611090365884&amp;cacheVersion=1&amp;api=v2"><img src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2087485445/packager-firstRun.log?version=1&amp;modificationDate=1611090365884&amp;cacheVersion=1&amp;api=v2&amp;viewType=fileMacro" height="250" /></a></span>
+        <h2>Packager Logs from Demonstration</h2>
+        <p><span class="confluence-embedded-file-wrapper conf-macro output-inline"><a class="confluence-embedded-file" href="https://datical-cs.atlassian.net/wiki/download/attachments/2087485445/packager-secondRun.log?version=1&amp;modificationDate=1611090365877&amp;cacheVersion=1&amp;api=v2"><img src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2087485445/packager-secondRun.log?version=1&amp;modificationDate=1611090365877&amp;cacheVersion=1&amp;api=v2&amp;viewType=fileMacro" height="250" /></a><span class="confluence-embedded-file-wrapper conf-macro output-inline"><a class="confluence-embedded-file" href="https://datical-cs.atlassian.net/wiki/download/attachments/2087485445/packager-firstRun.log?version=1&amp;modificationDate=1611090365884&amp;cacheVersion=1&amp;api=v2"><img src="https://datical-cs.atlassian.net/wiki/download/thumbnails/2087485445/packager-firstRun.log?version=1&amp;modificationDate=1611090365884&amp;cacheVersion=1&amp;api=v2&amp;viewType=fileMacro" height="250" /></a>
         </p>
-        <h2 id="HowTo:SimulateRestoreORAErrorsforTestingoracleRestoreErrorWhitelist-Video">Video</h2><span class="confluence-embedded-file-wrapper image-center-wrapper"><a href="https://datical-cs.atlassian.net/wiki/download/attachments/2087485445/WhiteListOraErrors.mp4?version=1&amp;modificationDate=1611011170091&amp;cacheVersion=1&amp;api=v2">WhiteListOraErrors.mp4</a></span>
-        <h2 id="HowTo:SimulateRestoreORAErrorsforTestingoracleRestoreErrorWhitelist-Documentation">Documentation</h2>
+        <h2>Video</h2><span class="confluence-embedded-file-wrapper image-center-wrapper"><a href="https://datical-cs.atlassian.net/wiki/download/attachments/2087485445/WhiteListOraErrors.mp4?version=1&amp;modificationDate=1611011170091&amp;cacheVersion=1&amp;api=v2">WhiteListOraErrors.mp4</a>
+        <h2>Documentation</h2>
         <ul>
             <li>
                 <p>Datical v7.3 - Release Notes</p>
