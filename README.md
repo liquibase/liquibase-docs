@@ -18,7 +18,7 @@ This workflow is as follows:
 3. The creation of the PR runs `send-redirects-to-staging.yml` which automatically runs the Terraform plan and outputs changes to be applied in the `s3://stage-docsstageliquibasecom-origin` stagging bucket.
 4. The Docs team merges the PR into master and this action runs `send-redirects-to-staging.yml` which automatically stages redirect changes to `s3://stage-docsstageliquibasecom-origin` (in `liquibase-admin`) for preview.
 5. The Docs team then previews/verifies both content and redirects on the staging site.
-6. Finally, the 301 redirects can be released to production by running `send-redirects-to-production.yml` action via manual trigger. This workflow will copy the website content from `s3://stage-docsstageliquibasecom-origin` to `s3://prod-docsliquibasecom-origin` (in `liquibase-admin`) and apply content redirections.
+<!-- 6. Finally, the 301 redirects can be released to production by running `send-redirects-to-production.yml` action via manual trigger. This workflow will copy the website content from `s3://stage-docsstageliquibasecom-origin` to `s3://prod-docsliquibasecom-origin` (in `liquibase-admin`) and apply content redirections. -->
 7. At this point the public documentation website for Liquibase should be fully up to date.
 
 Thank you for your submission!
