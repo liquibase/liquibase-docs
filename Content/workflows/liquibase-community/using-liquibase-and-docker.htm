@@ -58,6 +58,17 @@ RUN lpm add mysql --global</code></pre>
         <h4>Set environment variable at runtime</h4>
         <p>Alternatively, enter this command in the CLI:</p><pre><code class="language-text">docker run -e INSTALL_MYSQL=true liquibase/liquibase update</code></pre>
         <p>For more information, see <a href="https://docs.docker.com/engine/reference/run/#env-environment-variables">Docker run reference § ENV (environment variables)</a>.</p>
+        <h2>Create a custom image</h2>
+        <p>If you cannot use the default <MadCap:variable name="General.Liquibase" /> Docker container image, you can create a custom image. You must run a few Docker commands to inject the driver into the container and produce a new <MadCap:variable name="General.Liquibase" /> Docker image.</p>
+        <p>You can do this with any database. The following example is for a Microsoft SQL&#160;Server database running with the latest version of <MadCap:variable name="General.Liquibase" />:</p>
+        <ol>
+            <li>Download the latest <a href="https://learn.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver16">Microsoft SQL Server driver</a>, for example 12.2.0</li>
+            <li>Start a Docker container: <code>docker run -it liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" /> sh</code></li>
+            <li>Do not exit out of this container. In a new terminal window, obtain the Container ID: <code>docker ps</code></li>
+            <li>Copy the Microsoft SQL Server 12.2.0 JAR file into the running container: <code>docker cp mssql-jdbc-12.2.0.jre11.jar &lt;CONTAINER ID&gt;:/liquibase/internal/lib</code></li>
+            <li>Create a new Docker image: <code>docker commit &lt;CONTAINER ID&gt; liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" />_w_mssql_12.2.0</code></li>
+            <li>Publish this custom Docker image internally.</li>
+        </ol>
         <h2>Best practices</h2>
         <ul>
             <li>Specify everything by using arguments</li><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase
@@ -76,8 +87,8 @@ password: &lt;PASSWORD&gt;
 licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
         </ul>
         <ul>
-            <li>Use the <code>--defaultsFile</code> argument to evoke the <code>liquibase.docker.properties</code> file when running commands in the CLI</li><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase
---defaultsFile=/liquibase/changelog/liquibase.docker.properties update</code></pre>
+            <li>Use the <code>--defaults-file</code> argument to evoke the <code>liquibase.docker.properties</code> file when running commands in the CLI</li><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase
+--defaults-file=/liquibase/changelog/liquibase.docker.properties update</code></pre>
         </ul>
         <h2>Example JDBC URLs</h2>
         <table>
@@ -91,42 +102,50 @@ licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
             </thead>
             <tbody>
                 <tr>
-                    <td>MS SQL Server</td>
+                    <td><a href="../../start/tutorials/ibm-db2-luw.htm">IBM DB2 LUW</a>
+                    </td>
+                    <td><code>jdbc:db2://&lt;IP OR HOSTNAME&gt;:50000/&lt;DATABASE&gt;</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="../../start/tutorials/ms-sql-server.html">Microsoft SQL Server</a>
+                    </td>
                     <td><code>jdbc:sqlserver://&lt;IP OR HOSTNAME&gt;:1433;database=&lt;DATABASE&gt;</code>
                     </td>
                 </tr>
                 <tr>
-                    <td>PostgreSQL</td>
-                    <td><code>jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;</code>
+                    <td><a href="../../start/tutorials/mysql.html">MySQL</a>
+                    </td>
+                    <td><code>jdbc:mysql://&lt;IP OR HOSTNAME&gt;:3306/&lt;DATABASE&gt;</code>
                     </td>
                 </tr>
                 <tr>
-                    <td>MySQL</td>
-                    <td><code> jdbc:mysql://&lt;IP OR HOSTNAME&gt;:3306/&lt;DATABASE&gt;</code>
+                    <td><a href="../../start/tutorials/mariadb.html">MariaDB</a>
                     </td>
-                </tr>
-                <tr>
-                    <td>MariaDB</td>
                     <td><code>jdbc:mariadb://&lt;IP OR HOSTNAME&gt;:3306/&lt;DATABASE&gt;</code>
                     </td>
                 </tr>
                 <tr>
-                    <td>DB2</td>
-                    <td><code> jdbc:db2://&lt;IP OR HOSTNAME&gt;:50000/&lt;DATABASE&gt;</code>
+                    <td><a href="../../start/tutorials/postgresql.html">PostgreSQL</a>
+                    </td>
+                    <td><code>jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;</code>
                     </td>
                 </tr>
                 <tr>
-                    <td>Snowflake</td>
-                    <td><code> jdbc:snowflake://&lt;IP OR HOSTNAME&gt;/?db=&lt;DATABASE&gt;&amp;schema=&lt;SCHEMA NAME&gt;</code>
+                    <td><a href="../../start/tutorials/snowflake.htm">Snowflake</a>
+                    </td>
+                    <td><code>jdbc:snowflake://&lt;IP OR HOSTNAME&gt;/?db=&lt;DATABASE&gt;&amp;schema=&lt;SCHEMA NAME&gt;</code>
                     </td>
                 </tr>
                 <tr>
-                    <td>Sybase</td>
-                    <td><code> jdbc:jtds:sybase://&lt;IP OR HOSTNAME&gt;:/&lt;DATABASE&gt;</code>
+                    <td><a href="https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/">Sybase</a>
+                    </td>
+                    <td><code>jdbc:jtds:sybase://&lt;IP OR HOSTNAME&gt;:/&lt;DATABASE&gt;</code>
                     </td>
                 </tr>
                 <tr>
-                    <td>SQLite</td>
+                    <td><a href="https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/">SQLite</a>
+                    </td>
                     <td><code>jdbc:sqlite:/tmp/&lt;DB FILE NAME&gt;.db</code>
                     </td>
                 </tr>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <meta name="description" content="Liquibase Enterprise Documentation" />
-    </head>
+	<head><title><MadCap:variable name="Heading.Level1" /> | Enterprise Docs</title>
+		<meta rel="canonical" href="https://docs.liquibase.com/enterprise/devops/db-release-pipelines/oracle-database-setup/oracle-roles-permissions/single-schema-oracle-roles-perm.html" />
+		<meta name="description" content="Learn the roles and permissions needed for an Oracle single-schema project." />
+	</head>
     <body>
         <h1>Single-Schema Projects - Oracle Roles and Permissions</h1>
         <MadCap:snippetBlock src="../../../../../Z_Resources/Snippets/images/icon-enterprise-top.flsnp" />
@@ -14,7 +15,7 @@
             <li>DATICAL_TRACK_ROLE - Required on all databases in the project. Grants permissions to manage the database change log.</li>
         </ul>
         <h2 id="Single-SchemaProjects-OracleRolesandPermissions-DATICAL_SCHEMA_OWNER_ROLE">DATICAL_SCHEMA_OWNER_ROLE</h2>
-        <p>This role gives the <MadCap:variable name="General.LBEnterprise" /> user the required permissions on all managed database objects.</p><b>DATICAL_ROLE_SCHEMA_OWNER</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- The following must be run as sysdba
+        <p>This role gives the <MadCap:variable name="General.LBEnterprise" /> user the required permissions on all managed database objects.</p><b>DATICAL_ROLE_SCHEMA_OWNER</b><pre>-- The following must be run as sysdba
 -- SQL &gt; conn / as sysdba
 
 CREATE ROLE DATICAL_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
@@ -82,7 +83,7 @@ GRANT SELECT ON V_$PARAMETER TO DATICAL_SCHEMA_OWNER_ROLE;
 -- Permissions needed to capture storage options
 GRANT EXECUTE ON SYS.UTL_FILE TO DATICAL_SCHEMA_OWNER_ROLE;</pre>
         <h2>DATICAL_PACKAGER_SCHEMA_OWNER_ROLE</h2>
-        <p>This role adds permissions needed to perform packaging. Use it only for the REF database (project step).</p><b>DATICAL_PACKAGER_SCHEMA_OWNER</b><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_PACKAGER_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
+        <p>This role adds permissions needed to perform packaging. Use it only for the REF database (project step).</p><b>DATICAL_PACKAGER_SCHEMA_OWNER</b><pre>CREATE ROLE DATICAL_PACKAGER_SCHEMA_OWNER_ROLE NOT IDENTIFIED;
 
 -- When using the tracefileLocation=REMOTE, you will need to setup the following permissions.
 -- Note: These permissions are only required on schemas running the Convert SQL Scripts command. This is only needed on the packaging / reference database.
@@ -95,7 +96,7 @@ GRANT IMP_FULL_DATABASE TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;
 -- The following permission is required if you you have Data Vault installed. This is only needed on the packaging / reference database.
 GRANT BECOME USER TO DATICAL_PACKAGER_SCHEMA_OWNER_ROLE;</pre>
         <h2>DATICAL_TRACK_ROLE</h2>
-        <p>This role should be managed separately. There are some overlaps with permissions in the DATICAL_SCHEMA_OWNER_ROLE.</p><b>DATICAL_TRACK_ROLE</b><pre class="syntaxhighlighter-pre" xml:space="preserve">CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
+        <p>This role should be managed separately. There are some overlaps with permissions in the DATICAL_SCHEMA_OWNER_ROLE.</p><b>DATICAL_TRACK_ROLE</b><pre>CREATE ROLE DATICAL_TRACK_ROLE NOT IDENTIFIED;
 
 -- will create 2 tables - DATABASECHANGELOG and DATABASECHANGELOGLOCK
 -- will insert records
@@ -105,14 +106,14 @@ grant create session,
   create cluster, create indextype, create operator
 to DATICAL_TRACK_ROLE;</pre>
         <h2>DATICAL_DATAPUMP_DIR Creation</h2>
-        <p><MadCap:variable name="General.LBEnterprise" /> uses datapump as the default mechanism to backup and restore database schemas during Packaging. The DATICAL_DATAPUMP_DIR is only needed on the REF databases. Edit the script to set the path for the DATICAL_DATAPUMP_DIR to an appropriate location on the database server.</p><b>DATICAL_DATAPUMP_DIR</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
+        <p><MadCap:variable name="General.LBEnterprise" /> uses datapump as the default mechanism to backup and restore database schemas during Packaging. The DATICAL_DATAPUMP_DIR is only needed on the REF databases. Edit the script to set the path for the DATICAL_DATAPUMP_DIR to an appropriate location on the database server.</p><b>DATICAL_DATAPUMP_DIR</b><pre>-- Modify this to set the appropriate directory path.
 CREATE OR REPLACE DIRECTORY DATICAL_DATAPUMP_DIR AS '&amp;PathToDatapumpDir';</pre>
         <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">To use Data Pump in an Oracle RAC configuration, you must ensure that the directory object path (DATICAL_DATAPUMP_DIR by default) is on a cluster-wide file system. The directory object must point to shared physical storage that is visible to, and accessible from, all instances where Data Pump and/or external tables processes may run.</p>
         <h2>TRACE_FILE_DIR Creation</h2>
-        <p>When using the tracefileLocation=remote option, the following directory object must be created. It is needed on the REF database only.</p><b>TRACE_FILE_DIR</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Modify this to set the appropriate directory path.
+        <p>When using the tracefileLocation=remote option, the following directory object must be created. It is needed on the REF database only.</p><b>TRACE_FILE_DIR</b><pre>-- Modify this to set the appropriate directory path.
 CREATE OR REPLACE DIRECTORY TRACE_FILE_DIR AS '&amp;PathToTracefileDir';</pre>
         <h3>Granting Roles and Permissions</h3>
-        <p>Grant the roles to the managed schema account. Modify the script to grant the schema owner unlimited tablespace based upon your company policy and tablespace configuration.</p><b>REF Database Roles and Permissions</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for REF databases.
+        <p>Grant the roles to the managed schema account. Modify the script to grant the schema owner unlimited tablespace based upon your company policy and tablespace configuration.</p><b>REF Database Roles and Permissions</b><pre>-- Permissions for REF databases.
 -- Modify this to set the appropriate account name for your SchemaOwner account.
 GRANT DATICAL_SCHEMA_OWNER_ROLE TO &amp;SchemaOwner;
 GRANT DATICAL_PACKAGER_SCHEMA_OWNER ROLE to &amp;SchemaOwner:
@@ -127,7 +128,7 @@ GRANT DATICAL_TRACK_ROLE TO &amp;SchemaOwner;
 -- GRANT UNLIMITED TABLESPACE TO &amp;SchemaOwner;
  -- –or-
 -- Grant access to one or more specified tablespaces
--- ALTER USER &amp;SchemaOwner QUOTA UNLIMITED ON &amp;TablespaceName;</pre><b>non-REF Database Roles and Permissions</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Permissions for non-REF databases.
+-- ALTER USER &amp;SchemaOwner QUOTA UNLIMITED ON &amp;TablespaceName;</pre><b>non-REF Database Roles and Permissions</b><pre>-- Permissions for non-REF databases.
 -- Modify this to set the appropriate account name for your SchemaOwner account.
 GRANT DATICAL_SCHEMA_OWNER_ROLE TO &amp;SchemaOwner;
 GRANT DATICAL_TRACK_ROLE TO &amp;SchemaOwner;
@@ -137,7 +138,7 @@ GRANT DATICAL_TRACK_ROLE TO &amp;SchemaOwner;
  -- –or–
 -- Grant access to one or more specified tablespaces
 -- ALTER USER &amp;SchemaOwner QUOTA UNLIMITED ON &amp;SchemaOwner;</pre>
-        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The roles granted to SchemaOwner must be DEFAULT roles. Be sure to validate that the accounts have all the required DEFAULT roles.</p><b>Validate Default Roles</b><pre class="syntaxhighlighter-pre" xml:space="preserve">-- Verify permissions.
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The roles granted to SchemaOwner must be DEFAULT roles. Be sure to validate that the accounts have all the required DEFAULT roles.</p><b>Validate Default Roles</b><pre>-- Verify permissions.
 -- Modify this to set the appropriate account name for your SchemaOwner accounts.
 
 select grantee, granted_role, default_role from dba_role_privs where grantee = '&amp;SchemaOwner' order by 1;

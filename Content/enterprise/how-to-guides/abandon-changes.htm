@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <meta name="description" content="Liquibase Enterprise Documentation" />
+        <meta rel="canonical" href="https://docs.liquibase.com/enterprise/how-to-guides/abandon-changes" />
+        <meta name="description" content="Learn how and when to abandon changes with Liquibase Enterprise." />
     </head>
     <body>
         <h1>How To: Abandon changes</h1>
@@ -24,9 +25,9 @@
                     <td>"release/1.0.0"</td>
                 </tr>
                 <tr>
-                    <th><span>Label (after abandoning)</span>
+                    <th>Label (after abandoning)
                     </th>
-                    <td><span>"release/1.0.0,abandoned"</span>
+                    <td>"release/1.0.0,abandoned"
                     </td>
                 </tr>
                 <tr>
@@ -37,10 +38,9 @@
         </table>
         <p>Steps described below allow you to fix your database environments while still leveraging your automation framework.</p>
         <p>It is undesirable to make manual changes to your database environments that are managed by automation.</p>
-        <p class="title">Note</p>
-        <p>Note that adding the "abandoned" label to your changesets require you to make changes to your <MadCap:variable name="General.LBEnterprise" /> project. As such, this activity should always be performed by automation because it requires checking out <MadCap:variable name="General.LBEnterprise" /> project from SCM, makings changes to it and then pushing changes back into the SCM.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Adding the Abandoned label to your changesets requires you to make changes to your <MadCap:variable name="General.LBEnterprise" /> project. As such, this activity should always be performed by automation because it requires checking out <MadCap:variable name="General.LBEnterprise" /> project from SCM, makings changes to it and then pushing changes back into the SCM.</p>
         <h2 id="HowTo:Abandonchanges-Step-by-stepguide">Step-by-step guide</h2>
-        <p>For the purpose of the document, we will assume that the <MadCap:variable name="General.LBEnterprise" /> project has the following pipeline and that our faulty script "<code><span>temp_table.sql</span></code>" has been deployed up through the QA environment. We now need to abandon this script so that it no longer deploys to STAGE and PROD environments. We also need to bring a "fix" script to fix changes that were made to REF1, DEV and QA environments.</p>
+        <p>For the purpose of the document, we will assume that the <MadCap:variable name="General.LBEnterprise" /> project has the following pipeline and that our faulty script "<code>temp_table.sql</code>" has been deployed up through the QA environment. We now need to abandon this script so that it no longer deploys to STAGE and PROD environments. We also need to bring a "fix" script to fix changes that were made to REF1, DEV and QA environments.</p>
         <table style="width: 32.0905%;margin-right: auto;margin-left: auto;">
             <colgroup>
                 <col style="width: 46.374%;" />
@@ -52,8 +52,7 @@
             </colgroup>
             <tbody>
                 <tr>
-                    <th>
-                    </th>
+                    <th> </th>
                     <th>REF1</th>
                     <th>DEV</th>
                     <th>QA</th>
@@ -61,37 +60,37 @@
                     <th>PROD</th>
                 </tr>
                 <tr>
-                    <th><span>temp_table.sql</span>
+                    <th>temp_table.sql
                     </th>
                     <td>
-                        <p><span>DEPLOYED</span>
+                        <p>DEPLOYED
                         </p>
                     </td>
                     <td>
-                        <p><span>DEPLOYED</span>
+                        <p>DEPLOYED
                         </p>
                     </td>
                     <td>
-                        <p><span>DEPLOYED</span>
+                        <p>DEPLOYED
                         </p>
                     </td>
                     <td>
-                        <p><span>ABANDONED</span>
+                        <p>ABANDONED
                         </p>
                     </td>
                     <td>
-                        <p><span>ABANDONED</span>
+                        <p>ABANDONED
                         </p>
                     </td>
                 </tr>
             </tbody>
         </table>
         <ol>
-            <li>Instruct Datical to abandon the script "<code>temp_table<span>.sql</span></code>". This will require adding the label "abandoned" to all changesets that generate from this script. You can perform this task in automation, however, the user will need to provide the script name as a parameter. In your automation system (Jenkins, Bamboo, UrbanCode Build, etc.), create a new job which will perform following operations:
+            <li>Instruct Datical to abandon the script "<code>temp_table.sql</code>". This will require adding the label "abandoned" to all changesets that generate from this script. You can perform this task in automation, however, the user will need to provide the script name as a parameter. In your automation system (Jenkins, Bamboo, UrbanCode Build, etc.), create a new job which will perform following operations:
 				<ol><li>Checkout Datical project from your source control (Git, TFS, SVN)</li><li>Run "hammer addLabels" command. This command takes two arguments:
-						<ol><li><strong>lookupChangesets</strong> - This is the script name which you want to abandon, e.g., "<code><span>temp_table.sql</span></code>". <strong>This will be the user provided argument.</strong></li><li><strong>labels</strong> - This is the abandon label you want to give to your changesets, e.g., "<code>abandoned</code>"
+						<ol><li><strong>lookupChangesets</strong> - This is the script name which you want to abandon, e.g., "<code>temp_table.sql</code>". <strong>This will be the user provided argument.</strong></li><li><strong>labels</strong> - This is the abandon label you want to give to your changesets, e.g., "<code>abandoned</code>"
 								<ol><li>Once you agree on what naming convention to use to abandon changes, this argument can be programmatic (e.g., "release/1.0.0-abandoned") or hard-coded (e.g., "abandoned").</li></ol></li></ol></li><li>Commit and push Datical project back into source control</li><li>Here is the complete sample script with some additional code for before and after status:
-						<ol><li>Perform SCM operation so that you can check-in your changes back into SCM ("git branch --set-upstream-to ...")</li><li>"hammer findChangeSets" used to show the label status on a set of changesets before and after applying the "addLabels" command (note: use of <code>REM</code> and environment variables "<code>%&lt;variableName&gt;%</code>" is specific to Windows):</li><li><p>Perform SCM operation to commit and push the code and provide a relevant commit message ("git commit ..." and "git push ...")</p><b class="code-title">Abandon Changes Windows</b><pre class="syntaxhighlighter-pre" xml:space="preserve">echo -------------------------------
+						<ol><li>Perform SCM operation so that you can check-in your changes back into SCM ("git branch --set-upstream-to ...")</li><li>"hammer findChangeSets" used to show the label status on a set of changesets before and after applying the "addLabels" command (note: use of <code>REM</code> and environment variables "<code>%&lt;variableName&gt;%</code>" is specific to Windows):</li><li><p>Perform SCM operation to commit and push the code and provide a relevant commit message ("git commit ..." and "git push ...")</p><b class="code-title">Abandon Changes Windows</b><pre>echo -------------------------------
 set PATH=%PATH%;C:\apps\Datical\repl
 git clone http://user@bitbucket.datical.net/scm/bbu/ddb.git
 cd ddb
@@ -101,7 +100,7 @@ hammer findChangeSets --lookupChangesets="%lookupChangesets%"hammer addLabels --
 echo commit new changes back into Bitbucket
 git add -A
 git commit -m "Automations:AbandonScript-%lookupChangesets% - build number=%BUILD_NUMBER%"git push -u origin main
-echo -------------------------------</pre><b class="code-title">Abandon Changes Linux</b><pre class="syntaxhighlighter-pre" xml:space="preserve">echo "-------------------------------"export PATH=$PATH%:\opt\DaticalDB\repl
+echo -------------------------------</pre><b class="code-title">Abandon Changes Linux</b><pre>echo "-------------------------------"export PATH=$PATH%:\opt\DaticalDB\repl
 git clone http://user@bitbucket.datical.net/scm/bbu/ddb.git
 cd ddb
 git branch --set-upstream-to=origin/main main 
@@ -109,7 +108,7 @@ git status
 hammer findChangeSets --lookupChangesets="%lookupChangesets"hammer addLabels --lookupChangesets="$lookupChangesets" --labels="$labels"hammer findChangeSets --lookupChangesets="${lookupChangesets},${labels}"# add steps to commit Datical project into Git.
 echo "commit new changes back into Bitbucket"git add -A
 git commit -m "Automations:AbandonScript-$lookupChangesets - build number=${BUILD_NUMBER}"git push -u origin main
-echo "-------------------------------"</pre></li><li><p>Here is how your automation job would report your abandoned changesets:</p><ol><li><p>Notice that one changeset was identified with lookupChangets="temp_table.sql". Later, the same changeset was identified when lookupChangesets="temp_table.sql,abandoned"</p><b>a</b><pre class="syntaxhighlighter-pre" xml:space="preserve">hammer findChangeSets --lookupChangesets="temp_table.sql"
+echo "-------------------------------"</pre></li><li><p>Here is how your automation job would report your abandoned changesets:</p><ol><li><p>Notice that one changeset was identified with lookupChangets="temp_table.sql". Later, the same changeset was identified when lookupChangesets="temp_table.sql,abandoned"</p><b>a</b><pre>hammer findChangeSets --lookupChangesets="temp_table.sql"
 _______________________
 | Change Set ID| Author|
 |======================|
@@ -119,94 +118,20 @@ hammer findChangeSets --lookupChangesets="temp_table.sql,abandoned"
 _______________________
 | Change Set ID| Author|
 |======================|
-| Temp_Table   | amalik|</pre></li></ol></li><li><p>Here is how the abandoned changeset looks in the Datical GUI:</p><ol><li><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" width="1000" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/abandoned_changeset.JPG?version=1&amp;modificationDate=1502737648647&amp;cacheVersion=1&amp;api=v2&amp;width=1000&amp;height=128" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/abandoned_changeset.JPG?version=1&amp;modificationDate=1502737648647&amp;cacheVersion=1&amp;api=v2&amp;width=1152&amp;height=148 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/abandoned_changeset.JPG?version=1&amp;modificationDate=1502737648647&amp;cacheVersion=1&amp;api=v2&amp;width=1000&amp;height=128 1x" /></span></li></ol></li></ol></li><li>Now that the "abandoned" label has been added, make sure to create a new artifact version.
+| Temp_Table   | amalik|</pre></li></ol></li><li><p>Here is how the abandoned changeset looks in the Datical GUI:</p><ol><li><img class="confluence-embedded-image confluence-content-image-border" width="1000" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/abandoned_changeset.JPG?version=1&amp;modificationDate=1502737648647&amp;cacheVersion=1&amp;api=v2&amp;width=1000&amp;height=128" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/abandoned_changeset.JPG?version=1&amp;modificationDate=1502737648647&amp;cacheVersion=1&amp;api=v2&amp;width=1152&amp;height=148 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/abandoned_changeset.JPG?version=1&amp;modificationDate=1502737648647&amp;cacheVersion=1&amp;api=v2&amp;width=1000&amp;height=128 1x" /></li></ol></li></ol></li><li>Now that the "abandoned" label has been added, make sure to create a new artifact version.
 						<ol><li>When you use your deployment automation tool you will use your newly created versioned artifact to deploy database changes.</li></ol></li><li>Make sure that you alway deploy using "!<strong><code>abandoned</code></strong>" label (notice the "!") with your deploy automation tool. Here is a sample deploy command you would use:
-						<ol><li><strong><code>hammer deploy STAGE --labels<span style="color: rgb(34,34,34);">&#160;"release/1.0.0 AND !abandoned"</span></code></strong></li><li><strong><code>hammer deploy PROD --labels<span style="color: rgb(34,34,34);">&#160;"release/1.0.0 AND !abandoned"</span></code></strong><strong><code><span style="color: rgb(34,34,34);"><br /></span></code></strong></li></ol></li></ol></li>
+						<ol><li><strong><code>hammer deploy STAGE --labels"release/1.0.0 AND !abandoned"</code></strong></li><li><strong><code>hammer deploy PROD --labels&#160;"release/1.0.0 AND !abandoned"</code></strong><strong><code><br /></code></strong></li></ol></li></ol></li>
         </ol>
-        <p><span style="color: rgb(34,34,34);">For Liquibase Enterprise users, continue with these steps</span>
+        <p>For Liquibase Enterprise users, continue with these steps
         </p>
         <ol>
-            <li><span style="color: rgb(34,34,34);">Setup a directory structure in order to bring a "fix" script to fix changes made by the abandoned script.</span>
-                <br />
-                <ol>
-                    <li>
-                        <p>Each directory (data_dml, ddl, ddl_direct, function, package, packagebody, procedure, view, sql, and sql_direct) will have subdirectories indicating how far in the pipeline do deploy changes. See the table below:</p>
-                        <table style="width: 100.0%;">
-                            <tbody>
-                                <tr>
-                                    <th>"sql_code"</th>
-                                    <th><span style="color: rgb(34,34,34);">"data_dml" "ddl" "function" "package" "packagebody" "procedure" "sql_direct"</span>
-                                    </th>
-                                    <th>All the way to PROD</th>
-                                    <th>"REF1-only"</th>
-                                    <th>"until-DEV"</th>
-                                    <th>"until-QA"</th>
-                                    <th style="text-align: center;" colspan="1" class="confluenceTh">"until-STAGE"</th>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <p>Top-level directory for sql repository:</p>
-                                        <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" height="159" width="100" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-50-46.png?version=1&amp;modificationDate=1502740251052&amp;cacheVersion=1&amp;api=v2&amp;width=100&amp;height=158" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-50-46.png?version=1&amp;modificationDate=1502740251052&amp;cacheVersion=1&amp;api=v2&amp;width=136&amp;height=216 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-50-46.png?version=1&amp;modificationDate=1502740251052&amp;cacheVersion=1&amp;api=v2&amp;width=100&amp;height=158 1x" /></span>
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>Each directory contains identical set of subdirectories - each referring to how far the scripts in those subdirectories will be deployed.</p>
-                                        <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="225" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-51-31.png?version=1&amp;modificationDate=1502740295294&amp;cacheVersion=1&amp;api=v2&amp;width=225&amp;height=158" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-51-31.png?version=1&amp;modificationDate=1502740295294&amp;cacheVersion=1&amp;api=v2&amp;width=310&amp;height=219 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-51-31.png?version=1&amp;modificationDate=1502740295294&amp;cacheVersion=1&amp;api=v2&amp;width=225&amp;height=158 1x" /></span>
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>Any script that does not get checked into one of the subdirectories (REF1-only, until-DEV, etc.) will be eligible to be deployed in all database environments in the Datical pipeline, including PROD.</p>
-                                        <p>In the screenshot below, the script "<code>create AAA_TESTA4.sql</code>" will be deployed to all environments. The resulting changesets will automatically pickup all labels and other flags described in the adjacent metadata.properties file.</p>
-                                        <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="210" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-46-35.png?version=1&amp;modificationDate=1502740000031&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=111" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-46-35.png?version=1&amp;modificationDate=1502740000031&amp;cacheVersion=1&amp;api=v2&amp;width=362&amp;height=193 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-46-35.png?version=1&amp;modificationDate=1502740000031&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=111 1x" /></span>
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>metadata.properties file in <strong>REF1-only</strong> subdirectory contains context flag as:</p>
-                                        <p>contexts=<strong>REF1</strong></p>
-                                        <p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="200" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-39-45.png?version=1&amp;modificationDate=1502739589627&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-39-45.png?version=1&amp;modificationDate=1502739589627&amp;cacheVersion=1&amp;api=v2&amp;width=314&amp;height=196 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-39-45.png?version=1&amp;modificationDate=1502739589627&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124 1x" /></span>
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>metadata.properties file in <strong>until-DEV</strong> subdirectory contains context flag as:</p>
-                                        <p>contexts=<strong>REF1,DEV</strong></p>
-                                        <p>
-                                        </p>
-                                        <p><span><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="210" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-40-49.png?version=1&amp;modificationDate=1502739653636&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=125" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-40-49.png?version=1&amp;modificationDate=1502739653636&amp;cacheVersion=1&amp;api=v2&amp;width=317&amp;height=190 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-40-49.png?version=1&amp;modificationDate=1502739653636&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=125 1x" /></span> </span>
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>metadata.properties file in <strong>until-QA</strong> subdirectory contains context flag as:</p>
-                                        <p><span>contexts=<strong>REF1,DEV,QA</strong></span>
-                                        </p>
-                                        <p>
-                                        </p>
-                                        <p><span><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="200" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-14.png?version=1&amp;modificationDate=1502739738140&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-14.png?version=1&amp;modificationDate=1502739738140&amp;cacheVersion=1&amp;api=v2&amp;width=314&amp;height=195 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-14.png?version=1&amp;modificationDate=1502739738140&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124 1x" /></span> </span>
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>metadata.properties file in <strong>until-STAGE</strong> subdirectory contains context flag as:</p>
-                                        <p><span>contexts=<strong>REF1,DEV,QA,STAGE</strong></span>
-                                        </p>
-                                        <p>
-                                        </p>
-                                        <p><span><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="200" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-47.png?version=1&amp;modificationDate=1502739771382&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=125" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-47.png?version=1&amp;modificationDate=1502739771382&amp;cacheVersion=1&amp;api=v2&amp;width=315&amp;height=198 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-47.png?version=1&amp;modificationDate=1502739771382&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=125 1x" /></span> </span>
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </li>
-                    <li><a href="https://datical-cs.atlassian.net/wiki/download/attachments/1184378/sql_code.zip?version=1&amp;modificationDate=1502741368504&amp;cacheVersion=1&amp;api=v2">Download this zip file</a> which has this directory structure predefined, along with metadata.properties files in each subdirectory.</li>
-                </ol>
-            </li>
-            <li><span style="color: rgb(34,34,34);">Bring your fix script. Use the sql repository's directory structure (as described above) to identify which environments will receive the "fix" script.</span>
-                <br />
-                <ol>
-                    <li><span style="color: rgb(34,34,34);">For example, if the abandoned DDL script got deployed until the QA environment, then commit the fix script into the "ddl" &gt; "until-QA" subdirectory.</span>
-                    </li>
-                </ol>
-            </li>
-            <li><span style="color: rgb(34,34,34);">Datical's Deployment Packager will pick up the fix script from this directory and realize the list of contexts described in adjacent metadata.properties file, i.e. contexts=REF1,DEV,QA. Therefore, changesets resulting from the fix script will be eligible to deploy in those three environments only.</span>
+            <li>Setup a directory structure in order to bring a "fix" script to fix changes made by the abandoned script.
+                <br /><ol><li><p>Each directory (data_dml, ddl, ddl_direct, function, package, packagebody, procedure, view, sql, and sql_direct) will have subdirectories indicating how far in the pipeline do deploy changes. See the table below:</p><table style="width: 100.0%;"><tbody><tr><th>"sql_code"</th><th>"data_dml" "ddl" "function" "package" "packagebody" "procedure" "sql_direct"
+                                    </th><th>All the way to PROD</th><th>"REF1-only"</th><th>"until-DEV"</th><th>"until-QA"</th><th>"until-STAGE"</th></tr><tr><td><p>Top-level directory for sql repository:</p><p><img class="confluence-embedded-image confluence-content-image-border" height="159" width="100" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-50-46.png?version=1&amp;modificationDate=1502740251052&amp;cacheVersion=1&amp;api=v2&amp;width=100&amp;height=158" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-50-46.png?version=1&amp;modificationDate=1502740251052&amp;cacheVersion=1&amp;api=v2&amp;width=136&amp;height=216 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-50-46.png?version=1&amp;modificationDate=1502740251052&amp;cacheVersion=1&amp;api=v2&amp;width=100&amp;height=158 1x" /></p></td><td><p>Each directory contains identical set of subdirectories - each referring to how far the scripts in those subdirectories will be deployed.</p><p><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="225" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-51-31.png?version=1&amp;modificationDate=1502740295294&amp;cacheVersion=1&amp;api=v2&amp;width=225&amp;height=158" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-51-31.png?version=1&amp;modificationDate=1502740295294&amp;cacheVersion=1&amp;api=v2&amp;width=310&amp;height=219 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-51-31.png?version=1&amp;modificationDate=1502740295294&amp;cacheVersion=1&amp;api=v2&amp;width=225&amp;height=158 1x" /></p></td><td><p>Any script that does not get checked into one of the subdirectories (REF1-only, until-DEV, etc.) will be eligible to be deployed in all database environments in the Datical pipeline, including PROD.</p><p>In the screenshot below, the script "<code>create AAA_TESTA4.sql</code>" will be deployed to all environments. The resulting changesets will automatically pickup all labels and other flags described in the adjacent metadata.properties file.</p><p><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="210" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-46-35.png?version=1&amp;modificationDate=1502740000031&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=111" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-46-35.png?version=1&amp;modificationDate=1502740000031&amp;cacheVersion=1&amp;api=v2&amp;width=362&amp;height=193 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-46-35.png?version=1&amp;modificationDate=1502740000031&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=111 1x" /></p></td><td><p>metadata.properties file in <strong>REF1-only</strong> subdirectory contains context flag as:</p><p>contexts=<strong>REF1</strong></p><p><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="200" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-39-45.png?version=1&amp;modificationDate=1502739589627&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-39-45.png?version=1&amp;modificationDate=1502739589627&amp;cacheVersion=1&amp;api=v2&amp;width=314&amp;height=196 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-39-45.png?version=1&amp;modificationDate=1502739589627&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124 1x" /></p></td><td><p>metadata.properties file in <strong>until-DEV</strong> subdirectory contains context flag as:</p><p>contexts=<strong>REF1,DEV</strong></p><p></p><p><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="210" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-40-49.png?version=1&amp;modificationDate=1502739653636&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=125" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-40-49.png?version=1&amp;modificationDate=1502739653636&amp;cacheVersion=1&amp;api=v2&amp;width=317&amp;height=190 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-40-49.png?version=1&amp;modificationDate=1502739653636&amp;cacheVersion=1&amp;api=v2&amp;width=210&amp;height=125 1x" /></p></td><td><p>metadata.properties file in <strong>until-QA</strong> subdirectory contains context flag as:</p><p>contexts=<strong>REF1,DEV,QA</strong></p><p></p><p><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="200" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-14.png?version=1&amp;modificationDate=1502739738140&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-14.png?version=1&amp;modificationDate=1502739738140&amp;cacheVersion=1&amp;api=v2&amp;width=314&amp;height=195 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-14.png?version=1&amp;modificationDate=1502739738140&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=124 1x" /></p></td><td><p>metadata.properties file in <strong>until-STAGE</strong> subdirectory contains context flag as:</p><p>contexts=<strong>REF1,DEV,QA,STAGE</strong></p><p></p><p><img class="confluence-embedded-image confluence-thumbnail confluence-content-image-border" width="200" loading="lazy" src="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-47.png?version=1&amp;modificationDate=1502739771382&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=125" srcset="https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-47.png?version=1&amp;modificationDate=1502739771382&amp;cacheVersion=1&amp;api=v2&amp;width=315&amp;height=198 2x, https://datical-cs.atlassian.net/wiki/download/thumbnails/1184378/image2017-8-14_14-42-47.png?version=1&amp;modificationDate=1502739771382&amp;cacheVersion=1&amp;api=v2&amp;width=200&amp;height=125 1x" /></p></td></tr></tbody></table></li><li><a href="https://datical-cs.atlassian.net/wiki/download/attachments/1184378/sql_code.zip?version=1&amp;modificationDate=1502741368504&amp;cacheVersion=1&amp;api=v2">Download this zip file</a> which has this directory structure predefined, along with metadata.properties files in each subdirectory.</li></ol></li>
+            <li>Bring your fix script. Use the sql repository's directory structure (as described above) to identify which environments will receive the "fix" script.
+                <br /><ol><li>For example, if the abandoned DDL script got deployed until the QA environment, then commit the fix script into the "ddl" &gt; "until-QA" subdirectory.
+                    </li></ol></li>
+            <li>Datical's Deployment Packager will pick up the fix script from this directory and realize the list of contexts described in adjacent metadata.properties file, i.e. contexts=REF1,DEV,QA. Therefore, changesets resulting from the fix script will be eligible to deploy in those three environments only.
             </li>
         </ol>
         <h2 id="HowTo:Abandonchanges-Relatedarticles">Related articles</h2>

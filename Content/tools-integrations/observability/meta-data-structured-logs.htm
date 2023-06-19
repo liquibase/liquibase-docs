@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <meta rel="canonical" href="https://docs.liquibase.com/tools-integrations/observability/meta-data-structured-logs" />
+        <meta name="description" content="Learn how to improve packager performance." />
+    </head>
+    <body>
+        <h1>Introduce custom data and exclude private data in Structured Logs</h1>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The userMetadata in <MadCap:variable name="General.StructuredLogging" /> requires 4.22+.</p>
+        <p>You can introduce and then access customized data from <MadCap:variable name="General.LBPro" /> operations using structured logs. This allows you to collect, inspect, and analyze the information to better understand and improve your SDLC. The method available is via File for all other users. Learn how to include or exclude your custom data in the default liquibase.customlogdata.yaml file which ships with the installer and the artifacts.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If <code>liquibase.customlogdata.yaml</code> is in the working directory, Liquibase uses it by default, and it is not necessary to call the file out via the <code>--custom-log-data-file</code> argument or property.</p>
+        <p><b>CLI:&#160;</b><code>--custom-log-data-file=liquibase.customlogdata.yaml</code>
+        </p>
+        <p><b>Env var:</b>&#160;<code>LIQUIBASE_CUSTOM_LOG_DATA_FILE=liquibase.UK-data-props.yaml</code></p>
+        <p><b>defaults file property:</b>&#160;<code>liquibase.customLogDataFile=my-data.yaml</code></p>
+        <h2>Create a metaData file</h2>
+        <p>How to create a metaData file:</p>
+        <ol>
+            <li>The File method</li>
+        </ol>
+        <h2>File Method</h2>
+        <ol>
+            <li>Copy the <code>liquibase.customlogdata.yaml</code> from the <code>examples</code> directory and save it in a secure location.</li>
+            <li>Add the custom data to the relocated file as needed.</li>
+        </ol>
+        <h2>Introduce customized data methods</h2>
+        <h3>Global Metadata</h3>
+        <p>Global MetaData is general purpose userMetadata that needs tracking every time <MadCap:variable name="General.Liquibase" /> runs.<br /></p>
+        <h4>Global Metadata rules:</h4>
+        <ul>
+            <li>Appears <b>ONCE</b> in the log (per Liquibase operation).</li>
+            <li>Is the output for any command execution that generates a log.</li>
+            <li>Is conceptually similar to the SYSTEM  Structured Log Output.</li>
+        </ul>
+        <h3>Command Metadata</h3>
+        <p>Command Metadata is userMetadata that is specific to a command.</p>
+        <h4>Command MetaData rules:</h4>
+        <ul>
+            <li>Appears <b>ONCE</b> in the log per Liquibase operation of that command-type.</li>
+            <li>It is associated with a specific Liquibase command defined in the YAML config.</li>
+            <li>It is output when the associated command executes.</li>
+            <li>It is <b>NOT</b> embedded in each structured log output statement associated with the command.<ul><li>For example, on an update, the command metadata will NOT be in the  structured log output from liquibase.changelog, liquibase.executor, liquibase.* classes.</li></ul></li>
+            <li>Command metadata is applicable to both  structured-log-output-enabled commands AND commands that are not yet  structured-log-output-enabled.<ul><li>Examples of structured-log-output-enabled commands are changelog-sync, the update-family and the rollback-family.</li><li>Examples of commands that are not structured-log-output-enabled are status, snapshot and history.</li></ul></li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is important to note that you cannot exclude properties that are inside of an array.</p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>userMetadata File Format Example:</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">#### ADDING NEW METADATA AS STANDALONE OBJECT
+## Using liquibase.usermetadata, the subset key-values
+## are added to that command's MDC structured log output
+
+## template of standalone format
+liquibase.userMetadata:
+  - outputTologlevel: FINE
+    data:
+      &lt;somekey1&gt;: &lt;somevalue&gt;
+      &lt;somekey2: &lt;somevalue&gt;
+      &lt;somenestedkey&gt;:
+        &lt;nestedkey1&gt;: &lt;somevalue&gt;
+        &lt;nestedkey2&gt;: &lt;somevalue&gt;
+        etc:etc
+  - outputTologlevel: INFO
+    data:
+      &lt;infokey1&gt;: &lt;somevalue&gt;
+
+liquibase.command.&lt;commandName&gt;:
+  - outputTologlevel: FINE
+    data:
+      &lt;somekey1&gt;: &lt;somevalue&gt;
+      &lt;somekey2: &lt;somevalue&gt;
+      &lt;somenestedkey&gt;:
+        &lt;nestedkey1&gt;: &lt;somevalue&gt;
+        &lt;nestedkey2&gt;: &lt;somevalue&gt;
+        etc:etc
+  - outputTologlevel: INFO
+    data:
+      &lt;infokey1&gt;: &lt;somevalue&gt;</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+    </body>
+</html>

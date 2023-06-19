@@ -2,7 +2,7 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /> | Enterprise Docs</title>
         <meta rel="canonical" href="https://docs.liquibase.com/enterprise/developer/dev-how-tos/remove-lock-databasechangeloglock.html" />
-        <meta name="description" content="This document describes how to remove lock from DATABASECHANGELOGLOCK." />
+        <meta name="description" content="This document describes how to remove a lock from DATABASECHANGELOGLOCK." />
     </head>
     <body>
         <h1>How To: Remove lock from DATABASECHANGELOGLOCK table
@@ -13,30 +13,30 @@
 				(7.3 and higher).
 		</p><h3>
 			Instructions for <MadCap:variable name="General.LBEnterprise" /> versions 7.3 and higher:
-		</h3><p>The instructions for 7.3 and higher are simpler, because the hammer command works for both the DATABASECHANGELOGLOCK table and the Oracle DATICAL_SPERRORLOG table. We recommend upgrading to 7.3 or higher if you sometimes need to interrupt deploys and then use the releaseLocks command before running another deploy.</p><b>releaseLocks</b><pre class="syntaxhighlighter-pre" xml:space="preserve"> hammer releaseLocks &lt;dbDef&gt;</pre><h3>
+		</h3><p>The instructions for 7.3 and higher are simpler, because the hammer command works for both the DATABASECHANGELOGLOCK table and the Oracle DATICAL_SPERRORLOG table. We recommend upgrading to 7.3 or higher if you sometimes need to interrupt deploys and then use the releaseLocks command before running another deploy.</p><b>releaseLocks</b><pre> hammer releaseLocks &lt;dbDef&gt;</pre><h3>
 			Instructions for <MadCap:variable name="General.LBEnterprise" /> version 7.2:
-		</h3><p>With version 7.2 the releaseLocks command no longer requires a separate properties file for drivers.</p><b>releaseLocks</b><pre class="syntaxhighlighter-pre" xml:space="preserve"> hammer releaseLocks &lt;dbDef&gt;</pre><p>If you are using Oracle with <MadCap:variable name="General.LBEnterprise" /> version 7.2 and you need to manually terminate a packager job or a deploy job, the DATICAL_SPERRORLOG table may be held open on your <MadCap:variable name="General.LBEnterprise" /> tracking schema. You may need to disconnect the session for the user that runs <MadCap:variable name="General.LBEnterprise" />. The <code>DATICAL_SPERRORLOG</code>table is used to capture output for scripts executed using<code>sqlplus</code>during an Oracle deployment.</p><p>Here is how you can disconnect the session:</p><ul><li>Run a query to find the process</li></ul><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT s.inst_id,
+		</h3><p>With version 7.2 the releaseLocks command no longer requires a separate properties file for drivers.</p><b>releaseLocks</b><pre> hammer releaseLocks &lt;dbDef&gt;</pre><p>If you are using Oracle with <MadCap:variable name="General.LBEnterprise" /> version 7.2 and you need to manually terminate a packager job or a deploy job, the DATICAL_SPERRORLOG table may be held open on your <MadCap:variable name="General.LBEnterprise" /> tracking schema. You may need to disconnect the session for the user that runs <MadCap:variable name="General.LBEnterprise" />. The <code>DATICAL_SPERRORLOG</code>table is used to capture output for scripts executed using<code>sqlplus</code>during an Oracle deployment.</p><p>Here is how you can disconnect the session:</p><ul><li>Run a query to find the process</li></ul><pre>SELECT s.inst_id,
 s.sid,
 s.serial#,
 p.spid,
 s.username,
 s.program FROM   gv$session s
-JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre><ul><li>Disconnect the session with the following statement.</li></ul><pre class="syntaxhighlighter-pre" xml:space="preserve">ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre><h3>
+JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre><ul><li>Disconnect the session with the following statement.</li></ul><pre>ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre><h3>
 			Instructions for <MadCap:variable name="General.LBEnterprise" /> versions 7.0 and lower:
 		</h3><p>The instructions for 7.0 and lower requires a daticaldb.properties file to indicate the path to the drivers.</p><b>releaseLocks.groovy</b><pre class="syntaxhighlighter-pre">hammer groovy releaseLocks.groovy [dbDef]</pre><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">releaseLocks.groovy was deprecated in <MadCap:variable name="General.LBEnterprise" /> v8.3.</p><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">You will need to specify path to your driver (jar file) in a new file called daticaldb.properties file within your project directory. Place the file in the same directory as the datical.project. Here's how we recommend setting up your daticaldb.properties file. Uncomment the relevant line before using:</p><b class="code-title">daticaldb.properties</b>Expand source
-		<pre class="syntaxhighlighter-pre" xml:space="preserve">## Oracle driver (Linux)
+		<pre>## Oracle driver (Linux)
 #drivers=/opt/datical/DaticalDB/repl/plugins/com.datical.db.drivers.oracle.common_1.0.12.jar
 ## Oracle driver (Windows)
 #drivers=C:\\Users\\Administrator\\DaticalDB\\repl\\plugins\\com.datical.db.drivers.oracle.win_x86_64_1.0.12.jar
 ## MS SQL Server driver
-#drivers=C:\\Users\\Administrator\\DaticalDB\\repl\\plugins\\com.datical.db.drivers.mssql_1.0.12.jar</pre><p>If you are using Oracle with <MadCap:variable name="General.LBEnterprise" /> version 7.0 and you need to manually terminate a packager job or a deploy job, the DATICAL_SPERRORLOG table may be held open on your <MadCap:variable name="General.LBEnterprise" /> tracking schema. You may need to disconnect the session for the user that runs <MadCap:variable name="General.LBEnterprise" />. The <code>DATICAL_SPERRORLOG</code>table is used to capture output for scripts executed using <code>sqlplus</code>during an Oracle deployment.</p><p>Here is how you can disconnect the session:</p><ul><li>Run a query to find the process</li></ul><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT s.inst_id,
+#drivers=C:\\Users\\Administrator\\DaticalDB\\repl\\plugins\\com.datical.db.drivers.mssql_1.0.12.jar</pre><p>If you are using Oracle with <MadCap:variable name="General.LBEnterprise" /> version 7.0 and you need to manually terminate a packager job or a deploy job, the DATICAL_SPERRORLOG table may be held open on your <MadCap:variable name="General.LBEnterprise" /> tracking schema. You may need to disconnect the session for the user that runs <MadCap:variable name="General.LBEnterprise" />. The <code>DATICAL_SPERRORLOG</code>table is used to capture output for scripts executed using <code>sqlplus</code>during an Oracle deployment.</p><p>Here is how you can disconnect the session:</p><ul><li>Run a query to find the process</li></ul><pre>SELECT s.inst_id,
 s.sid,
 s.serial#,
 p.spid,
 s.username,
 s.program FROM   gv$session s
-JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre><ul><li>Disconnect the session with the following statement.</li></ul><pre class="syntaxhighlighter-pre" xml:space="preserve">ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre><p>Known issue with Oracle: When running this command to clear locks with <MadCap:variable name="General.LBEnterprise" /> versions 7.0 or lower in an Oracle database you may see the following warning message relating to "MBeans":
-		</p><b class="code-title">Warning when running releaseLocks against an Oracle database</b><pre class="syntaxhighlighter-pre" xml:space="preserve">WARNING: Error while registering Oracle JDBC Diagnosability MBean.
+JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre><ul><li>Disconnect the session with the following statement.</li></ul><pre>ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre><p>Known issue with Oracle: When running this command to clear locks with <MadCap:variable name="General.LBEnterprise" /> versions 7.0 or lower in an Oracle database you may see the following warning message relating to "MBeans":
+		</p><b class="code-title">Warning when running releaseLocks against an Oracle database</b><pre>WARNING: Error while registering Oracle JDBC Diagnosability MBean.
 java.security.AccessControlException: access denied ("javax.management.MBeanTrustPermission" "register")
 at java.security.AccessControlContext.checkPermission(AccessControlContext.java:472)
 at java.lang.SecurityManager.checkPermission(SecurityManager.java:585)
@@ -88,12 +88,12 @@ at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
 at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
 at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
 Successfully released all database change log locks for DATICAL_USER@jdbc:oracle:thin:@//demo-db1-rhel6.datical.net:1521/CAPS_REF1.datical.net
-Liquibase 'releaseLocks' Successful</pre><h2>Alternate Solution for releasing DATABASECHANGELOGLOCK</h2><p>Update the DATABASECHANGELOGLOCK table manually:</p><b>SQL</b><pre class="syntaxhighlighter-pre" xml:space="preserve">UPDATE DATABASECHANGELOGLOCK SET LOCKED=0;</pre><p>Note that if you update the DATABASECHANGELOGLOCK table manually, for Oracle you may also need to disconnect the session for the user that runs <MadCap:variable name="General.LBEnterprise" />. Then <code>DATICAL_SPERRORLOG</code>table is used to capture output for scripts executed using <code>sqlplus</code>during an Oracle deployment.
-			</p><p>Here is how you can disconnect the session:</p><ul><li>Run a query to find the process</li></ul><pre class="syntaxhighlighter-pre" xml:space="preserve">SELECT s.inst_id,
+Liquibase 'releaseLocks' Successful</pre><h2>Alternate Solution for releasing DATABASECHANGELOGLOCK</h2><p>Update the DATABASECHANGELOGLOCK table manually:</p><b>SQL</b><pre>UPDATE DATABASECHANGELOGLOCK SET LOCKED=0;</pre><p>Note that if you update the DATABASECHANGELOGLOCK table manually, for Oracle you may also need to disconnect the session for the user that runs <MadCap:variable name="General.LBEnterprise" />. Then <code>DATICAL_SPERRORLOG</code>table is used to capture output for scripts executed using <code>sqlplus</code>during an Oracle deployment.
+			</p><p>Here is how you can disconnect the session:</p><ul><li>Run a query to find the process</li></ul><pre>SELECT s.inst_id,
 s.sid,
 s.serial#,
 p.spid,
 s.username,
 s.program FROM   gv$session s
-JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre><ul><li>Disconnect the session with the following statement.</li></ul><pre class="syntaxhighlighter-pre" xml:space="preserve">ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre></body>
+JOIN gv$process p ON p.addr = s.paddr AND p.inst_id = s.inst_id;</pre><ul><li>Disconnect the session with the following statement.</li></ul><pre>ALTER SYSTEM DISCONNECT SESSION 'sid,serial#' IMMEDIATE;</pre></body>
 </html>
