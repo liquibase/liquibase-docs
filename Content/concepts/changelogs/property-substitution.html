@@ -6,9 +6,9 @@
     </head>
     <body>
         <h1>Substituting Properties in Changelogs</h1>
-        <p><MadCap:variable name="General.Liquibase" /> allows a dynamic substitution of properties in your <MadCap:variable name="General.changelog" />. The tokens to replace in your <MadCap:variable name="General.changelog" /> are described using the <code>${property-name}</code> syntax.</p>
+        <p><MadCap:variable name="General.Liquibase" /> allows a dynamic substitution of properties in your <a href="home.html"><MadCap:variable name="General.changelog" /></a>. The tokens to replace in your <MadCap:variable name="General.changelog" /> are described using the <code>${property-name}</code> syntax.</p>
         <h2>Uses</h2>
-        <p>By substituting values for replacement tokens in the format of <code>${property-name}</code>, you can use the same <MadCap:variable name="General.changeset" />s to reflect small environmental changes.</p>
+        <p>By substituting values for replacement tokens in the format of <code>${property-name}</code>, you can use the same <a href="changeset.html"><MadCap:variable name="General.changeset" />s</a> to reflect small environmental changes.</p>
         <p>For example, your tablespace name in Oracle may differ from environment to environment, but you want to only write one create table <MadCap:variable name="General.changeset" /> that can be used in all your environments.</p>
         <h2>Using property substitution in your <MadCap:variable name="General.changelog" /></h2>
         <p>You can set property values in <MadCap:variable name="General.Liquibase" /> in several ways. <MadCap:variable name="General.Liquibase" /> assigns these values in the following order:</p>
@@ -16,12 +16,15 @@
             <li>As an <MadCap:variable name="General.Param/Attribute" /> passed to your <MadCap:variable name="General.Liquibase" /> runner. See the <MadCap:xref href="../../tools-integrations/ant/home.html">Ant</MadCap:xref>, <MadCap:xref href="../../tools-integrations/maven/home.html">Maven</MadCap:xref>, or <MadCap:xref href="../../tools-integrations/community-supported/servlet-listener.html">Servlet Listener</MadCap:xref> documentation for more information on how to pass them.</li>
             <li>As a JVM system property. See <MadCap:xref href="../connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref> for more information.</li>
             <li>As an environment variable. See <MadCap:xref href="../connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref> for more information.</li>
-            <li>As a CLI <MadCap:variable name="General.Param/Attribute" />, if executed from the command line.</li>
+            <li>As a CLI <MadCap:variable name="General.Param/Attribute" />, if executed from the command line. Use the syntax <code>-D&lt;property.name&gt;=&lt;property.value&gt;</code>.</li>
             <li>In the parameters block (property element of the <MadCap:variable name="General.changelog" /> file itself).</li>
         </ol>
         <p>Once a property has been set, it cannot be changed. Also, only the first definition is used, others are skipped.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the content of <code>${property-name}</code> does not match a property, it is left as-is and it is not removed.  The supported format includes alphanumeric characters, <code>+</code>, <code>-</code>, <code>.</code> , and <code>_</code>.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you do not want to replace an otherwise matching <code>${property-name}</code> expression, add <code>:</code> to the beginning of the expression. An expression of <code>${: property-name}</code> will always be converted to <code>${property-name}</code> regardless of whether <code>property-name</code> is defined.</p>
+        <h3><code>sql</code> and <code>sqlFile</code></h3>
+        <p>You can use property substitution with the <code><MadCap:xref href="../../change-types/sql.html">sql</MadCap:xref></code> and <code><MadCap:xref href="../../change-types/sql-file.html">sqlFile</MadCap:xref></code>&#160;<MadCap:variable name="General.changetypes" />s. Note that <MadCap:variable name="General.Liquibase" /> obtains the <a href="changeset-checksums.htm">checksum</a> of a <code>sql</code>&#160;<MadCap:variable name="General.changeset" />&#160;<b>after</b> substituting any properties you specify. However, it obtains the checksum of a <code>sqlFile</code>&#160;<MadCap:variable name="General.changeset" />&#160;<b>before</b> substituting the properties in the external SQL file.</p>
+        <p>This affects the behavior of <MadCap:variable name="General.Param/Attribute" />s like <code><MadCap:xref href="attributes/runonchange.htm">runOnChange</MadCap:xref></code>. For example, suppose you set an environment variable <code>ENV_EXAMPLE=value</code> and you use property substitution for <code>ENV_EXAMPLE</code> in two <MadCap:variable name="General.changeset" />s:&#160;<code>sql</code> and <code>sqlFile</code>. If you deploy your changes with the <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code> command, <code>ENV_EXAMPLE</code> is substituted for the value you set. Suppose each <MadCap:variable name="General.changeset" /> is also labeled with <code>runOnChange=true</code>, so if you run the <code>update</code> command, the <MadCap:variable name="General.changeset" />s rerun only if their contents have changed since the last deployment. If you then set <code>ENV_EXAMPLE=new_value</code> and run <code>update</code>, only the <code>sql</code>&#160;<MadCap:variable name="General.changeset" /> runs a second time.</p>
         <h2>Nested properties</h2>
         <table style="width: 100%;margin-left: auto;margin-right: auto;">
             <thead>
@@ -72,7 +75,7 @@ The content of the file must follow the Java properties file format.</td>
                 <tr>
                     <td><code>relativeToChangelogFile</code>
                     </td>
-                    <td>The <code>relativeToChangelogFile</code> attribute <b>is used in conjunction with the</b> <code>file</code> attribute to allow <MadCap:variable name="General.Liquibase" /> to find the referenced file without having to configure <MadCap:xref href="../../parameters/search-path.htm">search-path</MadCap:xref>.<br /><br />The default for <code>relativeToChangelogFile</code> remains <code>FALSE</code> for backwards compatibility.</td>
+                    <td>The <code>relativeToChangelogFile</code> attribute is used <b>in conjunction</b> with the <code>file</code> attribute to allow <MadCap:variable name="General.Liquibase" /> to find the referenced file without having to configure <MadCap:xref href="../../parameters/search-path.htm">search-path</MadCap:xref>.<br /><br />The default for <code>relativeToChangelogFile</code> remains <code>FALSE</code> for backwards compatibility.</td>
                 </tr>
                 <tr>
                     <td><code>context</code>
