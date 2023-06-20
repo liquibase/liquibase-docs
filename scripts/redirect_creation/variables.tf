@@ -696,6 +696,7 @@ variable "redirects" {
     "/tools-integrations/maven/commands/maven-updateTestingRollback.html"                                      = "/tools-integrations/maven/commands/maven-updatetestingrollback.html"
     "/tools-integrations/maven/commands/popular-topics.html"                                                   = "/home.html"
     "/tools-integrations/maven/workflows/maven-get-oracle-drivers.html"                                        = "/start/tutorials/oracle.html"
+    "/tools-integrations/observability/home.html"                                                              = "/observability.html"
     "/tools-integrations/remote-files/create-changelogs-s3.html"                                               = "/tools-integrations/extensions/remote-files/s3.html"
     "/tools-integrations/remote-files/remote-file-path-rules.html"                                             = "/tools-integrations/extensions/remote-files/remote-file-path-rules.html"
     "/tools-integrations/remote-files/s3.html"                                                                 = "/tools-integrations/extensions/remote-files/s3.html"
