@@ -29,3 +29,10 @@ resource "aws_s3_object" "redirects" {
 }
 
 
+resource "aws_s3_object" "enterprise_redirects" {
+  count            = length(keys(var.enterprise_redirects))
+  bucket           = data.terraform_remote_state.state.outputs.docs_origin_bucket
+  key              = element(keys(var.enterprise_redirects), count.index)
+  content_type     = "text/html"
+  website_redirect = element(values(var.enterprise_redirects), count.index)
+}

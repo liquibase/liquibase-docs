@@ -758,3 +758,10 @@ variable "redirects" {
     "/workflows/liquibase-community/liquibase-auto-rollback.html"                                              = "/workflows/liquibase-community/automatic-custom-rollbacks.html"
   }
 }
+
+variable "enterprise_redirects" {
+  type = map(string)
+  default = {
+# Need to get a list of re-directs from @adrian or @amber
+  }
+}
