@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/tools-integrations/observability/meta-data-structured-logs" />
@@ -42,41 +42,87 @@
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is important to note that you cannot exclude properties that are inside of an array.</p>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>userMetadata File Format Example:</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot>userMetadata.yaml Example:</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody>
                 <MadCap:codeSnippet>
                     <MadCap:codeSnippetCopyButton />
-                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">#### ADDING NEW METADATA AS STANDALONE OBJECT
-## Using liquibase.usermetadata, the subset key-values
-## are added to that command's MDC structured log output
+                    <MadCap:codeSnippetCaption>liquibase.usermetadata.yaml example file</MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">#### liquibase.usermetadata.yaml
+## v1.0
+## This file is used to inject or exclude data from structured logs, a Pro capability enabled by LIQUIBASE_LOG_FORMAT=JSON (or JSON_PRETTY).
+## This file can be re-named and stored not in the CWD, if you specify it with --custom-log-data-file=path/to/my/renamed/customdatafile.yaml
+## Learn more about Liquibase's Observability options, such as stuctured logging at https://docs.liquibase.com/structured-logging
 
-## template of standalone format
+
+#### GLOBAL DATA
+## This is general purpose data that needs tracking every time Liquibase runs.
+## ADDING: To inject custom data, create a liquibase.userMetadata object
+## and the subset key-value pairs are added once to structured log output
+## EXCLUDING: To exclude specific data, create a liquibase.excludeData object
+## to list keys to exclude from output.
+
+
+#### COMMAND-SPECIFIC DATA
+## This is user-supplied data specific to a command.
+## ADDING: To inject your custom data, create a liquibase.command.&lt;commandname&gt;.data object
+## and the subset key-value pairs are added once to structured log output
+## EXCLUDING: To exclude specific data, create a liquibase.command.&lt;commandname&gt;.excludeData object
+## to list keys to exclude from output.
+
+
+
+## These are just examples! Please adjust before using.
 liquibase.userMetadata:
-  - outputTologlevel: FINE
+  - outputToLoglevel: INFO
     data:
-      &lt;somekey1&gt;: &lt;somevalue&gt;
-      &lt;somekey2: &lt;somevalue&gt;
-      &lt;somenestedkey&gt;:
-        &lt;nestedkey1&gt;: &lt;somevalue&gt;
-        &lt;nestedkey2&gt;: &lt;somevalue&gt;
-        etc:etc
-  - outputTologlevel: INFO
+      deploymentlead: "name@example.com"
+  - outputToLogLevel: fine
+    excludeData:
+      - liquibaseTargetUrl
+      - commandLabelFilter
+      - commandContextFilter
+  - outputToLogLevel: severe
     data:
-      &lt;infokey1&gt;: &lt;somevalue&gt;
+      calling-birds: four
+      french-hens: 3
+      golden-rings: 2
+      partridges:
+        count: 1
+        location: "a pear tree"
+      turtle-doves: two
 
-liquibase.command.&lt;commandName&gt;:
-  - outputTologlevel: FINE
+
+# Globally excluding these keys at all loglevels
+liquibase.excludeData:
+  - liquibaseCommandName
+  - thread
+  - changesetsUpdated.changeset
+
+
+# Include data just for update command at the specified outputToLogLevel
+liquibase.command.update:
+  - outputToLogLevel: info
     data:
-      &lt;somekey1&gt;: &lt;somevalue&gt;
-      &lt;somekey2: &lt;somevalue&gt;
-      &lt;somenestedkey&gt;:
-        &lt;nestedkey1&gt;: &lt;somevalue&gt;
-        &lt;nestedkey2&gt;: &lt;somevalue&gt;
-        etc:etc
-  - outputTologlevel: INFO
+      team: "overnight-updaters"
+      CiCdVersion: "6.32.1"
+    excludeData:
+      - thread
+
+# Include data just for update command at the specified outputToLogLevel
+liquibase.command.update-one-changeset:
+  - outputToLogLevel: FINE
     data:
-      &lt;infokey1&gt;: &lt;somevalue&gt;</MadCap:codeSnippetBody>
+      reasons:
+        goal: "update zipcodes"
+        author: "deb the dba"
+        approval: "self"
+        team: "data integrity"
+        
+      
+      
+      
+            </MadCap:codeSnippetBody>
                 </MadCap:codeSnippet>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
