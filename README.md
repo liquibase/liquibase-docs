@@ -21,3 +21,4 @@ This workflow is as follows:
 6. At this point the public documentation website for Liquibase should be fully up to date.
 
 Thank you for your submission!
+
