@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us" MadCap:conditions="Default.EXCLUDE">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" xml:lang="en-us">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <link href="../../../../../Resources/Stylesheets/Managing+Database+Backup+and+Restore.css" rel="stylesheet" />
+        <link rel="canonical" href="https://docs.liquibase.com/enterprise/dba/package/package-sql-scripts-deployment/configure-packaging/database-backup-restore.html" />
+        <meta name="description" content="Learn about Deployment packager backups and restores." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <h1>Manage Database Backup and Restore</h1>
@@ -11,23 +13,9 @@
         <h2>Using Static Backups</h2>
         <p>For large or highly complex database environments, requiring a dynamic database backup for each packaging job may significantly reduce performance. For these cases an alternative is to provide a static backup location and manage database backups directly:</p>
         <ul>
-            <li>
-                <p>Backups are performed separately and not performed as part of packaging database changes.</p>
-            </li>
-            <li>
-                <p>Deployment Packager uses an existing backup file rather than creating a new one for each run.</p>
-            </li>
-            <li>
-                <p>New backups are performed manually through one of the following methods:</p>
-                <ul>
-                    <li>
-                        <p>Backup is performed outside of Datical</p>
-                    </li>
-                    <li>
-                        <p>Deployment Packager is run with <span class="HTMLCode_1">createDatabaseBackup=true and <span class="HTMLCode_1">preview=true command-line options</p>
-                    </li>
-                </ul>
-            </li>
+            <li>Backups are performed separately and not performed as part of packaging database changes.</li>
+            <li>Deployment Packager uses an existing backup file rather than creating a new one for each run.</li>
+            <li>New backups are performed manually through one of the following methods:<ul><li>Backup is performed outside of Datical</li><li>Deployment Packager is run with <code>createDatabaseBackup=true</code> and <code>preview=true</code> command-line options</li></ul></li>
         </ul>
         <h2>Additional Database Configuration Requirements</h2>
         <p>For Oracle, PostgreSQL, and DB2 databases there is no additional configuration required.</p>
@@ -42,110 +30,62 @@
         <p class="HTMLPreformatted">RECONFIGURE</p>
         <p class="HTMLPreformatted">GO</p>
         <h2>Configuring Deployment Packager Backups</h2>
-        <p>Set <span class="HTMLCode_1">databaseBackupMode in<a href="required-deploy-packager-properties.htm"><span class="HTMLCode_1">deployPackager.properties</a> to control backup behavior.</p>
+        <p>Set <code>databaseBackupMode</code> in <code><a href="required-deploy-packager-properties.htm">deployPackager.properties</a></code> to control backup behavior.</p>
         <ul>
-            <li>
-                <p><span class="HTMLCode_1">always – (Default). The REF database is backed up for every packaging job.</p>
-            </li>
-            <li>
-                <p><span class="HTMLCode_1">on_demand – A full backup of the REF database is made when Deployment Packager is run with the following options:</p>
-                <ul>
-                    <li>
-                        <p><span class="HTMLCode_1">pipeline=&lt;pipelineRef&gt; 
-                        </p>
-                    </li>
-                    <li>
-                        <p><span class="HTMLCode_1">createDatabaseBackup=true
-                        </p>
-                    </li>
-                </ul>
-            </li>
+            <li><code>always</code> – (Default). The REF database is backed up for every packaging job.</li>
+            <li><code>on_demand</code> – A full backup of the REF database is made when Deployment Packager is run with the following options:<ul><li><code>pipeline=&lt;pipelineRef&gt;</code></li><li><code>createDatabaseBackup=true</code></li></ul></li>
         </ul>
         <p>You can run a backup directly using the Deployment Packager command line.</p>
         <ul>
-            <li>
-                <p><span class="HTMLCode_1">createDatabaseBackup=true – causes a new backup to be created. May be used in preview mode to create a new backup without creating new changesets. If done during packaging, the packaging must be done on a pipeline (using <span class="HTMLCode_1">pipeline=), rather than on a DbDef.</p>
-            </li>
+            <li><code>createDatabaseBackup=true</code> – causes a new backup to be created. May be used in preview mode to create a new backup without creating new changesets. If done during packaging, the packaging must be done on a pipeline (using <code>pipeline=</code>), rather than on a DbDef.</li>
         </ul>
-        <p class="title">Best Practice</p>
+        <p>Best Practice</p>
         <p>The easiest way to get regular database backups to use a consistent naming convention is to run Deployment Packager to do them. The nightly database backup job is a copy of the Deployment Packager job. The copy runs Deployment Packager but does not create new changesets.</p>
         <p>Schedule a recurring job that runs Deployment Packager with preview and backup modes set, as shown in the following example:</p>
-        <p><span class="HTMLCode_1">hammer groovy deployPackager.groovy pipeline=MY_PIPELINE_NAME scm=true createDatabaseBackup=true preview=true
-        </p>
-        <p>
+        <p><code>hammer groovy deployPackager.groovy pipeline=MY_PIPELINE_NAME scm=true createDatabaseBackup=true preview=true</code>
         </p>
         <h2>Packaging Behavior</h2>
         <h3>Always backup</h3>
-        <p>When <span class="HTMLCode_1">databaseBackupMode is set to <span class="HTMLCode_1">always, the database is restored from the backup file in the event of packaging failure. Deploy Packager performs these operations:</p>
+        <p>When <code>databaseBackupMode</code> is set to <code>always</code>, the database is restored from the backup file in the event of packaging failure. Deploy Packager performs these operations:</p>
         <ol>
-            <li>
-                <p>Back up the reference database prior to modifying the database.</p>
-            </li>
-            <li>
-                <p>Deploy new changes.</p>
-            </li>
-            <li>
-                <p>Restore from this backup if a failure occurs.</p>
-            </li>
+            <li>Back up the reference database prior to modifying the database.</li>
+            <li>Deploy new changes.</li>
+            <li>Restore from this backup if a failure occurs.</li>
         </ol>
         <h3>On Demand backup</h3>
-        <p>When <span class="HTMLCode_1">databaseBackupMode is set to <span class="HTMLCode_1">on_demand,&#160;the database is restored from the backup file specified in the deployPackager.properties in the event of packaging failure. Deploy Packager performs these operations:</p>
+        <p>When <code>databaseBackupMode</code> is set to <code>on_demand</code>,&#160;the database is restored from the backup file specified in the deployPackager.properties in the event of packaging failure. Deploy Packager performs these operations:</p>
         <ol>
-            <li>
-                <p>Check that the appropriate database backup file/path, privileges, and tools are present in the event a restore needs to occur.</p>
-            </li>
-            <li>
-                <p>Deploy new changes.</p>
-            </li>
-            <li>
-                <p>Restore from backup specified in the deployPackager.properies if a failure occurs.</p>
-            </li>
+            <li>Check that the appropriate database backup file/path, privileges, and tools are present in the event a restore needs to occur.</li>
+            <li>Deploy new changes.</li>
+            <li>Restore from backup specified in the deployPackager.properies if a failure occurs.</li>
         </ol>
-        <p>
-        </p>
         <p>For this process, redeployed changes are not tracked in the Deployment Monitoring Console database (DMCDB), because their deployment was already recorded. Only the new deployment creates new records in the DMCDB.</p>
         <h2>Permissions</h2>
         <p>See the roles and permissions needed for your database in <a href="https://datical-cs.atlassian.net/wiki/spaces/DDOC/pages/896566734/Managed+Databases">Managed Databases</a></p>
         <p>Oracle requires specific backup permissions, as noted in <MadCap:xref href="../../../../devops/db-release-pipelines/oracle-database-setup/oracle-roles-permissions/home.htm">Roles and Permissions for [%=General.LBEnterprise%] on Oracle Database</MadCap:xref></p>
         <p>Packager checks for the existence of the backup file. If checking fails on a permissions error, the responses depends on the setting of backupRestoreMode:</p>
         <ul>
-            <li>
-                <p>ALWAYS - warn that permissions may not be set correctly and continue.</p>
-            </li>
-            <li>
-                <p>ON_DEMAND - report an error and halt.</p>
-            </li>
+            <li>ALWAYS - warn that permissions may not be set correctly and continue.</li>
+            <li>ON_DEMAND - report an error and halt.</li>
         </ul>
         <h2>Impact on Packaging Time</h2>
         <h3>Performance Comparison</h3>
         <p>The procedures below shows a comparison of the process in simplified form. Deploy Packager also uses the backup file internally during processing.</p>
         <p>Normally packaging time when always backing up depends on these operations:</p>
         <ol>
-            <li>
-                <p>Back up the REF database</p>
-            </li>
-            <li>
-                <p>Package new changes</p>
-            </li>
-            <li>
-                <p>Restore the database from the backup file if an error occurs</p>
-            </li>
+            <li>Back up the REF database</li>
+            <li>Package new changes</li>
+            <li>Restore the database from the backup file if an error occurs</li>
         </ol>
         <p>When using a managed on_demand backup, packaging time is based on these operations:</p>
         <ol>
-            <li>
-                <p>Package new changes</p>
-            </li>
-            <li>
-                <p>Restore the database from the backup if an error occurs.</p>
-            </li>
-            <li>
-                <p>Redeploy previous changes if an error occurs - <em>this time grows as additional changes are deployed</em>.</p>
-            </li>
+            <li>Package new changes</li>
+            <li>Restore the database from the backup if an error occurs.</li>
+            <li>Redeploy previous changes if an error occurs - <em>this time grows as additional changes are deployed</em>.</li>
         </ol>
         <p>All packaging runs should experience a lower packaging time in this mode. Successful packaging runs potentially see the most performance benefit as in some cases these may now not require a backup or a restore of the REF database.</p>
         <h3>Troubleshooting Performance</h3>
-        <p>If you have implemented static/on_demand backups but have not seen a significant improvement in how long your packager jobs take to run, check your configuration. If you have set <span class="HTMLCode_1">databaseBackupMode=on_demandbut are still using <span class="HTMLCode_1">createDatabaseBackup=true in your main packager jobs that process scripts, that is an unusual configuration. Packager will work with that configuration but it will still create a new backup file for each packager job that processes scripts, and therefore you would NOT be getting the possible performance benefit that you would have in the more typical configuration of creating a nightly backup separately with a separate packager job in preview mode and re-using that backup file when processing scripts (to avoid running backup each time). To optimize the on_demand backup, do NOT use <span class="HTMLCode_1">createDatabaseBackup=true with your main packaging job that processes scripts (assuming that the backup file was already created and is in place).</p>
+        <p>If you have implemented static/on_demand backups but have not seen a significant improvement in how long your packager jobs take to run, check your configuration. If you have set <code>databaseBackupMode=on_demandbut</code> are still using <code>createDatabaseBackup=true</code> in your main packager jobs that process scripts, that is an unusual configuration. Packager will work with that configuration but it will still create a new backup file for each packager job that processes scripts, and therefore you would NOT be getting the possible performance benefit that you would have in the more typical configuration of creating a nightly backup separately with a separate packager job in preview mode and re-using that backup file when processing scripts (to avoid running backup each time). To optimize the on_demand backup, do NOT use <code>createDatabaseBackup=true</code> with your main packaging job that processes scripts (assuming that the backup file was already created and is in place).</p>
         <p>You can also see other possible packager performance adjustments here: <a href="../../../../how-to-guides/improve-packager-performance.htm">How To: Improve Packager Performance</a></p>
         <h2>Risks</h2>
         <p>Although backing up the reference database during every deployment takes time, it also assures reliability. If packaging fails, the reference database is automatically restored to exactly the state it was in when packaging started. Not taking a backup every time introduces risk to the system.</p>
@@ -158,17 +98,8 @@
         <h3>Backup/Restore Lock File</h3>
         <p>When a failure is detected, <MadCap:variable name="General.LBEnterprise" /> will create a .lock file in the root directory of your <MadCap:variable name="General.LBEnterprise" /> Project and commit that to the Source Code Control repository for your project.</p>
         <ul>
-            <li>
-                <p>This file follows a naming convention:&#160;<span class="HTMLCode_1">&lt;dbdef name&gt;.lock</p>
-                <ul>
-                    <li>
-                        <p>For example: If your DbDef name is <span class="HTMLCode_1">RefDB the file will be named <span class="HTMLCode_1">RefDb.lock</p>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <p>The file contains the error output from the backup or restore that caused it to be created. The information will also exist in the daticaldb.log file for that Deployment Packager execution.</p>
-            </li>
+            <li>This file follows a naming convention:&#160;<code>&lt;dbdef name&gt;.lock</code><ul><li>For example: If your DbDef name is <code>RefDB</code> the file will be named <code>RefDb.lock</code></li></ul></li>
+            <li>The file contains the error output from the backup or restore that caused it to be created. The information will also exist in the daticaldb.log file for that Deployment Packager execution.</li>
         </ul>
         <p>If you attempt to run the Deployment Packager again, you will get an error similar to the example below.</p>
         <p class="HTMLPreformatted">===============================================================================</p>
@@ -185,24 +116,11 @@
         <p>Do not remove the lock until the original backup or restore issue has been investigated and resolved. Only when the issue that caused the error has been addressed and a new backup for the RefDB has been made, can the lock file be safely removed.</p>
         <p>After the backup/restore issue is resolved, remove the lock with whichever of these methods you prefer. Note that the last option includes creating a new backup file:</p>
         <ol>
-            <li>
-                <p>Delete the lock file from the <MadCap:variable name="General.LBEnterprise" /> project (example:&#160;<span class="HTMLCode_1">RefDb.lock) and commit the deletion to the SCM repository for that project</p>
-            </li>
-            <li>
-                <p>Or, run <span class="HTMLCode_1">clearBackupRestoreLock sub command of the <span class="HTMLCode_1">deployPackager.groovy script with Packager's <span class="HTMLCode_1">preview mode enabled. Here are variations of the command, the second command also creates a new backup.</p>
-                <ul>
-                    <li>
-                        <p>Only clear the lock with this command:</p>
-                    </li>
-                </ul>
-            </li>
-        </ol>
-        <p class="HTMLPreformatted">hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true clearBackupRestoreLock</p>
+            <li>Delete the lock file from the <MadCap:variable name="General.LBEnterprise" /> project (example: <code>RefDb.lock</code>) and commit the deletion to the SCM repository for that project</li>
+            <li>Or, run <code>clearBackupRestoreLock</code> sub command of the <code>deployPackager.groovy</code> script with Packager's <code>preview</code> mode enabled. Here are variations of the command, the second command also creates a new backup.<ul><li>Only clear the lock with this command:</li></ul></li>
+        </ol><pre>hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true clearBackupRestoreLock</pre>
         <ul>
-            <li>
-                <p>Or, you can configure the command to clear the lock and also create a new backup of the RefDB:</p>
-            </li>
-        </ul>
-        <p class="HTMLPreformatted">hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true createDatabaseBackup=true clearBackupRestoreLock</p>
+            <li>Or, you can configure the command to clear the lock and also create a new backup of the RefDB:</li>
+        </ul><pre>hammer groovy deployPackager.groovy MAR_2020 scm=true preview=true createDatabaseBackup=true clearBackupRestoreLock</pre>
     </body>
 </html>
