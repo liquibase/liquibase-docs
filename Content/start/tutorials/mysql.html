@@ -2,8 +2,8 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/start/tutorials/mysql.html" />
-		<meta name="description" content="This page guides you through the process of creating a new Liquibase project with MYSQL." />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with MYSQL." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <h1 id="mysql-tutorial">Using <MadCap:variable name="General.Liquibase" /> with MySQL</h1>
@@ -48,39 +48,6 @@
                 </li>
             </ul>
         </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;" MadCap:conditions="Default.EXCLUDE">It is important to note that Boolean types map to TINYINT(1) as specified on <a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-type-conversions.html#idm45997356653280">MySQL documentation</a>. You can continue to map to Boolean as BIT if you find it necessary, but updates on changelog column type may need to be updated to BIT, instead of Boolean.</p>
-        <table style="width: 100%; margin-left: auto; margin-right: auto;" MadCap:conditions="Default.EXCLUDE">
-            <col />
-            <col />
-            <col />
-            <thead>
-                <tr>
-                    <th>typeName</th>
-                    <th>&#160;</th>
-                    <th>&#160;</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>TINYINT(1) SIGNED, BOOLEAN</td>
-                    <td>
-                        <p>If <code>tinyInt1isBit=true</code> and <code>transformedBitIsBoolean=false: BIT</code><![CDATA[
-]]><br /></p>
-                        <p>If <code>tinyInt1isBit=true</code> and <code>transformedBitIsBoolean=true: BOOLEAN</code></p>
-                        <p>If <code>tinyInt1isBit=false: TINYINT</code></p>
-                    </td>
-                    <td>
-                        <p>If <code>tinyInt1isBit=true and transformedBitIsBoolean=false: java.lang.Boolean
-</code></p>
-                        <p>
-If <code>tinyInt1isBit=true and transformedBitIsBoolean=true: java.lang.Boolean
-</code><![CDATA[
-]]></p>
-                        <p>If <code>tinyInt1isBit=false: java.lang.Intege</code>r</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-changelog-test-connection.flsnp" MadCap:conditionTagExpression="include[database.default]" />
         <h3><a name="MySQL"></a>MySQL Server</h3>
         <ul>
@@ -113,6 +80,70 @@ If <code>tinyInt1isBit=true and transformedBitIsBoolean=true: java.lang.Boolean
         </ul>
         <h3>Other</h3>
         <p>You can also use <MadCap:variable name="General.Liquibase" /> on MySQL with <a href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMySQL.html">Amazon Aurora</a>, <a href="https://learn.microsoft.com/en-us/azure/mysql/">Azure Database</a>, and <a href="https://cloud.google.com/sql/docs/mysql/">Google Cloud SQL</a>.</p>
+        <h2 MadCap:conditions="Default.EXCLUDE">Type handling</h2>
+        <p MadCap:conditions="Default.EXCLUDE">When you run a command like <MadCap:xref href="../../commands/inspection/generate-changelog.html">generate-changelog</MadCap:xref> or <MadCap:xref href="../../commands/inspection/snapshot-reference.html">snapshot-reference</MadCap:xref>, <MadCap:variable name="General.Liquibase" /> maps&#160;data from your database onto the <MadCap:variable name="General.Liquibase" /> output, like the data type of a column.</p>
+        <p MadCap:conditions="Default.EXCLUDE">By default, Boolean <a href="https://dev.mysql.com/doc/connector-j/8.1/en/connector-j-reference-type-conversions.html#idm45997356653280">types in MySQL</a> map to <code>TINYINT(1)</code>. <b>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, <MadCap:variable name="General.Liquibase" /> also maps Boolean types to <code>TINYINT(1)</code>&#160;by default.</b> In previous versions, the default mapping is <code>BIT</code>. If you need to use a different type, you can set the properties <code>tinyInt1isBit</code> (default:&#160;<code>true</code>) and <code>transformedBitIsBoolean</code> (default:&#160;<code>false</code>). In a JDBC URL, this looks like:</p><pre MadCap:conditions="Default.EXCLUDE">url: jdbc:mysql://&lt;servername&gt;:&lt;port&gt;/&lt;dbname&gt;?tinyInt1isBit=true&amp;transformedBitIsBoolean=false</pre>
+        <p MadCap:conditions="Default.EXCLUDE">The following table shows which data type you get from each combination of properties:</p>
+        <table MadCap:conditions="Default.EXCLUDE">
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th><code>typeName</code>
+                    </th>
+                    <th><code>tinyInt1isBit</code> value</th>
+                    <th><code>transformedBitIsBoolean</code> value</th>
+                    <th>Resulting type in MySQL</th>
+                    <th>Resulting Java class</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="4"><code>TINYINT(1)&#160;SIGNED</code>, <code>BOOLEAN</code></td>
+                    <td><code>true</code>
+                    </td>
+                    <td><code>false</code>
+                    </td>
+                    <td><code>BIT</code>
+                    </td>
+                    <td><code>java.lang.Boolean</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>true</code>
+                    </td>
+                    <td><code>true</code>
+                    </td>
+                    <td><code>BOOLEAN</code>
+                    </td>
+                    <td><code>java.lang.Boolean</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>false</code>
+                    </td>
+                    <td><code>false</code>
+                    </td>
+                    <td><code>TINYINT</code>
+                    </td>
+                    <td><code>java.lang.Integer</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>false</code>
+                    </td>
+                    <td><code>true</code>
+                    </td>
+                    <td><code>TINYINT</code>
+                    </td>
+                    <td><code>java.lang.Integer</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <MadCap:dropDown MadCap:conditions="Default.EXCLUDE">
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>Supported <MadCap:variable name="General.changetypes" />s</MadCap:dropDownHotspot>
