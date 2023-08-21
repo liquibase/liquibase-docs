@@ -9,780 +9,779 @@ variable "env" {
 }
 
 variable "redirects" {
-  type = map(string)
-  default = {
-    # format: "/OLD/LINK.html" = "/NEW/LINK.html" 
-    "/2014/11/contexts-vs-labels.html"                                                                         = "/home.html"
-    "/2014/11/faq.html"                                                                                        = "/faq.html"
-    "/2014/11/home.html"                                                                                       = "/home.html"
-    "/2014/11/popular-topics.html"                                                                             = "/home.html"
-    "/change-types/community/add-auto-increment.html"                                                          = "/change-types/add-auto-increment.html"
-    "/change-types/community/add-column.html"                                                                  = "/change-types/add-column.html"
-    "/change-types/community/add-default-value.html"                                                           = "/change-types/add-default-value.html"
-    "/change-types/community/add-foreign-key-constraint.html"                                                  = "/change-types/add-foreign-key-constraint.html"
-    "/change-types/community/add-lookup-table.html"                                                            = "/change-types/add-lookup-table.html"
-    "/change-types/community/add-not-null-constraint.html"                                                     = "/change-types/add-not-null-constraint.html"
-    "/change-types/community/add-primary-key.html"                                                             = "/change-types/add-primary-key.html"
-    "/change-types/community/add-unique-constraint.html"                                                       = "/change-types/add-unique-constraint.html"
-    "/change-types/community/alter-sequence.html"                                                              = "/change-types/alter-sequence.html"
-    "/change-types/community/create-index.html"                                                                = "/change-types/create-index.html"
-    "/change-types/community/create-procedure.html"                                                            = "/change-types/create-procedure.html"
-    "/change-types/community/create-sequence.html"                                                             = "/change-types/create-sequence.html"
-    "/change-types/community/create-table.html"                                                                = "/change-types/create-table.html"
-    "/change-types/community/create-view.html"                                                                 = "/change-types/create-view.html"
-    "/change-types/community/custom-change.html"                                                               = "/change-types/custom-change.html"
-    "/change-types/community/delete.html"                                                                      = "/change-types/delete.html"
-    "/change-types/community/drop-all-foreign-key-constraints.html"                                            = "/change-types/drop-all-foreign-key-constraints.html"
-    "/change-types/community/drop-column.html"                                                                 = "/change-types/drop-column.html"
-    "/change-types/community/drop-default-value.html"                                                          = "/change-types/drop-default-value.html"
-    "/change-types/community/drop-foreign-key-constraint.html"                                                 = "/change-types/drop-foreign-key-constraint.html"
-    "/change-types/community/drop-index.html"                                                                  = "/change-types/drop-index.html"
-    "/change-types/community/drop-not-null-constraint.html"                                                    = "/change-types/drop-not-null-constraint.html"
-    "/change-types/community/drop-primary-key.html"                                                            = "/change-types/drop-primary-key.html"
-    "/change-types/community/drop-procedure.html"                                                              = "/change-types/drop-procedure.html"
-    "/change-types/community/drop-sequence.html"                                                               = "/change-types/drop-sequence.html"
-    "/change-types/community/drop-table.html"                                                                  = "/change-types/drop-table.html"
-    "/change-types/community/drop-unique-constraint.html"                                                      = "/change-types/drop-unique-constraint.html"
-    "/change-types/community/drop-view.html"                                                                   = "/change-types/drop-view.html"
-    "/change-types/community/empty.html"                                                                       = "/change-types/empty.html"
-    "/change-types/community/execute-command.htm"                                                              = "/change-types/execute-command.htm"
-    "/change-types/community/home.html"                                                                        = "/change-types/home.html"
-    "/change-types/community/insert.html"                                                                      = "/change-types/insert.html"
-    "/change-types/community/load-data.html"                                                                   = "/change-types/load-data.html"
-    "/change-types/community/load-update-data.html"                                                            = "/change-types/load-update-data.html"
-    "/change-types/community/merge-columns.html"                                                               = "/change-types/merge-columns.html"
-    "/change-types/community/modify-data-type.html"                                                            = "/change-types/modify-data-type.html"
-    "/change-types/community/output.html"                                                                      = "/change-types/output.html"
-    "/change-types/community/rename-column.html"                                                               = "/change-types/rename-column.html"
-    "/change-types/community/rename-sequence.html"                                                             = "/change-types/rename-sequence.html"
-    "/change-types/community/rename-table.html"                                                                = "/change-types/rename-table.html"
-    "/change-types/community/rename-view.html"                                                                 = "/change-types/rename-view.html"
-    "/change-types/community/set-column-remarks.html"                                                          = "/change-types/set-column-remarks.html"
-    "/change-types/community/set-table-remarks.html"                                                           = "/change-types/set-table-remarks.html"
-    "/change-types/community/sql.html"                                                                         = "/change-types/sql.html"
-    "/change-types/community/sql-file.html"                                                                    = "/change-types/sql-file.html"
-    "/change-types/community/stop.html"                                                                        = "/change-types/stop.html"
-    "/change-types/community/tag-database.html"                                                                = "/change-types/tag-database.html"
-    "/change-types/community/update.html"                                                                      = "/change-types/update.html"
-    "/change-types/pro/add-check-constraint.html"                                                              = "/change-types/add-check-constraint.html"
-    "/change-types/pro/create-function.html"                                                                   = "/change-types/create-function.html"
-    "/change-types/pro/create-package.html"                                                                    = "/change-types/create-package.html"
-    "/change-types/pro/create-package-body.html"                                                               = "/change-types/create-package-body.html"
-    "/change-types/pro/create-synonym.html"                                                                    = "/change-types/create-synonym.html"
-    "/change-types/pro/create-trigger.html"                                                                    = "/change-types/create-trigger.html"
-    "/change-types/pro/disable-check-constraint.html"                                                          = "/change-types/disable-check-constraint.html"
-    "/change-types/pro/disable-trigger.html"                                                                   = "/change-types/disable-trigger.html"
-    "/change-types/pro/drop-check-constraint.html"                                                             = "/change-types/drop-check-constraint.html"
-    "/change-types/pro/drop-function.html"                                                                     = "/change-types/drop-function.html"
-    "/change-types/pro/drop-package.html"                                                                      = "/change-types/drop-package.html"
-    "/change-types/pro/drop-package-body.html"                                                                 = "/change-types/drop-package-body.html"
-    "/change-types/pro/drop-synonym.html"                                                                      = "/change-types/drop-synonym.html"
-    "/change-types/pro/drop-trigger.html"                                                                      = "/change-types/drop-trigger.html"
-    "/change-types/pro/enable-check-constraint.html"                                                           = "/change-types/enable-check-constraint.html"
-    "/change-types/pro/enable-trigger.html"                                                                    = "/change-types/enable-trigger.html"
-    "/change-types/pro/home.html"                                                                              = "/change-types/home.html"
-    "/change-types/pro/mark-unused.html"                                                                       = "/change-types/mark-unused.html"
-    "/change-types/pro/rename-trigger.html"                                                                    = "/change-types/rename-trigger.html"
-    "/commands/calculatechecksum.html"                                                                         = "/commands/maintenance/calculate-checksum.html"
-    "/commands/changelogsync.html"                                                                             = "/commands/change-tracking/changelog-sync.html"
-    "/commands/changelogsyncsql.html"                                                                          = "/commands/change-tracking/changelog-sync-sql.html"
-    "/commands/changelogsynctotag.html"                                                                        = "/commands/change-tracking/changelog-sync-to-tag.html"
-    "/commands/changelogsynctotagsql.html"                                                                     = "/commands/change-tracking/changelog-sync-to-tag-sql.html"
-    "/commands/clearchecksums.html"                                                                            = "/commands/maintenance/clear-checksums.html"
-    "/commands/command-parameters.html"                                                                        = "/parameters/home.html"
-    "/commands/community/calculatechecksum.html"                                                               = "/commands/maintenance/calculate-checksum.html"
-    "/commands/community/changelogsync.html"                                                                   = "/commands/change-tracking/changelog-sync.html"
-    "/commands/community/changelogsyncsql.html"                                                                = "/commands/change-tracking/changelog-sync-sql.html"
-    "/commands/community/changelogsynctotag.html"                                                              = "/commands/change-tracking/changelog-sync-to-tag.html"
-    "/commands/community/changelogsynctotagsql.html"                                                           = "/commands/change-tracking/changelog-sync-to-tag-sql.html"
-    "/commands/community/clearchecksums.html"                                                                  = "/commands/maintenance/clear-checksums.html"
-    "/commands/community/dbdoc.html"                                                                           = "/commands/change-tracking/db-doc.html"
-    "/commands/community/deactivatechangelog.html"                                                             = "/tools-integrations/observability/structured-logging.html"
-    "/commands/community/diff.html"                                                                            = "/commands/inspection/diff.html"
-    "/commands/community/diff-json.html"                                                                       = "/commands/inspection/diff-json.html"
-    "/commands/community/diffchangelog.html"                                                                   = "/commands/inspection/diff-changelog.html"
-    "/commands/community/dropall.html"                                                                         = "/commands/update/drop-all.html"
-    "/commands/community/faq.html"                                                                             = "/faq.html"
-    "/commands/community/future-rollback-from-tag-sql.html"                                                    = "/commands/rollback/future-rollback-from-tag-sql.html"
-    "/commands/community/futurerollbackcountsql.html"                                                          = "/commands/rollback/future-rollback-count-sql.html"
-    "/commands/community/futurerollbacksql.html"                                                               = "/commands/futurerollbacksql.html"
-    "/commands/community/generatechangelog.html"                                                               = "/commands/inspection/generate-changelog.html"
-    "/commands/community/help.html"                                                                            = "/parameters/help.html"
-    "/commands/community/history.html"                                                                         = "/commands/change-tracking/history.html"
-    "/commands/community/home.html"                                                                            = "/commands/home.html"
-    "/commands/community/listlocks.html"                                                                       = "/commands/maintenance/list-locks.html"
-    "/commands/community/marknextchangesetran.html"                                                            = "/commands/change-tracking/mark-next-changeset-ran.html"
-    "/commands/community/marknextchangesetransql.html"                                                         = "/commands/change-tracking/mark-next-changeset-ran-sql.html"
-    "/commands/community/popular-topics.html"                                                                  = "/home.html"
-    "/commands/community/quality-checks/checks-copy.html"                                                      = "/commands/quality-checks/subcommands/copy.html"
-    "/commands/community/quality-checks/checks-customize.html"                                                 = "/commands/quality-checks/subcommands/customize.html"
-    "/commands/community/quality-checks/checks-delete.html"                                                    = "/commands/quality-checks/subcommands/delete.html"
-    "/commands/community/quality-checks/checks-disable.html"                                                   = "/commands/quality-checks/subcommands/disable.html"
-    "/commands/community/quality-checks/checks-enable.html"                                                    = "/commands/quality-checks/subcommands/enable.html"
-    "/commands/community/quality-checks/checks-reset.html"                                                     = "/commands/quality-checks/subcommands/reset.html"
-    "/commands/community/quality-checks/checks-run.html"                                                       = "/commands/quality-checks/subcommands/run.html"
-    "/commands/community/quality-checks/checks-show.html"                                                      = "/commands/quality-checks/subcommands/show.html"
-    "/commands/community/quality-checks/generic-object.html"                                                   = "/commands/quality-checks/workflows/multiple-objects.html"
-    "/commands/community/quality-checks/home.html"                                                             = "/commands/quality-checks/home.html"
-    "/commands/community/registerChangeLog.html"                                                               = "/tools-integrations/observability/structured-logging.html"
-    "/commands/community/registerchangelog.html"                                                               = "/tools-integrations/observability/structured-logging.html"
-    "/commands/community/releaselocks.html"                                                                    = "/commands/maintenance/release-locks.html"
-    "/commands/community/rollbackbytag.html"                                                                   = "/commands/rollback/rollback-by-tag.html"
-    "/commands/community/rollbackcount.html"                                                                   = "/commands/rollback/rollback-count.html"
-    "/commands/community/rollbackcountsql.html"                                                                = "/commands/rollback/rollback-count-sql.html"
-    "/commands/community/rollbacksqltag.html"                                                                  = "/commands/rollback/rollback-sql.html"
-    "/commands/community/rollbacktodate.html"                                                                  = "/commands/rollback/rollback-to-date.html"
-    "/commands/community/rollbacktodatesql.html"                                                               = "/commands/rollback/rollback-to-date-sql.html"
-    "/commands/community/snapshot.html"                                                                        = "/commands/inspection/snapshot.html"
-    "/commands/community/snapshotreference.html"                                                               = "/commands/inspection/snapshot-reference.html"
-    "/commands/community/status-verbose.html"                                                                  = "/commands/change-tracking/status.html"
-    "/commands/community/synchub.html"                                                                         = "/tools-integrations/observability/structured-logging.html"
-    "/commands/community/tag.html"                                                                             = "/commands/change-tracking/tag.html"
-    "/commands/community/tagexists.html"                                                                       = "/commands/change-tracking/tag-exists.html"
-    "/commands/community/unexpectedchangesets.html"                                                            = "/commands/change-tracking/unexpected-changesets.html"
-    "/commands/community/update.html"                                                                          = "/commands/update/update.html"
-    "/commands/community/updatecount.html"                                                                     = "/commands/update/update-count.html"
-    "/commands/community/updatecountsql.html"                                                                  = "/commands/update/update-count-sql.html"
-    "/commands/community/updatesql.html"                                                                       = "/commands/update/update-sql.html"
-    "/commands/community/updatetestingrollback.html"                                                           = "/commands/update/update-testing-rollback.html"
-    "/commands/community/updatetotag.html"                                                                     = "/commands/update/update-to-tag.html"
-    "/commands/community/updatetotagsql.html"                                                                  = "/commands/update/update-to-tag-sql.html"
-    "/commands/community/validate.html"                                                                        = "/commands/update/validate.html"
-    "/commands/config-ref/always-override-stored-logic-schema.html"                                            = "/parameters/always-override-stored-logic-schema.html"
-    "/commands/config-ref/auto-reorg.html"                                                                     = "/parameters/auto-reorg.html"
-    "/commands/config-ref/changelogfile-parameter.html"                                                        = "/parameters/changelog-file.html"
-    "/commands/config-ref/changelog-lock-poll-rate.html"                                                       = "/parameters/changelog-lock-poll-rate.html"
-    "/commands/config-ref/changelog-lock-wait-time-in-minutes-parameter.html"                                  = "/parameters/changelog-lock-wait-time-in-minutes.html"
-    "/commands/config-ref/convert-data-types-parameter.html"                                                   = "/parameters/convert-data-types.html"
-    "/commands/config-ref/database-class.html"                                                                 = "/parameters/database-class.html"
-    "/commands/config-ref/diff-column-order.html"                                                              = "/parameters/diff-column-order.html"
-    "/commands/config-ref/driver.html"                                                                         = "/parameters/driver.html"
-    "/commands/config-ref/filter-log-messages.html"                                                            = "/parameters/filter-log-messages.html"
-    "/commands/config-ref/generate-changeset-created-values.html"                                              = "/parameters/generate-changeset-created-values.html"
-    "/commands/config-ref/generated-changeset-ids-contains-description.html"                                   = "/parameters/generated-changeset-ids-contains-description.html"
-    "/commands/config-ref/headless-parameter.html"                                                             = "/parameters/headless.html"
-    "/commands/config-ref/help.html"                                                                           = "/parameters/help.html"
-    "/commands/config-ref/include-catalog-in-specification-parameter.html"                                     = "/parameters/include-catalog-in-specification.html"
-    "/commands/config-ref/include-system-classpath-parameter.html"                                             = "/parameters/include-system-classpath.html"
-    "/commands/config-ref/liquibase-catalog-name-parameter.html"                                               = "/parameters/liquibase-catalog-name.html"
-    "/commands/config-ref/liquibase-schema-name-parameter.html"                                                = "/parameters/liquibase-schema-name.html"
-    "/commands/config-ref/liquibase-tablespace-name.html"                                                      = "/parameters/liquibase-tablespace-name.html"
-    "/commands/config-ref/logfile-parameter.html"                                                              = "/parameters/log-file.html"
-    "/commands/config-ref/logicalfilepath.html"                                                                = "/concepts/changelogs/attributes/logicalfilepath.html"
-    "/commands/config-ref/loglevel.html"                                                                       = "/parameters/log-level.html"
-    "/commands/config-ref/objectquotingstrategy.html"                                                          = "/concepts/changelogs/attributes/objectquotingstrategy.html"
-    "/commands/config-ref/outputfile-parameter.html"                                                           = "/parameters/output-file.html"
-    "/commands/config-ref/output-file-encoding.html"                                                           = "/parameters/output-file-encoding.html"
-    "/commands/config-ref/output-line-separator.html"                                                          = "/parameters/output-line-separator.html"
-    "/commands/config-ref/should-run-parameter.html"                                                           = "/parameters/should-run.html"
-    "/commands/config-ref/should-snapshot-data-parameter.html"                                                 = "/parameters/should-snapshot-data.html"
-    "/commands/dbdoc.html"                                                                                     = "/commands/change-tracking/db-doc.html"
-    "/commands/deactivatechangelog.html"                                                                       = "/tools-integrations/observability/structured-logging.html"
-    "/commands/diff/diff.html"                                                                                 = "/commands/inspection/diff.html"
-    "/commands/diff/diff-changelog.html"                                                                       = "/commands/inspection/diff-changelog.html"
-    "/commands/diff/diff-json.html"                                                                            = "/commands/inspection/diff-json.html"
-    "/commands/diff.html"                                                                                      = "/commands/inspection/diff.html"
-    "/commands/diffchangelog.html"                                                                             = "/commands/inspection/diff-changelog.html"
-    "/commands/diff-json.html"                                                                                 = "/commands/inspection/diff-json.html"
-    "/commands/docs/db-doc.html"                                                                               = "/commands/change-tracking/db-doc.html"
-    "/commands/dropall.html"                                                                                   = "/commands/update/drop-all.html"
-    "/commands/execute-sql.html"                                                                               = "/commands/update/execute-sql.html"
-    "/commands/flow/advance-flow-file.html"                                                                    = "/commands/flow/advanced-flow-file.html"
-    "/commands/futurerollbackcountsql.html"                                                                    = "/commands/rollback/future-rollback-count-sql.html"
-    "/commands/future-rollback-from-tag-sql.html"                                                              = "/commands/rollback/future-rollback-from-tag-sql.html"
-    "/commands/futurerollbacksql.html"                                                                         = "/commands/rollback/future-rollback-sql.html"
-    "/commands/generatechangelog.html"                                                                         = "/commands/inspection/generate-changelog.html"
-    "/commands/help.html"                                                                                      = "/parameters/help.html"
-    "/commands/history.html"                                                                                   = "/commands/change-tracking/history.html"
-    "/commands/hub/deactivate-changelog.html"                                                                  = "/tools-integrations/observability/structured-logging.html"
-    "/commands/hub/register-changelog.html"                                                                    = "/tools-integrations/observability/structured-logging.html"
-    "/commands/hub/sync-hub.html"                                                                              = "/tools-integrations/observability/structured-logging.html"
-    "/commands/init/hub.html"                                                                                  = "/tools-integrations/observability/structured-logging.html"
-    "/commands/java-opts-environment-variable.html"                                                            = "/concepts/connections/java-opts-environment-variable.html"
-    "/commands/liquibase-environment-variables.html"                                                           = "/concepts/connections/liquibase-environment-variables.html"
-    "/commands/liquibase-start/home.html"                                                                      = "/commands/init/home.html"
-    "/commands/liquibase-start/init-hub.html"                                                                  = "/tools-integrations/observability/structured-logging.html"
-    "/commands/liquibase-start/init-project.html"                                                              = "/commands/init/project.html"
-    "/commands/liquibase-start/init-start-h2.html"                                                             = "/commands/init/start-h2.html"
-    "/commands/listlocks.html"                                                                                 = "/commands/maintenance/list-locks.html"
-    "/commands/maintenance/changelog-sync.html"                                                                = "/commands/change-tracking/changelog-sync.html"
-    "/commands/maintenance/changelog-sync-sql.html"                                                            = "/commands/change-tracking/changelog-sync-sql.html"
-    "/commands/maintenance/changelog-sync-to-tag.html"                                                         = "/commands/change-tracking/changelog-sync-to-tag.html"
-    "/commands/maintenance/changelog-sync-to-tag-sql.html"                                                     = "/commands/change-tracking/changelog-sync-to-tag-sql.html"
-    "/commands/maintenance/drop-all.html"                                                                      = "/commands/update/drop-all.html"
-    "/commands/maintenance/mark-next-changeset-ran.html"                                                       = "/commands/change-tracking/mark-next-changeset-ran.html"
-    "/commands/maintenance/mark-next-changeset-ran-sql.html"                                                   = "/commands/change-tracking/mark-next-changeset-ran-sql.html"
-    "/commands/maintenance/tag.html"                                                                           = "/commands/change-tracking/tag.html"
-    "/commands/maintenance/tag-exists.html"                                                                    = "/commands/change-tracking/tag-exists.html"
-    "/commands/maintenance/unexpected-changesets.html"                                                         = "/commands/change-tracking/unexpected-changesets.html"
-    "/commands/maintenance/validate.html"                                                                      = "/commands/update/validate.html"
-    "/commands/marknextchangesetran.html"                                                                      = "/commands/change-tracking/mark-next-changeset-ran.html"
-    "/commands/marknextchangesetransql.html"                                                                   = "/commands/change-tracking/mark-next-changeset-ran-sql.html"
-    "/commands/pro/checks-bulk-set.html"                                                                       = "/commands/quality-checks/subcommands/bulk-set.html"
-    "/commands/pro/diff-json.html"                                                                             = "/commands/inspection/diff-json.html"
-    "/commands/pro/home.html"                                                                                  = "/commands/home.html"
-    "/commands/pro/rollbackonechangeset.html"                                                                  = "/commands/rollback/rollback-one-changeset.html"
-    "/commands/pro/rollbackonechangesetsql.html"                                                               = "/commands/rollback/rollback-one-changeset-sql.html"
-    "/commands/pro/rollbackoneupdate.html"                                                                     = "/commands/rollback/rollback-one-update.html"
-    "/commands/pro/rollbackoneupdatesql.html"                                                                  = "/commands/rollback/rollback-one-update-sql.html"
-    "/commands/quality-checks/bulk-set.html"                                                                   = "/commands/quality-checks/subcommands/bulk-set.html"
-    "/commands/quality-checks/checks/quality-checks-list.html"                                                 = "/commands/quality-checks/checks/home.html"
-    "/commands/quality-checks/checks-bulk-set.html"                                                            = "/commands/quality-checks/subcommands/bulk-set.html"
-    "/commands/quality-checks/checks-copy.html"                                                                = "/commands/quality-checks/subcommands/copy.html"
-    "/commands/quality-checks/checks-customize.html"                                                           = "/commands/quality-checks/subcommands/customize.html"
-    "/commands/quality-checks/checks-delete.html"                                                              = "/commands/quality-checks/subcommands/delete.html"
-    "/commands/quality-checks/checks-disable.html"                                                             = "/commands/quality-checks/subcommands/disable.html"
-    "/commands/quality-checks/checks-enable.html"                                                              = "/commands/quality-checks/subcommands/enable.html"
-    "/commands/quality-checks/checks-reset.html"                                                               = "/commands/quality-checks/subcommands/reset.html"
-    "/commands/quality-checks/checks-run.html"                                                                 = "/commands/quality-checks/subcommands/run.html"
-    "/commands/quality-checks/checks-scope.html"                                                               = "/commands/quality-checks/command-arguments/checks-scope.html"
-    "/commands/quality-checks/checks-show.html"                                                                = "/commands/quality-checks/subcommands/show.html"
-    "/commands/quality-checks/concepts/getting-started-with-the-checks-command.html"                           = "/commands/quality-checks/workflows/home.html"
-    "/commands/quality-checks/concepts/json-object.html"                                                       = "/commands/quality-checks/workflows/json-object.html"
-    "/commands/quality-checks/concepts/multiple-objects.html"                                                  = "/commands/quality-checks/workflows/multiple-objects.html"
-    "/commands/quality-checks/concepts/using-quality-checks-in-automation-severity-and-exit-code.html"         = "/commands/quality-checks/workflows/use-quality-checks-in-automation-severity-and-exit-code.html"
-    "/commands/quality-checks/concepts/using-the-checks-settings-configuration-file.html"                      = "/commands/quality-checks/workflows/use-checks-settings-config-file.html"
-    "/commands/quality-checks/concepts/working-with-quality-checks.html"                                       = "/commands/quality-checks/workflows/home.html"
-    "/commands/quality-checks/constraint-must-exist.html"                                                      = "/commands/quality-checks/checks/constraint-must-exist.html"
-    "/commands/quality-checks/copy.html"                                                                       = "/commands/quality-checks/subcommands/copy.html"
-    "/commands/quality-checks/customize.html"                                                                  = "/commands/quality-checks/subcommands/customize.html"
-    "/commands/quality-checks/delete.html"                                                                     = "/commands/quality-checks/subcommands/delete.html"
-    "/commands/quality-checks/disable.html"                                                                    = "/commands/quality-checks/subcommands/disable.html"
-    "/commands/quality-checks/enable.html"                                                                     = "/commands/quality-checks/subcommands/enable.html"
-    "/commands/quality-checks/getting-started-with-the-checks-command.html"                                    = "/commands/quality-checks/workflows/home.html"
-    "/commands/quality-checks/json-object.html"                                                                = "/commands/quality-checks/workflows/json-object.html"
-    "/commands/quality-checks/lab-quality-checks.html"                                                         = "/commands/quality-checks/checks/home.html"
-    "/commands/quality-checks/multiple-objects.html"                                                           = "/commands/quality-checks/workflows/multiple-objects.html"
-    "/commands/quality-checks/object-name-must-match.html"                                                     = "/commands/quality-checks/checks/object-name-must-match.html"
-    "/commands/quality-checks/object-name-must-not-match.html"                                                 = "/commands/quality-checks/checks/object-name-must-not-match.html"
-    "/commands/quality-checks/parameters/checks-scope.html"                                                    = "/commands/quality-checks/command-arguments/checks-scope.html"
-    "/commands/quality-checks/quality-checks-json-object.html"                                                 = "/commands/quality-checks/workflows/json-object.html"
-    "/commands/quality-checks/quality-checks-list.html"                                                        = "/commands/quality-checks/checks/home.html"
-    "/commands/quality-checks/reset.html"                                                                      = "/commands/quality-checks/subcommands/reset.html"
-    "/commands/quality-checks/run.html"                                                                        = "/commands/quality-checks/subcommands/run.html"
-    "/commands/quality-checks/show.html"                                                                       = "/commands/quality-checks/subcommands/show.html"
-    "/commands/quality-checks/table-column-limit.html"                                                         = "/commands/quality-checks/checks/table-column-limit.html"
-    "/commands/quality-checks/table-comment-check.html"                                                        = "/commands/quality-checks/checks/table-comment-check.html"
-    "/commands/quality-checks/table-comment-pattern-check.html"                                                = "/commands/quality-checks/checks/table-comment-pattern-check.html"
-    "/commands/quality-checks/using-quality-checks-in-automation-severity-and-exit-code.html"                  = "/commands/quality-checks/workflows/use-quality-checks-in-automation-severity-and-exit-code.html"
-    "/commands/quality-checks/using-the-checks-settings-configuration-file.html"                               = "/commands/quality-checks/workflows/use-checks-settings-config-file.html"
-    "/commands/quality-checks/workflows/getting-started-with-the-checks-command.html"                          = "/commands/quality-checks/workflows/home.html"
-    "/commands/quality-checks/workflows/using-the-checks-settings-configuration-file.html"                     = "/commands/quality-checks/workflows/use-checks-settings-config-file.html"
-    "/commands/quality-checks/working-with-quality-checks.html"                                                = "/commands/quality-checks/workflows/home.html"
-    "/commands/registerchangelog.html"                                                                         = "/tools-integrations/observability/structured-logging.html"
-    "/commands/releaselocks.html"                                                                              = "/commands/maintenance/release-locks.html"
-    "/commands/rollbackbytag.html"                                                                             = "/commands/rollback/rollback-by-tag.html"
-    "/commands/rollbackcount.html"                                                                             = "/commands/rollback/rollback-count.html"
-    "/commands/rollbackcountsql.html"                                                                          = "/commands/rollback/rollback-count-sql.html"
-    "/commands/rollbackonechangeset.html"                                                                      = "/commands/rollback/rollback-one-changeset.html"
-    "/commands/rollbackonechangesetsql.html"                                                                   = "/commands/rollback/rollback-one-changeset-sql.html"
-    "/commands/rollbackoneupdate.html"                                                                         = "/commands/rollback/rollback-one-update.html"
-    "/commands/rollbackoneupdatesql.html"                                                                      = "/commands/rollback/rollback-one-update-sql.html"
-    "/commands/rollbacksqltag.html"                                                                            = "/commands/rollback/rollback-sql.html"
-    "/commands/rollbacktodate.html"                                                                            = "/commands/rollback/rollback-to-date.html"
-    "/commands/rollbacktodatesql.html"                                                                         = "/commands/rollback/rollback-to-date-sql.html"
-    "/commands/snapshot/generate-changelog.html"                                                               = "/commands/inspection/generate-changelog.html"
-    "/commands/snapshot/snapshot.html"                                                                         = "/commands/inspection/snapshot.html"
-    "/commands/snapshot/snapshot-reference.html"                                                               = "/commands/inspection/snapshot-reference.html"
-    "/commands/snapshot.html"                                                                                  = "/commands/inspection/snapshot.html"
-    "/commands/snapshotreference.html"                                                                         = "/commands/inspection/snapshot-reference.html"
-    "/commands/status/history.html"                                                                            = "/commands/change-tracking/history.html"
-    "/commands/status/status.html"                                                                             = "/commands/change-tracking/status.html"
-    "/commands/status/verbose.html"                                                                            = "/commands/change-tracking/status.html"
-    "/commands/status-verbose.html"                                                                            = "/commands/change-tracking/status.html"
-    "/commands/synchub.html"                                                                                   = "/tools-integrations/observability/structured-logging.html"
-    "/commands/tag.html"                                                                                       = "/commands/change-tracking/tag.html"
-    "/commands/tagexists.html"                                                                                 = "/commands/change-tracking/tag-exists.html"
-    "/commands/unexpectedchangesets.html"                                                                      = "/commands/change-tracking/unexpected-changesets.html"
-    "/commands/update.html"                                                                                    = "/commands/update/update.html"
-    "/commands/updatecount.html"                                                                               = "/commands/update/update-count.html"
-    "/commands/updatecountsql.html"                                                                            = "/commands/update/update-count-sql.html"
-    "/commands/updatesql.html"                                                                                 = "/commands/update/update-sql.html"
-    "/commands/updatetestingrollback.html"                                                                     = "/commands/update/update-testing-rollback.html"
-    "/commands/updatetotag.html"                                                                               = "/commands/update/update-to-tag.html"
-    "/commands/updatetotagsql.html"                                                                            = "/commands/update/update-to-tag-sql.html"
-    "/commands/validate.html"                                                                                  = "/commands/update/validate.html"
-    "/commands/working-with-command-parameters.html"                                                           = "/parameters/working-with-command-parameters.html"
-    "/concepts/advanced/column.html"                                                                           = "/change-types/nested-tags/column.html"
-    "/concepts/advanced/always-override-stored-logic-schema.html"                                              = "/parameters/always-override-stored-logic-schema.html"
-    "/concepts/advanced/auto-reorg.html"                                                                       = "/parameters/auto-reorg.html"
-    "/concepts/advanced/changelogfile-parameter.html"                                                          = "/parameters/changelog-file.html"
-    "/concepts/advanced/changelog-lock-poll-rate.html"                                                         = "/parameters/changelog-lock-poll-rate.html"
-    "/concepts/advanced/changelog-lock-wait-time-in-minutes-parameter.html"                                    = "/parameters/changelog-lock-wait-time-in-minutes.html"
-    "/concepts/advanced/configuring-quality-checks.html"                                                       = "/commands/quality-checks/home.html"
-    "/concepts/advanced/contexts.html"                                                                         = "/concepts/changelogs/attributes/contexts.html"
-    "/concepts/advanced/convert-data-types-parameter.html"                                                     = "/parameters/convert-data-types.html"
-    "/concepts/advanced/database-class.html"                                                                   = "/parameters/database-class.html"
-    "/concepts/advanced/diff-column-order.html"                                                                = "/parameters/diff-column-order.html"
-    "/concepts/advanced/driver.html"                                                                           = "/parameters/driver.html"
-    "/concepts/advanced/enddelimiter-sql-attribute.html"                                                       = "/concepts/changelogs/attributes/enddelimiter-sql.html"
-    "/concepts/advanced/filter-log-messages.html"                                                              = "/parameters/filter-log-messages.html"
-    "/concepts/advanced/generate-changeset-created-values.html"                                                = "/parameters/generate-changeset-created-values.html"
-    "/concepts/advanced/generated-changeset-ids-contains-description.html"                                     = "/parameters/generated-changeset-ids-contains-description.html"
-    "/concepts/advanced/getting-started-with-the-checks-command.html"                                          = "/commands/quality-checks/workflows/home.html"
-    "/concepts/advanced/headless-parameter.html"                                                               = "/parameters/headless.html"
-    "/concepts/advanced/help.html"                                                                             = "/parameters/help.html"
-    "/concepts/advanced/include.html"                                                                          = "/change-types/include.html"
-    "/concepts/advanced/includeall.html"                                                                       = "/change-types/includeall.html"
-    "/concepts/advanced/include-catalog-in-specification-parameter.html"                                       = "/parameters/include-catalog-in-specification.html"
-    "/concepts/advanced/include-system-classpath-parameter.html"                                               = "/parameters/include-system-classpath.html"
-    "/concepts/advanced/labels.html"                                                                           = "/concepts/changelogs/attributes/labels.html"
-    "/concepts/advanced/liquibase-catalog-name-parameter.html"                                                 = "/parameters/liquibase-catalog-name.html"
-    "/concepts/advanced/liquibase-pro-certified-databases.html"                                                = "/home.html"
-    "/concepts/advanced/liquibase-schema-name-parameter.html"                                                  = "/parameters/liquibase-schema-name.html"
-    "/concepts/advanced/liquibase-tablespace-name.html"                                                        = "/parameters/liquibase-tablespace-name.html"
-    "/concepts/advanced/logfile-parameter.html"                                                                = "/parameters/log-file.html"
-    "/concepts/advanced/logicalfilepath.html"                                                                  = "/concepts/changelogs/attributes/logicalfilepath.html"
-    "/concepts/advanced/loglevel.html"                                                                         = "/parameters/log-level.html"
-    "/concepts/advanced/objectquotingstrategy.html"                                                            = "/parameters/object-quoting-strategy.html"
-    "/concepts/advanced/outputfile-parameter.html"                                                             = "/parameters/output-file.html"
-    "/concepts/advanced/output-file-encoding.html"                                                             = "/parameters/output-file-encoding.html"
-    "/concepts/advanced/output-line-separator.html"                                                            = "/parameters/output-line-separator.html"
-    "/concepts/advanced/preconditions.html"                                                                    = "/concepts/changelogs/preconditions.html"
-    "/concepts/advanced/quality-checks.html"                                                                   = "/commands/quality-checks/home.html"
-    "/concepts/advanced/runonchange.html"                                                                      = "/concepts/changelogs/attributes/runonchange.html"
-    "/concepts/advanced/runwith.html"                                                                          = "/concepts/changelogs/attributes/runwith.html"
-    "/concepts/advanced/should-run-parameter.html"                                                             = "/parameters/parameters/should-run.html"
-    "/concepts/advanced/should-snapshot-data-parameter.html"                                                   = "/parameters/parameters/should-snapshot-data-parameter.html"
-    "/concepts/advanced/using-sql-plus-and-oracle-proxy-user.html"                                             = "/concepts/changelogs/attributes/using-sql-plus-and-oracle-proxy-user.html"
-    "/concepts/advanced/using-quality-checks-in-automation-severity-and-exit-code.html"                        = "/commands/quality-checks/workflows/use-quality-checks-auto-severity-exit-code.html"
-    "/concepts/advanced/using-the-changelogfile-logfile-outputfile-parameters.html"                            = "/parameters/home.html"
-    "/concepts/advanced/using-the-checks-settings-configuration-file.html"                                     = "/commands/quality-checks/workflows/use-checks-settings-config-file.html"
-    "/concepts/ant/index.html"                                                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/"
-    "/concepts/basic/changelog.html"                                                                           = "/concepts/changelogs/home.html"
-    "/concepts/basic/changelog-parameters.html"                                                                = "/concepts/changelogs/attributes/home.html"
-    "/concepts/basic/changelog-property-substitution.html"                                                     = "/concepts/changelogs/property-substitution.html"
-    "/concepts/basic/changeset.html"                                                                           = "/concepts/changelogs/changeset.html"
-    "/concepts/basic/databasechangelog-table.html"                                                             = "/concepts/tracking-tables/databasechangelog-table.html"
-    "/concepts/basic/databasechangeloglock-table.html"                                                         = "/concepts/tracking-tables/databasechangeloglock-table.html"
-    "/concepts/basic/home.html"                                                                                = "/concepts/tracking-tables/tracking-tables.html"
-    "/concepts/basic/how-liquibase-finds-files.html"                                                           = "/concepts/changelogs/how-liquibase-finds-files.html"
-    "/concepts/basic/java-opts-environment-variable.html "                                                     = "/concepts/connections/java-opts-environment-variable.html"
-    "/concepts/basic/json-format.html"                                                                         = "/concepts/changelogs/json-format.html"
-    "/concepts/basic/liquibase-configuration-reference.html"                                                   = "/parameters/home.html"
-    "/concepts/basic/liquibase-environment-variables.html"                                                     = "/concepts/connections/liquibase-environment-variables.html"
-    "/concepts/basic/liquibase-relative-path-best-practices.html"                                              = "/concepts/changelogs/how-liquibase-finds-files.html"
-    "/concepts/basic/other-formats.html"                                                                       = "/concepts/changelogs/other-formats.html"
-    "/concepts/basic/path-update.html"                                                                         = "/concepts/changelogs/how-liquibase-finds-files.html"
-    "/concepts/basic/sql-format.html"                                                                          = "/concepts/changelogs/sql-format.html"
-    "/concepts/basic/xml-format.html"                                                                          = "/concepts/changelogs/xml-format.html"
-    "/concepts/basic/yaml-format.html"                                                                         = "/concepts/changelogs/yaml-format.html"
-    "/concepts/changelog.html"                                                                                 = "/concepts/changelogs/home.html"
-    "/concepts/changelog-parameters.html"                                                                      = "/concepts/changelogs/attributes/home.html"
-    "/concepts/changelogs/attributes/column.html"                                                              = "/change-types/nested-tags/column.html"
-    "/concepts/changelogs/attributes/changelog-attributes.html"                                                = "/concepts/changelogs/attributes/home.html"
-    "/concepts/changelogs/attributes/changelog-elements.html"                                                  = "/concepts/changelogs/attributes/home.html"
-    "/concepts/changelogs/attributes/changeset-elements-and-attributes.html"                                   = "/concepts/changelogs/attributes/home.html"
-    "/concepts/changelogs/attributes/end-delimiter-sql.html"                                                   = "/concepts/changelogs/attributes/enddelimiter-sql.html"
-    "/concepts/changelogs/attributes/end-delimiter-sql-attribute.html"                                         = "/concepts/changelogs/attributes/enddelimiter-sql.html"
-    "/concepts/changelogs/attributes/logical-file-path.html"                                                   = "/concepts/changelogs/attributes/logicalfilepath.html"
-    "/concepts/changelogs/attributes/include-all.html"                                                         = "/change-types/includeall.html"
-    "/concepts/changelogs/attributes/include.html"                                                             = "/change-types/include.html"
-    "/concepts/changelogs/attributes/includeall.html"                                                          = "/change-types/includeall.html"
-    "/concepts/changelogs/attributes/run-on-change.html"                                                       = "/concepts/changelogs/attributes/runonchange.html"
-    "/concepts/changelogs/attributes/run-with.html"                                                            = "/concepts/changelogs/attributes/runwith.html"
-    "/concepts/changelogs/attributes/using-psql-integration.html"                                              = "/concepts/changelogs/attributes/use-psql-integration.html"
-    "/concepts/changelogs/attributes/using-sqlcmd-integration.html"                                            = "/concepts/changelogs/attributes/use-sqlcmd-integration.html"
-    "/concepts/changelogs/attributes/using-sql-plus-and-oracle-proxy-user.html"                                = "/concepts/changelogs/attributes/use-sql-plus-oracle-proxy-user.html"
-    "/concepts/changelogs/attributes/using-sql-plus-integration.html"                                          = "/concepts/changelogs/attributes/use-sql-plus-integration.html"
-    "/concepts/changelogs/changelog-formats.html"                                                              = "/concepts/changelogs/changeset.html"
-    "/concepts/changelogs/contexts.html"                                                                       = "/concepts/changelogs/attributes/contexts.html"
-    "/concepts/changelogs/enddelimiter-sql-attribute.html"                                                     = "/concepts/changelogs/attributes/enddelimiter-sql.html"
-    "/concepts/changelogs/include.html"                                                                        = "/change-types/include.html"
-    "/concepts/changelogs/includeall.html"                                                                     = "/change-types/includeall.html"
-    "/concepts/changelogs/labels.html"                                                                         = "/concepts/changelogs/attributes/labels.html"
-    "/concepts/changelogs/runonchange.html"                                                                    = "/concepts/changelogs/attributes/runonchange.html"
-    "/concepts/changelogs/runwith.html"                                                                        = "/concepts/changelogs/attributes/runwith.html"
-    "/concepts/changelogs/working-with-changelogs.html"                                                        = "/concepts/changelogs/home.html"
-    "/concepts/changes/sql.html"                                                                               = "/change-types/sql.html"
-    "/concepts/changes/faq.html"                                                                               = "/faq.html"
-    "/concepts/changes/home.html"                                                                              = "/home.html"
-    "/concepts/changes/popular-topics.html"                                                                    = "/home.html"
-    "/concepts/changeset.html"                                                                                 = "/concepts/changelogs/changeset.html"
-    "/concepts/contexts.html"                                                                                  = "/concepts/changelogs/attributes/contexts.html"
-    "/concepts/databasechangelog.html"                                                                         = "/concepts/tracking-tables/databasechangelog-table.html"
-    "/concepts/databasechangelog-table.html"                                                                   = "/concepts/tracking-tables/databasechangelog-table.html"
-    "/concepts/databasechangeloglock-table.html"                                                               = "/concepts/tracking-tables/databasechangeloglock-table.html"
-    "/concepts/include.html"                                                                                   = "/change-types/include.html"
-    "/concepts/includeall.html"                                                                                = "/change-types/includeall.html"
-    "/concepts/installation/db2onzdeploy-sql.html"                                                             = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/"
-    "/concepts/installation/home.html"                                                                         = "/start/install/home.html"
-    "/concepts/installation/installation-linux-unix-mac.html"                                                  = "/start/install/liquibase-macos.html"
-    "/concepts/installation/installation-linux-unix-mac-windows-with-maven.html"                               = "/tools-integrations/maven/installation-linux-unix-mac-windows-with-maven.html"
-    "/concepts/installation/installation-linux-unix-mac-with-maven.html"                                       = "/tools-integrations/maven/installation-linux-unix-mac-windows-with-maven.html"
-    "/concepts/installation/installation-windows.html"                                                         = "/start/install/liquibase-windows.html"
-    "/concepts/installation/lb-developer-workflow.html"                                                        = "/workflows/liquibase-community/lb-developer-workflow.html"
-    "/concepts/installation/liquibase-system-requirements.html"                                                = "/start/install/liquibase-requirements.html"
-    "/concepts/installation/running-first-update-installer.html"                                               = "/start/install/home.html"
-    "/concepts/installation/setup-github-actions-workflow.html"                                                = "/workflows/liquibase-community/setup-github-actions-workflow.html"
-    "/concepts/installation/setup-gitlab-cicd.html"                                                            = "/workflows/liquibase-community/setup-gitlab-cicd.html"
-    "/concepts/installation/setup-workspace-installer.html"                                                    = "/start/install/home.html"
-    "/concepts/installation/upgrading-liquibase.html"                                                          = "/workflows/liquibase-community/upgrading-liquibase.html"
-    "/concepts/installation/using-the-lb-installer.html"                                                       = "/start/install/home.html"
-    "/concepts/installation/using-the-lb-installer-for-linux-unix-mac.html"                                    = "/start/install/liquibase-macos.html"
-    "/concepts/labels.html"                                                                                    = "/concepts/changelogs/attributes/labels.html"
-    "/concepts/maven/index.html"                                                                               = "/tools-integrations/maven/home.html"
-    "/concepts/preconditions.html"                                                                             = "/concepts/changelogs/preconditions.html"
-    "/concepts/json-format.html"                                                                               = "/concepts/changelogs/json-format.html"
-    "/concepts/other-formats.html"                                                                             = "/concepts/changelogs/other-formats.html"
-    "/concepts/sql-format.html"                                                                                = "/concepts/changelogs/sql-format.html"
-    "/concepts/xml-format.html"                                                                                = "/concepts/changelogs/xml-format.html"
-    "/concepts/yaml-format.html"                                                                               = "/concepts/changelogs/yaml-format.html"
-    "/databases.html"                                                                                          = "/start/tutorials/home.html"
-    "/documentation/changeset"                                                                                 = "/concepts/changelogs/changeset.html"
-    "/documentation/command_line"                                                                              = "/parameters/working-with-command-parameters.html"
-    "/documentation/command_line.html"                                                                         = "/parameters/working-with-command-parameters.html"
-    "/documentation/contexts.html"                                                                             = "/concepts/changelogs/attributes/contexts.html"
-    "/documentation/maven/maven_changelogsyncsql.html"                                                         = "/tools-integrations/maven/commands/maven-changelogsyncsql.html"
-    "/documentation/maven/maven_updatetestingrollback.html"                                                    = "/tools-integrations/maven/commands/maven-updatetestingrollback.html"
-    "/environment-variables"                                                                                   = "/parameters/home.html"
-    "/flow"                                                                                                    = "/commands/flow/flow.html"
-    "/flow.html"                                                                                               = "/commands/flow/flow.html"
-    "/install/liquibase-downloaded-files.html"                                                                 = "/start/install/liquibase-installation-files.html"
-    "/install/liquibase-installation-files.html"                                                               = "/start/install/liquibase-installation-files.html"
-    "/install/liquibase-installation-troubleshooting.html"                                                     = "/start/install/liquibase-installation-troubleshooting.html"
-    "/install/liquibase-linux.html"                                                                            = "/start/install/liquibase-linux.html"
-    "/install/liquibase-macos.html"                                                                            = "/start/install/liquibase-macos.html"
-    "/install/liquibase-requirements.html"                                                                     = "/start/install/liquibase-requirements.html"
-    "/install/liquibase-windows.html"                                                                          = "/start/install/liquibase-windows.html"
-    "/install/home.html"                                                                                       = "/start/install/home.html"
-    "/install/supported-databases.html"                                                                        = "/start/tutorials/home.html"
-    "/install/sybase-anywhere.html"                                                                            = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/"
-    "/install/sybase-enterprise.html"                                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/"
-    "/install/tutorials/apache-derby.html"                                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/"
-    "/install/tutorials/aws-redshift.html"                                                                     = "/start/tutorials/amazon-redshift.html"
-    "/install/tutorials/bigquery.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/"
-    "/install/tutorials/cassandra.html"                                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/"
-    "/install/tutorials/cassandra-astra.html"                                                                  = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/"
-    "/install/tutorials/cloud-spanner.html"                                                                    = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/"
-    "/install/tutorials/cockroachdb.html"                                                                      = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/"
-    "/install/tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html"                  = "/start/tutorials/oracle-connect-kerberos-active-directory.html"
-    "/install/tutorials/cosmosdb.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cosmosdb/"
-    "/install/tutorials/db2-luw.html"                                                                          = "/start/tutorials/ibm-db2-luw.html"
-    "/install/tutorials/db2onz.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/"
-    "/install/tutorials/db2onzdeploy-sql.html"                                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/"
-    "/install/tutorials/enterprisedb.html"                                                                     = "/start/tutorials/enterprisedb.html"
-    "/install/tutorials/firebird.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/"
-    "/install/tutorials/h2.html"                                                                               = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/"
-    "/install/tutorials/hibernate.html"                                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/"
-    "/install/tutorials/home.html"                                                                             = "/start/tutorials/home.html"
-    "/install/tutorials/hsqldb.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/"
-    "/install/tutorials/impala-hive.html"                                                                      = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/install/tutorials/informix.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/"
-    "/install/tutorials/interbase.html"                                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/install/tutorials/mariadb.html"                                                                          = "/start/tutorials/mariadb.html"
-    "/install/tutorials/maxdb.html"                                                                            = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/"
-    "/install/tutorials/mongodb.html"                                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/"
-    "/install/tutorials/mssql.html"                                                                            = "/start/tutorials/ms-sql-server.html"
-    "/install/tutorials/mssql-integrated-security-kerberos-authentication.html"                                = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html"
-    "/install/tutorials/mssql-windows-integrated-security.html"                                                = "/start/tutorials/ms-sql-server-windows-integrated-security.html"
-    "/install/tutorials/mysql.html"                                                                            = "/start/tutorials/mysql.html"
-    "/install/tutorials/oracle.html"                                                                           = "/start/tutorials/oracle.html"
-    "/install/tutorials/oracle-atp-db.html"                                                                    = "/start/tutorials/oracle-autonomous-db.html"
-    "/install/tutorials/percona-xtradb-cluster.html"                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/"
-    "/install/tutorials/postgresql.html"                                                                       = "/start/tutorials/postgresql.html"
-    "/install/tutorials/sap-adaptive-server-enterprise-sap-ase.html"                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/"
-    "/install/tutorials/sap-hana.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/"
-    "/install/tutorials/sap-sql-anywhere.html"                                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/"
-    "/install/tutorials/snowflake.html"                                                                        = "/start/tutorials/snowflake.html"
-    "/install/tutorials/sqlite.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/"
-    "/install/tutorials/teradata.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/"
-    "/install/tutorials/tutorial-using-oracle.html"                                                            = "/start/tutorials/oracle-manage-db-objects.html"
-    "/install/tutorials/vertica.html"                                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/"
-    "/install/tutorials/voltdb.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/install/tutorials/yugabytedb.html"                                                                       = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/"
-    "/mdc"                                                                                                     = "/tools-integrations/observability/structured-logging.html"
-    "/mongodb"                                                                                                 = "/start/tutorials/mongodb-pro.html"
-    "/observability"                                                                                           = "/tools-integrations/observability/home.html"
-    "/observability.html"                                                                                      = "/tools-integrations/observability/home.html"
-    "/parameters/command-parameters.html"                                                                      = "/parameters/home.html"
-    "/parameters/logical-file-path.html"                                                                       = "/concepts/changelogs/attributes/logicalfilepath.html"
-    "/parameters/object-quoting-strategy.html"                                                                 = "/parameters/object-quoting-strategy.html"
-    "/parameters/on-missing-include.html"                                                                      = "/parameters/on-missing-include-changelog.html"
-    "/parameters/parameters.html"                                                                              = "/parameters/home.html"
-    "/popular-topics.html"                                                                                     = "/home.html"
-    "/quality-checks"                                                                                          = "/commands/quality-checks/home.html"
-    "/quality-checks.html"                                                                                     = "/commands/quality-checks/home.html"
-    "/release-notes/home.html"                                                                                 = "/start/release-notes/home.html"
-    "/s3"                                                                                                      = "/tools-integrations/extensions/remote-files/s3.html"
-    "/s3.html"                                                                                                 = "/tools-integrations/extensions/remote-files/s3.html"
-    "/secrets-management"                                                                                      = "/tools-integrations/extensions/secrets-management/home.html"
-    "/secrets-management.html"                                                                                 = "/tools-integrations/extensions/secrets-management/home.html"
-    "/secrets-management/aws-secrets-mgr.html"                                                                 = "/tools-integrations/extensions/secrets-management/aws-secrets-mgr.html"
-    "/secrets-management/cyberark-pam-vault.html"                                                              = "/tools-integrations/extensions/secrets-management/cyberark-pam-vault.html"
-    "/secrets-management/hashicorp-vault.html"                                                                 = "/tools-integrations/extensions/secrets-management/hashicorp-vault.html"
-    "/secrets-management/home.html"                                                                            = "/tools-integrations/extensions/secrets-management/home.html"
-    "/start/get-started/getting-started-liquibase-json-linux.html"                                             = "/start/get-started/liquibase-json.html"
-    "/start/get-started/getting-started-liquibase-json-macos.html"                                             = "/start/get-started/liquibase-json.html"
-    "/start/get-started/getting-started-liquibase-json-windows.html"                                           = "/start/get-started/liquibase-json.html"
-    "/start/get-started/getting-started-liquibase-sql-linux.html"                                              = "/start/get-started/liquibase-sql.html"
-    "/start/get-started/getting-started-liquibase-sql-macos.html"                                              = "/start/get-started/liquibase-sql.html"
-    "/start/get-started/getting-started-liquibase-sql-windows.html"                                            = "/start/get-started/liquibase-sql.html"
-    "/start/get-started/getting-started-liquibase-xml-linux.html"                                              = "/start/get-started/liquibase-xml.html"
-    "/start/get-started/getting-started-liquibase-xml-macos.html"                                              = "/start/get-started/liquibase-xml.html"
-    "/start/get-started/getting-started-liquibase-xml-windows.html"                                            = "/start/get-started/liquibase-xml.html"
-    "/start/get-started/getting-started-liquibase-yaml-linux.html"                                             = "/start/get-started/liquibase-yaml.html"
-    "/start/get-started/getting-started-liquibase-yaml-macos.html"                                             = "/start/get-started/liquibase-yaml.html"
-    "/start/get-started/getting-started-liquibase-yaml-windows.html"                                           = "/start/get-started/liquibase-yaml.html"
-    "/start/getting-started-liquibase-json-linux.html"                                                         = "/start/get-started/liquibase-json.html"
-    "/start/getting-started-liquibase-json.html"                                                               = "/start/get-started/liquibase-json.html"
-    "/start/getting-started-liquibase-json-linux-macos.html"                                                   = "/start/get-started/liquibase-json.html"
-    "/start/getting-started-liquibase-sql-linux.html"                                                          = "/start/get-started/liquibase-sql.html"
-    "/start/getting-started-liquibase-sql.html"                                                                = "/start/get-started/liquibase-sql.html"
-    "/start/getting-started-liquibase-sql-linux-macos.html"                                                    = "/start/get-started/liquibase-sql.html"
-    "/start/getting-started-liquibase-xml-linux.html"                                                          = "/start/get-started/liquibase-xml.html"
-    "/start/getting-started-liquibase-xml.html"                                                                = "/start/get-started/liquibase-xml.html"
-    "/start/getting-started-liquibase-xml-linux-macos.html"                                                    = "/start/get-started/liquibase-xml.html"
-    "/start/getting-started-liquibase-yaml-linux.html"                                                         = "/start/get-started/liquibase-yaml.html"
-    "/start/getting-started-liquibase-yaml.html"                                                               = "/start/get-started/liquibase-yaml.html"
-    "/start/getting-started-liquibase-yaml-linux-macos.html"                                                   = "/start/get-started/liquibase-yaml.html"
-    "/start/getting-started-with-liquibase-and-json-on-linux-macos.html"                                       = "/start/get-started/liquibase-json.html"
-    "/start/getting-started-with-liquibase-and-json-on-windows.html"                                           = "/start/get-started/liquibase-json.html"
-    "/start/getting-started-with-liquibase-and-sql-on-linux-macos.html"                                        = "/start/get-started/liquibase-sql.html"
-    "/start/getting-started-with-liquibase-and-sql-on-windows.html"                                            = "/start/get-started/liquibase-sql.html"
-    "/start/getting-started-with-liquibase-and-xml-on-linux-macos.html"                                        = "/start/get-started/liquibase-xml.html"
-    "/start/getting-started-with-liquibase-and-xml-on-windows.html"                                            = "/start/get-started/liquibase-xml.html"
-    "/start/getting-started-with-liquibase-and-yaml-on-linux-macos.html"                                       = "/start/get-started/liquibase-yaml.html"
-    "/start/getting-started-with-liquibase-and-yaml-on-windows.html"                                           = "/start/get-started/liquibase-yaml.html"
-    "/start/install/tutorials/apache-derby.html"                                                               = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/"
-    "/start/install/tutorials/aws-redshift.html"                                                               = "/start/tutorials/amazon-redshift.html"
-    "/start/install/tutorials/bigquery.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/"
-    "/start/install/tutorials/cassandra.html"                                                                  = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/"
-    "/start/install/tutorials/cassandra-astra.html"                                                            = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/"
-    "/start/install/tutorials/cloud-spanner.html"                                                              = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/"
-    "/start/install/tutorials/cockroachdb.html"                                                                = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/"
-    "/start/install/tutorials/cosmosdb.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cosmosdb/"
-    "/start/install/tutorials/db2-luw.html"                                                                    = "/start/tutorials/ibm-db2-luw.html"
-    "/start/install/tutorials/db2onz.html"                                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/"
-    "/start/install/tutorials/db2onzdeploy-sql.html"                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/"
-    "/start/install/tutorials/enterprisedb.html"                                                               = "/start/tutorials/enterprisedb.html"
-    "/start/install/tutorials/firebird.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/"
-    "/start/install/tutorials/h2.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/"
-    "/start/install/tutorials/hibernate.html"                                                                  = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/"
-    "/start/install/tutorials/home.html"                                                                       = "/start/tutorials/home.html"
-    "/start/install/tutorials/hsqldb.html"                                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/"
-    "/start/install/tutorials/impala-hive.html"                                                                = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/start/install/tutorials/informix.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/"
-    "/start/install/tutorials/interbase.html"                                                                  = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/start/install/tutorials/mariadb.html"                                                                    = "/start/tutorials/mariadb.html"
-    "/start/install/tutorials/maxdb.html"                                                                      = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/"
-    "/start/install/tutorials/mongodb.html"                                                                    = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/"
-    "/start/install/tutorials/mongo-db-atlas-config.html"                                                      = "/start/tutorials/mongo-db-atlas-config.html"
-    "/start/install/tutorials/mssql.html"                                                                      = "/start/tutorials/ms-sql-server.html"
-    "/start/install/tutorials/mssql-windows-integrated-security.html"                                          = "/start/tutorials/ms-sql-server-windows-integrated-security.html"
-    "/start/install/tutorials/mssql-integrated-security-kerberos-authentication.html"                          = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html"
-    "/start/install/tutorials/mysql.html"                                                                      = "/start/tutorials/mysql.html"
-    "/start/install/tutorials/oracle.html"                                                                     = "/start/tutorials/oracle.html"
-    "/start/install/tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html"            = "/start/tutorials/oracle-connect-kerberos-active-directory.html"
-    "/start/install/tutorials/tutorial-using-oracle.html"                                                      = "/start/tutorials/oracle-manage-db-objects.html"
-    "/start/install/tutorials/oracle-atp-db.html"                                                              = "/start/tutorials/oracle-autonomous-db.html"
-    "/start/install/tutorials/percona-xtradb-cluster.html"                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/"
-    "/start/install/tutorials/postgresql.html"                                                                 = "/start/tutorials/postgresql.html"
-    "/start/install/tutorials/sap-adaptive-server-enterprise-sap-ase.html"                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/"
-    "/start/install/tutorials/sap-hana.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/"
-    "/start/install/tutorials/sap-sql-anywhere.html"                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/"
-    "/start/install/tutorials/snowflake.html"                                                                  = "/start/tutorials/snowflake.html"
-    "/start/install/tutorials/sqlite.html"                                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/"
-    "/start/install/tutorials/teradata.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/"
-    "/start/install/tutorials/vertica.html"                                                                    = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/"
-    "/start/install/tutorials/voltdb.html"                                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/start/install/tutorials/yugabytedb.html"                                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/"
-    "/start/tutorials/apache-derby.html"                                                                       = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/"
-    "/start/tutorials/aws-redshift.html"                                                                       = "/start/tutorials/amazon-redshift.html"
-    "/start/tutorials/bigquery.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/"
-    "/start/tutorials/cassandra.html"                                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/"
-    "/start/tutorials/cassandra-astra.html"                                                                    = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/"
-    "/start/tutorials/cloud-spanner.html"                                                                      = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/"
-    "/start/tutorials/cockroachdb.html"                                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/"
-    "/start/tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html"                    = "/start/tutorials/oracle-connect-kerberos-active-directory.html"
-    "/start/tutorials/cosmosdb.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cosmosdb/"
-    "/start/tutorials/db2-luw.html"                                                                            = "/start/tutorials/ibm-db2-luw.html"
-    "/start/tutorials/db2onz.html"                                                                             = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/"
-    "/start/tutorials/db2onzdeploy-sql.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/"
-    "/start/tutorials/firebird.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/"
-    "/start/tutorials/h2.html"                                                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/"
-    "/start/tutorials/hibernate.html"                                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/"
-    "/start/tutorials/hsqldb.html"                                                                             = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/"
-    "/start/tutorials/impala-hive.html"                                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/start/tutorials/informix.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/"
-    "/start/tutorials/interbase.html"                                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/start/tutorials/maxdb.html"                                                                              = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/"
-    "/start/tutorials/mongodb.html"                                                                            = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/"
-    "/start/tutorials/mssql.html"                                                                              = "/start/tutorials/ms-sql-server.html"
-    "/start/tutorials/mssql-integrated-security-kerberos-authentication.html"                                  = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html"
-    "/start/tutorials/mssql-windows-integrated-security.html"                                                  = "/start/tutorials/ms-sql-server-windows-integrated-security.html"
-    "/start/tutorials/neo4j.html"                                                                              = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/neo4j/"
-    "/start/tutorials/oracle-atp-db.html"                                                                      = "/start/tutorials/oracle-autonomous-db.html"
-    "/start/tutorials/percona-xtradb-cluster.html"                                                             = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/"
-    "/start/tutorials/sap-adaptive-server-enterprise-sap-ase.html"                                             = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/"
-    "/start/tutorials/sap-hana.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/"
-    "/start/tutorials/sap-sql-anywhere.html"                                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/"
-    "/start/tutorials/sqlite.html"                                                                             = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/"
-    "/start/tutorials/teradata.html"                                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/"
-    "/start/tutorials/tutorial-using-oracle.html"                                                              = "/start/tutorials/oracle-manage-db-objects.html"
-    "/start/tutorials/vertica.html"                                                                            = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/"
-    "/start/tutorials/voltdb.html"                                                                             = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/start/tutorials/yugabytedb.html"                                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/"
-    "/structured-logging"                                                                                      = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/ant/commands/changelogsync.html"                                                      = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/changelog-sync"
-    "/tools-integrations/ant/commands/changelogsynctotag.html"                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/changelog-sync-to-tag"
-    "/tools-integrations/ant/commands/changelogsynctotagsql.html"                                              = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/changelog-sync-to-tag-sql"
-    "/tools-integrations/ant/commands/dbdoc.html"                                                              = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/db-doc"
-    "/tools-integrations/ant/commands/diffdatabase.html"                                                       = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/diff-database"
-    "/tools-integrations/ant/commands/diffdatabasetochangelog.html"                                            = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/diff-database-to-changelog"
-    "/tools-integrations/ant/commands/generatechangelog.html"                                                  = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/generate-changelog"
-    "/tools-integrations/ant/commands/home.html"                                                               = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/"
-    "/tools-integrations/ant/commands/marknextchangesetran.html"                                               = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/mark-next-changeset-ran"
-    "/tools-integrations/ant/commands/rollbackdatabase.html"                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/rollback-database"
-    "/tools-integrations/ant/commands/rollbackfuturedatabase.html"                                             = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/rollback-future-database"
-    "/tools-integrations/ant/commands/tagdatabase.html"                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/tag-database"
-    "/tools-integrations/ant/commands/updatedatabase.html"                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/update-database"
-    "/tools-integrations/ant/getting-started-liquibase-ant.html"                                               = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/getting-started-liquibase-ant"
-    "/tools-integrations/ant/home.html"                                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/"
-    "/tools-integrations/community-supported/cdi.html"                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/jee-cdi"
-    "/tools-integrations/community-supported/home.html"                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/"
-    "/tools-integrations/community-supported/servlet-listener.html"                                            = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/servlet-listener"
-    "/tools-integrations/cli/home.html"                                                                        = "/parameters/working-with-command-parameters.html"
-    "/tools-integrations/extensions/extension-upgrade-guides/home.html"                                        = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/"
-    "/tools-integrations/extensions/extension-upgrade-guides/lb-2.0-upgrade-guide.html"                        = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-2.0-upgrade-guide/"
-    "/tools-integrations/extensions/extension-upgrade-guides/lb-3.0-upgrade-guide.html"                        = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.0-upgrade-guide/"
-    "/tools-integrations/extensions/extension-upgrade-guides/lb-3.1-upgrade-guide.html"                        = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.1-upgrade-guide/"
-    "/tools-integrations/extensions/extension-upgrade-guides/lb-3.2-upgrade-guide.html"                        = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.2-upgrade-guide/"
-    "/tools-integrations/extensions/extension-upgrade-guides/lb-3.3-upgrade-guide.html"                        = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.3-upgrade-guide/"
-    "/tools-integrations/extensions/extension-upgrade-guides/lb-4.0-upgrade-guide.html"                        = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-4.0-upgrade-guide/"
-    "/tools-integrations/gradle/getting-started-liquibase-gradle.html"                                         = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/gradle"
-    "/tools-integrations/labs/advance-flow-file.html"                                                          = "/commands/flow/advanced-flow-file.html"
-    "/tools-integrations/labs/flow.html"                                                                       = "/commands/flow/flow.html"
-    "/tools-integrations/labs/if-conditionals.html"                                                            = "/commands/flow/if-conditionals.html"
-    "/tools-integrations/labs/shell-commands.html"                                                             = "/commands/flow/shell-commands.html"
-    "/tools-integrations/labs/variables.html"                                                                  = "/commands/flow/variables.html"
-    "/tools-integrations/liquibase-hub/auto-registration-and-report-links.html"                                = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/commands.html"                                                          = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/devops-metrics.html"                                                    = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/home.html"                                                              = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/operations.html"                                                        = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/organizations.html"                                                     = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/pipelines.html"                                                         = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/projects.html"                                                          = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/properties.html"                                                        = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/release-notes.html"                                                     = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/setup.html"                                                             = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/liquibase-hub/user.html"                                                              = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/faq.html"                                                              = "/faq.html"
-    "/tools-integrations/maven/commands/maven-changelog-sync.html"                                             = "/tools-integrations/maven/commands/maven-changelogsync.html"
-    "/tools-integrations/maven/commands/maven-changelogSync.html"                                              = "/tools-integrations/maven/commands/maven-changelogsync.html"
-    "/tools-integrations/maven/commands/maven-changelog-sync-sql.html"                                         = "/tools-integrations/maven/commands/maven-changelogsyncsql.html"
-    "/tools-integrations/maven/commands/maven-changelogSyncSQL.html"                                           = "/tools-integrations/maven/commands/maven-changelogsyncsql.html"
-    "/tools-integrations/maven/commands/maven-changelog-sync-to-tag.html"                                      = "/tools-integrations/maven/commands/maven-changelogsynctotag.html"
-    "/tools-integrations/maven/commands/maven-changelogSyncToTag.html"                                         = "/tools-integrations/maven/commands/maven-changelogsynctotag.html"
-    "/tools-integrations/maven/commands/maven-changelog-sync-to-tag-sql.html"                                  = "/tools-integrations/maven/commands/maven-changelogsynctotagsql.html"
-    "/tools-integrations/maven/commands/maven-changelogSyncToTagSQL.html"                                      = "/tools-integrations/maven/commands/maven-changelogsynctotagsql.html"
-    "/tools-integrations/maven/commands/maven-clear-checksums.html"                                            = "/tools-integrations/maven/commands/maven-clearchecksums.html"
-    "/tools-integrations/maven/commands/maven-clearCheckSums.html"                                             = "/tools-integrations/maven/commands/maven-clearchecksums.html"
-    "/tools-integrations/maven/commands/maven-db-doc.html"                                                     = "/tools-integrations/maven/commands/maven-dbdoc.html"
-    "/tools-integrations/maven/commands/maven-dbDoc.html"                                                      = "/tools-integrations/maven/commands/maven-dbdoc.html"
-    "/tools-integrations/maven/commands/maven-deactivate-changelog.html"                                       = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-deactivateChangeLog.html"                                        = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-deactivatechangelog.html"                                        = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-drop-all.html"                                                   = "/tools-integrations/maven/commands/maven-dropall.html"
-    "/tools-integrations/maven/commands/maven-dropAll.html"                                                    = "/tools-integrations/maven/commands/maven-dropall.html"
-    "/tools-integrations/maven/commands/maven-future-rollback-sql.html"                                        = "/tools-integrations/maven/commands/maven-futurerollbacksql.html"
-    "/tools-integrations/maven/commands/maven-futureRollbackSQL.html"                                          = "/tools-integrations/maven/commands/maven-futurerollbacksql.html"
-    "/tools-integrations/maven/commands/maven-generate-changelog.html"                                         = "/tools-integrations/maven/commands/maven-generatechangelog.html"
-    "/tools-integrations/maven/commands/maven-generateChangeLog.html"                                          = "/tools-integrations/maven/commands/maven-generatechangelog.html"
-    "/tools-integrations/maven/commands/maven-list-locks.html"                                                 = "/tools-integrations/maven/commands/maven-listlocks.html"
-    "/tools-integrations/maven/commands/maven-listLocks.html"                                                  = "/tools-integrations/maven/commands/maven-listlocks.html"
-    "/tools-integrations/maven/commands/maven-migrate.html"                                                    = "/home.html"
-    "/tools-integrations/maven/commands/maven-migratesql.html"                                                 = "/home.html"
-    "/tools-integrations/maven/commands/maven-register-changelog.html"                                         = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-registerChangeLog.html"                                          = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-registerchangelog.html"                                          = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-release-locks.html"                                              = "/tools-integrations/maven/commands/maven-releaselocks.html"
-    "/tools-integrations/maven/commands/maven-releaseLocks.html"                                               = "/tools-integrations/maven/commands/maven-releaselocks.html"
-    "/tools-integrations/maven/commands/maven-rollback-one-changeset.html"                                     = "/tools-integrations/maven/commands/maven-rollbackonechangeset.html"
-    "/tools-integrations/maven/commands/maven-rollbackOneChangeSet.html"                                       = "/tools-integrations/maven/commands/maven-rollbackonechangeset.html"
-    "/tools-integrations/maven/commands/maven-rollback-one-changeset-sql.html"                                 = "/tools-integrations/maven/commands/maven-rollbackonechangesetsql.html"
-    "/tools-integrations/maven/commands/maven-rollbackOneChangeSetSQL.html"                                    = "/tools-integrations/maven/commands/maven-rollbackonechangesetsql.html"
-    "/tools-integrations/maven/commands/maven-rollback-one-update.html"                                        = "/tools-integrations/maven/commands/maven-rollbackoneupdate.html"
-    "/tools-integrations/maven/commands/maven-rollbackOneUpdate.html"                                          = "/tools-integrations/maven/commands/maven-rollbackoneupdate.html"
-    "/tools-integrations/maven/commands/maven-rollback-one-update-sql.html"                                    = "/tools-integrations/maven/commands/maven-rollbackoneupdatesql.html"
-    "/tools-integrations/maven/commands/maven-rollbackOneUpdateSQL.html"                                       = "/tools-integrations/maven/commands/maven-rollbackoneupdatesql.html"
-    "/tools-integrations/maven/commands/maven-rollback-sql.html"                                               = "/tools-integrations/maven/commands/maven-rollbacksql.html"
-    "/tools-integrations/maven/commands/maven-rollbackSQL.html"                                                = "/tools-integrations/maven/commands/maven-rollbacksql.html"
-    "/tools-integrations/maven/commands/maven-sync-hub.html"                                                   = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-syncHub.html"                                                    = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-synchub.html"                                                    = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/commands/maven-update-sql.html"                                                 = "/tools-integrations/maven/commands/maven-updatesql.html"
-    "/tools-integrations/maven/commands/maven-updateSQL.html"                                                  = "/tools-integrations/maven/commands/maven-updatesql.html"
-    "/tools-integrations/maven/commands/maven-update-testing-rollback.html"                                    = "/tools-integrations/maven/commands/maven-updatetestingrollback.html"
-    "/tools-integrations/maven/commands/maven-updateTestingRollback.html"                                      = "/tools-integrations/maven/commands/maven-updatetestingrollback.html"
-    "/tools-integrations/maven/commands/popular-topics.html"                                                   = "/home.html"
-    "/tools-integrations/maven/workflows/hub-pom-attributes.html"                                              = "/tools-integrations/observability/structured-logging.html"
-    "/tools-integrations/maven/workflows/maven-get-oracle-drivers.html"                                        = "/start/tutorials/oracle.html"
-    "/tools-integrations/remote-files/create-changelogs-s3.html"                                               = "/tools-integrations/extensions/remote-files/s3.html"
-    "/tools-integrations/remote-files/remote-file-path-rules.html"                                             = "/tools-integrations/extensions/remote-files/remote-file-path-rules.html"
-    "/tools-integrations/remote-files/s3.html"                                                                 = "/tools-integrations/extensions/remote-files/s3.html"
-    "/tools-integrations/remote-files/s3-commands.html"                                                        = "/tools-integrations/extensions/remote-files/s3-commands.html"
-    "/tools-integrations/remote-files/searchpath.html"                                                         = "/tools-integrations/extensions/remote-files/searchpath.html"
-    "/tools-integrations/secrets-management/aws-secrets-mgr.html"                                              = "/tools-integrations/extensions/secrets-management/aws-secrets-mgr.html"
-    "/tools-integrations/secrets-management/cyberark-pam-vault.html"                                           = "/tools-integrations/extensions/secrets-management/cyberark-pam-vault.html"
-    "/tools-integrations/secrets-management/hashicorp-vault.html"                                              = "/tools-integrations/extensions/secrets-management/hashicorp-vault.html"
-    "/tools-integrations/secrets-management/home.html"                                                         = "/tools-integrations/extensions/secrets-management/home.html"
-    "/tools-integrations/springboot/home.html"                                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/"
-    "/tools-integrations/springboot/springboot.html"                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/springboot/"
-    "/tools-integrations/springboot/using-springboot-sql-plus-kerberos.html"                                   = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/"
-    "/tools-integrations/springboot/using-springboot-with-maven.html"                                          = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/using-springboot-with-maven/"
-    "/what-is-a-jdbc-url"                                                                                      = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html"
-    "/what-is-a-jdbc-url.html"                                                                                 = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html"
-    "/workflows/database-setup-tutorials/apache-derby.html"                                                    = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/"
-    "/workflows/database-setup-tutorials/aws-redshift.html"                                                    = "/start/tutorials/amazon-redshift.html"
-    "/workflows/database-setup-tutorials/cassandra.html"                                                       = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/"
-    "/workflows/database-setup-tutorials/cassandra-astra.html"                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/"
-    "/workflows/database-setup-tutorials/cloud-spanner.html"                                                   = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/"
-    "/workflows/database-setup-tutorials/cockroachdb.html"                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/"
-    "/workflows/database-setup-tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html" = "/start/tutorials/oracle-connect-kerberos-active-directory.html"
-    "/workflows/database-setup-tutorials/db2-luw.html"                                                         = "/start/tutorials/ibm-db2-luw.html"
-    "/workflows/database-setup-tutorials/db2onz.html"                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/"
-    "/workflows/database-setup-tutorials/db2onzdeploy-sql.html"                                                = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/"
-    "/workflows/database-setup-tutorials/firebird.html"                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/"
-    "/workflows/database-setup-tutorials/h2.html"                                                              = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/"
-    "/workflows/database-setup-tutorials/hibernate.html"                                                       = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/"
-    "/workflows/database-setup-tutorials/home.html"                                                            = "/start/tutorials/home.html"
-    "/workflows/database-setup-tutorials/hsqldb.html"                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/"
-    "/workflows/database-setup-tutorials/impala-hive.html"                                                     = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/workflows/database-setup-tutorials/informix.html"                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/"
-    "/workflows/database-setup-tutorials/interbase.html"                                                       = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/workflows/database-setup-tutorials/mariadb.html"                                                         = "/start/tutorials/mariadb.html"
-    "/workflows/database-setup-tutorials/maxdb.html"                                                           = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/"
-    "/workflows/database-setup-tutorials/mongodb.html"                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/"
-    "/workflows/database-setup-tutorials/mssql.html"                                                           = "/start/tutorials/ms-sql-server.html"
-    "/workflows/database-setup-tutorials/mssql-integrated-security-kerberos-authentication.html"               = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html"
-    "/workflows/database-setup-tutorials/mssql-windows-integrated-security.html"                               = "/start/tutorials/ms-sql-server-windows-integrated-security.html"
-    "/workflows/database-setup-tutorials/mysql.html"                                                           = "/start/tutorials/mysql.html"
-    "/workflows/database-setup-tutorials/oracle.html"                                                          = "/start/tutorials/oracle.html"
-    "/workflows/database-setup-tutorials/oracle-atp-db.html"                                                   = "/start/tutorials/oracle-autonomous-db.html"
-    "/workflows/database-setup-tutorials/percona-xtradb-cluster.html"                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/"
-    "/workflows/database-setup-tutorials/postgresql.html"                                                      = "/start/tutorials/postgresql.html"
-    "/workflows/database-setup-tutorials/redshift.html"                                                        = "/start/tutorials/amazon-redshift.html"
-    "/workflows/database-setup-tutorials/sap-hana.html"                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/"
-    "/workflows/database-setup-tutorials/snowflake.html"                                                       = "/start/tutorials/snowflake.html"
-    "/workflows/database-setup-tutorials/sqlite.html"                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/"
-    "/workflows/database-setup-tutorials/sybase-anywhere.html"                                                 = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/"
-    "/workflows/database-setup-tutorials/sybase-enterprise.html"                                               = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/"
-    "/workflows/database-setup-tutorials/teradata.html"                                                        = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/"
-    "/workflows/database-setup-tutorials/tutorial-using-oracle.html"                                           = "/start/tutorials/oracle-manage-db-objects.html"
-    "/workflows/database-setup-tutorials/vertica.html"                                                         = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/"
-    "/workflows/database-setup-tutorials/voltdb.html"                                                          = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/"
-    "/workflows/database-setup-tutorials/yugabytedb.html"                                                      = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/"
-    "/workflows/liquibase-community/creating-config-properties.html"                                           = "/concepts/connections/creating-config-properties.html"
-    "/workflows/liquibase-community/generating-docs.html"                                                      = "/commands/change-tracking/db-doc.html"
-    "/workflows/liquibase-community/liquibase-auto-rollback.html"                                              = "/workflows/liquibase-community/automatic-custom-rollbacks.html"
-  }
+  default = [
+    # format: { key = "/OLD/LINK.html", website_redirect = "/NEW/LINK.html" }
+    { key = "/2014/11/contexts-vs-labels.html", website_redirect = "/home.html" },
+    { key = "/2014/11/faq.html", website_redirect = "/faq.html" },
+    { key = "/2014/11/home.html", website_redirect = "/home.html" },
+    { key = "/2014/11/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/change-types/community/add-auto-increment.html", website_redirect = "/change-types/add-auto-increment.html" },
+    { key = "/change-types/community/add-column.html", website_redirect = "/change-types/add-column.html" },
+    { key = "/change-types/community/add-default-value.html", website_redirect = "/change-types/add-default-value.html" },
+    { key = "/change-types/community/add-foreign-key-constraint.html", website_redirect = "/change-types/add-foreign-key-constraint.html" },
+    { key = "/change-types/community/add-lookup-table.html", website_redirect = "/change-types/add-lookup-table.html" },
+    { key = "/change-types/community/add-not-null-constraint.html", website_redirect = "/change-types/add-not-null-constraint.html" },
+    { key = "/change-types/community/add-primary-key.html", website_redirect = "/change-types/add-primary-key.html" },
+    { key = "/change-types/community/add-unique-constraint.html", website_redirect = "/change-types/add-unique-constraint.html" },
+    { key = "/change-types/community/alter-sequence.html", website_redirect = "/change-types/alter-sequence.html" },
+    { key = "/change-types/community/create-index.html", website_redirect = "/change-types/create-index.html" },
+    { key = "/change-types/community/create-procedure.html", website_redirect = "/change-types/create-procedure.html" },
+    { key = "/change-types/community/create-sequence.html", website_redirect = "/change-types/create-sequence.html" },
+    { key = "/change-types/community/create-table.html", website_redirect = "/change-types/create-table.html" },
+    { key = "/change-types/community/create-view.html", website_redirect = "/change-types/create-view.html" },
+    { key = "/change-types/community/custom-change.html", website_redirect = "/change-types/custom-change.html" },
+    { key = "/change-types/community/delete.html", website_redirect = "/change-types/delete.html" },
+    { key = "/change-types/community/drop-all-foreign-key-constraints.html", website_redirect = "/change-types/drop-all-foreign-key-constraints.html" },
+    { key = "/change-types/community/drop-column.html", website_redirect = "/change-types/drop-column.html" },
+    { key = "/change-types/community/drop-default-value.html", website_redirect = "/change-types/drop-default-value.html" },
+    { key = "/change-types/community/drop-foreign-key-constraint.html", website_redirect = "/change-types/drop-foreign-key-constraint.html" },
+    { key = "/change-types/community/drop-index.html", website_redirect = "/change-types/drop-index.html" },
+    { key = "/change-types/community/drop-not-null-constraint.html", website_redirect = "/change-types/drop-not-null-constraint.html" },
+    { key = "/change-types/community/drop-primary-key.html", website_redirect = "/change-types/drop-primary-key.html" },
+    { key = "/change-types/community/drop-procedure.html", website_redirect = "/change-types/drop-procedure.html" },
+    { key = "/change-types/community/drop-sequence.html", website_redirect = "/change-types/drop-sequence.html" },
+    { key = "/change-types/community/drop-table.html", website_redirect = "/change-types/drop-table.html" },
+    { key = "/change-types/community/drop-unique-constraint.html", website_redirect = "/change-types/drop-unique-constraint.html" },
+    { key = "/change-types/community/drop-view.html", website_redirect = "/change-types/drop-view.html" },
+    { key = "/change-types/community/empty.html", website_redirect = "/change-types/empty.html" },
+    { key = "/change-types/community/execute-command.htm", website_redirect = "/change-types/execute-command.htm" },
+    { key = "/change-types/community/home.html", website_redirect = "/change-types/home.html" },
+    { key = "/change-types/community/insert.html", website_redirect = "/change-types/insert.html" },
+    { key = "/change-types/community/load-data.html", website_redirect = "/change-types/load-data.html" },
+    { key = "/change-types/community/load-update-data.html", website_redirect = "/change-types/load-update-data.html" },
+    { key = "/change-types/community/merge-columns.html", website_redirect = "/change-types/merge-columns.html" },
+    { key = "/change-types/community/modify-data-type.html", website_redirect = "/change-types/modify-data-type.html" },
+    { key = "/change-types/community/output.html", website_redirect = "/change-types/output.html" },
+    { key = "/change-types/community/rename-column.html", website_redirect = "/change-types/rename-column.html" },
+    { key = "/change-types/community/rename-sequence.html", website_redirect = "/change-types/rename-sequence.html" },
+    { key = "/change-types/community/rename-table.html", website_redirect = "/change-types/rename-table.html" },
+    { key = "/change-types/community/rename-view.html", website_redirect = "/change-types/rename-view.html" },
+    { key = "/change-types/community/set-column-remarks.html", website_redirect = "/change-types/set-column-remarks.html" },
+    { key = "/change-types/community/set-table-remarks.html", website_redirect = "/change-types/set-table-remarks.html" },
+    { key = "/change-types/community/sql.html", website_redirect = "/change-types/sql.html" },
+    { key = "/change-types/community/sql-file.html", website_redirect = "/change-types/sql-file.html" },
+    { key = "/change-types/community/stop.html", website_redirect = "/change-types/stop.html" },
+    { key = "/change-types/community/tag-database.html", website_redirect = "/change-types/tag-database.html" },
+    { key = "/change-types/community/update.html", website_redirect = "/change-types/update.html" },
+    { key = "/change-types/pro/add-check-constraint.html", website_redirect = "/change-types/add-check-constraint.html" },
+    { key = "/change-types/pro/create-function.html", website_redirect = "/change-types/create-function.html" },
+    { key = "/change-types/pro/create-package.html", website_redirect = "/change-types/create-package.html" },
+    { key = "/change-types/pro/create-package-body.html", website_redirect = "/change-types/create-package-body.html" },
+    { key = "/change-types/pro/create-synonym.html", website_redirect = "/change-types/create-synonym.html" },
+    { key = "/change-types/pro/create-trigger.html", website_redirect = "/change-types/create-trigger.html" },
+    { key = "/change-types/pro/disable-check-constraint.html", website_redirect = "/change-types/disable-check-constraint.html" },
+    { key = "/change-types/pro/disable-trigger.html", website_redirect = "/change-types/disable-trigger.html" },
+    { key = "/change-types/pro/drop-check-constraint.html", website_redirect = "/change-types/drop-check-constraint.html" },
+    { key = "/change-types/pro/drop-function.html", website_redirect = "/change-types/drop-function.html" },
+    { key = "/change-types/pro/drop-package.html", website_redirect = "/change-types/drop-package.html" },
+    { key = "/change-types/pro/drop-package-body.html", website_redirect = "/change-types/drop-package-body.html" },
+    { key = "/change-types/pro/drop-synonym.html", website_redirect = "/change-types/drop-synonym.html" },
+    { key = "/change-types/pro/drop-trigger.html", website_redirect = "/change-types/drop-trigger.html" },
+    { key = "/change-types/pro/enable-check-constraint.html", website_redirect = "/change-types/enable-check-constraint.html" },
+    { key = "/change-types/pro/enable-trigger.html", website_redirect = "/change-types/enable-trigger.html" },
+    { key = "/change-types/pro/home.html", website_redirect = "/change-types/home.html" },
+    { key = "/change-types/pro/mark-unused.html", website_redirect = "/change-types/mark-unused.html" },
+    { key = "/change-types/pro/rename-trigger.html", website_redirect = "/change-types/rename-trigger.html" },
+    { key = "/commands/calculatechecksum.html", website_redirect = "/commands/maintenance/calculate-checksum.html" },
+    { key = "/commands/changelogsync.html", website_redirect = "/commands/change-tracking/changelog-sync.html" },
+    { key = "/commands/changelogsyncsql.html", website_redirect = "/commands/change-tracking/changelog-sync-sql.html" },
+    { key = "/commands/changelogsynctotag.html", website_redirect = "/commands/change-tracking/changelog-sync-to-tag.html" },
+    { key = "/commands/changelogsynctotagsql.html", website_redirect = "/commands/change-tracking/changelog-sync-to-tag-sql.html" },
+    { key = "/commands/clearchecksums.html", website_redirect = "/commands/maintenance/clear-checksums.html" },
+    { key = "/commands/command-parameters.html", website_redirect = "/parameters/home.html" },
+    { key = "/commands/community/calculatechecksum.html", website_redirect = "/commands/maintenance/calculate-checksum.html" },
+    { key = "/commands/community/changelogsync.html", website_redirect = "/commands/change-tracking/changelog-sync.html" },
+    { key = "/commands/community/changelogsyncsql.html", website_redirect = "/commands/change-tracking/changelog-sync-sql.html" },
+    { key = "/commands/community/changelogsynctotag.html", website_redirect = "/commands/change-tracking/changelog-sync-to-tag.html" },
+    { key = "/commands/community/changelogsynctotagsql.html", website_redirect = "/commands/change-tracking/changelog-sync-to-tag-sql.html" },
+    { key = "/commands/community/clearchecksums.html", website_redirect = "/commands/maintenance/clear-checksums.html" },
+    { key = "/commands/community/dbdoc.html", website_redirect = "/commands/change-tracking/db-doc.html" },
+    { key = "/commands/community/deactivatechangelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/community/diff.html", website_redirect = "/commands/inspection/diff.html" },
+    { key = "/commands/community/diff-json.html", website_redirect = "/commands/inspection/diff-json.html" },
+    { key = "/commands/community/diffchangelog.html", website_redirect = "/commands/inspection/diff-changelog.html" },
+    { key = "/commands/community/dropall.html", website_redirect = "/commands/update/drop-all.html" },
+    { key = "/commands/community/faq.html", website_redirect = "/faq.html" },
+    { key = "/commands/community/future-rollback-from-tag-sql.html", website_redirect = "/commands/rollback/future-rollback-from-tag-sql.html" },
+    { key = "/commands/community/futurerollbackcountsql.html", website_redirect = "/commands/rollback/future-rollback-count-sql.html" },
+    { key = "/commands/community/futurerollbacksql.html", website_redirect = "/commands/futurerollbacksql.html" },
+    { key = "/commands/community/generatechangelog.html", website_redirect = "/commands/inspection/generate-changelog.html" },
+    { key = "/commands/community/help.html", website_redirect = "/parameters/help.html" },
+    { key = "/commands/community/history.html", website_redirect = "/commands/change-tracking/history.html" },
+    { key = "/commands/community/home.html", website_redirect = "/commands/home.html" },
+    { key = "/commands/community/listlocks.html", website_redirect = "/commands/maintenance/list-locks.html" },
+    { key = "/commands/community/marknextchangesetran.html", website_redirect = "/commands/change-tracking/mark-next-changeset-ran.html" },
+    { key = "/commands/community/marknextchangesetransql.html", website_redirect = "/commands/change-tracking/mark-next-changeset-ran-sql.html" },
+    { key = "/commands/community/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/commands/community/quality-checks/checks-copy.html", website_redirect = "/commands/quality-checks/subcommands/copy.html" },
+    { key = "/commands/community/quality-checks/checks-customize.html", website_redirect = "/commands/quality-checks/subcommands/customize.html" },
+    { key = "/commands/community/quality-checks/checks-delete.html", website_redirect = "/commands/quality-checks/subcommands/delete.html" },
+    { key = "/commands/community/quality-checks/checks-disable.html", website_redirect = "/commands/quality-checks/subcommands/disable.html" },
+    { key = "/commands/community/quality-checks/checks-enable.html", website_redirect = "/commands/quality-checks/subcommands/enable.html" },
+    { key = "/commands/community/quality-checks/checks-reset.html", website_redirect = "/commands/quality-checks/subcommands/reset.html" },
+    { key = "/commands/community/quality-checks/checks-run.html", website_redirect = "/commands/quality-checks/subcommands/run.html" },
+    { key = "/commands/community/quality-checks/checks-show.html", website_redirect = "/commands/quality-checks/subcommands/show.html" },
+    { key = "/commands/community/quality-checks/generic-object.html", website_redirect = "/commands/quality-checks/workflows/multiple-objects.html" },
+    { key = "/commands/community/quality-checks/home.html", website_redirect = "/commands/quality-checks/home.html" },
+    { key = "/commands/community/registerChangeLog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/community/registerchangelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/community/releaselocks.html", website_redirect = "/commands/maintenance/release-locks.html" },
+    { key = "/commands/community/rollbackbytag.html", website_redirect = "/commands/rollback/rollback-by-tag.html" },
+    { key = "/commands/community/rollbackcount.html", website_redirect = "/commands/rollback/rollback-count.html" },
+    { key = "/commands/community/rollbackcountsql.html", website_redirect = "/commands/rollback/rollback-count-sql.html" },
+    { key = "/commands/community/rollbacksqltag.html", website_redirect = "/commands/rollback/rollback-sql.html" },
+    { key = "/commands/community/rollbacktodate.html", website_redirect = "/commands/rollback/rollback-to-date.html" },
+    { key = "/commands/community/rollbacktodatesql.html", website_redirect = "/commands/rollback/rollback-to-date-sql.html" },
+    { key = "/commands/community/snapshot.html", website_redirect = "/commands/inspection/snapshot.html" },
+    { key = "/commands/community/snapshotreference.html", website_redirect = "/commands/inspection/snapshot-reference.html" },
+    { key = "/commands/community/status-verbose.html", website_redirect = "/commands/change-tracking/status.html" },
+    { key = "/commands/community/synchub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/community/tag.html", website_redirect = "/commands/change-tracking/tag.html" },
+    { key = "/commands/community/tagexists.html", website_redirect = "/commands/change-tracking/tag-exists.html" },
+    { key = "/commands/community/unexpectedchangesets.html", website_redirect = "/commands/change-tracking/unexpected-changesets.html" },
+    { key = "/commands/community/update.html", website_redirect = "/commands/update/update.html" },
+    { key = "/commands/community/updatecount.html", website_redirect = "/commands/update/update-count.html" },
+    { key = "/commands/community/updatecountsql.html", website_redirect = "/commands/update/update-count-sql.html" },
+    { key = "/commands/community/updatesql.html", website_redirect = "/commands/update/update-sql.html" },
+    { key = "/commands/community/updatetestingrollback.html", website_redirect = "/commands/update/update-testing-rollback.html" },
+    { key = "/commands/community/updatetotag.html", website_redirect = "/commands/update/update-to-tag.html" },
+    { key = "/commands/community/updatetotagsql.html", website_redirect = "/commands/update/update-to-tag-sql.html" },
+    { key = "/commands/community/validate.html", website_redirect = "/commands/update/validate.html" },
+    { key = "/commands/config-ref/always-override-stored-logic-schema.html", website_redirect = "/parameters/always-override-stored-logic-schema.html" },
+    { key = "/commands/config-ref/auto-reorg.html", website_redirect = "/parameters/auto-reorg.html" },
+    { key = "/commands/config-ref/changelogfile-parameter.html", website_redirect = "/parameters/changelog-file.html" },
+    { key = "/commands/config-ref/changelog-lock-poll-rate.html", website_redirect = "/parameters/changelog-lock-poll-rate.html" },
+    { key = "/commands/config-ref/changelog-lock-wait-time-in-minutes-parameter.html", website_redirect = "/parameters/changelog-lock-wait-time-in-minutes.html" },
+    { key = "/commands/config-ref/convert-data-types-parameter.html", website_redirect = "/parameters/convert-data-types.html" },
+    { key = "/commands/config-ref/database-class.html", website_redirect = "/parameters/database-class.html" },
+    { key = "/commands/config-ref/diff-column-order.html", website_redirect = "/parameters/diff-column-order.html" },
+    { key = "/commands/config-ref/driver.html", website_redirect = "/parameters/driver.html" },
+    { key = "/commands/config-ref/filter-log-messages.html", website_redirect = "/parameters/filter-log-messages.html" },
+    { key = "/commands/config-ref/generate-changeset-created-values.html", website_redirect = "/parameters/generate-changeset-created-values.html" },
+    { key = "/commands/config-ref/generated-changeset-ids-contains-description.html", website_redirect = "/parameters/generated-changeset-ids-contains-description.html" },
+    { key = "/commands/config-ref/headless-parameter.html", website_redirect = "/parameters/headless.html" },
+    { key = "/commands/config-ref/help.html", website_redirect = "/parameters/help.html" },
+    { key = "/commands/config-ref/include-catalog-in-specification-parameter.html", website_redirect = "/parameters/include-catalog-in-specification.html" },
+    { key = "/commands/config-ref/include-system-classpath-parameter.html", website_redirect = "/parameters/include-system-classpath.html" },
+    { key = "/commands/config-ref/liquibase-catalog-name-parameter.html", website_redirect = "/parameters/liquibase-catalog-name.html" },
+    { key = "/commands/config-ref/liquibase-schema-name-parameter.html", website_redirect = "/parameters/liquibase-schema-name.html" },
+    { key = "/commands/config-ref/liquibase-tablespace-name.html", website_redirect = "/parameters/liquibase-tablespace-name.html" },
+    { key = "/commands/config-ref/logfile-parameter.html", website_redirect = "/parameters/log-file.html" },
+    { key = "/commands/config-ref/logicalfilepath.html", website_redirect = "/concepts/changelogs/attributes/logicalfilepath.html" },
+    { key = "/commands/config-ref/loglevel.html", website_redirect = "/parameters/log-level.html" },
+    { key = "/commands/config-ref/objectquotingstrategy.html", website_redirect = "/concepts/changelogs/attributes/objectquotingstrategy.html" },
+    { key = "/commands/config-ref/outputfile-parameter.html", website_redirect = "/parameters/output-file.html" },
+    { key = "/commands/config-ref/output-file-encoding.html", website_redirect = "/parameters/output-file-encoding.html" },
+    { key = "/commands/config-ref/output-line-separator.html", website_redirect = "/parameters/output-line-separator.html" },
+    { key = "/commands/config-ref/should-run-parameter.html", website_redirect = "/parameters/should-run.html" },
+    { key = "/commands/config-ref/should-snapshot-data-parameter.html", website_redirect = "/parameters/should-snapshot-data.html" },
+    { key = "/commands/dbdoc.html", website_redirect = "/commands/change-tracking/db-doc.html" },
+    { key = "/commands/deactivatechangelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/diff/diff.html", website_redirect = "/commands/inspection/diff.html" },
+    { key = "/commands/diff/diff-changelog.html", website_redirect = "/commands/inspection/diff-changelog.html" },
+    { key = "/commands/diff/diff-json.html", website_redirect = "/commands/inspection/diff-json.html" },
+    { key = "/commands/diff.html", website_redirect = "/commands/inspection/diff.html" },
+    { key = "/commands/diffchangelog.html", website_redirect = "/commands/inspection/diff-changelog.html" },
+    { key = "/commands/diff-json.html", website_redirect = "/commands/inspection/diff-json.html" },
+    { key = "/commands/docs/db-doc.html", website_redirect = "/commands/change-tracking/db-doc.html" },
+    { key = "/commands/dropall.html", website_redirect = "/commands/update/drop-all.html" },
+    { key = "/commands/execute-sql.html", website_redirect = "/commands/update/execute-sql.html" },
+    { key = "/commands/flow/advance-flow-file.html", website_redirect = "/commands/flow/advanced-flow-file.html" },
+    { key = "/commands/futurerollbackcountsql.html", website_redirect = "/commands/rollback/future-rollback-count-sql.html" },
+    { key = "/commands/future-rollback-from-tag-sql.html", website_redirect = "/commands/rollback/future-rollback-from-tag-sql.html" },
+    { key = "/commands/futurerollbacksql.html", website_redirect = "/commands/rollback/future-rollback-sql.html" },
+    { key = "/commands/generatechangelog.html", website_redirect = "/commands/inspection/generate-changelog.html" },
+    { key = "/commands/help.html", website_redirect = "/parameters/help.html" },
+    { key = "/commands/history.html", website_redirect = "/commands/change-tracking/history.html" },
+    { key = "/commands/hub/deactivate-changelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/hub/register-changelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/hub/sync-hub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/init/hub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/java-opts-environment-variable.html", website_redirect = "/concepts/connections/java-opts-environment-variable.html" },
+    { key = "/commands/liquibase-environment-variables.html", website_redirect = "/concepts/connections/liquibase-environment-variables.html" },
+    { key = "/commands/liquibase-start/home.html", website_redirect = "/commands/init/home.html" },
+    { key = "/commands/liquibase-start/init-hub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/liquibase-start/init-project.html", website_redirect = "/commands/init/project.html" },
+    { key = "/commands/liquibase-start/init-start-h2.html", website_redirect = "/commands/init/start-h2.html" },
+    { key = "/commands/listlocks.html", website_redirect = "/commands/maintenance/list-locks.html" },
+    { key = "/commands/maintenance/changelog-sync.html", website_redirect = "/commands/change-tracking/changelog-sync.html" },
+    { key = "/commands/maintenance/changelog-sync-sql.html", website_redirect = "/commands/change-tracking/changelog-sync-sql.html" },
+    { key = "/commands/maintenance/changelog-sync-to-tag.html", website_redirect = "/commands/change-tracking/changelog-sync-to-tag.html" },
+    { key = "/commands/maintenance/changelog-sync-to-tag-sql.html", website_redirect = "/commands/change-tracking/changelog-sync-to-tag-sql.html" },
+    { key = "/commands/maintenance/drop-all.html", website_redirect = "/commands/update/drop-all.html" },
+    { key = "/commands/maintenance/mark-next-changeset-ran.html", website_redirect = "/commands/change-tracking/mark-next-changeset-ran.html" },
+    { key = "/commands/maintenance/mark-next-changeset-ran-sql.html", website_redirect = "/commands/change-tracking/mark-next-changeset-ran-sql.html" },
+    { key = "/commands/maintenance/tag.html", website_redirect = "/commands/change-tracking/tag.html" },
+    { key = "/commands/maintenance/tag-exists.html", website_redirect = "/commands/change-tracking/tag-exists.html" },
+    { key = "/commands/maintenance/unexpected-changesets.html", website_redirect = "/commands/change-tracking/unexpected-changesets.html" },
+    { key = "/commands/maintenance/validate.html", website_redirect = "/commands/update/validate.html" },
+    { key = "/commands/marknextchangesetran.html", website_redirect = "/commands/change-tracking/mark-next-changeset-ran.html" },
+    { key = "/commands/marknextchangesetransql.html", website_redirect = "/commands/change-tracking/mark-next-changeset-ran-sql.html" },
+    { key = "/commands/pro/checks-bulk-set.html", website_redirect = "/commands/quality-checks/subcommands/bulk-set.html" },
+    { key = "/commands/pro/diff-json.html", website_redirect = "/commands/inspection/diff-json.html" },
+    { key = "/commands/pro/home.html", website_redirect = "/commands/home.html" },
+    { key = "/commands/pro/rollbackonechangeset.html", website_redirect = "/commands/rollback/rollback-one-changeset.html" },
+    { key = "/commands/pro/rollbackonechangesetsql.html", website_redirect = "/commands/rollback/rollback-one-changeset-sql.html" },
+    { key = "/commands/pro/rollbackoneupdate.html", website_redirect = "/commands/rollback/rollback-one-update.html" },
+    { key = "/commands/pro/rollbackoneupdatesql.html", website_redirect = "/commands/rollback/rollback-one-update-sql.html" },
+    { key = "/commands/quality-checks/bulk-set.html", website_redirect = "/commands/quality-checks/subcommands/bulk-set.html" },
+    { key = "/commands/quality-checks/checks/quality-checks-list.html", website_redirect = "/commands/quality-checks/checks/home.html" },
+    { key = "/commands/quality-checks/checks-bulk-set.html", website_redirect = "/commands/quality-checks/subcommands/bulk-set.html" },
+    { key = "/commands/quality-checks/checks-copy.html", website_redirect = "/commands/quality-checks/subcommands/copy.html" },
+    { key = "/commands/quality-checks/checks-customize.html", website_redirect = "/commands/quality-checks/subcommands/customize.html" },
+    { key = "/commands/quality-checks/checks-delete.html", website_redirect = "/commands/quality-checks/subcommands/delete.html" },
+    { key = "/commands/quality-checks/checks-disable.html", website_redirect = "/commands/quality-checks/subcommands/disable.html" },
+    { key = "/commands/quality-checks/checks-enable.html", website_redirect = "/commands/quality-checks/subcommands/enable.html" },
+    { key = "/commands/quality-checks/checks-reset.html", website_redirect = "/commands/quality-checks/subcommands/reset.html" },
+    { key = "/commands/quality-checks/checks-run.html", website_redirect = "/commands/quality-checks/subcommands/run.html" },
+    { key = "/commands/quality-checks/checks-scope.html", website_redirect = "/commands/quality-checks/command-arguments/checks-scope.html" },
+    { key = "/commands/quality-checks/checks-show.html", website_redirect = "/commands/quality-checks/subcommands/show.html" },
+    { key = "/commands/quality-checks/concepts/getting-started-with-the-checks-command.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
+    { key = "/commands/quality-checks/concepts/json-object.html", website_redirect = "/commands/quality-checks/workflows/json-object.html" },
+    { key = "/commands/quality-checks/concepts/multiple-objects.html", website_redirect = "/commands/quality-checks/workflows/multiple-objects.html" },
+    { key = "/commands/quality-checks/concepts/using-quality-checks-in-automation-severity-and-exit-code.html", website_redirect = "/commands/quality-checks/workflows/use-quality-checks-in-automation-severity-and-exit-code.html" },
+    { key = "/commands/quality-checks/concepts/using-the-checks-settings-configuration-file.html", website_redirect = "/commands/quality-checks/workflows/use-checks-settings-config-file.html" },
+    { key = "/commands/quality-checks/concepts/working-with-quality-checks.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
+    { key = "/commands/quality-checks/constraint-must-exist.html", website_redirect = "/commands/quality-checks/checks/constraint-must-exist.html" },
+    { key = "/commands/quality-checks/copy.html", website_redirect = "/commands/quality-checks/subcommands/copy.html" },
+    { key = "/commands/quality-checks/customize.html", website_redirect = "/commands/quality-checks/subcommands/customize.html" },
+    { key = "/commands/quality-checks/delete.html", website_redirect = "/commands/quality-checks/subcommands/delete.html" },
+    { key = "/commands/quality-checks/disable.html", website_redirect = "/commands/quality-checks/subcommands/disable.html" },
+    { key = "/commands/quality-checks/enable.html", website_redirect = "/commands/quality-checks/subcommands/enable.html" },
+    { key = "/commands/quality-checks/getting-started-with-the-checks-command.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
+    { key = "/commands/quality-checks/json-object.html", website_redirect = "/commands/quality-checks/workflows/json-object.html" },
+    { key = "/commands/quality-checks/lab-quality-checks.html", website_redirect = "/commands/quality-checks/checks/home.html" },
+    { key = "/commands/quality-checks/multiple-objects.html", website_redirect = "/commands/quality-checks/workflows/multiple-objects.html" },
+    { key = "/commands/quality-checks/object-name-must-match.html", website_redirect = "/commands/quality-checks/checks/object-name-must-match.html" },
+    { key = "/commands/quality-checks/object-name-must-not-match.html", website_redirect = "/commands/quality-checks/checks/object-name-must-not-match.html" },
+    { key = "/commands/quality-checks/parameters/checks-scope.html", website_redirect = "/commands/quality-checks/command-arguments/checks-scope.html" },
+    { key = "/commands/quality-checks/quality-checks-json-object.html", website_redirect = "/commands/quality-checks/workflows/json-object.html" },
+    { key = "/commands/quality-checks/quality-checks-list.html", website_redirect = "/commands/quality-checks/checks/home.html" },
+    { key = "/commands/quality-checks/reset.html", website_redirect = "/commands/quality-checks/subcommands/reset.html" },
+    { key = "/commands/quality-checks/run.html", website_redirect = "/commands/quality-checks/subcommands/run.html" },
+    { key = "/commands/quality-checks/show.html", website_redirect = "/commands/quality-checks/subcommands/show.html" },
+    { key = "/commands/quality-checks/table-column-limit.html", website_redirect = "/commands/quality-checks/checks/table-column-limit.html" },
+    { key = "/commands/quality-checks/table-comment-check.html", website_redirect = "/commands/quality-checks/checks/table-comment-check.html" },
+    { key = "/commands/quality-checks/table-comment-pattern-check.html", website_redirect = "/commands/quality-checks/checks/table-comment-pattern-check.html" },
+    { key = "/commands/quality-checks/using-quality-checks-in-automation-severity-and-exit-code.html", website_redirect = "/commands/quality-checks/workflows/use-quality-checks-in-automation-severity-and-exit-code.html" },
+    { key = "/commands/quality-checks/using-the-checks-settings-configuration-file.html", website_redirect = "/commands/quality-checks/workflows/use-checks-settings-config-file.html" },
+    { key = "/commands/quality-checks/workflows/getting-started-with-the-checks-command.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
+    { key = "/commands/quality-checks/workflows/using-the-checks-settings-configuration-file.html", website_redirect = "/commands/quality-checks/workflows/use-checks-settings-config-file.html" },
+    { key = "/commands/quality-checks/working-with-quality-checks.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
+    { key = "/commands/registerchangelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/releaselocks.html", website_redirect = "/commands/maintenance/release-locks.html" },
+    { key = "/commands/rollbackbytag.html", website_redirect = "/commands/rollback/rollback-by-tag.html" },
+    { key = "/commands/rollbackcount.html", website_redirect = "/commands/rollback/rollback-count.html" },
+    { key = "/commands/rollbackcountsql.html", website_redirect = "/commands/rollback/rollback-count-sql.html" },
+    { key = "/commands/rollbackonechangeset.html", website_redirect = "/commands/rollback/rollback-one-changeset.html" },
+    { key = "/commands/rollbackonechangesetsql.html", website_redirect = "/commands/rollback/rollback-one-changeset-sql.html" },
+    { key = "/commands/rollbackoneupdate.html", website_redirect = "/commands/rollback/rollback-one-update.html" },
+    { key = "/commands/rollbackoneupdatesql.html", website_redirect = "/commands/rollback/rollback-one-update-sql.html" },
+    { key = "/commands/rollbacksqltag.html", website_redirect = "/commands/rollback/rollback-sql.html" },
+    { key = "/commands/rollbacktodate.html", website_redirect = "/commands/rollback/rollback-to-date.html" },
+    { key = "/commands/rollbacktodatesql.html", website_redirect = "/commands/rollback/rollback-to-date-sql.html" },
+    { key = "/commands/snapshot/generate-changelog.html", website_redirect = "/commands/inspection/generate-changelog.html" },
+    { key = "/commands/snapshot/snapshot.html", website_redirect = "/commands/inspection/snapshot.html" },
+    { key = "/commands/snapshot/snapshot-reference.html", website_redirect = "/commands/inspection/snapshot-reference.html" },
+    { key = "/commands/snapshot.html", website_redirect = "/commands/inspection/snapshot.html" },
+    { key = "/commands/snapshotreference.html", website_redirect = "/commands/inspection/snapshot-reference.html" },
+    { key = "/commands/status/history.html", website_redirect = "/commands/change-tracking/history.html" },
+    { key = "/commands/status/status.html", website_redirect = "/commands/change-tracking/status.html" },
+    { key = "/commands/status/verbose.html", website_redirect = "/commands/change-tracking/status.html" },
+    { key = "/commands/status-verbose.html", website_redirect = "/commands/change-tracking/status.html" },
+    { key = "/commands/synchub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/commands/tag.html", website_redirect = "/commands/change-tracking/tag.html" },
+    { key = "/commands/tagexists.html", website_redirect = "/commands/change-tracking/tag-exists.html" },
+    { key = "/commands/unexpectedchangesets.html", website_redirect = "/commands/change-tracking/unexpected-changesets.html" },
+    { key = "/commands/update.html", website_redirect = "/commands/update/update.html" },
+    { key = "/commands/updatecount.html", website_redirect = "/commands/update/update-count.html" },
+    { key = "/commands/updatecountsql.html", website_redirect = "/commands/update/update-count-sql.html" },
+    { key = "/commands/updatesql.html", website_redirect = "/commands/update/update-sql.html" },
+    { key = "/commands/updatetestingrollback.html", website_redirect = "/commands/update/update-testing-rollback.html" },
+    { key = "/commands/updatetotag.html", website_redirect = "/commands/update/update-to-tag.html" },
+    { key = "/commands/updatetotagsql.html", website_redirect = "/commands/update/update-to-tag-sql.html" },
+    { key = "/commands/validate.html", website_redirect = "/commands/update/validate.html" },
+    { key = "/commands/working-with-command-parameters.html", website_redirect = "/parameters/working-with-command-parameters.html" },
+    { key = "/concepts/advanced/column.html", website_redirect = "/change-types/nested-tags/column.html" },
+    { key = "/concepts/advanced/always-override-stored-logic-schema.html", website_redirect = "/parameters/always-override-stored-logic-schema.html" },
+    { key = "/concepts/advanced/auto-reorg.html", website_redirect = "/parameters/auto-reorg.html" },
+    { key = "/concepts/advanced/changelogfile-parameter.html", website_redirect = "/parameters/changelog-file.html" },
+    { key = "/concepts/advanced/changelog-lock-poll-rate.html", website_redirect = "/parameters/changelog-lock-poll-rate.html" },
+    { key = "/concepts/advanced/changelog-lock-wait-time-in-minutes-parameter.html", website_redirect = "/parameters/changelog-lock-wait-time-in-minutes.html" },
+    { key = "/concepts/advanced/configuring-quality-checks.html", website_redirect = "/commands/quality-checks/home.html" },
+    { key = "/concepts/advanced/contexts.html", website_redirect = "/concepts/changelogs/attributes/contexts.html" },
+    { key = "/concepts/advanced/convert-data-types-parameter.html", website_redirect = "/parameters/convert-data-types.html" },
+    { key = "/concepts/advanced/database-class.html", website_redirect = "/parameters/database-class.html" },
+    { key = "/concepts/advanced/diff-column-order.html", website_redirect = "/parameters/diff-column-order.html" },
+    { key = "/concepts/advanced/driver.html", website_redirect = "/parameters/driver.html" },
+    { key = "/concepts/advanced/enddelimiter-sql-attribute.html", website_redirect = "/concepts/changelogs/attributes/enddelimiter-sql.html" },
+    { key = "/concepts/advanced/filter-log-messages.html", website_redirect = "/parameters/filter-log-messages.html" },
+    { key = "/concepts/advanced/generate-changeset-created-values.html", website_redirect = "/parameters/generate-changeset-created-values.html" },
+    { key = "/concepts/advanced/generated-changeset-ids-contains-description.html", website_redirect = "/parameters/generated-changeset-ids-contains-description.html" },
+    { key = "/concepts/advanced/getting-started-with-the-checks-command.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
+    { key = "/concepts/advanced/headless-parameter.html", website_redirect = "/parameters/headless.html" },
+    { key = "/concepts/advanced/help.html", website_redirect = "/parameters/help.html" },
+    { key = "/concepts/advanced/include.html", website_redirect = "/change-types/include.html" },
+    { key = "/concepts/advanced/includeall.html", website_redirect = "/change-types/includeall.html" },
+    { key = "/concepts/advanced/include-catalog-in-specification-parameter.html", website_redirect = "/parameters/include-catalog-in-specification.html" },
+    { key = "/concepts/advanced/include-system-classpath-parameter.html", website_redirect = "/parameters/include-system-classpath.html" },
+    { key = "/concepts/advanced/labels.html", website_redirect = "/concepts/changelogs/attributes/labels.html" },
+    { key = "/concepts/advanced/liquibase-catalog-name-parameter.html", website_redirect = "/parameters/liquibase-catalog-name.html" },
+    { key = "/concepts/advanced/liquibase-pro-certified-databases.html", website_redirect = "/home.html" },
+    { key = "/concepts/advanced/liquibase-schema-name-parameter.html", website_redirect = "/parameters/liquibase-schema-name.html" },
+    { key = "/concepts/advanced/liquibase-tablespace-name.html", website_redirect = "/parameters/liquibase-tablespace-name.html" },
+    { key = "/concepts/advanced/logfile-parameter.html", website_redirect = "/parameters/log-file.html" },
+    { key = "/concepts/advanced/logicalfilepath.html", website_redirect = "/concepts/changelogs/attributes/logicalfilepath.html" },
+    { key = "/concepts/advanced/loglevel.html", website_redirect = "/parameters/log-level.html" },
+    { key = "/concepts/advanced/objectquotingstrategy.html", website_redirect = "/parameters/object-quoting-strategy.html" },
+    { key = "/concepts/advanced/outputfile-parameter.html", website_redirect = "/parameters/output-file.html" },
+    { key = "/concepts/advanced/output-file-encoding.html", website_redirect = "/parameters/output-file-encoding.html" },
+    { key = "/concepts/advanced/output-line-separator.html", website_redirect = "/parameters/output-line-separator.html" },
+    { key = "/concepts/advanced/preconditions.html", website_redirect = "/concepts/changelogs/preconditions.html" },
+    { key = "/concepts/advanced/quality-checks.html", website_redirect = "/commands/quality-checks/home.html" },
+    { key = "/concepts/advanced/runonchange.html", website_redirect = "/concepts/changelogs/attributes/runonchange.html" },
+    { key = "/concepts/advanced/runwith.html", website_redirect = "/concepts/changelogs/attributes/runwith.html" },
+    { key = "/concepts/advanced/should-run-parameter.html", website_redirect = "/parameters/parameters/should-run.html" },
+    { key = "/concepts/advanced/should-snapshot-data-parameter.html", website_redirect = "/parameters/parameters/should-snapshot-data-parameter.html" },
+    { key = "/concepts/advanced/using-sql-plus-and-oracle-proxy-user.html", website_redirect = "/concepts/changelogs/attributes/using-sql-plus-and-oracle-proxy-user.html" },
+    { key = "/concepts/advanced/using-quality-checks-in-automation-severity-and-exit-code.html", website_redirect = "/commands/quality-checks/workflows/use-quality-checks-auto-severity-exit-code.html" },
+    { key = "/concepts/advanced/using-the-changelogfile-logfile-outputfile-parameters.html", website_redirect = "/parameters/home.html" },
+    { key = "/concepts/advanced/using-the-checks-settings-configuration-file.html", website_redirect = "/commands/quality-checks/workflows/use-checks-settings-config-file.html" },
+    { key = "/concepts/ant/index.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/" },
+    { key = "/concepts/basic/changelog.html", website_redirect = "/concepts/changelogs/home.html" },
+    { key = "/concepts/basic/changelog-parameters.html", website_redirect = "/concepts/changelogs/attributes/home.html" },
+    { key = "/concepts/basic/changelog-property-substitution.html", website_redirect = "/concepts/changelogs/property-substitution.html" },
+    { key = "/concepts/basic/changeset.html", website_redirect = "/concepts/changelogs/changeset.html" },
+    { key = "/concepts/basic/databasechangelog-table.html", website_redirect = "/concepts/tracking-tables/databasechangelog-table.html" },
+    { key = "/concepts/basic/databasechangeloglock-table.html", website_redirect = "/concepts/tracking-tables/databasechangeloglock-table.html" },
+    { key = "/concepts/basic/home.html", website_redirect = "/concepts/tracking-tables/tracking-tables.html" },
+    { key = "/concepts/basic/how-liquibase-finds-files.html", website_redirect = "/concepts/changelogs/how-liquibase-finds-files.html" },
+    { key = "/concepts/basic/java-opts-environment-variable.html", website_redirect = "/concepts/connections/java-opts-environment-variable.html" },
+    { key = "/concepts/basic/json-format.html", website_redirect = "/concepts/changelogs/json-format.html" },
+    { key = "/concepts/basic/liquibase-configuration-reference.html", website_redirect = "/parameters/home.html" },
+    { key = "/concepts/basic/liquibase-environment-variables.html", website_redirect = "/concepts/connections/liquibase-environment-variables.html" },
+    { key = "/concepts/basic/liquibase-relative-path-best-practices.html", website_redirect = "/concepts/changelogs/how-liquibase-finds-files.html" },
+    { key = "/concepts/basic/other-formats.html", website_redirect = "/concepts/changelogs/other-formats.html" },
+    { key = "/concepts/basic/path-update.html", website_redirect = "/concepts/changelogs/how-liquibase-finds-files.html" },
+    { key = "/concepts/basic/sql-format.html", website_redirect = "/concepts/changelogs/sql-format.html" },
+    { key = "/concepts/basic/xml-format.html", website_redirect = "/concepts/changelogs/xml-format.html" },
+    { key = "/concepts/basic/yaml-format.html", website_redirect = "/concepts/changelogs/yaml-format.html" },
+    { key = "/concepts/changelog.html", website_redirect = "/concepts/changelogs/home.html" },
+    { key = "/concepts/changelog-parameters.html", website_redirect = "/concepts/changelogs/attributes/home.html" },
+    { key = "/concepts/changelogs/attributes/column.html", website_redirect = "/change-types/nested-tags/column.html" },
+    { key = "/concepts/changelogs/attributes/changelog-attributes.html", website_redirect = "/concepts/changelogs/attributes/home.html" },
+    { key = "/concepts/changelogs/attributes/changelog-elements.html", website_redirect = "/concepts/changelogs/attributes/home.html" },
+    { key = "/concepts/changelogs/attributes/changeset-elements-and-attributes.html", website_redirect = "/concepts/changelogs/attributes/home.html" },
+    { key = "/concepts/changelogs/attributes/end-delimiter-sql.html", website_redirect = "/concepts/changelogs/attributes/enddelimiter-sql.html" },
+    { key = "/concepts/changelogs/attributes/end-delimiter-sql-attribute.html", website_redirect = "/concepts/changelogs/attributes/enddelimiter-sql.html" },
+    { key = "/concepts/changelogs/attributes/logical-file-path.html", website_redirect = "/concepts/changelogs/attributes/logicalfilepath.html" },
+    { key = "/concepts/changelogs/attributes/include-all.html", website_redirect = "/change-types/includeall.html" },
+    { key = "/concepts/changelogs/attributes/include.html", website_redirect = "/change-types/include.html" },
+    { key = "/concepts/changelogs/attributes/includeall.html", website_redirect = "/change-types/includeall.html" },
+    { key = "/concepts/changelogs/attributes/run-on-change.html", website_redirect = "/concepts/changelogs/attributes/runonchange.html" },
+    { key = "/concepts/changelogs/attributes/run-with.html", website_redirect = "/concepts/changelogs/attributes/runwith.html" },
+    { key = "/concepts/changelogs/attributes/using-psql-integration.html", website_redirect = "/concepts/changelogs/attributes/use-psql-integration.html" },
+    { key = "/concepts/changelogs/attributes/using-sqlcmd-integration.html", website_redirect = "/concepts/changelogs/attributes/use-sqlcmd-integration.html" },
+    { key = "/concepts/changelogs/attributes/using-sql-plus-and-oracle-proxy-user.html", website_redirect = "/concepts/changelogs/attributes/use-sql-plus-oracle-proxy-user.html" },
+    { key = "/concepts/changelogs/attributes/using-sql-plus-integration.html", website_redirect = "/concepts/changelogs/attributes/use-sql-plus-integration.html" },
+    { key = "/concepts/changelogs/changelog-formats.html", website_redirect = "/concepts/changelogs/changeset.html" },
+    { key = "/concepts/changelogs/contexts.html", website_redirect = "/concepts/changelogs/attributes/contexts.html" },
+    { key = "/concepts/changelogs/enddelimiter-sql-attribute.html", website_redirect = "/concepts/changelogs/attributes/enddelimiter-sql.html" },
+    { key = "/concepts/changelogs/include.html", website_redirect = "/change-types/include.html" },
+    { key = "/concepts/changelogs/includeall.html", website_redirect = "/change-types/includeall.html" },
+    { key = "/concepts/changelogs/labels.html", website_redirect = "/concepts/changelogs/attributes/labels.html" },
+    { key = "/concepts/changelogs/runonchange.html", website_redirect = "/concepts/changelogs/attributes/runonchange.html" },
+    { key = "/concepts/changelogs/runwith.html", website_redirect = "/concepts/changelogs/attributes/runwith.html" },
+    { key = "/concepts/changelogs/working-with-changelogs.html", website_redirect = "/concepts/changelogs/home.html" },
+    { key = "/concepts/changes/sql.html", website_redirect = "/change-types/sql.html" },
+    { key = "/concepts/changes/faq.html", website_redirect = "/faq.html" },
+    { key = "/concepts/changes/home.html", website_redirect = "/home.html" },
+    { key = "/concepts/changes/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/concepts/changeset.html", website_redirect = "/concepts/changelogs/changeset.html" },
+    { key = "/concepts/contexts.html", website_redirect = "/concepts/changelogs/attributes/contexts.html" },
+    { key = "/concepts/databasechangelog.html", website_redirect = "/concepts/tracking-tables/databasechangelog-table.html" },
+    { key = "/concepts/databasechangelog-table.html", website_redirect = "/concepts/tracking-tables/databasechangelog-table.html" },
+    { key = "/concepts/databasechangeloglock-table.html", website_redirect = "/concepts/tracking-tables/databasechangeloglock-table.html" },
+    { key = "/concepts/include.html", website_redirect = "/change-types/include.html" },
+    { key = "/concepts/includeall.html", website_redirect = "/change-types/includeall.html" },
+    { key = "/concepts/installation/db2onzdeploy-sql.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/" },
+    { key = "/concepts/installation/home.html", website_redirect = "/start/install/home.html" },
+    { key = "/concepts/installation/installation-linux-unix-mac.html", website_redirect = "/start/install/liquibase-macos.html" },
+    { key = "/concepts/installation/installation-linux-unix-mac-windows-with-maven.html", website_redirect = "/tools-integrations/maven/installation-linux-unix-mac-windows-with-maven.html" },
+    { key = "/concepts/installation/installation-linux-unix-mac-with-maven.html", website_redirect = "/tools-integrations/maven/installation-linux-unix-mac-windows-with-maven.html" },
+    { key = "/concepts/installation/installation-windows.html", website_redirect = "/start/install/liquibase-windows.html" },
+    { key = "/concepts/installation/lb-developer-workflow.html", website_redirect = "/workflows/liquibase-community/lb-developer-workflow.html" },
+    { key = "/concepts/installation/liquibase-system-requirements.html", website_redirect = "/start/install/liquibase-requirements.html" },
+    { key = "/concepts/installation/running-first-update-installer.html", website_redirect = "/start/install/home.html" },
+    { key = "/concepts/installation/setup-github-actions-workflow.html", website_redirect = "/workflows/liquibase-community/setup-github-actions-workflow.html" },
+    { key = "/concepts/installation/setup-gitlab-cicd.html", website_redirect = "/workflows/liquibase-community/setup-gitlab-cicd.html" },
+    { key = "/concepts/installation/setup-workspace-installer.html", website_redirect = "/start/install/home.html" },
+    { key = "/concepts/installation/upgrading-liquibase.html", website_redirect = "/workflows/liquibase-community/upgrading-liquibase.html" },
+    { key = "/concepts/installation/using-the-lb-installer.html", website_redirect = "/start/install/home.html" },
+    { key = "/concepts/installation/using-the-lb-installer-for-linux-unix-mac.html", website_redirect = "/start/install/liquibase-macos.html" },
+    { key = "/concepts/labels.html", website_redirect = "/concepts/changelogs/attributes/labels.html" },
+    { key = "/concepts/maven/index.html", website_redirect = "/tools-integrations/maven/home.html" },
+    { key = "/concepts/preconditions.html", website_redirect = "/concepts/changelogs/preconditions.html" },
+    { key = "/concepts/json-format.html", website_redirect = "/concepts/changelogs/json-format.html" },
+    { key = "/concepts/other-formats.html", website_redirect = "/concepts/changelogs/other-formats.html" },
+    { key = "/concepts/sql-format.html", website_redirect = "/concepts/changelogs/sql-format.html" },
+    { key = "/concepts/xml-format.html", website_redirect = "/concepts/changelogs/xml-format.html" },
+    { key = "/concepts/yaml-format.html", website_redirect = "/concepts/changelogs/yaml-format.html" },
+    { key = "/databases.html", website_redirect = "/start/tutorials/home.html" },
+    { key = "/documentation/changeset", website_redirect = "/concepts/changelogs/changeset.html" },
+    { key = "/documentation/command_line", website_redirect = "/parameters/working-with-command-parameters.html" },
+    { key = "/documentation/command_line.html", website_redirect = "/parameters/working-with-command-parameters.html" },
+    { key = "/documentation/contexts.html", website_redirect = "/concepts/changelogs/attributes/contexts.html" },
+    { key = "/documentation/maven/maven_changelogsyncsql.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsyncsql.html" },
+    { key = "/documentation/maven/maven_updatetestingrollback.html", website_redirect = "/tools-integrations/maven/commands/maven-updatetestingrollback.html" },
+    { key = "/environment-variables", website_redirect = "/parameters/home.html" },
+    { key = "/flow", website_redirect = "/commands/flow/flow.html" },
+    { key = "/flow.html", website_redirect = "/commands/flow/flow.html" },
+    { key = "/install/liquibase-downloaded-files.html", website_redirect = "/start/install/liquibase-installation-files.html" },
+    { key = "/install/liquibase-installation-files.html", website_redirect = "/start/install/liquibase-installation-files.html" },
+    { key = "/install/liquibase-installation-troubleshooting.html", website_redirect = "/start/install/liquibase-installation-troubleshooting.html" },
+    { key = "/install/liquibase-linux.html", website_redirect = "/start/install/liquibase-linux.html" },
+    { key = "/install/liquibase-macos.html", website_redirect = "/start/install/liquibase-macos.html" },
+    { key = "/install/liquibase-requirements.html", website_redirect = "/start/install/liquibase-requirements.html" },
+    { key = "/install/liquibase-windows.html", website_redirect = "/start/install/liquibase-windows.html" },
+    { key = "/install/home.html", website_redirect = "/start/install/home.html" },
+    { key = "/install/supported-databases.html", website_redirect = "/start/tutorials/home.html" },
+    { key = "/install/sybase-anywhere.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/" },
+    { key = "/install/sybase-enterprise.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/" },
+    { key = "/install/tutorials/apache-derby.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/" },
+    { key = "/install/tutorials/aws-redshift.html", website_redirect = "/start/tutorials/amazon-redshift.html" },
+    { key = "/install/tutorials/bigquery.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/" },
+    { key = "/install/tutorials/cassandra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/" },
+    { key = "/install/tutorials/cassandra-astra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/" },
+    { key = "/install/tutorials/cloud-spanner.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/" },
+    { key = "/install/tutorials/cockroachdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/" },
+    { key = "/install/tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html", website_redirect = "/start/tutorials/oracle-connect-kerberos-active-directory.html" },
+    { key = "/install/tutorials/cosmosdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cosmosdb/" },
+    { key = "/install/tutorials/db2-luw.html", website_redirect = "/start/tutorials/ibm-db2-luw.html" },
+    { key = "/install/tutorials/db2onz.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/" },
+    { key = "/install/tutorials/db2onzdeploy-sql.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/" },
+    { key = "/install/tutorials/enterprisedb.html", website_redirect = "/start/tutorials/enterprisedb.html" },
+    { key = "/install/tutorials/firebird.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/" },
+    { key = "/install/tutorials/h2.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/" },
+    { key = "/install/tutorials/hibernate.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/" },
+    { key = "/install/tutorials/home.html", website_redirect = "/start/tutorials/home.html" },
+    { key = "/install/tutorials/hsqldb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/" },
+    { key = "/install/tutorials/impala-hive.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/install/tutorials/informix.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/" },
+    { key = "/install/tutorials/interbase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/install/tutorials/mariadb.html", website_redirect = "/start/tutorials/mariadb.html" },
+    { key = "/install/tutorials/maxdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/" },
+    { key = "/install/tutorials/mongodb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
+    { key = "/install/tutorials/mssql.html", website_redirect = "/start/tutorials/ms-sql-server.html" },
+    { key = "/install/tutorials/mssql-integrated-security-kerberos-authentication.html", website_redirect = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html" },
+    { key = "/install/tutorials/mssql-windows-integrated-security.html", website_redirect = "/start/tutorials/ms-sql-server-windows-integrated-security.html" },
+    { key = "/install/tutorials/mysql.html", website_redirect = "/start/tutorials/mysql.html" },
+    { key = "/install/tutorials/oracle.html", website_redirect = "/start/tutorials/oracle.html" },
+    { key = "/install/tutorials/oracle-atp-db.html", website_redirect = "/start/tutorials/oracle-autonomous-db.html" },
+    { key = "/install/tutorials/percona-xtradb-cluster.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/" },
+    { key = "/install/tutorials/postgresql.html", website_redirect = "/start/tutorials/postgresql.html" },
+    { key = "/install/tutorials/sap-adaptive-server-enterprise-sap-ase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/" },
+    { key = "/install/tutorials/sap-hana.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/" },
+    { key = "/install/tutorials/sap-sql-anywhere.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/" },
+    { key = "/install/tutorials/snowflake.html", website_redirect = "/start/tutorials/snowflake.html" },
+    { key = "/install/tutorials/sqlite.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/" },
+    { key = "/install/tutorials/teradata.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/" },
+    { key = "/install/tutorials/tutorial-using-oracle.html", website_redirect = "/start/tutorials/oracle-manage-db-objects.html" },
+    { key = "/install/tutorials/vertica.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/" },
+    { key = "/install/tutorials/voltdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/install/tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
+    { key = "/mdc", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/mongodb", website_redirect = "/start/tutorials/mongodb-pro.html" },
+    { key = "/observability", website_redirect = "/tools-integrations/observability/home.html" },
+    { key = "/observability.html", website_redirect = "/tools-integrations/observability/home.html" },
+    { key = "/parameters/command-parameters.html", website_redirect = "/parameters/home.html" },
+    { key = "/parameters/logical-file-path.html", website_redirect = "/concepts/changelogs/attributes/logicalfilepath.html" },
+    { key = "/parameters/object-quoting-strategy.html", website_redirect = "/parameters/object-quoting-strategy.html" },
+    { key = "/parameters/on-missing-include.html", website_redirect = "/parameters/on-missing-include-changelog.html" },
+    { key = "/parameters/parameters.html", website_redirect = "/parameters/home.html" },
+    { key = "/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/quality-checks", website_redirect = "/commands/quality-checks/home.html" },
+    { key = "/quality-checks.html", website_redirect = "/commands/quality-checks/home.html" },
+    { key = "/release-notes/home.html", website_redirect = "/start/release-notes/home.html" },
+    { key = "/s3", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
+    { key = "/s3.html", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
+    { key = "/secrets-management", website_redirect = "/tools-integrations/extensions/secrets-management/home.html" },
+    { key = "/secrets-management.html", website_redirect = "/tools-integrations/extensions/secrets-management/home.html" },
+    { key = "/secrets-management/aws-secrets-mgr.html", website_redirect = "/tools-integrations/extensions/secrets-management/aws-secrets-mgr.html" },
+    { key = "/secrets-management/cyberark-pam-vault.html", website_redirect = "/tools-integrations/extensions/secrets-management/cyberark-pam-vault.html" },
+    { key = "/secrets-management/hashicorp-vault.html", website_redirect = "/tools-integrations/extensions/secrets-management/hashicorp-vault.html" },
+    { key = "/secrets-management/home.html", website_redirect = "/tools-integrations/extensions/secrets-management/home.html" },
+    { key = "/start/get-started/getting-started-liquibase-json-linux.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/get-started/getting-started-liquibase-json-macos.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/get-started/getting-started-liquibase-json-windows.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/get-started/getting-started-liquibase-sql-linux.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/get-started/getting-started-liquibase-sql-macos.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/get-started/getting-started-liquibase-sql-windows.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/get-started/getting-started-liquibase-xml-linux.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/get-started/getting-started-liquibase-xml-macos.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/get-started/getting-started-liquibase-xml-windows.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/get-started/getting-started-liquibase-yaml-linux.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/get-started/getting-started-liquibase-yaml-macos.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/get-started/getting-started-liquibase-yaml-windows.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/getting-started-liquibase-json-linux.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/getting-started-liquibase-json.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/getting-started-liquibase-json-linux-macos.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/getting-started-liquibase-sql-linux.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/getting-started-liquibase-sql.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/getting-started-liquibase-sql-linux-macos.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/getting-started-liquibase-xml-linux.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/getting-started-liquibase-xml.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/getting-started-liquibase-xml-linux-macos.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/getting-started-liquibase-yaml-linux.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/getting-started-liquibase-yaml.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/getting-started-liquibase-yaml-linux-macos.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/getting-started-with-liquibase-and-json-on-linux-macos.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/getting-started-with-liquibase-and-json-on-windows.html", website_redirect = "/start/get-started/liquibase-json.html" },
+    { key = "/start/getting-started-with-liquibase-and-sql-on-linux-macos.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/getting-started-with-liquibase-and-sql-on-windows.html", website_redirect = "/start/get-started/liquibase-sql.html" },
+    { key = "/start/getting-started-with-liquibase-and-xml-on-linux-macos.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/getting-started-with-liquibase-and-xml-on-windows.html", website_redirect = "/start/get-started/liquibase-xml.html" },
+    { key = "/start/getting-started-with-liquibase-and-yaml-on-linux-macos.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/getting-started-with-liquibase-and-yaml-on-windows.html", website_redirect = "/start/get-started/liquibase-yaml.html" },
+    { key = "/start/install/tutorials/apache-derby.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/" },
+    { key = "/start/install/tutorials/aws-redshift.html", website_redirect = "/start/tutorials/amazon-redshift.html" },
+    { key = "/start/install/tutorials/bigquery.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/" },
+    { key = "/start/install/tutorials/cassandra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/" },
+    { key = "/start/install/tutorials/cassandra-astra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/" },
+    { key = "/start/install/tutorials/cloud-spanner.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/" },
+    { key = "/start/install/tutorials/cockroachdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/" },
+    { key = "/start/install/tutorials/cosmosdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cosmosdb/" },
+    { key = "/start/install/tutorials/db2-luw.html", website_redirect = "/start/tutorials/ibm-db2-luw.html" },
+    { key = "/start/install/tutorials/db2onz.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/" },
+    { key = "/start/install/tutorials/db2onzdeploy-sql.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/" },
+    { key = "/start/install/tutorials/enterprisedb.html", website_redirect = "/start/tutorials/enterprisedb.html" },
+    { key = "/start/install/tutorials/firebird.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/" },
+    { key = "/start/install/tutorials/h2.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/" },
+    { key = "/start/install/tutorials/hibernate.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/" },
+    { key = "/start/install/tutorials/home.html", website_redirect = "/start/tutorials/home.html" },
+    { key = "/start/install/tutorials/hsqldb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/" },
+    { key = "/start/install/tutorials/impala-hive.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/start/install/tutorials/informix.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/" },
+    { key = "/start/install/tutorials/interbase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/start/install/tutorials/mariadb.html", website_redirect = "/start/tutorials/mariadb.html" },
+    { key = "/start/install/tutorials/maxdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/" },
+    { key = "/start/install/tutorials/mongodb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
+    { key = "/start/install/tutorials/mongo-db-atlas-config.html", website_redirect = "/start/tutorials/mongo-db-atlas-config.html" },
+    { key = "/start/install/tutorials/mssql.html", website_redirect = "/start/tutorials/ms-sql-server.html" },
+    { key = "/start/install/tutorials/mssql-windows-integrated-security.html", website_redirect = "/start/tutorials/ms-sql-server-windows-integrated-security.html" },
+    { key = "/start/install/tutorials/mssql-integrated-security-kerberos-authentication.html", website_redirect = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html" },
+    { key = "/start/install/tutorials/mysql.html", website_redirect = "/start/tutorials/mysql.html" },
+    { key = "/start/install/tutorials/oracle.html", website_redirect = "/start/tutorials/oracle.html" },
+    { key = "/start/install/tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html", website_redirect = "/start/tutorials/oracle-connect-kerberos-active-directory.html" },
+    { key = "/start/install/tutorials/tutorial-using-oracle.html", website_redirect = "/start/tutorials/oracle-manage-db-objects.html" },
+    { key = "/start/install/tutorials/oracle-atp-db.html", website_redirect = "/start/tutorials/oracle-autonomous-db.html" },
+    { key = "/start/install/tutorials/percona-xtradb-cluster.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/" },
+    { key = "/start/install/tutorials/postgresql.html", website_redirect = "/start/tutorials/postgresql.html" },
+    { key = "/start/install/tutorials/sap-adaptive-server-enterprise-sap-ase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/" },
+    { key = "/start/install/tutorials/sap-hana.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/" },
+    { key = "/start/install/tutorials/sap-sql-anywhere.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/" },
+    { key = "/start/install/tutorials/snowflake.html", website_redirect = "/start/tutorials/snowflake.html" },
+    { key = "/start/install/tutorials/sqlite.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/" },
+    { key = "/start/install/tutorials/teradata.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/" },
+    { key = "/start/install/tutorials/vertica.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/" },
+    { key = "/start/install/tutorials/voltdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/start/install/tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
+    { key = "/start/tutorials/apache-derby.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/" },
+    { key = "/start/tutorials/aws-redshift.html", website_redirect = "/start/tutorials/amazon-redshift.html" },
+    { key = "/start/tutorials/bigquery.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/" },
+    { key = "/start/tutorials/cassandra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/" },
+    { key = "/start/tutorials/cassandra-astra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/" },
+    { key = "/start/tutorials/cloud-spanner.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/" },
+    { key = "/start/tutorials/cockroachdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/" },
+    { key = "/start/tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html", website_redirect = "/start/tutorials/oracle-connect-kerberos-active-directory.html" },
+    { key = "/start/tutorials/cosmosdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cosmosdb/" },
+    { key = "/start/tutorials/db2-luw.html", website_redirect = "/start/tutorials/ibm-db2-luw.html" },
+    { key = "/start/tutorials/db2onz.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/" },
+    { key = "/start/tutorials/db2onzdeploy-sql.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/" },
+    { key = "/start/tutorials/firebird.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/" },
+    { key = "/start/tutorials/h2.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/" },
+    { key = "/start/tutorials/hibernate.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/" },
+    { key = "/start/tutorials/hsqldb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/" },
+    { key = "/start/tutorials/impala-hive.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/start/tutorials/informix.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/" },
+    { key = "/start/tutorials/interbase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/start/tutorials/maxdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/" },
+    { key = "/start/tutorials/mongodb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
+    { key = "/start/tutorials/mssql.html", website_redirect = "/start/tutorials/ms-sql-server.html" },
+    { key = "/start/tutorials/mssql-integrated-security-kerberos-authentication.html", website_redirect = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html" },
+    { key = "/start/tutorials/mssql-windows-integrated-security.html", website_redirect = "/start/tutorials/ms-sql-server-windows-integrated-security.html" },
+    { key = "/start/tutorials/neo4j.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/neo4j/" },
+    { key = "/start/tutorials/oracle-atp-db.html", website_redirect = "/start/tutorials/oracle-autonomous-db.html" },
+    { key = "/start/tutorials/percona-xtradb-cluster.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/" },
+    { key = "/start/tutorials/sap-adaptive-server-enterprise-sap-ase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/" },
+    { key = "/start/tutorials/sap-hana.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/" },
+    { key = "/start/tutorials/sap-sql-anywhere.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/" },
+    { key = "/start/tutorials/sqlite.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/" },
+    { key = "/start/tutorials/teradata.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/" },
+    { key = "/start/tutorials/tutorial-using-oracle.html", website_redirect = "/start/tutorials/oracle-manage-db-objects.html" },
+    { key = "/start/tutorials/vertica.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/" },
+    { key = "/start/tutorials/voltdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/start/tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
+    { key = "/structured-logging", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/ant/commands/changelogsync.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/changelog-sync" },
+    { key = "/tools-integrations/ant/commands/changelogsynctotag.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/changelog-sync-to-tag" },
+    { key = "/tools-integrations/ant/commands/changelogsynctotagsql.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/changelog-sync-to-tag-sql" },
+    { key = "/tools-integrations/ant/commands/dbdoc.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/db-doc" },
+    { key = "/tools-integrations/ant/commands/diffdatabase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/diff-database" },
+    { key = "/tools-integrations/ant/commands/diffdatabasetochangelog.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/diff-database-to-changelog" },
+    { key = "/tools-integrations/ant/commands/generatechangelog.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/generate-changelog" },
+    { key = "/tools-integrations/ant/commands/home.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/" },
+    { key = "/tools-integrations/ant/commands/marknextchangesetran.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/mark-next-changeset-ran" },
+    { key = "/tools-integrations/ant/commands/rollbackdatabase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/rollback-database" },
+    { key = "/tools-integrations/ant/commands/rollbackfuturedatabase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/rollback-future-database" },
+    { key = "/tools-integrations/ant/commands/tagdatabase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/tag-database" },
+    { key = "/tools-integrations/ant/commands/updatedatabase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/commands/update-database" },
+    { key = "/tools-integrations/ant/getting-started-liquibase-ant.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/getting-started-liquibase-ant" },
+    { key = "/tools-integrations/ant/home.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/" },
+    { key = "/tools-integrations/community-supported/cdi.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/jee-cdi" },
+    { key = "/tools-integrations/community-supported/home.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/" },
+    { key = "/tools-integrations/community-supported/servlet-listener.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/servlet-listener" },
+    { key = "/tools-integrations/cli/home.html", website_redirect = "/parameters/working-with-command-parameters.html" },
+    { key = "/tools-integrations/extensions/extension-upgrade-guides/home.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/" },
+    { key = "/tools-integrations/extensions/extension-upgrade-guides/lb-2.0-upgrade-guide.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-2.0-upgrade-guide/" },
+    { key = "/tools-integrations/extensions/extension-upgrade-guides/lb-3.0-upgrade-guide.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.0-upgrade-guide/" },
+    { key = "/tools-integrations/extensions/extension-upgrade-guides/lb-3.1-upgrade-guide.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.1-upgrade-guide/" },
+    { key = "/tools-integrations/extensions/extension-upgrade-guides/lb-3.2-upgrade-guide.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.2-upgrade-guide/" },
+    { key = "/tools-integrations/extensions/extension-upgrade-guides/lb-3.3-upgrade-guide.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-3.3-upgrade-guide/" },
+    { key = "/tools-integrations/extensions/extension-upgrade-guides/lb-4.0-upgrade-guide.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extensions-overview/upgrade-guides/lb-4.0-upgrade-guide/" },
+    { key = "/tools-integrations/gradle/getting-started-liquibase-gradle.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/gradle" },
+    { key = "/tools-integrations/labs/advance-flow-file.html", website_redirect = "/commands/flow/advanced-flow-file.html" },
+    { key = "/tools-integrations/labs/flow.html", website_redirect = "/commands/flow/flow.html" },
+    { key = "/tools-integrations/labs/if-conditionals.html", website_redirect = "/commands/flow/if-conditionals.html" },
+    { key = "/tools-integrations/labs/shell-commands.html", website_redirect = "/commands/flow/shell-commands.html" },
+    { key = "/tools-integrations/labs/variables.html", website_redirect = "/commands/flow/variables.html" },
+    { key = "/tools-integrations/liquibase-hub/auto-registration-and-report-links.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/commands.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/devops-metrics.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/home.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/operations.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/organizations.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/pipelines.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/projects.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/properties.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/release-notes.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/setup.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/liquibase-hub/user.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/faq.html", website_redirect = "/faq.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelog-sync.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsync.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelogSync.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsync.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelog-sync-sql.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsyncsql.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelogSyncSQL.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsyncsql.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelog-sync-to-tag.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsynctotag.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelogSyncToTag.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsynctotag.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelog-sync-to-tag-sql.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsynctotagsql.html" },
+    { key = "/tools-integrations/maven/commands/maven-changelogSyncToTagSQL.html", website_redirect = "/tools-integrations/maven/commands/maven-changelogsynctotagsql.html" },
+    { key = "/tools-integrations/maven/commands/maven-clear-checksums.html", website_redirect = "/tools-integrations/maven/commands/maven-clearchecksums.html" },
+    { key = "/tools-integrations/maven/commands/maven-clearCheckSums.html", website_redirect = "/tools-integrations/maven/commands/maven-clearchecksums.html" },
+    { key = "/tools-integrations/maven/commands/maven-db-doc.html", website_redirect = "/tools-integrations/maven/commands/maven-dbdoc.html" },
+    { key = "/tools-integrations/maven/commands/maven-dbDoc.html", website_redirect = "/tools-integrations/maven/commands/maven-dbdoc.html" },
+    { key = "/tools-integrations/maven/commands/maven-deactivate-changelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-deactivateChangeLog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-deactivatechangelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-drop-all.html", website_redirect = "/tools-integrations/maven/commands/maven-dropall.html" },
+    { key = "/tools-integrations/maven/commands/maven-dropAll.html", website_redirect = "/tools-integrations/maven/commands/maven-dropall.html" },
+    { key = "/tools-integrations/maven/commands/maven-future-rollback-sql.html", website_redirect = "/tools-integrations/maven/commands/maven-futurerollbacksql.html" },
+    { key = "/tools-integrations/maven/commands/maven-futureRollbackSQL.html", website_redirect = "/tools-integrations/maven/commands/maven-futurerollbacksql.html" },
+    { key = "/tools-integrations/maven/commands/maven-generate-changelog.html", website_redirect = "/tools-integrations/maven/commands/maven-generatechangelog.html" },
+    { key = "/tools-integrations/maven/commands/maven-generateChangeLog.html", website_redirect = "/tools-integrations/maven/commands/maven-generatechangelog.html" },
+    { key = "/tools-integrations/maven/commands/maven-list-locks.html", website_redirect = "/tools-integrations/maven/commands/maven-listlocks.html" },
+    { key = "/tools-integrations/maven/commands/maven-listLocks.html", website_redirect = "/tools-integrations/maven/commands/maven-listlocks.html" },
+    { key = "/tools-integrations/maven/commands/maven-migrate.html", website_redirect = "/home.html" },
+    { key = "/tools-integrations/maven/commands/maven-migratesql.html", website_redirect = "/home.html" },
+    { key = "/tools-integrations/maven/commands/maven-register-changelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-registerChangeLog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-registerchangelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-release-locks.html", website_redirect = "/tools-integrations/maven/commands/maven-releaselocks.html" },
+    { key = "/tools-integrations/maven/commands/maven-releaseLocks.html", website_redirect = "/tools-integrations/maven/commands/maven-releaselocks.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollback-one-changeset.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackonechangeset.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollbackOneChangeSet.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackonechangeset.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollback-one-changeset-sql.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackonechangesetsql.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollbackOneChangeSetSQL.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackonechangesetsql.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollback-one-update.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackoneupdate.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollbackOneUpdate.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackoneupdate.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollback-one-update-sql.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackoneupdatesql.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollbackOneUpdateSQL.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbackoneupdatesql.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollback-sql.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbacksql.html" },
+    { key = "/tools-integrations/maven/commands/maven-rollbackSQL.html", website_redirect = "/tools-integrations/maven/commands/maven-rollbacksql.html" },
+    { key = "/tools-integrations/maven/commands/maven-sync-hub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-syncHub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-synchub.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/commands/maven-update-sql.html", website_redirect = "/tools-integrations/maven/commands/maven-updatesql.html" },
+    { key = "/tools-integrations/maven/commands/maven-updateSQL.html", website_redirect = "/tools-integrations/maven/commands/maven-updatesql.html" },
+    { key = "/tools-integrations/maven/commands/maven-update-testing-rollback.html", website_redirect = "/tools-integrations/maven/commands/maven-updatetestingrollback.html" },
+    { key = "/tools-integrations/maven/commands/maven-updateTestingRollback.html", website_redirect = "/tools-integrations/maven/commands/maven-updatetestingrollback.html" },
+    { key = "/tools-integrations/maven/commands/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/tools-integrations/maven/workflows/hub-pom-attributes.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
+    { key = "/tools-integrations/maven/workflows/maven-get-oracle-drivers.html", website_redirect = "/start/tutorials/oracle.html" },
+    { key = "/tools-integrations/remote-files/create-changelogs-s3.html", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
+    { key = "/tools-integrations/remote-files/remote-file-path-rules.html", website_redirect = "/tools-integrations/extensions/remote-files/remote-file-path-rules.html" },
+    { key = "/tools-integrations/remote-files/s3.html", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
+    { key = "/tools-integrations/remote-files/s3-commands.html", website_redirect = "/tools-integrations/extensions/remote-files/s3-commands.html" },
+    { key = "/tools-integrations/remote-files/searchpath.html", website_redirect = "/tools-integrations/extensions/remote-files/searchpath.html" },
+    { key = "/tools-integrations/secrets-management/aws-secrets-mgr.html", website_redirect = "/tools-integrations/extensions/secrets-management/aws-secrets-mgr.html" },
+    { key = "/tools-integrations/secrets-management/cyberark-pam-vault.html", website_redirect = "/tools-integrations/extensions/secrets-management/cyberark-pam-vault.html" },
+    { key = "/tools-integrations/secrets-management/hashicorp-vault.html", website_redirect = "/tools-integrations/extensions/secrets-management/hashicorp-vault.html" },
+    { key = "/tools-integrations/secrets-management/home.html", website_redirect = "/tools-integrations/extensions/secrets-management/home.html" },
+    { key = "/tools-integrations/springboot/home.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/" },
+    { key = "/tools-integrations/springboot/springboot.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/springboot/" },
+    { key = "/tools-integrations/springboot/using-springboot-sql-plus-kerberos.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/" },
+    { key = "/tools-integrations/springboot/using-springboot-with-maven.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/using-springboot-with-maven/" },
+    { key = "/what-is-a-jdbc-url", website_redirect = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html" },
+    { key = "/what-is-a-jdbc-url.html", website_redirect = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html" },
+    { key = "/workflows/database-setup-tutorials/apache-derby.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/" },
+    { key = "/workflows/database-setup-tutorials/aws-redshift.html", website_redirect = "/start/tutorials/amazon-redshift.html" },
+    { key = "/workflows/database-setup-tutorials/cassandra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra/" },
+    { key = "/workflows/database-setup-tutorials/cassandra-astra.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cassandra-astra/" },
+    { key = "/workflows/database-setup-tutorials/cloud-spanner.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cloud-spanner/" },
+    { key = "/workflows/database-setup-tutorials/cockroachdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/cockroachdb/" },
+    { key = "/workflows/database-setup-tutorials/connecting-to-an-oracle-database-with-liquibase-kerberos-and-ad.html", website_redirect = "/start/tutorials/oracle-connect-kerberos-active-directory.html" },
+    { key = "/workflows/database-setup-tutorials/db2-luw.html", website_redirect = "/start/tutorials/ibm-db2-luw.html" },
+    { key = "/workflows/database-setup-tutorials/db2onz.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onz/" },
+    { key = "/workflows/database-setup-tutorials/db2onzdeploy-sql.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/db2onzdeploy-sql/" },
+    { key = "/workflows/database-setup-tutorials/firebird.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/firebird/" },
+    { key = "/workflows/database-setup-tutorials/h2.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/h2/" },
+    { key = "/workflows/database-setup-tutorials/hibernate.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/" },
+    { key = "/workflows/database-setup-tutorials/home.html", website_redirect = "/start/tutorials/home.html" },
+    { key = "/workflows/database-setup-tutorials/hsqldb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hsqldb/" },
+    { key = "/workflows/database-setup-tutorials/impala-hive.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/workflows/database-setup-tutorials/informix.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/informix/" },
+    { key = "/workflows/database-setup-tutorials/interbase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/workflows/database-setup-tutorials/mariadb.html", website_redirect = "/start/tutorials/mariadb.html" },
+    { key = "/workflows/database-setup-tutorials/maxdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/" },
+    { key = "/workflows/database-setup-tutorials/mongodb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
+    { key = "/workflows/database-setup-tutorials/mssql.html", website_redirect = "/start/tutorials/ms-sql-server.html" },
+    { key = "/workflows/database-setup-tutorials/mssql-integrated-security-kerberos-authentication.html", website_redirect = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html" },
+    { key = "/workflows/database-setup-tutorials/mssql-windows-integrated-security.html", website_redirect = "/start/tutorials/ms-sql-server-windows-integrated-security.html" },
+    { key = "/workflows/database-setup-tutorials/mysql.html", website_redirect = "/start/tutorials/mysql.html" },
+    { key = "/workflows/database-setup-tutorials/oracle.html", website_redirect = "/start/tutorials/oracle.html" },
+    { key = "/workflows/database-setup-tutorials/oracle-atp-db.html", website_redirect = "/start/tutorials/oracle-autonomous-db.html" },
+    { key = "/workflows/database-setup-tutorials/percona-xtradb-cluster.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona-xtradb-cluster/" },
+    { key = "/workflows/database-setup-tutorials/postgresql.html", website_redirect = "/start/tutorials/postgresql.html" },
+    { key = "/workflows/database-setup-tutorials/redshift.html", website_redirect = "/start/tutorials/amazon-redshift.html" },
+    { key = "/workflows/database-setup-tutorials/sap-hana.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/" },
+    { key = "/workflows/database-setup-tutorials/snowflake.html", website_redirect = "/start/tutorials/snowflake.html" },
+    { key = "/workflows/database-setup-tutorials/sqlite.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/" },
+    { key = "/workflows/database-setup-tutorials/sybase-anywhere.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/" },
+    { key = "/workflows/database-setup-tutorials/sybase-enterprise.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/" },
+    { key = "/workflows/database-setup-tutorials/teradata.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/" },
+    { key = "/workflows/database-setup-tutorials/tutorial-using-oracle.html", website_redirect = "/start/tutorials/oracle-manage-db-objects.html" },
+    { key = "/workflows/database-setup-tutorials/vertica.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/" },
+    { key = "/workflows/database-setup-tutorials/voltdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
+    { key = "/workflows/database-setup-tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
+    { key = "/workflows/liquibase-community/creating-config-properties.html", website_redirect = "/concepts/connections/creating-config-properties.html" },
+    { key = "/workflows/liquibase-community/generating-docs.html", website_redirect = "/commands/change-tracking/db-doc.html" },
+    { key = "/workflows/liquibase-community/liquibase-auto-rollback.html", website_redirect = "/workflows/liquibase-community/automatic-custom-rollbacks.html" },
+  ]
 }
 
 variable "enterprise_redirects" {
   type = map(string)
   default = {
-  # Need to get a list of re-directs from @adrian or @amber
+    # Need to get a list of re-directs from @adrian or @amber
   }
 }
