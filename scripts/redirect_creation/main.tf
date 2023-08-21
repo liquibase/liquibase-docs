@@ -21,18 +21,21 @@ provider "aws" {
 
 # 0 byte objects used for redirects
 resource "aws_s3_object" "redirects" {
-  count            = length(keys(var.redirects))
+  for_each = {
+    for redirect in var.redirects : redirect.key => redirect
+  }
   bucket           = data.terraform_remote_state.state.outputs.docs_origin_bucket
-  key              = element(keys(var.redirects), count.index)
+  key              = each.value.key
   content_type     = "text/html"
-  website_redirect = element(values(var.redirects), count.index)
+  website_redirect = each.value.website_redirect
 }
 
-
 resource "aws_s3_object" "enterprise_redirects" {
-  count            = length(keys(var.enterprise_redirects))
+  for_each = {
+    for enterprise_redirect in var.enterprise_redirects : enterprise_redirect.key => enterprise_redirect
+  }
   bucket           = data.terraform_remote_state.state.outputs.docs_origin_bucket
-  key              = element(keys(var.enterprise_redirects), count.index)
+  key              = each.value.key
   content_type     = "text/html"
-  website_redirect = element(values(var.enterprise_redirects), count.index)
+  website_redirect = each.value.website_redirect
 }
