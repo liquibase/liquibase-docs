@@ -775,8 +775,7 @@ variable "redirects" {
     { key = "/workflows/database-setup-tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
     { key = "/workflows/liquibase-community/creating-config-properties.html", website_redirect = "/concepts/connections/creating-config-properties.html" },
     { key = "/workflows/liquibase-community/generating-docs.html", website_redirect = "/commands/change-tracking/db-doc.html" },
-    { key = "/workflows/liquibase-community/liquibase-auto-rollback.html", website_redirect = "/workflows/liquibase-community/automatic-custom-rollbacks.html" },
-    { key = "/workflows/liquibase-community/test.html", website_redirect = "/workflows/liquibase-community/automatic-custom-rollbacks.html" },
+    { key = "/workflows/liquibase-community/liquibase-auto-rollback.html", website_redirect = "/workflows/liquibase-community/automatic-custom-rollbacks.html" }
   ]
 }
 
