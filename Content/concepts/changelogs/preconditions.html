@@ -371,210 +371,453 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         <h2 id="available-preconditions"><a name="available-preconditions"></a>Available preconditions</h2>
         <p>The examples of preconditions shown in the table doesn't include the <code>schemaName</code> <MadCap:variable name="General.Param/Attribute" />. It is best practice not to keep the <code>schemaName</code> in the <MadCap:variable name="General.changeset" /> and rely on the default schema except for times you don’t want to create something in the default schema.</p>
         <p>Additionally, you can include the <code>onError</code> or <code>onFail</code> <MadCap:variable name="General.Param/Attribute" />s with the <code>WARN</code>, <code>HALT</code>, <code>CONTINUE</code>, or <code>MARK_RAN</code> value in the preconditions tag, however, the <code>CONTINUE</code> and <code>MARK_RAN</code> options can only be applied to preconditions inside a <MadCap:variable name="General.changeset" />.</p>
-        <p>You can use any precondition mentioned in the following table:</p>
+        <h3><code>changeLogPropertyDefined</code>
+        </h3>
+        <p>Checks whether given <MadCap:variable name="General.changelog" /><MadCap:variable name="General.Param/Attribute" /> is present. It fails if the value is not the same as given.</p>
         <table style="margin-left: auto;margin-right: auto;width: 100%;">
             <col style="width: 15vw;" />
             <col style="width: 35vw;" />
             <col style="width: 25vw;" />
             <thead>
                 <tr>
-                    <th>Precondition</th>
-                    <th>Description</th>
                     <th><MadCap:variable name="General.Param/Attr/Uppercased" />
                     </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><code>dbms</code>
+                    <td><code>property</code>
                     </td>
                     <td>
-                        <p>Defines if the database executed against matches the type specified.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+                        <p>The name of the property to check.</p>
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>value</code>
+                    </td>
+                    <td>The required value for a given property.</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;changeLogPropertyDefined property="myproperty"/&gt;
+    &lt;changeLogPropertyDefined property="myproperty"
+                              value="requiredvalue"/&gt;
+&lt;/preConditions&gt;</code></pre>
+        </p>
+        <h3><code>changeSetExecuted</code>
+        </h3>
+        <p>Defines if the specified <MadCap:variable name="General.changeset" /> has already been executed.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>id</code>
+                    </td>
+                    <td>The <MadCap:variable name="General.changeset" /> id.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>author</code>
+                    </td>
+                    <td>The <MadCap:variable name="General.changeset" /> author.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>changeLogFile</code>
+                    </td>
+                    <td>The file name (including searchPath relative path) of the <MadCap:variable name="General.changeset" />.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+    &lt;changeSetExecuted id="1"
+                       author="liquibase"
+                       changeLogFile="changelog.xml" /&gt;
+&lt;/preConditions&gt;</code></pre>
+        <h3><code>columnExists</code>
+        </h3>
+        <p>Defines if the specified column exists in the database.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>columnName</code>
+                    </td>
+                    <td> The name of the column.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>tableName</code>
+                    </td>
+                    <td>The name of the column's table.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>schemaName</code>
+                    </td>
+                    <td>The name of the table's schema.</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;columnExists tableName="table1"
+                  columnName="column1" /&gt;
+&lt;/preConditions&gt;</code></pre>
+        <h3><code>dbms</code>
+        </h3>
+        <p>Defines if the database executed against matches the type specified.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>type</code>
+                    </td>
+                    <td>
+                        <p>The type of database expected. Multiple dbms values can be specified using comma-separated values.</p>
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
   &lt;or&gt;
     &lt;dbms  type="oracle"  /&gt;
     &lt;dbms  type="mysql"  /&gt;
   &lt;/or&gt;
 &lt;/preConditions&gt;</code></pre>
+        <h3><code>foreignKeyConstraintExists</code>
+        </h3>
+        <p>Defines if the specified foreign key exists in a table in the database.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>foreignKeyName</code>
                     </td>
-                    <td><strong>type</strong> – the type of database expected. Multiple dbms values can be specified using comma-separated values. (required)</td>
+                    <td>The name of the foreign key.</td>
+                    <td><b>Required</b>
+                    </td>
                 </tr>
                 <tr>
-                    <td><code>changeLogPropertyDefined</code>
+                    <td><code>foreignKeyTableName</code>
                     </td>
-                    <td>
-                        <p>Checks whether given <MadCap:variable name="General.changelog" /> <MadCap:variable name="General.Param/Attribute" /> is present. It fails if the value is not the same as given.</p>
-                        <p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;changeLogPropertyDefined property="myproperty"/&gt;
-    &lt;changeLogPropertyDefined property="myproperty"
-                              value="requiredvalue"/&gt;
+                    <td>The name of the table the foreign key is in.</td>
+                    <td><b>Required</b> in 4.7.0+</td>
+                </tr>
+                <tr>
+                    <td><code>schemaName</code>
+                    </td>
+                    <td>The name of the foreign key's schema.</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;foreignKeyConstraintExists foreignKeyName="PK_2354"
+                                foreignKeyTableName="myTable" /&gt;
 &lt;/preConditions&gt;</code></pre>
-                        </p>
+        <h3><code>indexExists</code>
+        </h3>
+        <p>Defines if the specified index exists in the database. You can either specify the <code>indexName</code><MadCap:variable name="General.Param/Attribute" /> or <code>tableName</code> and <code>columnNames</code><MadCap:variable name="General.Param/Attribute" />s.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>indexName</code>
                     </td>
-                    <td>
-                        <ul>
-                            <li><strong>property</strong> – the name of the property to check. (required)</li>
-                            <li><strong>value</strong> – the required value for a given property.</li>
-                        </ul>
-                    </td>
+                    <td>The name of the index.</td>
+                    <td>Optional</td>
                 </tr>
                 <tr>
-                    <td><code>changeSetExecuted</code>
+                    <td><code>columnNames</code>
                     </td>
-                    <td>
-                        <p>Defines if the specified <MadCap:variable name="General.changeset" /> has already been executed.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
-    &lt;changeSetExecuted id="1"
-                       author="liquibase"
-                       changeLogFile="changelog.xml" /&gt;
+                    <td>The name of the column.</td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>tableName</code>
+                    </td>
+                    <td> The name of the table.</td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>schemaName</code>
+                    </td>
+                    <td>The name of the index's schema.</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;indexExists indexName="originindex"/&gt;
+&lt;/preConditions&gt;</code></pre><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;indexExists tableName="MY_NEW_TABLE"
+                 columnNames="ID"/&gt;
 &lt;/preConditions&gt;</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">There are a few databases where the <code>indexName</code> is not unique, which is why both <code>indexName</code> and <code>tableName</code> can be used.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;indexExists indexName="originindex"
+                 tableName="MY_NEW_TABLE"/&gt;
+&lt;/preConditions&gt;</code></pre>
+        <h3><code>primaryKeyExists</code>
+        </h3>
+        <p>Defines if the specified primary key exists in the database.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>primaryKeyName</code>
                     </td>
-                    <td>
-                        <ul>
-                            <li><strong>Id</strong> – the <MadCap:variable name="General.changeset" /> id. (required)</li>
-                            <li><b>author</b> – the <MadCap:variable name="General.changeset" /> author. (required)</li>
-                            <li><strong>changeLogFile</strong> – the file name (including searchPath relative path) of the <MadCap:variable name="General.changeset" />. (required)</li>
-                        </ul>
+                    <td>The name of the primary key constraint.</td>
+                    <td><code>tableName</code> or <code>primaryKeyName</code> is <b>required</b></td>
+                </tr>
+                <tr>
+                    <td><code>tableName</code>
+                    </td>
+                    <td>the name of the table containing primary key.</td>
+                    <td><code>tableName</code> or <code>primaryKeyName</code> is <b>required</b></td>
+                </tr>
+                <tr>
+                    <td><code>schemaName</code>
+                    </td>
+                    <td>The name of the primary key's schema.</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+    &lt;primaryKeyExists primaryKeyName="ID_2354"
+                      tableName="table1" /&gt;
+&lt;/preConditions&gt;</code></pre>
+        <h3><code>rowCount</code>
+        </h3>
+        <p>Checks that the number of rows in a table matches an expected value.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>expectedRows</code>
+                    </td>
+                    <td>The number of rows the user expects in a table.</td>
+                    <td><b>Required</b>
                     </td>
                 </tr>
                 <tr>
-                    <td><code>sqlCheck</code>
+                    <td><code>tableName</code>
                     </td>
-                    <td>
-                        <p>Executes an SQL string and checks the returned value. The SQL must return a single row with a single value.</p>
-                        <ul>
-                            <li>To check a number of rows, use the <code>count</code> SQL function.</li>
-                            <li>To check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.</li>
-                        </ul><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+                    <td>The name of the column's table.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions&gt;
+    &lt;rowCount expectedRows="5"
+              tableName="person"/&gt;
+&lt;/preConditions&gt;</code></pre>
+        <h3><code>runningAs</code>
+        </h3>
+        <p>Defines if the database user executed under matches the username specified.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>username</code>
+                    </td>
+                    <td>The database user script which is expected to run as.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
+    &lt;dbms  type="oracle"  /&gt;
+    &lt;runningAs  username="SYSTEM"  /&gt;
+&lt;/preConditions&gt;</code></pre>
+        <h3><code>sequenceExists</code>
+        </h3>
+        <p>Defines if the specified sequence exists in the database.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>sequenceName</code>
+                    </td>
+                    <td> The name of the sequence.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>schemaName</code>
+                    </td>
+                    <td>The name of the sequence's schema. </td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;sequenceExists sequenceName="idnumber" /&gt;
+&lt;/preConditions&gt;</code></pre>
+        <h3><code>sqlCheck</code>
+        </h3>
+        <p>Executes an SQL string and checks the returned value. The SQL must return a single row with a single value.</p>
+        <ul>
+            <li>To check a number of rows, use the <code>count</code> SQL function.</li>
+            <li>To check for ranges of values, perform the check in the SQL and return a value that can be easily compared against.</li>
+        </ul>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>expectedResult</code>
+                    </td>
+                    <td>The value to compare the SQL result to.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;sqlCheck expectedResult="1"&gt;
         SELECT COUNT(1)
         FROM pg_tables
         WHERE TABLENAME = 'myRequiredTable'
     &lt;/sqlCheck&gt;
 &lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td><strong>expectedResult</strong> – the value to compare the SQL result to. (required)</td>
-                </tr>
+        <h3><code>tableExists</code>
+        </h3>
+        <p>Defines if the specified table exists in the database.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
                 <tr>
-                    <td><code>rowCount</code>
-                    </td>
-                    <td>
-                        <p>Checks that the number of rows in a table matches an expected value.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions&gt;
-    &lt;rowCount expectedRows="5"
-              tableName="person"/&gt;
-&lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td>
-                        <ul>
-                            <li><b>expectedRows</b> – the number of rows the user expects in a table (required)</li>
-                            <li><b>tableName</b> – the name of the column's table (required)</li>
-                        </ul>
-                    </td>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
                 </tr>
+            </thead>
+            <tbody>
                 <tr>
-                    <td><code>runningAs</code>
+                    <td><code>tableName</code>
                     </td>
-                    <td>
-                        <p>Defines if the database user executed under matches the username specified.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
-    &lt;dbms  type="oracle"  /&gt;
-    &lt;runningAs  username="SYSTEM"  /&gt;
-&lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td><strong>username</strong> – the database user script which is expected to run as. (required)</td>
-                </tr>
-                <tr>
-                    <td><code>columnExists</code>
-                    </td>
-                    <td>
-                        <p>Defines if the specified column exists in the database.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;columnExists tableName="table1"
-                  columnName="column1" /&gt;
-&lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td>
-                        <ul>
-                            <li><strong>schemaName</strong> – the name of the table's schema. </li>
-                            <li><strong>tableName</strong> – the name of the column's table. (required)</li>
-                            <li><strong>columnName</strong> – the name of the column. (required)</li>
-                        </ul>
+                    <td>  The name of the table.</td>
+                    <td><b>Required</b>
                     </td>
                 </tr>
                 <tr>
-                    <td><code>foreignKeyConstraintExists</code>
+                    <td><code>schemaName</code>
                     </td>
-                    <td>
-                        <p>Defines if the specified foreign key exists in a table in the database.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;foreignKeyConstraintExists foreignKeyName="PK_2354"
-                                foreignKeyTableName="myTable" /&gt;
-&lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td>
-                        <ul>
-                            <li><strong>schemaName</strong> – the name of the foreign key's schema. </li>
-                            <li><strong>foreignKeyName</strong> – the name of the foreign key. (required)</li>
-                            <li><b>foreignKeyTableName</b> – the name of the table the foreign key is in. (required in 4.7.0+)</li>
-                        </ul>
-                    </td>
+                    <td>The name of the table's schema. </td>
+                    <td>Optional</td>
                 </tr>
-                <tr>
-                    <td><code>indexExists</code>
-                    </td>
-                    <td>
-                        <p>Defines if the specified index exists in the database. You can either specify the <code>indexName</code> <MadCap:variable name="General.Param/Attribute" /> or <code>tableName</code> and <code>columnNames</code> <MadCap:variable name="General.Param/Attribute" />s.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;indexExists indexName="originindex"/&gt;
-&lt;/preConditions&gt;</code></pre><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;indexExists tableName="MY_NEW_TABLE"
-                 columnNames="ID"/&gt;
-&lt;/preConditions&gt;</code></pre>
-                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">There are a few databases where the <code>indexName</code> is not unique, that's why both <code>indexName</code> and <code>tableName</code> can be used.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;indexExists indexName="originindex"
-                 tableName="MY_NEW_TABLE"/&gt;
-&lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td>
-                        <ul>
-                            <li><strong>schemaName</strong> – the name of the index's schema. </li>
-                            <li><strong>indexName</strong> – the name of the index. </li>
-                            <li><strong>tableName</strong> – the name of the table.</li>
-                            <li><strong>columnNames</strong> – the name of the column. </li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>primaryKeyExists</code>
-                    </td>
-                    <td>
-                        <p>Defines if the specified primary key exists in the database.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
-    &lt;primaryKeyExists primaryKeyName="ID_2354"
-                      tableName="table1" /&gt;
-&lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td>
-                        <ul>
-                            <li><strong>schemaName</strong> – the name of the primary key's schema.</li>
-                            <li><strong>primaryKeyName</strong> – the name of the primary key constraint.</li>
-                            <li><strong>tableName</strong> – the name of the table containing primary key. <br />(<code>tableName</code> or <code>primaryKeyName</code> is required)</li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>sequenceExists</code>
-                    </td>
-                    <td>
-                        <p>Defines if the specified sequence exists in the database.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;sequenceExists sequenceName="idnumber" /&gt;
-&lt;/preConditions&gt;</code></pre>
-                    </td>
-                    <td>
-                        <ul>
-                            <li><strong>schemaName</strong> – the name of the sequences' schema. </li>
-                            <li><strong>sequenceName</strong> – the name of the sequence. (required)</li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>tableExists</code>
-                    </td>
-                    <td>
-                        <p>Defines if the specified table exists in the database.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;changeSet author="author" id="1"&gt;
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;changeSet author="author" id="1"&gt;
    &lt;preConditions onFail="MARK_RAN"&gt;
        &lt;not&gt;
            &lt;tableExists tableName="MY_NEW_TABLE"/&gt;
@@ -589,19 +832,43 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                    type="${integer.type}"/&gt;
        &lt;/createTable&gt;
 &lt;/changeSet&gt;</code></pre>
+        <h3><code>uniqueConstraintExists</code>
+        </h3>
+        <p>Checks for the existence of unique constraints before running the update. (since <MadCap:variable name="General.Liquibase" /> 4.9.0)</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>tableName</code>
                     </td>
-                    <td>
-                        <ul>
-                            <li><strong>schemaName</strong> – the name of the table's schema. </li>
-                            <li><strong>tableName</strong> – the name of the table. (required)</li>
-                        </ul>
+                    <td>The name of the column's table.</td>
+                    <td><b>Required</b>
                     </td>
                 </tr>
                 <tr>
-                    <td><code>uniqueConstraintExists</code>
+                    <td><code>columnNames</code>
                     </td>
-                    <td>
-                        <p>Checks for the existence of unique constraints before running the update. (since <MadCap:variable name="General.Liquibase" /> 4.9.0)</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions&gt;
+                    <td>The name of the column.</td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code>constraintName</code>
+                    </td>
+                    <td>The name of the unique constraint.</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions&gt;
 &lt;uniqueConstraintExists constraintName="uq_constraint_name"
                         tableName="test_table"/&gt;
 &lt;/preConditions&gt;
@@ -610,53 +877,99 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
 &lt;uniqueConstraintExists tableName="test_table"
                         columnNames="first_name, last_name"/&gt;
 &lt;/preConditions&gt;</code></pre>
+        <h3><code>viewExists</code>
+        </h3>
+        <p>Defines if the specified view exists in the database.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>viewName</code>
                     </td>
-                    <td>
-                        <ul>
-                            <li><b>constraintName</b> – the name of the unique constraint</li>
-                            <li><b>tableName</b> – the name of the column's table (required)</li>
-                            <li><b>columnNames</b> – the name of the column</li>
-                        </ul>
+                    <td>The name of the view.</td>
+                    <td><b>Required</b>
                     </td>
                 </tr>
                 <tr>
-                    <td><code>viewExists</code>
+                    <td><code>schemaName</code>
                     </td>
-                    <td>
-                        <p>Defines if the specified view exists in the database.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+                    <td>The name of the view's schema.</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
     &lt;viewExists viewName="liquibase" /&gt;
 &lt;/preConditions&gt;</code></pre>
+        <h3><code>customPrecondition</code>
+        </h3>
+        <p>Can be created by adding a class that implements the <code>liquibase.precondition.CustomPrecondition</code> interface. Parameters on custom classes are set through reflection based on the <code>&lt;param&gt;</code> sub-tags. Pass parameters as strings to the custom precondition.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>className</code>
                     </td>
-                    <td>
-                        <ul>
-                            <li><strong>schemaName</strong> – the name of the view's schema. </li>
-                            <li><strong>viewName</strong> – the name of the view. (required)</li>
-                        </ul>
+                    <td>The name of the custom precondition class.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h4><code>&lt;param&gt;</code>&#160;sub-tag</h4>
+        <p>The parameter to pass to the custom precondition.</p>
+        <table style="margin-left: auto;margin-right: auto;width: 100%;">
+            <col style="width: 15vw;" />
+            <col style="width: 35vw;" />
+            <col style="width: 25vw;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>name</code>
+                    </td>
+                    <td>The name of the parameter to set.</td>
+                    <td><b>Required</b>
                     </td>
                 </tr>
                 <tr>
-                    <td><code>customPrecondition</code>
+                    <td><code>value</code>
                     </td>
-                    <td>
-                        <p>Can be created by adding a class that implements the <code>liquibase.precondition.CustomPrecondition</code> interface. Parameters on custom classes are set through reflection based on the <code>&lt;param&gt;</code> sub-tags. Pass parameters as strings to the custom precondition.</p><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;customPrecondition className="com.example.CustomTableCheck"&gt;
+                    <td>A string value to set parameter to.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table><pre xml:space="preserve" style="white-space:pre-wrap;"><code class="language-xml">&lt;customPrecondition className="com.example.CustomTableCheck"&gt;
      &lt;param name="tableName"
             value="our_table"/&gt;
      &lt;param name="count"
             value="42"/&gt;
 &lt;/customPrecondition&gt;</code></pre>
-                    </td>
-                    <td>
-                        <p><strong>className</strong> – the name of the custom precondition class. (required)</p>
-                        <p><strong>The </strong><b>customPrecondition</b><strong> sub-tags:</strong>
-                        </p>
-                        <ul>
-                            <li><strong>param</strong> – the parameter to pass to the custom precondition.</li>
-                            <li><strong>name</strong> – the name of the parameter to set. (required)</li>
-                            <li><strong>value</strong> – a string value to set parameter to. (required)</li>
-                        </ul>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </body>
 </html>
