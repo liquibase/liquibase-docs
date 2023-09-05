@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/tools-integrations/observability/database-reports.html" />
+        <meta name="description" content="Reference information for Liquibase Database Reports." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>Database Reports</h1>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <p>You can use <MadCap:variable name="General.LBPro" /> to generate reports for your database. These reports contain information about the status of your database and may help you resolve errors in your automation pipeline.</p>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, you can automatically generate a database <b>drift report</b> using the <MadCap:variable name="General.Liquibase" /> commands <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> and <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code>. The drift report shows the differences between two database states: a reference (source) database and a target database. It specifies what content in the target database is changed, missing, or unexpected compared to the reference database.</p>
+        <p>Reports may include information about your database type and version, whether your database change occurred live or in a snapshot; object data about tables, views, functions, procedures, packages/package bodies, and triggers; and object relationships on constraints, indexes, and privileges.</p>
+        <h2>Enable database reports</h2>
+        <p>To enable <MadCap:variable name="General.LBPro" /> functionality, you must set the <code>--license-key</code> property using your <MadCap:variable name="General.LBPro" /> license key. See <MadCap:xref href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">How to Apply Your [%=General.LBPro%] License Key</MadCap:xref>.</p>
+        <p>You can <b>enable database reports at the global level</b> by setting the <code>--reports-enabled</code> global argument to <code>true</code> in your command line, in your <code><a href="../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.liquiPropFile" /> file</a></code>, as an <a href="../../concepts/connections/liquibase-environment-variables.htm">environment variable</a>, or as a JVM&#160;system property using the <MadCap:xref href="../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>. This way, <MadCap:variable name="General.Liquibase" /> always generates database reports for you. For example:</p>
+        <ul>
+            <li>Command line: <code class="language-text">liquibase --reports-enabled=true diff</code></li>
+            <li><code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file: <code class="language-text">liquibase.reports.enabled=true</code></li>
+            <li>Environment variable: <code class="language-text">LIQUIBASE_REPORTS_ENABLED=true</code></li>
+        </ul>
+        <p>You can modify the report output file with global arguments listed in the table on this page. You can also set global arguments for specific kinds of reports, like the drift report:</p><pre xml:space="preserve"><code class="language-text">liquibase --reports-enabled=true --drift-severity=WARN diff</code></pre>
+        <p>If you want to keep reports disabled by default and <b>enable them only when you run certain commands</b>, you can use the command argument <code>--report-enabled</code> (singular). For example:</p><pre xml:space="preserve"><code class="language-text">liquibase diff --report-enabled=true --report-name=my_drift_report.html</code></pre>
+        <h2>Global <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/parameter-syntax.flsnp" />
+        <table style="width: 100%;">
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--reports-enabled
+liquibase.reports.enabled
+LIQUIBASE_REPORTS_ENABLED</code></pre>
+                    </td>
+                    <td>Boolean</td>
+                    <td>Enables or disables all  reports at the global level. Overridden by <code>--report-enabled</code> at the command level. <b>Default:&#160;<code>false</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--reports-format
+liquibase.reports.format
+LIQUIBASE_REPORTS_FORMAT</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the format of the report output file at the global level. Overridden by <code>--report-format</code> at the command level. <b>Default:&#160;<code>HTML</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--reports-name
+liquibase.reports.name
+LIQUIBASE_REPORTS_NAME</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the name of the drift report file at the global level. Overridden by <code>--report-name</code> at the command level. <b>Default: <code>report-&lt;day-month-year-timecode&gt;.html</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--reports-path
+liquibase.reports.path
+LIQUIBASE_REPORTS_PATH</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the file path to the drift report file at the global level. Overridden by <code>--report-path</code> at the command level. <b>Default: <code>./</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity
+liquibase.drift.severity
+LIQUIBASE_DRIFT_SEVERITY</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of all error types in the drift report (changed, missing, or unexpected content). Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If both <code>--drift-severity</code> and one of the individual error type arguments are set, the individual error type arguments take priority. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-changed-severity
+liquibase.drift.changed.severity
+LIQUIBASE_DRIFT_CHANGED_SEVERITY</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of changed content  in the drift report. Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If <code>--drift-changed-severity</code> and <code>--drift-severity</code> are both set, <code>--drift-changed-severity</code> takes priority for changed content messages. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-missing-severity
+liquibase.drift.missing.severity
+LIQUIBASE_DRIFT_MISSING_SEVERITY</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of missing content  in the drift report. Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If <code>--drift-missing-severity</code> and <code>--drift-severity</code> are both set, <code>--drift-missing-severity</code> takes priority for missing content messages. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-unexpected-severity
+liquibase.drift.unexpected.severity
+LIQUIBASE_DRIFT_UNEXPECTED_SEVERITY</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of unexpected content in the drift report. Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If <code>--drift-unexpected-severity</code> and <code>--drift-severity</code> are both set, <code>--drift-unexpected-severity</code> takes priority for unexpected content messages. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Command <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--report-enabled
+liquibase.command.&lt;cmdName&gt;.reportEnabled
+LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_ENABLED</code></pre>
+                    </td>
+                    <td>Boolean</td>
+                    <td>Enables a  report at the command level. Overrides the global argument <code>--reports-enabled</code>. <b>Default:&#160;<code>false</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--report-format
+liquibase.command.&lt;cmdName&gt;.reportFormat
+LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_FORMAT</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the format of the report output file at the command level. Overrides the global argument <code>--reports-format</code>. <b>Default:&#160;<code>HTML</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--report-name
+liquibase.command.&lt;cmdName&gt;.reportName
+LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_NAME</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the name of the  report file at the command level. Overrides the global argument <code>--reports-name</code>. <b>Default: <code>report-&lt;day-month-year-timecode&gt;.html</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--report-path
+liquibase.command.&lt;cmdName&gt;.reportPath
+LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_PATH</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the file path to the  report file at the command level. Overrides the global argument <code>--reports-path</code>. <b>Default: <code>./</code></b>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="structured-logging.htm">[%=General.StructuredLogging%]</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
