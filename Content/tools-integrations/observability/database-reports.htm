@@ -9,8 +9,10 @@
         <h1>Database Reports</h1>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <p>You can use <MadCap:variable name="General.LBPro" /> to generate reports for your database. These reports contain information about the status of your database and may help you resolve errors in your automation pipeline.</p>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, you can automatically generate a database <b>drift report</b> using the <MadCap:variable name="General.Liquibase" /> commands <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> and <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code>. The drift report shows the differences between two database states: a reference (source) database and a target database. It specifies what content in the target database is changed, missing, or unexpected compared to the reference database.</p>
-        <p>Reports may include information about your database type and version, whether your database change occurred live or in a snapshot; object data about tables, views, functions, procedures, packages/package bodies, and triggers; and object relationships on constraints, indexes, and privileges.</p>
+        <p>All reports may include information about your database type and version, whether your database change occurred live or in a snapshot; object data about tables, views, functions, procedures, packages/package bodies, and triggers; and object relationships on constraints, indexes, and privileges.</p>
+        <h2>Drift report</h2>
+        <p>Databases may experience drift (unexpected changes to content)&#160;during development. Monitoring database drift manually requires you to write extra scripts outside <MadCap:variable name="General.Liquibase" /> to detect improper database state changes. These scripts  may be difficult to maintain or prone to errors.</p>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, you can automatically generate a database <b>drift report</b> using the <MadCap:variable name="General.Liquibase" /> command <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code>. The drift report shows the differences between two database states: a reference (source) database and a target database. It specifies what content in the target database is changed, missing, or unexpected compared to the reference database. You can use this data in your automation pipeline to reliably identify database drift without slowing down your CI/CD process.</p>
         <h2>Enable database reports</h2>
         <p>To enable <MadCap:variable name="General.LBPro" /> functionality, you must set the <code>--license-key</code> property using your <MadCap:variable name="General.LBPro" /> license key. See <MadCap:xref href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm">How to Apply Your [%=General.LBPro%] License Key</MadCap:xref>.</p>
         <p>You can <b>enable database reports at the global level</b> by setting the <code>--reports-enabled</code> global argument to <code>true</code> in your command line, in your <code><a href="../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.liquiPropFile" /> file</a></code>, as an <a href="../../concepts/connections/liquibase-environment-variables.htm">environment variable</a>, or as a JVM&#160;system property using the <MadCap:xref href="../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>. This way, <MadCap:variable name="General.Liquibase" /> always generates database reports for you. For example:</p>
@@ -76,25 +78,25 @@ LIQUIBASE_DRIFT_SEVERITY</code></pre>
                     <td>Specifies the severity level of all error types in the drift report (changed, missing, or unexpected content). Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If both <code>--drift-severity</code> and one of the individual error type arguments are set, the individual error type arguments take priority. <b>Default: <code>INFO</code></b>.</td>
                 </tr>
                 <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--drift-changed-severity
-liquibase.drift.changed.severity
-LIQUIBASE_DRIFT_CHANGED_SEVERITY</code></pre>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-changed
+liquibase.drift.severity.changed
+LIQUIBASE_DRIFT_SEVERITY_CHANGED</code></pre>
                     </td>
                     <td>String</td>
                     <td>Specifies the severity level of changed content  in the drift report. Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If <code>--drift-changed-severity</code> and <code>--drift-severity</code> are both set, <code>--drift-changed-severity</code> takes priority for changed content messages. <b>Default: <code>INFO</code></b>.</td>
                 </tr>
                 <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--drift-missing-severity
-liquibase.drift.missing.severity
-LIQUIBASE_DRIFT_MISSING_SEVERITY</code></pre>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-missing
+liquibase.drift.severity.missing
+LIQUIBASE_DRIFT_SEVERITY_MISSING</code></pre>
                     </td>
                     <td>String</td>
                     <td>Specifies the severity level of missing content  in the drift report. Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If <code>--drift-missing-severity</code> and <code>--drift-severity</code> are both set, <code>--drift-missing-severity</code> takes priority for missing content messages. <b>Default: <code>INFO</code></b>.</td>
                 </tr>
                 <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--drift-unexpected-severity
-liquibase.drift.unexpected.severity
-LIQUIBASE_DRIFT_UNEXPECTED_SEVERITY</code></pre>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-unexpected
+liquibase.drift.severity.unexpected
+LIQUIBASE_DRIFT_SEVERITY_UNEXPECTED</code></pre>
                     </td>
                     <td>String</td>
                     <td>Specifies the severity level of unexpected content in the drift report. Valid values are <code>SEVERE</code>, <code>WARNING</code>, <code>INFO</code>, <code>FINE</code>, and <code>OFF</code>. If <code>--drift-unexpected-severity</code> and <code>--drift-severity</code> are both set, <code>--drift-unexpected-severity</code> takes priority for unexpected content messages. <b>Default: <code>INFO</code></b>.</td>
@@ -102,6 +104,7 @@ LIQUIBASE_DRIFT_UNEXPECTED_SEVERITY</code></pre>
             </tbody>
         </table>
         <h2>Command <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <p>These command arguments are useful if you want to specify report behavior for a specific command:</p>
         <table style="width: 100%;">
             <thead>
                 <tr>
@@ -126,6 +129,15 @@ LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_FORMAT</code></pre>
                     </td>
                     <td>String</td>
                     <td>Specifies the format of the report output file at the command level. Overrides the global argument <code>--reports-format</code>. <b>Default:&#160;<code>HTML</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--report-mode
+liquibase.command.&lt;cmdName&gt;.reportMode
+LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_MODE</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the differences to include in the drift report. Valid values are: <code>ALL</code>, <code>CHANGED</code>, <code>MISSING</code>,
+and                              <code>UNEXPECTED</code>. <b>Default:&#160;<code>ALL</code></b>.</td>
                 </tr>
                 <tr>
                     <td><pre xml:space="preserve"><code class="language-text">--report-name
