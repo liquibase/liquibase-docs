@@ -2,8 +2,8 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/using-liquibase-and-docker.html" />
-		<meta name="description" content="This page explains how to use Liquibase and Docker." />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="This page explains how to use Liquibase and Docker." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> and Docker</h1>
@@ -16,7 +16,7 @@
             <li>DB2</li>
             <li>Firebird</li>
             <li>MariaDB</li>
-            <li>MSSQLServer</li>
+            <li>MS SQL Server</li>
             <li>PostgreSQL</li>
             <li>Snowflake</li>
             <li>SQLite</li>
@@ -25,73 +25,7 @@
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The database driver for MySQL is not preinstalled into the container image and requires additional steps to install. See <MadCap:xref href="#MySQL">MySQL driver</MadCap:xref>.</p>
         <p>See the <a href="https://github.com/liquibase/docker/blob/main/Dockerfile"><MadCap:variable name="General.Liquibase" /> Dockerfile</a> for more details. You can find the official repository for <MadCap:variable name="General.Liquibase" /> images on the <a href="https://download.liquibase.org/">download</a> page.</p>
         <p>Docker pull command:</p><pre><code class="language-text">docker pull liquibase/liquibase</code></pre>
-        <h2><MadCap:variable name="General.Liquibase" /> Docker supported tags</h2>
-        <p>The following tags are officially supported:</p>
-        <ul>
-            <li><b>Overall most recent build:</b> The latest tag will be kept up to date with the most advanced <MadCap:variable name="General.Liquibase" /> release: <code>latest</code>.</li>
-            <li><b>Latest major or minor builds:</b> These tags are kept up to date with the most recent patch release of each stream, such as <code>4.16</code>.</li>
-            <li><b>Specific releases:</b> Each specific release has an associated tag, such as <code>4.16.1</code>.</li>
-        </ul>
-        <h2><MadCap:variable name="General.changelog" /> files</h2>
-        <p>The docker image has a <code>/liquibase/changelog</code> volume in which the directory that contains the root of your <MadCap:variable name="General.changelog" /> tree can be mounted. Your <code>--changelog-file</code> <MadCap:variable name="General.Param/Attribute" /> should include the path relative to the volume.</p>
-        <p>You can also use the <code>/liquibase/changelog</code> volume for commands that create output files, such as <code>generate-changelog</code>.</p>
-        <h3>Example</h3>
-        <p>If you have a local <code>c:\projects\my-project\src\main\resources\com\example\changelogs\root.changelog.xml</code> file, you can run:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog liquibase/liquibase update
---changelog-file=com/example/changelogs/root.changelog.xml</code></pre>
-        <h2>Configuration files</h2>
-        <p>If you use a <MadCap:variable name="General.Liquibase" /> properties file like <code><MadCap:variable name="General.liquiPropFile" /></code> to specify <MadCap:variable name="General.Param/Attribute" />s instead of passing them on the command line, include it in your <MadCap:variable name="General.changelog" /> volume mount and reference it when running commands.</p>
-        <p>When you specify a custom <MadCap:variable name="General.Liquibase" /> properties file, ensure you include <code>searchPath=/liquibase/changelog</code> so that <MadCap:variable name="General.Liquibase" /> can continue looking for your <MadCap:variable name="General.changelog" /> files there.</p>
-        <h3>Example</h3>
-        <p>If you have a local <code>c:\projects\my-project\src\main\resources\liquibase.properties</code> file, where <code><MadCap:variable name="General.liquiPropFile" /></code> represents the <MadCap:variable name="General.Liquibase" /> properties file, run the following command:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog liquibase/liquibase
---defaultsFile=/liquibase/changelog/liquibase.properties update</code></pre>
-        <h2>Drivers and extensions</h2>
-        <p>The <MadCap:variable name="General.Liquibase" /> docker container includes drivers for many databases. If your driver is not included or if you have an extension, you can mount a local directory that contains JAR files to <code>/liquibase/classpath</code> and add JAR files to your classpath setting.</p>
-        <h3>Example</h3>
-        <p>If you have a local <code>c:\projects\my-project\lib\my-driver.jar</code> file, you run the following command:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog -v c:\projects\my-project\lib:/liquibase/classpath liquibase/liquibase
---classpath=liquibase/changelog:liquibase/classpath/my-driver.jar update</code></pre>
-        <h3 id="mysql"><a name="MySQL"></a>MySQL driver</h3>
-        <p>The JDBC driver for MySQL has licensing restrictions that prevent it from being preinstalled into the container image. You must load the driver in one of the following ways:</p>
-        <h4>Create a new container</h4>
-        <p>Dockerfile:</p><pre xml:space="preserve"><code class="language-text">FROM liquibase/liquibase
-RUN lpm add mysql --global</code></pre>
-        <p>Then enter this command in the CLI:</p><pre><code class="language-text">docker build . -t liquibase/liquibase-mysql</code></pre>
-        <p>For more information, see <a href="https://docs.docker.com/engine/reference/commandline/build/">docker build</a>.</p>
-        <h4>Set environment variable at runtime</h4>
-        <p>Alternatively, enter this command in the CLI:</p><pre><code class="language-text">docker run -e INSTALL_MYSQL=true liquibase/liquibase update</code></pre>
-        <p>For more information, see <a href="https://docs.docker.com/engine/reference/run/#env-environment-variables">Docker run reference § ENV (environment variables)</a>.</p>
-        <h2>Create a custom image</h2>
-        <p>If you cannot use the default <MadCap:variable name="General.Liquibase" /> Docker container image, you can create a custom image. You must run a few Docker commands to inject the driver into the container and produce a new <MadCap:variable name="General.Liquibase" /> Docker image.</p>
-        <p>You can do this with any database. The following example is for a Microsoft SQL&#160;Server database running with the latest version of <MadCap:variable name="General.Liquibase" />:</p>
-        <ol>
-            <li>Download the latest <a href="https://learn.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver16">Microsoft SQL Server driver</a>, for example 12.2.0</li>
-            <li>Start a Docker container: <code>docker run -it liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" /> sh</code></li>
-            <li>Do not exit out of this container. In a new terminal window, obtain the Container ID: <code>docker ps</code></li>
-            <li>Copy the Microsoft SQL Server 12.2.0 JAR file into the running container: <code>docker cp mssql-jdbc-12.2.0.jre11.jar &lt;CONTAINER ID&gt;:/liquibase/internal/lib</code></li>
-            <li>Create a new Docker image: <code>docker commit &lt;CONTAINER ID&gt; liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" />_w_mssql_12.2.0</code></li>
-            <li>Publish this custom Docker image internally.</li>
-        </ol>
-        <h2>Best practices</h2>
-        <ul>
-            <li>Specify everything by using arguments</li><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase
-  --license-key="&lt;PASTE LB PRO LICENSE KEY HERE&gt;"
-update 
-  --url=jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt; 
-  --changelog-file=com/example/changelog.xml --username=&lt;USERNAME&gt; 
-  --password=&lt;PASSWORD&gt;</code></pre>
-        </ul>
-        <ul>
-            <li>Use the following example for configuring the <code>liquibase.docker.properties</code> file</li><pre><code class="language-text">classpath: /liquibase/changelog
-url: jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;
-changelog-file: changelog.xml
-username: &lt;USERNAME&gt;
-password: &lt;PASSWORD&gt;
-licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
-        </ul>
-        <ul>
-            <li>Use the <code>--defaults-file</code> argument to evoke the <code>liquibase.docker.properties</code> file when running commands in the CLI</li><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase
---defaults-file=/liquibase/changelog/liquibase.docker.properties update</code></pre>
-        </ul>
-        <h2>Example JDBC URLs</h2>
+        <h3>Example JDBC URLs</h3>
         <table>
             <col style="width: 600px;" />
             <col style="width: 600px;" />
@@ -152,13 +86,93 @@ licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
                 </tr>
             </tbody>
         </table>
-        <h2>An example of using <MadCap:variable name="General.Liquibase" /> and PostgreSQL with Docker</h2>
+        <h2>Supported tags and image flavors</h2>
+        <h3>Tags</h3>
+        <p>The following tags are officially supported:</p>
+        <ul>
+            <li><b>Overall most recent build:</b> The latest tag will be kept up to date with the most advanced <MadCap:variable name="General.Liquibase" /> release: <code>latest</code>.</li>
+            <li><b>Latest major or minor builds:</b> These tags are kept up to date with the most recent patch release of each stream, such as <code>4.23</code>.</li>
+            <li><b>Specific releases:</b> Each specific release has an associated tag, such as <code>4.23.1</code>.</li>
+        </ul>
+        <p>For a full list of tags, see <a href="https://hub.docker.com/r/liquibase/liquibase/tags">Docker Hub:&#160;liquibase/liquibase</a>.</p>
+        <h3><code>liquibase:</code>
+        </h3>
+        <p>This <code>liquibase:&lt;version&gt;</code> image is considered the standard choice. If you're uncertain about your specific requirements, it's recommended to opt for this image. It is designed to serve as a disposable container as well as a foundational building block for creating other images.</p>
+        <h3><code>liquibase:-alpine</code>
+        </h3>
+        <p>The <code>liquibase:&lt;version&gt;-alpine</code> image is a slimmed-down version of the <MadCap:variable name="General.Liquibase" /> Docker container (<code>liquibase:&lt;version&gt;</code>). It is designed to be lightweight and have a smaller footprint, making it suitable for environments with limited resources or when only the essential functionality is required. This image is built upon the popular <a href="https://alpinelinux.org/">Alpine Linux</a> project, which can be found in the official Alpine image. Alpine Linux stands out for its significantly smaller size compared to other distribution base images, typically around <b>5MB</b>. As a result, it enables the creation of overall slimmer images.</p>
+        <p>If your main concern is minimizing the final image size, this flavor proves to be quite useful. However, it is important to note that certain software may encounter issues depending on their specific <code>libc</code> requirements or assumptions.</p>
+        <p>To keep the image size to a minimum, additional tools such as <code>git</code> or <code>bash</code> are not commonly included in Alpine-based images. Instead, you can utilize this image as a foundation and add the necessary components in your own Dockerfile. For more information, see the "<MadCap:xref href="#Custom">Create a custom image</MadCap:xref>" section.</p>
+        <h2>Changelog files</h2>
+        <p>The docker image has a <code>/liquibase/changelog</code> volume in which the directory that contains the root of your <MadCap:variable name="General.changelog" /> tree can be mounted. Your <code>--changelog-file</code> <MadCap:variable name="General.Param/Attribute" /> should include the path relative to the volume.</p>
+        <p>You can also use the <code>/liquibase/changelog</code> volume for commands that create output files, such as <code>generate-changelog</code>. In this case, you must specify the absolute path to the <MadCap:variable name="General.changelog" />; prefix the path with <code>/liquibase/changelog/&lt;PATH TO CHANGELOG FILE&gt;</code>.</p>
+        <h3>Example</h3>
+        <p>If you have a local <code>c:\projects\my-project\src\main\resources\com\example\changelogs\root.changelog.xml</code> file, you can run:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog liquibase/liquibase update
+--changelog-file=com/example/changelogs/root.changelog.xml</code></pre>
+        <p>To generate a new <MadCap:variable name="General.changelog" /> file at this location, run:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog liquibase/liquibase generate-changelog --changelog-file=changelog/com/example/changelogs/root.changelog.xml</code></pre>
+        <h2>Configuration files</h2>
+        <p>If you use a <MadCap:variable name="General.Liquibase" /> properties file (defaults file) like <code><MadCap:variable name="General.liquiPropFile" /></code> to specify <MadCap:variable name="General.Param/Attribute" />s instead of passing them on the command line, include it in your <MadCap:variable name="General.changelog" /> volume mount and reference it when running commands.</p>
+        <p>When you specify a custom <MadCap:variable name="General.Liquibase" /> properties file, ensure you include <code>searchPath=/liquibase/changelog</code> so that <MadCap:variable name="General.Liquibase" /> can continue looking for your <MadCap:variable name="General.changelog" /> files there.</p>
+        <h3>Example</h3>
+        <p>If you have a local <code>c:\projects\my-project\src\main\resources\liquibase.properties</code> file, where <code><MadCap:variable name="General.liquiPropFile" /></code> represents the <MadCap:variable name="General.Liquibase" /> properties file, run the following command:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog liquibase/liquibase
+--defaults-file=/liquibase/changelog/liquibase.properties update</code></pre>
+        <h2 id="drivers"><a name="Drivers"></a>Drivers and extensions</h2>
+        <p>The <MadCap:variable name="General.Liquibase" /> docker container includes drivers for many databases. If your driver is not included or if you have an extension, you can mount a local directory that contains JAR files to <code>/liquibase/classpath</code> and add JAR files to your classpath setting.</p>
+        <h3>Example</h3>
+        <p>If you have a local <code>c:\projects\my-project\lib\my-driver.jar</code> file, you run the following command:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog -v c:\projects\my-project\lib:/liquibase/classpath liquibase/liquibase
+--classpath=liquibase/changelog:liquibase/classpath/my-driver.jar update</code></pre>
+        <h3 id="mysql"><a name="MySQL"></a>MySQL driver</h3>
+        <p>The JDBC driver for MySQL has licensing restrictions that prevent it from being preinstalled into the container image. You must load the driver in one of the following ways:</p>
+        <h4>Create a new container</h4>
+        <p>Dockerfile:</p><pre xml:space="preserve"><code class="language-text">FROM liquibase/liquibase
+RUN lpm add mysql --global</code></pre>
+        <p>Then enter this command in the CLI:</p><pre><code class="language-text">docker build . -t liquibase/liquibase-mysql</code></pre>
+        <p>For more information, see <a href="https://docs.docker.com/engine/reference/commandline/build/">docker build</a>.</p>
+        <h4>Set environment variable at runtime</h4>
+        <p>Alternatively, enter this command in the CLI:</p><pre><code class="language-text">docker run -e INSTALL_MYSQL=true liquibase/liquibase update</code></pre>
+        <p>For more information, see <a href="https://docs.docker.com/engine/reference/run/#env-environment-variables">Docker run reference § ENV (environment variables)</a>.</p>
+        <h2>Complete examples</h2>
+        <h3>Command line</h3>
+        <p>Specifying everything using arguments:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase
+  --license-key="&lt;PASTE LB PRO LICENSE KEY HERE&gt;"
+update 
+  --url=jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt; 
+  --changelog-file=com/example/changelog.xml --username=&lt;USERNAME&gt; 
+  --password=&lt;PASSWORD&gt;</code></pre>
+        <p>Using with <MadCap:xref href="../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref> example:</p><pre xml:space="preserve"><code class="language-text">docker run --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_COMMAND_URL --env LIQUIBASE_PRO_LICENSE_KEY --env LIQUIBASE_COMMAND_CHANGELOG_FILE --rm -v &lt;PATH TO CHANGELOG DIR&gt;/changelogs:/liquibase/changelog liquibase/liquibase --log-level=info update</code></pre>
+        <h3>Properties file</h3>
+        <p>Use the following example for configuring the <code>liquibase.docker.properties</code> file</p><pre xml:space="preserve"><code class="language-text">classpath: /liquibase/changelog
+url: jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;
+changelog-file: changelog.xml
+username: &lt;USERNAME&gt;
+password: &lt;PASSWORD&gt;
+licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
+        <p>Use the <code>--defaults-file</code> argument to evoke the <code>liquibase.docker.properties</code> file when running commands in the CLI:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/liquibase
+--defaults-file=/liquibase/changelog/liquibase.docker.properties update</code></pre>
+        <h3>Using <MadCap:variable name="General.Liquibase" /> and PostgreSQL with Docker</h3>
         <p>When you start a PostgreSQL database using <code>docker run postgres</code>, the command looks at the local system to see if the PostgreSQL Docker container already exists. If the container doesn’t exist, the command will refer to Docker Hub and download it.</p>
         <p>To run PostgreSQL and <MadCap:variable name="General.Liquibase" />, your <MadCap:variable name="General.Liquibase" /> <MadCap:variable name="General.changelog" /> needs to be accessible to the Docker container. Mount the directory that includes the <MadCap:variable name="General.changelog" /> file with the <code>-v</code> option:</p><pre xml:space="preserve"><code class="language-text">docker run -v /home/changelog:/liquibase/changelog liquibase/liquibase 
 --url=jdbc:postgresql://&lt;DATABASE_IP&gt;:5432/postgres 
 --changelog-file=/liquibase/changelog/changelog.xml --username=postgres 
 --password=postgres</code></pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Enter the directory that contains your <MadCap:variable name="General.changelog" /> in place of <code>/home/changelog</code>. Also, enter the <code>hostname/ip</code> of your database. If you are running PostgreSQL as a Docker container, use <code>docker inspect &lt;CONTAINER_NAME&gt;</code> to find the IP address of your PostgreSQL database.</p>
+        <h2 id="custom"><a name="Custom"></a>Create a custom image</h2>
+        <p>If you cannot use the default <MadCap:variable name="General.Liquibase" /> Docker container image, you can create a custom image. You can either extend an existing Dockerfile or create a completely new image.</p>
+        <h3>Extend Dockerfile</h3>
+        <p>The best way to create a custom Docker image is to extend the Dockerfile to add whatever tools or drivers you want, such as a <a href="../../concepts/changelogs/attributes/runwith.htm">native executor</a>. Then, publish your extended Dockerfile internally in your organization. For example, see <a href="https://github.com/liquibase/docker/tree/main/examples">/docker/examples</a>, which contains both Alpine and non-Alpine Dockerfile examples.</p>
+        <p>To add a driver, see the "<MadCap:xref href="#Drivers">Drivers and extensions</MadCap:xref>" section. Alternatively, you can use the <a href="https://github.com/liquibase/liquibase-package-manager"><MadCap:variable name="General.Liquibase" /> Package Manager</a> (<code>lpm</code>) to inject the driver into your container:</p><pre xml:space="preserve"><code class="language-text">FROM liquibase/liquibase
+RUN lpm add mssql --global</code></pre>
+        <p>Then publish this custom Docker image internally.</p>
+        <h3>New image</h3>
+        <p>To produce a new <MadCap:variable name="General.Liquibase" /> Docker image, you must run a few Docker commands to inject the driver into the container. You can do this with any database. The following example is for a Microsoft SQL Server database running with the latest version of <MadCap:variable name="General.Liquibase" />:</p>
+        <ol>
+            <li>Download the latest <a href="https://learn.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver16">Microsoft SQL Server driver</a>, for example 12.2.0</li>
+            <li>Start a Docker container: <code>docker run -it liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" /> sh</code></li>
+            <li>Do not exit out of this container. In a new terminal window, obtain the Container ID: <code>docker ps</code></li>
+            <li>Copy the Microsoft SQL Server 12.2.0 JAR file into the running container: <code>docker cp mssql-jdbc-12.2.0.jre11.jar &lt;CONTAINER ID&gt;:/liquibase/internal/lib</code></li>
+            <li>Create a new Docker image: <code>docker commit &lt;CONTAINER ID&gt; liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" />_w_mssql_12.2.0</code></li>
+            <li>Publish this custom Docker image internally.</li>
+        </ol>
         <h2>Troubleshooting issues with <MadCap:variable name="General.Liquibase" /> and Docker</h2>
         <p>If you use the <MadCap:variable name="General.Liquibase" /> Docker image 4.3.5 with Aurora MySQL RDS Cluster and have issues with the connection link, add <code>?autoReconnect=true"&amp;"useSSL=false</code> to the end of the database name in your URL:</p><pre xml:space="preserve"><code class="language-text">--url=jdbc:mysql://devops-test.us-east-2.rds.amazonaws.com:3306/auditsource?autoReconnect=true"&amp;"useSSL=false</code></pre>
         <h2>Related links</h2>
