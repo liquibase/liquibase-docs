@@ -14,6 +14,7 @@ variable "redirects" {
     { key = "/2014/11/faq.html", website_redirect = "/faq.html" },
     { key = "/2014/11/home.html", website_redirect = "/home.html" },
     { key = "/2014/11/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/change-types/column.html", website_redirect = "/change-types/nested-tags/column.html" },
     { key = "/change-types/community/add-auto-increment.html", website_redirect = "/change-types/add-auto-increment.html" },
     { key = "/change-types/community/add-column.html", website_redirect = "/change-types/add-column.html" },
     { key = "/change-types/community/add-default-value.html", website_redirect = "/change-types/add-default-value.html" },
