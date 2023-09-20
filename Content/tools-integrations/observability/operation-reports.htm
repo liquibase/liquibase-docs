@@ -10,176 +10,38 @@
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <p>You can use <MadCap:variable name="General.LBPro" /> to generate reports of operations you perform on your database. These reports contain information about the status of your database and may help you resolve errors in your automation pipeline.</p>
         <p>Reports may include information about database drift, your database type and version, whether your database change occurred live or in a snapshot; object data about tables, views, functions, procedures, packages/package bodies, and triggers; and object relationships on constraints, indexes, and privileges.</p>
-        <p>Currently, the only command that supports operation reports is <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code>, which you can use to generate a report of database drift.</p>
-        <h2>Drift report</h2>
-        <p>Databases may experience drift (unexpected changes to content)&#160;during development. Monitoring database drift manually requires you to write extra scripts outside <MadCap:variable name="General.Liquibase" /> to detect improper database state changes. These scripts  may be difficult to maintain or prone to errors.</p>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, you can automatically generate a database <b>drift report</b> using the <MadCap:variable name="General.Liquibase" /> command <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code>. The drift report shows the differences between two live databases or between a database and a snapshot from a previous point in time. Adding this check to your CI/CD pipeline gives you ongoing visibility into database drift while maintaining the speed and reliability of CI/CD automation.</p>
-        <p>It is a best practice to explicitly set a drift severity level to match your team's expectation of allowable drift.</p>
+        <h2 id="supported"><a name="Supported"></a>Supported commands</h2>
+        <table style="width: 100%;">
+            <col />
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th>Report type</th>
+                    <th>Report description</th>
+                    <th>Command</th>
+                    <th><MadCap:variable name="General.Liquibase" /> versions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <MadCap:xref href="operation-reports-drift-report.htm">Drift Report</MadCap:xref>
+                    </td>
+                    <td>The drift report shows the differences between two live databases or between a database and a snapshot from a previous point in time.</td>
+                    <td><code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code>
+                    </td>
+                    <td>4.23.1+</td>
+                </tr>
+            </tbody>
+        </table>
         <h2>Enable operation reports</h2>
-        <p>To enable operation reports, you must set the <code>--license-key</code> property using your <a href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm"><MadCap:variable name="General.LBPro" /> license key</a>.</p>
-        <p>You can <b>enable operation reports for all supported commands</b> by setting the <code>--reports-enabled</code> global argument to <code>true</code> in your command line, in your <code><a href="../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.liquiPropFile" /> file</a></code>, as an <a href="../../concepts/connections/liquibase-environment-variables.htm">environment variable</a>, or as a JVM&#160;system property using the <MadCap:xref href="../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>. This way, <MadCap:variable name="General.Liquibase" /> always generates operation reports for you. For example:</p>
-        <ul>
-            <li>Command line: <code class="language-text">liquibase --reports-enabled=true diff</code></li>
-            <li><code><MadCap:variable name="General.liquiPropFile"></MadCap:variable></code> file: <code class="language-text">liquibase.reports.enabled=true</code></li>
-            <li>Environment variable: <code class="language-text">LIQUIBASE_REPORTS_ENABLED=true</code></li>
-        </ul>
-        <p>You can modify the report output file with global arguments listed in the table on this page. You can also set global arguments for specific kinds of reports, like the drift report:</p><pre xml:space="preserve"><code class="language-text">liquibase --reports-enabled=true --drift-severity=WARN diff</code></pre>
-        <p>If you want to keep reports disabled by default and <b>enable them only when you run certain commands</b>, you can use the command argument <code>--report-enabled</code> (singular). For example:</p><pre xml:space="preserve"><code class="language-text">liquibase diff --report-enabled=true --report-name=my_drift_report.html</code></pre>
-        <h2>Global <MadCap:variable name="General.Param/Attribute" />s</h2>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/parameter-syntax.flsnp" />
-        <table style="width: 100%;">
-            <col />
-            <col />
-            <col />
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--reports-enabled
-liquibase.reports.enabled
-LIQUIBASE_REPORTS_ENABLED</code></pre>
-                    </td>
-                    <td>Boolean</td>
-                    <td>Enables or disables all  reports at the global level. Overridden by <code>--report-enabled</code> at the command level. <b>Default:&#160;<code>false</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--reports-format
-liquibase.reports.format
-LIQUIBASE_REPORTS_FORMAT</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the format of the report output file at the global level. Overridden by <code>--report-format</code> at the command level. Valid values are: <code>HTML</code>. <b>Default:&#160;<code>HTML</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--reports-name
-liquibase.reports.name
-LIQUIBASE_REPORTS_NAME</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the name of the report file at the global level. Overridden by <code>--report-name</code> at the command level. By default, <MadCap:variable name="General.Liquibase" /> generates a new report file labeled with a timestamp (user's local time). If you set a custom name, <MadCap:variable name="General.Liquibase" /> overwrites the existing file every time you generate a new report. <b>Default: <code>report-&lt;DD-MM-YYYY-HHmmss&gt;.html</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--reports-path
-liquibase.reports.path
-LIQUIBASE_REPORTS_PATH</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the file path to the report file at the global level. Overridden by <code>--report-path</code> at the command level. <b>Default: <code>./</code></b>.</td>
-                </tr>
-            </tbody>
-        </table>
-        <h3>Drift report global <MadCap:variable name="General.Param/Attribute" />s</h3>
-        <p>When <MadCap:variable name="General.Liquibase" /> detects database drift (changed, missing, or unexpected content), it records that in your drift report. Use the <code>--drift-severity</code> argument to specify a severity return code for drift. The severity level you set tells <MadCap:variable name="General.Liquibase" /> how to react when it detects drift:</p>
-        <ul>
-            <li><code>BLOCKER</code> (<code>4</code>):&#160;drift is a blocker (most severe)</li>
-            <li><code>CRITICAL</code> (<code>3</code>):&#160;drift is a critical error</li>
-            <li><code>MAJOR</code> (<code>2</code>):&#160;drift is a major failure</li>
-            <li><code>MINOR</code> (<code>1</code>):&#160;drift is a minor failure</li>
-            <li><code>INFO</code> (<code>0</code>): drift is treated as an informational message (least severe)</li>
-        </ul>
-        <p>Use individual <code>--drift-severity-*</code> arguments to specify an error code for a particular kind of drift. You can use the return code as an alert in the rest of your CI/CD&#160;pipeline.</p>
-        <table style="width: 100%;">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity
-liquibase.drift.severity
-LIQUIBASE_DRIFT_SEVERITY</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the severity level of all error types in the drift report (changed, missing, or unexpected content). Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. If both <code>--drift-severity</code> and one of the individual error type arguments are set, the individual error type arguments take priority. <b>Default: <code>INFO</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-changed
-liquibase.drift.severity.changed
-LIQUIBASE_DRIFT_SEVERITY_CHANGED</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the severity level of changed content  in the drift report. Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. Overrides the value of <code>--drift-severity</code> for changed content only. <b>Default: <code>INFO</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-missing
-liquibase.drift.severity.missing
-LIQUIBASE_DRIFT_SEVERITY_MISSING</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the severity level of missing content  in the drift report. Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. Overrides the value of <code>--drift-severity</code> for missing content only. <b>Default: <code>INFO</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-unexpected
-liquibase.drift.severity.unexpected
-LIQUIBASE_DRIFT_SEVERITY_UNEXPECTED</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the severity level of unexpected content in the drift report. Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. Overrides the value of <code>--drift-severity</code> for unexpected content only. <b>Default: <code>INFO</code></b>.</td>
-                </tr>
-            </tbody>
-        </table>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-enable-all.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-enable-diff.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-global-arguments.flsnp" />
         <h2>Command <MadCap:variable name="General.Param/Attribute" />s</h2>
-        <p>Use these command arguments if you want to specify report behavior for a specific command:</p>
-        <table style="width: 100%;">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--report-enabled
-liquibase.command.&lt;cmdName&gt;.reportEnabled
-LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_ENABLED</code></pre>
-                    </td>
-                    <td>Boolean</td>
-                    <td>Enables a  report at the command level. Overrides the global argument <code>--reports-enabled</code>. <b>Default:&#160;<code>false</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--report-format
-liquibase.command.&lt;cmdName&gt;.reportFormat
-LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_FORMAT</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the format of the report output file at the command level. Overrides the global argument <code>--reports-format</code>. Valid values are: <code>HTML</code>. <b>Default:&#160;<code>HTML</code></b>.</td>
-                </tr>
-                <tr MadCap:conditions="Default.EXCLUDE">
-                    <td><pre xml:space="preserve"><code class="language-text">--report-mode
-liquibase.command.&lt;cmdName&gt;.reportMode
-LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_MODE</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the differences to include in the drift report. Valid values are: <code>ALL</code>, <code>CHANGED</code>, <code>MISSING</code>,
-and                              <code>UNEXPECTED</code>. <b>Default:&#160;<code>ALL</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--report-name
-liquibase.command.&lt;cmdName&gt;.reportName
-LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_NAME</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the name of the  report file at the command level. Overrides the global argument <code>--reports-name</code>. By default, <MadCap:variable name="General.Liquibase" /> generates a new report file labeled with a timestamp (user's local time). If you set a custom name, <MadCap:variable name="General.Liquibase" /> overwrites the existing file every time you generate a new report. <b>Default: <code>report-&lt;day-month-year-timecode&gt;.html</code></b>.</td>
-                </tr>
-                <tr>
-                    <td><pre xml:space="preserve"><code class="language-text">--report-path
-liquibase.command.&lt;cmdName&gt;.reportPath
-LIQUIBASE_COMMAND_&lt;CMDNAME&gt;_REPORT_PATH</code></pre>
-                    </td>
-                    <td>String</td>
-                    <td>Specifies the file path to the  report file at the command level. Overrides the global argument <code>--reports-path</code>. <b>Default: <code>./</code></b>.</td>
-                </tr>
-            </tbody>
-        </table>
+        <p>For information about arguments to modify the reports of specific commands, such as arguments for the drift report, see the individual report pages listed in the "<MadCap:xref href="#Supported">Supported commands</MadCap:xref>" section.</p>
         <h2>Related links</h2>
         <ul>
             <li>

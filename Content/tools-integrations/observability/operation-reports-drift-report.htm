@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/tools-integrations/observability/operation-reports-drift-report.html" />
+        <meta name="description" content="Reference information for Liquibase Drift Reports." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>Drift Report</h1>
+        <p>Database drift occurs when changes made to one database are not made to others. This typically occurs when changes are made manually outside of automation. These inconsistencies cause frustration and waste your time while you manually identify what changed. If you're working in an environment with database drift, <MadCap:variable name="General.Liquibase" />&#160;<b>drift reports</b> can alert you of the drift and show you the changes that need to be addressed. This minimizes the amount of time databases are out of sync.</p>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, you can automatically generate a database drift report using the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command. The drift report shows the differences between two live databases or between a database and a snapshot from a previous point in time. Adding this check to your CI/CD pipeline gives you ongoing visibility into database drift while maintaining the speed and reliability of CI/CD automation.</p>
+        <p>It is a best practice to explicitly set a drift severity level to match your team's expectation of allowable drift.</p>
+        <h2>Syntax</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-enable-all.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-enable-diff.flsnp" />
+        <h3>Setting arguments</h3>
+        <p>You can modify the drift report output with global arguments listed in the table on this page.</p><pre xml:space="preserve"><code class="language-text">liquibase
+    --reports-enabled=true
+    --drift-severity=WARN
+  diff</code></pre>
+        <p>If you want to keep reports disabled by default and <b>enable them only when you run certain commands</b>, you can use the command argument <code>--report-enabled</code> (singular). For example:</p><pre xml:space="preserve"><code class="language-text">liquibase diff
+    --report-enabled=true
+    --report-name=my_drift_report.html</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example: halt deployment if any drift is detected</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">liquibase
+    --reports-enabled=true
+  diff
+    --drift-severity=4</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Example: note missing or unexpected objects, but ignore changed objects</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">liquibase
+    --reports-enabled=true
+  diff
+    --drift-severity-changed=0
+    --drift-severity-missing=2
+    --drift-severity-unexpected=2</code></pre>
+                <p>Another way to specify this is to explicitly set <code>--drift-severity-missing</code> and <code>--drift-severity-unexpected</code> to <code>2</code> and not specify a value for <code>--drift-severity-changed</code>, so it remains at its default value of <code>0</code>.</p><pre xml:space="preserve"><code class="language-text">liquibase
+    --reports-enabled=true
+  diff
+    --drift-severity-missing=2
+    --drift-severity-unexpected=2</code></pre>
+                <p>A third way to specify this is by setting <code>--drift-severity</code> to <code>2</code> as a default for all drift and then overriding it only for changed objects:</p><pre xml:space="preserve"><code class="language-text">liquibase
+    --reports-enabled=true
+  diff
+    --drift-severity=2
+    --drift-severity-changed=0</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-global-arguments.flsnp" />
+        <h3>Drift report global <MadCap:variable name="General.Param/Attribute" />s</h3>
+        <p>When <MadCap:variable name="General.Liquibase" /> detects database drift, it records that in your drift report. Use the <code>--drift-severity</code> argument to specify a severity return code (severity level) for all kinds of drift: changed, missing, or unexpected content. The severity return code you set tells <MadCap:variable name="General.Liquibase" /> how to react when it detects drift. You can use the severity return code as an alert for the rest of your CI/CD&#160;pipeline.</p>
+        <ul>
+            <li><code>BLOCKER</code> (<code>4</code>):&#160;drift is a blocker (most severe)</li>
+            <li><code>CRITICAL</code> (<code>3</code>):&#160;drift is a critical error</li>
+            <li><code>MAJOR</code> (<code>2</code>):&#160;drift is a major failure</li>
+            <li><code>MINOR</code> (<code>1</code>):&#160;drift is a minor failure</li>
+            <li><code>INFO</code> (<code>0</code>): drift is treated as an informational message (least severe)</li>
+        </ul>
+        <p>If you want <MadCap:variable name="General.Liquibase" /> to react to changed, missing, or unexpected content in different ways, you can set the individual <code>--drift-severity-*</code> arguments to specify a severity return code for each particular kind of drift. These arguments take priority over <code>--drift-severity</code>.</p>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity
+liquibase.drift.severity
+LIQUIBASE_DRIFT_SEVERITY</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of all error types in the drift report (changed, missing, or unexpected content). Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. If both <code>--drift-severity</code> and one of the individual error type arguments are set, the individual error type arguments take priority. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-changed
+liquibase.drift.severity.changed
+LIQUIBASE_DRIFT_SEVERITY_CHANGED</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of changed content  in the drift report. Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. Overrides the value of <code>--drift-severity</code> for changed content only. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-missing
+liquibase.drift.severity.missing
+LIQUIBASE_DRIFT_SEVERITY_MISSING</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of missing content  in the drift report. Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. Overrides the value of <code>--drift-severity</code> for missing content only. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+                <tr>
+                    <td><pre xml:space="preserve"><code class="language-text">--drift-severity-unexpected
+liquibase.drift.severity.unexpected
+LIQUIBASE_DRIFT_SEVERITY_UNEXPECTED</code></pre>
+                    </td>
+                    <td>String</td>
+                    <td>Specifies the severity level of unexpected content in the drift report. Valid values are <code>BLOCKER</code>, <code>CRITICAL</code>, <code>MAJOR</code>, <code>MINOR</code>, and <code>INFO</code>; or 0–4. Overrides the value of <code>--drift-severity</code> for unexpected content only. <b>Default: <code>INFO</code></b>.</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-command-arguments.flsnp" />
+    </body>
+</html>
