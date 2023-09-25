@@ -225,6 +225,7 @@ variable "redirects" {
     { key = "/commands/pro/rollbackoneupdate.html", website_redirect = "/commands/rollback/rollback-one-update.html" },
     { key = "/commands/pro/rollbackoneupdatesql.html", website_redirect = "/commands/rollback/rollback-one-update-sql.html" },
     { key = "/commands/quality-checks/bulk-set.html", website_redirect = "/commands/quality-checks/subcommands/bulk-set.html" },
+    { key = "/commands/quality-checks/checks/pro-quality-checks.html", website_redirect = "/commands/quality-checks/checks/quality-checks-databases.html" },
     { key = "/commands/quality-checks/checks/quality-checks-list.html", website_redirect = "/commands/quality-checks/checks/home.html" },
     { key = "/commands/quality-checks/checks-bulk-set.html", website_redirect = "/commands/quality-checks/subcommands/bulk-set.html" },
     { key = "/commands/quality-checks/checks-copy.html", website_redirect = "/commands/quality-checks/subcommands/copy.html" },
