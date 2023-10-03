@@ -594,6 +594,7 @@ variable "redirects" {
     { key = "/start/install/tutorials/vertica.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/vertica/" },
     { key = "/start/install/tutorials/voltdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
     { key = "/start/install/tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
+    { key = "/start/release-notes/4.24.0.html", website_redirect = "/start/release-notes/liquibase-4.24.0.html" },
     { key = "/start/tutorials/apache-derby.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/" },
     { key = "/start/tutorials/aws-redshift.html", website_redirect = "/start/tutorials/amazon-redshift.html" },
     { key = "/start/tutorials/bigquery.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/" },
