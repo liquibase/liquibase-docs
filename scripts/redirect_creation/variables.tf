@@ -461,6 +461,7 @@ variable "redirects" {
     { key = "/feature-flags/readmes/GrowthBook Feature Flags Extension.html", website_redirect = "/tools-integrations/feature-flags/growthbook-feature-flags-extension.html" },
     { key = "/feature-flags/readmes/GrowthBook Feature Flags Extension_1.html", website_redirect = "/tools-integrations/feature-flags/growthbook-feature-flags-extension.html" },
     { key = "/feature-flags/readmes/Installation.html", website_redirect = "/tools-integrations/feature-flags/home.html" },
+    { key = "/feature-flags/readmes/launchdarkly feature flags.html", website_redirect = "/tools-integrations/feature-flags/launchdarkly-feature-flags.html" },
     { key = "/feature-flags/readmes/LaunchDarkly Feature Flags.html", website_redirect = "/tools-integrations/feature-flags/launchdarkly-feature-flags.html" },
     { key = "/feature-flags/readmes/Liquibase Custom Hosts Extension.html", website_redirect = "/tools-integrations/feature-flags/liquibase-custom-hosts-extension.html" },
     { key = "/feature-flags/readmes/Supported Editions.html", website_redirect = "/tools-integrations/feature-flags/home.html" },
