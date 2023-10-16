@@ -34,30 +34,36 @@
     &lt;version&gt;<MadCap:variable name="software-versions.latest-liquibase-mongodb" />&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></li>
         </ol>
-        <h2>Configure your TLS/SSL encrypted connection</h2>
-        <p>If you are using TLS/SSL, configure the TLS/SSL encrypted connection for the MongoDB Pro extension.</p>
-        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">This is only required if you are using TLS/SSL because it is active on your Mongo server or because  you are using MongoDB Atlas.</p>
-        <ol>
-            <li>Configure the MongoDB instance by first following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl/">Mongo's configuration guide</a>.</li>
-            <li>Then verify that it works by following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl-clients/#connect-to-mongodb-instance-using-encryption--tls-options-">Mongo's verification guide</a>.</li>
-            <li>Add the <code>--tlsCertificateKeyFile</code> certificate that is produced in the configuration step above to the Java keystore. The <code>--tlsCertificateKeyFile</code> specifies the <code>.pem</code> file that contains mongosh's certificate.</li>
-            <p>On Linux:</p><pre><code class="language-text">sudo keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE/mongodb-cert.crt -cacerts -storepass changeit -alias MongoDB</code></pre>
-            <p>On Windows, open terminal in Administrator mode and run:</p><pre><code class="language-text">keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE\\mongodb-cert.crt -cacerts -storepass changeit -alias mongodb</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The default password for keystore is <code>changeit</code>.</p>
-            <li>
-                <p>Specify your TLS connection information in the <code>--url</code> argument, using the format <code>mongodb+srv://&lt;hostname&gt;/&lt;database&gt;</code>. You can pass this argument in CLI, <MadCap:variable name="General.liquiPropFile" /> file, or set it as an environment variable:</p>
-                <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><MadCap:variable name="General.liquiPropFile" /> file:<br /><code>liquibase.command.url=mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /><br />Environment variable:<br /><code>LIQUIBASE_COMMAND_URL=mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code></p>
-                <p>If you are using a Java keystore that is not the default, you must add the necessary environment variables before running <MadCap:variable name="General.Liquibase" /> commands.</p>
-                <p>On Linux:</p><pre><code class="language-text">export JAVA_OPTS="-Djavax.net.ssl.keyStore=PATH_TO_KEYSTORE/cacerts -Djavax.net.ssl.keyStorePassword=PASSWORD"</code></pre>
-                <p>On Windows:</p><pre><code class="language-text">set JAVA_OPTS=-Djavax.net.ssl.keyStore="PATH_TO_KEYSTORE\\cacerts" -Djavax.net.ssl.keyStorePassword=PASSWORD</code></pre>
-                <p>Do not use <code>setx</code> as it adds <code>keyStorePassword</code> to system environment variables.</p>
-            </li>
-        </ol>
-        <h3>Troubleshooting errors</h3>
-        <p>After connecting <MadCap:variable name="General.Liquibase" /> with the MongoDB&#160;Pro Extension, you may come across an error that states:</p><pre><code class="language-text">Error: Could not find or load main class Files\\Java\\{jdk-version}.security.cacerts Caused by: java.lang.ClassNotFoundException: Files\\Java\\{jdk-version}.security.cacerts</code></pre>
-        <p>This means that <MadCap:variable name="General.LBPro" /> is struggling to find the certification file. To resolve the issue, run the following command in the CLI:</p>
-        <p>On Windows:</p><pre><code class="language-text">set JAVA_OPTS=-Djavax.net.ssl.keyStore="%JAVA_HOME%\\lib\\security\\cacerts"</code></pre>
-        <p>On Linux:</p><pre><code class="language-text">export JAVA_OPTS=-Djavax.net.ssl.keyStore=$JAVA_HOME/lib/security/cacerts</code></pre>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size:1.1em">(Optional) Configure encrypted database connection with TLS/SSL</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><b>TLS/SSL is not required to use <MadCap:variable name="General.LBPro" /> and MongoDB.</b> This is only required if you are using TLS/SSL because it is active on your MongoDB server or because  you are using <a href="mongodb-atlas-config.htm">MongoDB Atlas</a>.</p>
+                <p>To configure the TLS/SSL encrypted connection for the MongoDB Pro extension:</p>
+                <ol>
+                    <li>Configure the MongoDB instance by first following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl/">Mongo's configuration guide</a>.</li>
+                    <li>Verify that it works by following <a href="https://www.mongodb.com/docs/manual/tutorial/configure-ssl-clients/#connect-to-mongodb-instance-using-encryption--tls-options-">Mongo's verification guide</a>.</li>
+                    <li>Add the <code>--tlsCertificateKeyFile</code> certificate that is produced in the configuration step above to the Java keystore. The <code>--tlsCertificateKeyFile</code> specifies the <code>.pem</code> file that contains mongosh's certificate.</li>
+                    <p>On Linux:</p><pre><code class="language-text">sudo keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE/mongodb-cert.crt -cacerts -storepass changeit -alias MongoDB</code></pre>
+                    <p>On Windows, open terminal in Administrator mode and run:</p><pre><code class="language-text">keytool -importcert -trustcacerts -file PATH_TO_CERT_FILE\\mongodb-cert.crt -cacerts -storepass changeit -alias mongodb</code></pre>
+                    <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The default password for keystore is <code>changeit</code>.</p>
+                    <li>
+                        <p>Specify your TLS connection information in the <MadCap:variable name="General.Liquibase" />&#160;<code>--url</code> argument, using the format <code>mongodb+srv://&lt;hostname&gt;/&lt;database&gt;</code>. You can pass this argument in CLI, <MadCap:variable name="General.liquiPropFile" /> file, or set it as an environment variable:</p>
+                        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><MadCap:variable name="General.liquiPropFile" /> file:<br /><code>liquibase.command.url=mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code><br /><br />Environment variable:<br /><code>LIQUIBASE_COMMAND_URL=mongodb://localhost:27017/lbcat?tls=true&amp;tlsCAFile=mongodb.pem</code></p>
+                        <p>If you are using a Java keystore that is not the default, you must add the necessary environment variables before running <MadCap:variable name="General.Liquibase" /> commands.</p>
+                        <p>On Linux:</p><pre><code class="language-text">export JAVA_OPTS="-Djavax.net.ssl.keyStore=PATH_TO_KEYSTORE/cacerts -Djavax.net.ssl.keyStorePassword=PASSWORD"</code></pre>
+                        <p>On Windows:</p><pre><code class="language-text">set JAVA_OPTS=-Djavax.net.ssl.keyStore="PATH_TO_KEYSTORE\\cacerts" -Djavax.net.ssl.keyStorePassword=PASSWORD</code></pre>
+                        <p>Do not use <code>setx</code> as it adds <code>keyStorePassword</code> to system environment variables.</p>
+                    </li>
+                </ol>
+                <h4>Troubleshooting errors</h4>
+                <p>After configuring TLS/SSL for <MadCap:variable name="General.Liquibase" /> and MongoDB, you may come across an error that states:</p><pre><code class="language-text">Error: Could not find or load main class Files\\Java\\{jdk-version}.security.cacerts Caused by: java.lang.ClassNotFoundException: Files\\Java\\{jdk-version}.security.cacerts</code></pre>
+                <p>This means that <MadCap:variable name="General.Liquibase" /> is struggling to find the certification file. To resolve the issue, run the following command in the CLI:</p>
+                <p>On Windows:</p><pre><code class="language-text">set JAVA_OPTS=-Djavax.net.ssl.keyStore="%JAVA_HOME%\\lib\\security\\cacerts"</code></pre>
+                <p>On Linux:</p><pre><code class="language-text">export JAVA_OPTS=-Djavax.net.ssl.keyStore=$JAVA_HOME/lib/security/cacerts</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
         <h2>Test your connection</h2>
         <ol>
             <li>Ensure your MongoDB database is configured. See <a href="https://www.mongodb.com/docs/manual/installation/">Install MongoDB</a> for more information.</li>
