@@ -2,52 +2,42 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <body>
         <p>You can use XML, YAML, or JSON "modeled"&#160;<MadCap:variable name="General.changelog" />s instead of writing plain or Formatted Mongo scripts in JavaScript. XML, YAML, and JSON&#160;<MadCap:variable name="General.changelog" />s have all the functionality of a Formatted Mongo <MadCap:variable name="General.changelog" />, like specifying metadata tags and including other <MadCap:variable name="General.changelog" />s. You must specify <code>mongosh</code> as the value of <code>runWith</code> in each <MadCap:variable name="General.changeset" />.</p>
-        <p>In a modeled <MadCap:variable name="General.changelog" />, you can specify <MadCap:variable name="General.changetypes" />s that represent database changes, such as <code>createCollection</code> to make a new collection. <MadCap:variable name="General.Liquibase" /> then generates the code to implement this change in your database.</p>
-        <p>However, you can still specify <code>mongosh</code> scripts using the <code>mongo</code> and <code>mongoFile</code>&#160;<MadCap:variable name="General.changetypes" />s.</p>
+        <p>In a modeled <MadCap:variable name="General.changelog" />, you can specify <code>mongosh</code> code within the <code>mongo</code> and <code>mongoFile</code>&#160;<MadCap:variable name="General.changetypes" />s. <MadCap:variable name="General.Liquibase" /> then implements this in your database. However, the actual <code>mongosh</code> you specify is the same as in Formatted Mongo.</p>
+        <p>If you want to use the <code>include</code> or <code>includeAll</code> tag in a root <MadCap:variable name="General.changelog" />, it must be an XML, YAML, or JSON file. The child <MadCap:variable name="General.changelog" />s you reference can be written in Formatted Mongo, XML, YAML, or JSON.</p>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot>XML&#160;example</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody>
-                <p>The <MadCap:variable name="General.Liquibase" /> MongoDB&#160;Pro extension uses a unique <code>mongodb-pro</code> XML namespace and XSD files in the <MadCap:variable name="General.changelog" /> header. However, the <code>ext</code> prefix used with other extensions is backwards-compatible:</p><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;databaseChangeLog
+                <p>The <MadCap:variable name="General.Liquibase" /> MongoDB&#160;Pro extension uses a unique <code>mongodb-pro</code> XML namespace and XSD files in the <MadCap:variable name="General.changelog" /> header. However, the <code>ext</code> prefix used with other extensions is backwards-compatible:</p><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:mongodb-pro="http://www.liquibase.org/xml/ns/pro-mongodb"
+    xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
-        http://www.liquibase.org/xml/ns/pro-mongodb http://www.liquibase.org/xml/ns/pro-mongodb/liquibase-pro-mongodb-latest.xsd"&gt;
-    &lt;changeSet id="1" author="nvoxland" runWith="mongosh"&gt;
-        &lt;mongodb-pro:mongo&gt;
-            db = db.getSiblingDB( 'mydb' );
-            db.createCollection('person2');
+    http://www.liquibase.org/xml/ns/pro-mongodb http://www.liquibase.org/xml/ns/pro-mongodb/liquibase-pro-mongodb-latest.xsd
+    http://www.liquibase.org/xml/ns/mongodb http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd"&gt;
+
+    &lt;changeSet id="1" author="your.name" runWith="mongosh"&gt;
+        &lt;mongodb-pro:mongo dbms="mongodb"&gt;
+            db.createCollection('person')
         &lt;/mongodb-pro:mongo&gt;
         &lt;rollback&gt;
             &lt;mongodb-pro:mongo&gt;
-                db = db.getSiblingDB( 'mydb' );
-                db.person2.drop();
+                db.person.drop()
             &lt;/mongodb-pro:mongo&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
-    &lt;changeSet id="2" author="nvoxland" runWith="mongosh"&gt;
-        &lt;mongodb-pro:mongoFile path="scriptFile.js" relativeToChangelogFile="true"/&gt;
-        &lt;rollback&gt;
-            &lt;mongodb-pro:mongoFile path="scriptFile-rollback.js" relativeToChangelogFile="true"/&gt;
-        &lt;/rollback&gt;
-    &lt;/changeSet&gt;
-    &lt;changeSet id="3" author="nvoxland" runWith="mongosh"&gt;
-        &lt;mongodb-pro:mongo&gt;
-            db.products.insertMany( [
-                { item: "card", qty: 15 },
-                { item: "envelope", qty: 20 },
-                { item: "stamps" , qty: 30 }
-            ] );
-        &lt;/mongodb-pro:mongo&gt;
+
+    &lt;changeSet id="2" author="your.name" runWith="mongosh"&gt;
+        &lt;mongodb-pro:mongoFile dbms="mongodb" path="scriptFile.txt" relativeToChangelogFile="true"/&gt;
         &lt;rollback&gt;
             &lt;mongodb-pro:mongo&gt;
-                db.products.deleteMany( { } );
+                db.company.drop()
             &lt;/mongodb-pro:mongo&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
+
 &lt;/databaseChangeLog&gt;</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
@@ -56,86 +46,30 @@
                 <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
-- changeSet:
-      id:  1
-      author:  your.name
-      runWith:  mongosh
-      labels: example-label
-      context: example-context
-      comment: example-comment
+  - changeSet:
+      id: 1
+      author: your.name
+      runWith: mongosh
       changes:
-       - createTable:
-            tableName:  person
-            columns:
-              - column:
-                  name:  id
-                  type:  int
-                  autoIncrement:  true
-                  constraints:
-                    primaryKey:  true
-                    nullable:  false
-              - column:
-                  name:  name
-                  type:  varchar(50)
-                  constraints:
-                    nullable:  false
-              - column:
-                  name:  address1
-                  type:  varchar(50)
-              - column:
-                  name:  address2
-                  type:  varchar(50)
-              - column:
-                  name:  city
-                  type:  varchar(30)
+        - mongo:
+            mongo: "db.createCollection('person')"
+            dbms: mongodb
+        - rollback:
+            mongo:
+              mongo: "db.person.drop()"
 
-- changeSet:
-      id:  2
-      author:  your.name
-      runWith:  mongosh
-      labels: example-label
-      context: example-context
-      comment: example-comment
+  - changeSet:
+      id: 2
+      author: your.name
+      runWith: mongosh
       changes:
-       - createTable:
-            tableName:  company
-            columns:
-              - column:
-                  name:  id
-                  type:  int
-                  autoIncrement:  true
-                  constraints:
-                    primaryKey:  true
-                    nullable:  false
-              - column:
-                  name:  name
-                  type:  varchar(50)
-                  constraints:
-                    nullable:  false
-              - column:
-                  name:  address1
-                  type:  varchar(50)
-              - column:
-                  name:  address2
-                  type:  varchar(50)
-              - column:
-                  name:  city
-                  type:  varchar(30)
-
-- changeSet:
-      id:  3
-      author:  other.dev
-      runWith:  mongosh
-      labels: example-label
-      context: example-context
-      comment: example-comment
-      changes:
-       - addColumn:
-            tableName:  person
-            columns:
-              - column:
-                  name:  country
-                  type:  varchar(2)</code></pre>
+        - mongoFile:
+            path: "scriptFile.txt"
+            dbms: mongodb
+            relativeToChangelogFile: "true"
+        - rollback:
+            mongo:
+              mongo: "db.company.drop()"</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <MadCap:dropDown>
@@ -144,19 +78,24 @@
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
-    ---------------------------CREATE AND DROP COLLECTION---------------------------
+
     {
       "changeSet": {
         "id": "1",
-        "author": "as",
+        "author": "your.name",
         "runWith": "mongosh",
-        "labels": "test_label",
-        "context": "test_context",
-        "comment": "test_comment",
         "changes": [
           {
-            "createCollection": {
-              "collectionName": "countries_json"
+            "mongo": {
+              "dbms": "mongodb",
+              "mongo": "db.createCollection('person')"
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "mongo": {
+              "mongo": "db.person.drop()"
             }
           }
         ]
@@ -165,200 +104,24 @@
     {
       "changeSet": {
         "id": "2",
-        "author": "as",
+        "author": "your.name",
         "runWith": "mongosh",
         "changes": [
           {
-            "dropCollection": {
-              "collectionName": "towns_json"
+            "mongoFile": {
+              "dbms": "mongodb",
+              "path": "scriptFile.txt",
+              "relativeToChangelogFile": true
             }
           }
         ],
-        "rollback": ""
-      }
-    },
-    ---------------------------INSERT ONE--------------------------
-    {
-      "changeSet": {
-        "id": "3",
-        "author": "as",
-        "runWith": "mongosh",
-        "changes": [
+        "rollback": [
           {
-            "insertOne": {
-              "collectionName": "towns_json",
-              "document": {
-                "$rawJson": {
-                  "name": "New York",
-                  "population": 222000000,
-                  "famousFor": [
-                    "the MOMA",
-                    "food",
-                    "Derek Jeter"
-                  ],
-                  "mayor": {
-                    "name": "Bill de Blasio",
-                    "party": "D"
-                  }
-                }
-              }
-            }
-          }
-        ],
-        "rollback": ""
-      }
-    },
-    ---------------------------INSERT MANY-------------------------
-    {
-      "changeSet": {
-        "id": "4",
-        "author": "as",
-        "runWith": "mongosh",
-        "changes": [
-          {
-            "insertMany": {
-              "collectionName": "countries_json",
-              "documents": {
-                "$rawJson": [
-                  {
-                    "_id": "us",
-                    "name": "United States",
-                    "exports": {
-                      "foods": [
-                        {
-                          "name": "bacon",
-                          "tasty": "true"
-                        },
-                        {
-                          "name": "burger"
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "_id": "ca",
-                    "name": "Canada",
-                    "exports": {
-                      "foods": [
-                        {
-                          "name": "bacon",
-                          "tasty": false
-                        },
-                        {
-                          "name": "syrup",
-                          "tasty": true
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "_id": "mx",
-                    "name": "Mexico",
-                    "exports": {
-                      "foods": [
-                        {
-                          "name": "salsa",
-                          "tasty": true,
-                          "condiment": true
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        ],
-        "rollback": {
-          "runCommand": {
-            "command": "{ delete: \"countries_json\", deletes: [{q: { }, limit: 0}] }"
-          }
-        }
-      }
-    },
-    ---------------------------CREATE AND DROP INDEX---------------------------
-    {
-      "changeSet": {
-        "id": "5",
-        "author": "as",
-        "runWith": "mongosh",
-        "changes": [
-          {
-            "createIndex": {
-              "collectionName": "countries_json",
-              "keys": {
-                "$rawJson": {
-                  "name": 1,
-                  "type": 1
-                }
-              },
-              "options": {
-                "$rawJson": {
-                  "unique": true,
-                  "name": "ui_countries_json"
-                }
-              }
+            "mongo": {
+              "mongo": "db.company.drop()"
             }
           }
         ]
-      }
-    },
-    {
-      "changeSet": {
-        "id": "6",
-        "author": "as",
-        "runWith": "mongosh",
-        "changes": [
-          {
-            "dropIndex": {
-              "collectionName": "countries_json",
-              "keys": {
-                "$rawJson": {
-                  "name": 1,
-                  "type": 1
-                }
-              },
-              "options": {
-                "$rawJson": {
-                  "unique": true,
-                  "name": "ui_countries_json"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    ---------------------------RUN COMMAND---------------------------
-    {
-      "changeSet": {
-        "id": "7",
-        "author": "as",
-        "runWith": "mongosh",
-        "changes": [
-          {
-            "runCommand": {
-              "command": "{ buildInfo: 1 }"
-            }
-          }
-        ],
-        "rollback": ""
-      }
-    },
-    ---------------------------ADMIN COMMAND---------------------------
-    {
-      "changeSet": {
-        "id": "8",
-        "author": "as",
-        "runWith": "mongosh",
-        "changes": [
-          {
-            "adminCommand": {
-              "command": "{ buildInfo: 1 }"
-            }
-          }
-        ],
-        "rollback": ""
       }
     }
   ]
