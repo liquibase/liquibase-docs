@@ -6,15 +6,40 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1><MadCap:variable name="General.Liquibase" /> CyberArk PAM Vault Extension</h1>
-        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
-        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/secrets-intro-reqs-install-setup-usage.flsnp" MadCap:conditionTagExpression="include[secrets.cyberark]" />
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>liquibase.licenseKey=</code> OR <code>liquibase.licenseKey:</code> are valid ways to indicate the values in the <MadCap:variable name="General.liquiPropFile" /> file. </p>
+        <h1>Liquibase CyberArk PAM Vault Extension</h1>
+        <p>You can natively read your application secrets in Liquibase with the <a href="https://www.cyberark.com/products/privileged-access-manager/">CyberArk PAM Vault</a> extension. If you connect to your vault using the <code>liquibase.properties</code> file, you can store sensitive Liquibase authentication details such as database <code>url</code>, <code>username</code>, and <code>password</code>&#160;attributes and your Liquibase Pro license key in your vault.</p>
+        <p>For more information, see <a href="https://docs.cyberark.com/Product-Doc/OnlineHelp/PAS/Latest/en/Content/Resources/_TopNav/cc_Home.htm">CyberArk PAM documentation</a>.</p>
+        <h2 id="requirements">Requirements</h2>
+        <ul>
+            <li>Liquibase 4.10.0+</li>
+            <li>Liquibase Pro license. See <a href="https://docs.liquibase.com/workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.html">How to Apply Your Liquibase Pro License Key</a></li>
+            <li><a href="https://www.cyberark.com/products/privileged-access-manager/">CyberArk PAM Vault</a> with API enabled</li>
+            <li><a href="https://en.wikipedia.org/wiki/Root_certificate">RootCA certificate</a> in your Java security keystore (typically <a href="https://www.ibm.com/docs/en/sdk-java-technology/8?topic=certificate-cacerts-certificates-file"><code>cacerts</code></a>)</li>
+        </ul>
+        <h2 id="installation">Installation</h2>
+        <h3>CLI</h3>
+        <ol>
+            <li>Navigate to the <a href="https://github.com/liquibase/cyberark-pam-plugin/releases/latest">liquibase-cyberark-pam</a> extension on GitHub</li>
+            <li>Download <code>liquibase-cyberarkpam-vault-&lt;version&gt;.jar</code> and move it to the <code>liquibase/lib</code> directory</li>
+        </ol>
+        <h3>Liquibase Package Manager</h3>
+        <p>Alternatively, you can install the CyberArk PAM Vault extension with <code>lpm</code> (<a href="https://github.com/liquibase/liquibase-package-manager">Liquibase Package Manager</a>).</p><pre xml:space="preserve"><code class="language-shell">lpm update
+lpm add cyberarkpam-vault</code></pre>
+        <h2 id="setup">Setup</h2>
+        <p>You must add a RootCA certificate in your Java security keystore. For example:</p><pre><code class="language-shell">sudo keytool -importcert -alias CyberArkRoot -keystore /Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/lib/security/cacerts -storepass changeit -file RootCA.crt</code></pre>
+        <p>If there is an error message showing PKIX exception, you could have imported into the wrong <code>cacerts</code> file. Run <code>liquibase -version</code> to see which JVM Liquibase is using</p>
+        <p>To debug the SSL connection, you can add this Java environment variable to your command line:
+<code>-Djavax.net.debug=ssl:handshake</code></p>
+        <h2 id="usage">Usage</h2>
+        <p>You can store any Liquibase property in CyberArk PAM Vault.</p>
+        <ol>
+            <li>Set the <code>VAULT_ADDR</code> and <code>VAULT_CERTFILE</code>&#160;attributes as <a href="https://docs.liquibase.com/concepts/connections/liquibase-environment-variables.html">environment variables</a>, as <a href="https://docs.liquibase.com/concepts/connections/java-opts-environment-variable.html"><code>-D</code> Java system properties</a>, or in your <a href="https://docs.liquibase.com/concepts/connections/creating-config-properties.html"><code>liquibase.properties</code> file</a>, OR as a command line attribute as shown in the command line section below.</li>
+            <li>In CyberArk PAM Vault, configure sensitive properties like your database username, password, URL, and Liquibase Pro license key as secrets.</li>
+            <li>In your <code>liquibase.properties</code> file or other valid configuration location, specify the path to each secret in your vault. Use the syntax <code>VAULT_TYPE,PATH_TO_NAME_IN_PAM,FIELD_TO_MAP</code>. </li>
+        </ol>
+        <p>The following example shows a <code>liquibase.properties</code> file configured to store secrets in a vault:</p>
         <MadCap:codeSnippet>
             <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetCaption>
-                <p>liquibase.properties cyberark example</p>
-            </MadCap:codeSnippetCaption>
             <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: HTML;">changeLogFile=example-changelog.xml
 liquibase.command.url=jdbc:h2:tcp://localhost:9090/mem:dev
 liquibase.vault.addr= https://YOUR_CYBERARK_ENDPOINT:18702/AIMWebService/api/Accounts?
@@ -23,12 +48,11 @@ liquibase.vault.certfile= YOUR_CERT_PATH/client.p12liquibase.command.username: c
 liquibase.command.password= cyberarkpam,Content,password
 liquibase.licenseKey=</MadCap:codeSnippetBody>
         </MadCap:codeSnippet>
-        <h2 id="attributes">Command Line <MadCap:variable name="General.Param/Attr/Uppercased" />s</h2>
+        <h2 id="attributes">Command line attributes</h2>
         <table style="width: 100%;">
             <thead>
                 <tr>
-                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
-                    </th>
+                    <th>Attribute</th>
                     <th>Definition</th>
                     <th>Requirement</th>
                 </tr>
@@ -38,7 +62,7 @@ liquibase.licenseKey=</MadCap:codeSnippetBody>
                     <td><code>--license-key</code>
                     </td>
                     <td>
-                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/cli-global-license-key.flsnp" />
+                        <p>Your Liquibase Pro license key</p>
                     </td>
                     <td><b>Required</b>
                     </td>
