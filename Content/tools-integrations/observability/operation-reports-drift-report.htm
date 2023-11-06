@@ -11,7 +11,26 @@
         <p>Database drift occurs when changes made to one database are not made to others. This typically occurs when changes are made manually outside of automation. These inconsistencies cause frustration and waste your time while you manually identify what changed. If you're working in an environment with database drift, <MadCap:variable name="General.Liquibase" /> drift reports can alert you of the drift and show you the changes that need to be addressed. This minimizes the amount of time databases are out of sync.</p>
         <p>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, you can automatically generate a database drift report using the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command. The drift report shows the differences between two live databases or between a database and a snapshot from a previous point in time. Adding this check to your CI/CD pipeline gives you ongoing visibility into database drift while maintaining the speed and reliability of CI/CD automation.</p>
         <p>It is a best practice to explicitly set a drift severity level to match your team's expectation of allowable drift.</p>
-        <h2>Syntax</h2>
+        <h2>Uses</h2>
+        <p>Using <MadCap:variable name="General.Liquibase" /> drift detection can help you improve the following metrics for your database:</p>
+        <ul>
+            <li><b>Predictability:</b>&#160;Validate that your CI/CD pipelines apply database changes correctly without any unintended side effects.</li>
+            <li><b>Consistency:</b> Compare schema changes across development, staging, and production environments.</li>
+            <li><b>Security:</b> Identify unauthorized changes before they go to production, minimizing security vulnerabilities.</li>
+            <li><b>Compliance:</b> Adhere to industry and government regulations on data management and privacy.</li>
+            <li><b>Redundancy:</b> Ensure that backup databases match source databases and that your failover procedures are effective.</li>
+        </ul>
+        <h2>Drift reports in automation</h2>
+        <p>To automatically use <MadCap:variable name="General.Liquibase" /> drift reports in your CI/CD pipeline, follow these steps in your CI/CD&#160;tool:</p>
+        <ol>
+            <li>Create a <b>LiquibaseDatabaseSnapshot</b> job that runs the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../commands/inspection/snapshot.html">snapshot</MadCap:xref></code> command. This stores the current state of your database. It is a best practice to store your database snapshot in an artifact repository like Amazon S3, Azure Blob Storage, or a database-specific artifact repository.</li>
+            <li>Configure your snapshot job to run at your desired frequency, such as once per release.</li>
+            <li>Repeat Steps 1–2 for every database whose state you want to track with <MadCap:variable name="General.Liquibase" /> drift reports.</li>
+            <li>Create a <b>LiquibaseDriftReport</b> job that compares the snapshot to the current database state or another snapshot. This job must:<ol><li>Enable the drift report with <code>--reports-enabled</code> (global scope)&#160;or <code>--report-enbled</code> (command scope).</li><li>Run the <MadCap:variable name="General.Liquibase" /> <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command against your desired databases.</li><li>(Optional) Specify the <code>--drift-severity-*</code> arguments whether <MadCap:variable name="General.Liquibase" /> should respond differently to changed, missing, or unexpected content.</li></ol></li>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">For more information, see the <MadCap:xref href="#Syntax">Syntax</MadCap:xref> section of this page.</p>
+            <li>Configure your drift report job to run at your desired frequency, such as once per day.</li>
+        </ol>
+        <h2><a name="Syntax"></a>Syntax</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-enable-all.flsnp" />
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-enable-diff.flsnp" />
         <h3>Setting arguments</h3>
@@ -109,5 +128,7 @@ LIQUIBASE_DRIFT_SEVERITY_UNEXPECTED</code></pre>
             </tbody>
         </table>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-command-arguments.flsnp" />
+        <h2>Troubleshooting</h2>
+        <p>If you experience performance issues while generating drift reports, such as an <code>OutOfMemoryError</code> exception, see the solutions described on <MadCap:xref href="../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
     </body>
 </html>
