@@ -11,8 +11,9 @@
             <img src="../../Z_Resources/Images/drift-report.png" title="Drift report graphical output" alt="Liquibase displays a drift report of a user's source and target database." style="width: 35%; float:right" />
         </p>
         <p>The drift report is a <MadCap:variable name="General.Liquibase" /> <a href="operation-reports.htm">operation report</a> that informs you of database drift.</p>
-        <p>Database drift occurs when changes made to one database are not made to others. This typically occurs when changes are made manually outside of automation. These inconsistencies cause frustration and waste your time while you manually identify what changed. If you're working in an environment with database drift, <MadCap:variable name="General.Liquibase" /> drift reports can alert you of the drift and show you the changes that need to be addressed. This minimizes the amount of time databases are out of sync.</p>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.23.1+, you can automatically generate a database drift report using the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command. The drift report shows the differences between two live databases or between a database and a snapshot from a previous point in time. Adding this check to your CI/CD pipeline gives you ongoing visibility into database drift while maintaining the speed and reliability of CI/CD automation.</p>
+        <p>Database drift occurs when changes to one database are not made to others – often when manual changes are made outside of automation. These inconsistencies are challenging to detect. Once detected, tracking down the problem is manual, frustrating, and takes time.</p>
+        <p>If you're working in an environment that experiences database drift, <MadCap:variable name="General.Liquibase" /> drift reports can alert you of the drift and show you the changes that need to be addressed. This simplifies the process and minimizes the amount of time databases are out of sync.</p>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.25.0 and later, you can automatically generate a database drift report using the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command. The drift report shows the differences between two live databases or between a database and a snapshot from a previous point in time. Adding this check to your CI/CD pipeline gives you ongoing visibility into database drift while maintaining the speed and reliability of CI/CD automation.</p>
         <p>It is a best practice to explicitly set a drift severity level to match your team's expectation of allowable drift.</p>
         <h2>Uses</h2>
         <p>Using <MadCap:variable name="General.Liquibase" /> drift detection can help you improve the following metrics for your database:</p>
@@ -41,41 +42,29 @@
     --reports-enabled=true
     --drift-severity=WARN
   diff</code></pre>
-        <p>If you want to keep reports disabled by default and <b>enable them only when you run certain commands</b>, you can use the command argument <code>--report-enabled</code> (singular). For example:</p><pre xml:space="preserve"><code class="language-text">liquibase diff
+        <p>If you want to keep reports disabled by default and <b>enable only the drift report when running <code>diff</code></b>, you can use the command argument <code>--report-enabled</code> (singular). For example:</p><pre xml:space="preserve"><code class="language-text">liquibase diff
     --report-enabled=true
     --report-name=my_drift_report.html</code></pre>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">Example: halt deployment if any drift is detected</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">liquibase
+        <h3>Halt deployment if any drift is detected</h3><pre xml:space="preserve"><code class="language-text">liquibase
     --reports-enabled=true
   diff
     --drift-severity=4</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">Example: note missing or unexpected objects, but ignore changed objects</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">liquibase
+        <h3>Log missing or unexpected objects, but ignore changed objects</h3><pre xml:space="preserve"><code class="language-text">liquibase
     --reports-enabled=true
   diff
     --drift-severity-changed=0
     --drift-severity-missing=2
     --drift-severity-unexpected=2</code></pre>
-                <p>Another way to specify this is to explicitly set <code>--drift-severity-missing</code> and <code>--drift-severity-unexpected</code> to <code>2</code> and not specify a value for <code>--drift-severity-changed</code>, so it remains at its default value of <code>0</code>.</p><pre xml:space="preserve"><code class="language-text">liquibase
+        <p>Another way to specify this is to explicitly set <code>--drift-severity-missing</code> and <code>--drift-severity-unexpected</code> to <code>2</code> and not specify a value for <code>--drift-severity-changed</code>, so it remains at its default value of <code>0</code>.</p><pre xml:space="preserve"><code class="language-text">liquibase
     --reports-enabled=true
   diff
     --drift-severity-missing=2
     --drift-severity-unexpected=2</code></pre>
-                <p>A third way to specify this is by setting <code>--drift-severity</code> to <code>2</code> as a default for all drift and then overriding it only for changed objects:</p><pre xml:space="preserve"><code class="language-text">liquibase
+        <p>A third way to specify this is by setting <code>--drift-severity</code> to <code>2</code> as a default for all drift and then overriding it only for changed objects:</p><pre xml:space="preserve"><code class="language-text">liquibase
     --reports-enabled=true
   diff
     --drift-severity=2
     --drift-severity-changed=0</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-global-arguments.flsnp" />
         <h3>Drift report global <MadCap:variable name="General.Param/Attribute" />s</h3>
         <p>When <MadCap:variable name="General.Liquibase" /> detects database drift, it records that in your drift report. Use the <code>--drift-severity</code> argument to specify a severity return code (severity level) for all kinds of drift: changed, missing, or unexpected content. The severity return code you set tells <MadCap:variable name="General.Liquibase" /> how to react when it detects drift. You can use the severity return code as an alert for the rest of your CI/CD&#160;pipeline.</p>
