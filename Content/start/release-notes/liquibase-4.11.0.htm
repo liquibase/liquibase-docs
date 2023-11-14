@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/start/release-notes/liquibase-4.11.0.html" />
+        <meta name="description" content="Liquibase 4.11.0 release notes." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1><MadCap:variable name="General.Liquibase" /> 4.11.0 – May 24, 2022</h1>
+        <p><b>Full Changelog:</b><a href="https://github.com/liquibase/liquibase/compare/v4.9.1...v4.10.0">v4.10.0...v4.11.0</a>
+        </p>
+        <h3>Breaking Changes</h3>
+        <p>Starting with 4.11, we moved the global libraries we ship with the CLI from the lib directory to a new internal directory structure. The <code>lib</code> directory is still included in the classpath as the place where users can add the additional global drivers/libraries they need.</p>
+        <p>The <code>liquibase --version</code> output has been enhanced to also include the third party libraries being used and their versions.</p>
+        <p><b>Impacts:</b>
+        </p>
+        <ul>
+            <li>If you are upgrading <MadCap:variable name="General.Liquibase" /> by overwriting an existing directory, you will have duplicate libraries between <code>lib</code> and <code>internal/lib</code>. You should manually delete any files in <code>lib</code> which you did not add yourself. <MadCap:variable name="General.Liquibase" /> will continue to work even with the duplicate libraries, but you may not be running the latest version of ones we ship, since the <code>lib</code> files take priority over what is in <code>internal/lib</code>. New installs are not impacted by this.</li>
+            <li>If you have any automation that did anything with our shipped files in <code>lib</code>, update it to reflect the new <code>internal/lib</code> location.</li>
+        </ul>
+        <p>For security reasons, we have also changed what is logged by the CLI to only log <MadCap:variable name="General.Liquibase" /> channel messages by default, rather than all log channels. If you are relying on logging from non-<MadCap:variable name="General.Liquibase" /> libraries, you can add channels with the new <code>--log-channels</code> flag, including <code>--log-channels=all</code> to restore the old functionality.</p>
+        <h3>Enhancements</h3>
+        <ul>
+            <li>Moved shipped JAR files out of <code>lib</code> and into a new <code>internal/lib</code> directory by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2850">#2850</a></li>
+            <li>To help with performance troubleshooting, there is now a <code>--monitor-performance</code> argument for the CLI (and only the CLI) which enables profiling of the <MadCap:variable name="General.Liquibase" /> run. The generated profiling information can help us understand and fix performance issues easier. <a href="https://github.com/liquibase/liquibase/pull/2599">#2599</a></li>
+            <li>Upgraded Java shipped with the installers from 11 to 17 by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2602">#2602</a></li>
+            <li>Added whitelist for CLI log channels by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2859">#2859</a></li>
+        </ul>
+        <h3>Fixes</h3>
+        <ul>
+            <li>Do not throw a confusing error if a datatype specified as a <MadCap:variable name="General.changelog" /> parameter is not expanded by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2772">#2772</a></li>
+            <li>Fixed SQLite not correctly snapshotting tables with underscores in the name by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2778">#2778</a></li>
+            <li>Fixed local XSD lookup by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2830">#2830</a></li>
+            <li>Standardized "<code>start-h2</code>" commands on "<code>liquibase init start-h2</code>" logic by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2597">#2597</a></li>
+            <li>Support default values in the format <code>(0)::real</code> by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2836">#2836</a></li>
+            <li>Fix handling of <code>defaultSchemaName</code> on Postgresql by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2812">#2812</a></li>
+            <li>Introduce <code>generateStatementsFromRows</code> for extensions by @fbiville in <a href="https://github.com/liquibase/liquibase/pull/2686">#2686</a></li>
+            <li>Fixed XSD type of "ordered" and "cycle" attributes to be boolean by @DartVerder in <a href="https://github.com/liquibase/liquibase/pull/2725">#2725</a></li>
+            <li>Remove custom log message filtering by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2777">#2777</a></li>
+            <li>Spring Boot: better support <code>relativeToChangelogFile</code> when <code>ResourceLoaders</code> return <code>FilteredReactiveWebContextResources</code> by @erik-meuwese-topicus in <a href="https://github.com/liquibase/liquibase/pull/2758">#2758</a></li>
+            <li>Fix <code>ForeignKeyComparator</code> when foreign key table is not known by @joserebelo in <a href="https://github.com/liquibase/liquibase/pull/2565">#2565</a>. Fixes <a href="https://github.com/liquibase/liquibase/issues/2389">#2389</a> (<code>foreignKeyConstraintExists</code> not working). See 4.7.0 "Breaking Changes" <code>foreignKeyTableName</code>.</li>
+            <li>Test System Framework: add support for "<code>liquibase.sdk.testSystem.skip</code>" property by @StevenMassaro in <a href="https://github.com/liquibase/liquibase/pull/2838">#2838</a></li>
+            <li>Test System Framework: stop database containers when spock execution ends by @StevenMassaro in <a href="https://github.com/liquibase/liquibase/pull/2843">#2843</a></li>
+        </ul>
+        <h3>Updates</h3>
+        <h4>Security Updates</h4>
+        <p>No security updates needed in this release.</p>
+        <h4>JDBC Driver and Third-Party Library Updates</h4>
+        <ul>
+            <li>Upgraded <code>picocli</code> from 4.6.1 to 4.6.3 by @dependabot in <a href="https://github.com/liquibase/liquibase/pull/2518">#2518</a></li>
+            <li>Upgraded <code>jaxb</code> libraries to the newest 2.3.x versions by @nvoxland in <a href="https://github.com/liquibase/liquibase/pull/2793">#2793</a></li>
+            <li>Upgraded <code>snakeyaml</code> from 1.27 to 1.30 by @dependabot in <a href="https://github.com/liquibase/liquibase/pull/2498">#2498</a></li>
+            <li>OWASP Dependency Check: Reported Vulnerabilities</li>
+            <li><code>jcc.jar</code> – This is a vulnerability reported against the IBM DB2 JDBC driver. It is awaiting reanalysis. We are currently on the newest version, <a href="https://nvd.nist.gov/vuln/detail/CVE-2008-1997">CVE-2008-1997</a></li>
+        </ul>
+        <h3>New Contributors</h3>
+        <ul>
+            <li>@nikosmoum made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2630">#2630</a></li>
+            <li>@DartVerder made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2725">#2725</a></li>
+            <li>@erik-meuwese-topicus made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2758">#2758</a></li>
+            <li>@joserebelo made their first contribution in <a href="https://github.com/liquibase/liquibase/pull/2565">#2565</a></li>
+        </ul>
+    </body>
+</html>
