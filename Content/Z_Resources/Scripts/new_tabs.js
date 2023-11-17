@@ -2,7 +2,7 @@
 // Source code: http://web-accessibility.carnegiemuseums.org/code/tabs/
 $(function(){
   var index = 0;
-  var $tabs = $('a.tab');
+  var $tabs = $('li.tab');
 
   $tabs.bind(
   {
@@ -64,7 +64,7 @@ $(function(){
     {
       tabindex: '-1',
       'aria-selected': 'false'
-    }).removeClass('selected');
+    });
 
     // hide all tab panels.
     $('.tab-panel').removeClass('current');
@@ -74,7 +74,7 @@ $(function(){
     {
       tabindex: '0',
       'aria-selected': 'true'
-    }).addClass('selected').focus();
+    }).focus();
 
     // handle parent <li> current class (for coloring the tabs)
     $($tabs.get(index)).parent().siblings().removeClass('current');
@@ -82,6 +82,6 @@ $(function(){
 
     // add a current class also to the tab panel
     // controlled by the clicked tab
-    $($($tabs.get(index)).attr('href')).addClass('current');
+    $("#"+$($tabs.get(index)).attr('aria-controls')).addClass('current');
   };
 });
