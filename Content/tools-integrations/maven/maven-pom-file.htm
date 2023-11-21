@@ -10,6 +10,49 @@
         <p>It is recommended to use Apache Maven 3.1 or later to make it easier to configure the <a href="https://maven.apache.org/maven-logging.html">log-level of <MadCap:variable name="General.Liquibase" /> Maven plugin</a> with MAVEN_OPTs or by passing the following command: <code class="highlighter-rouge">-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG</code>. You can also edit the properties in the <code>${maven.home}/conf/logging/simplelogger.properties</code> file.</p>
         <h2>Paths to files</h2>
         <p>As of version 1.6.1.0 of the Maven plugin, all files are resolved from the Maven test classpath for the Maven project or an absolute path. This allows your <MadCap:variable name="General.changelog" /> to be present in other Maven artifacts (on the classpath) and to be used to invoke <MadCap:variable name="General.Liquibase" /> on a database.</p>
+        <h2>Setup</h2>
+        <p>To get <MadCap:variable name="General.Liquibase"></MadCap:variable> working in a Maven <code>pom.xml</code> file, place the following tags with your information in the <code>&lt;plugin&gt;</code> section of your <code>pom.xml</code> file:</p>
+        <ul>
+            <li><code>&lt;groupId&gt;</code>
+            </li>
+            <li><code>&lt;artifactId&gt;</code>
+            </li>
+            <li><code>&lt;version&gt;</code>
+            </li>
+        </ul>
+        <p>To specify other project dependencies, including database drivers, add a <code>&lt;dependency&gt;</code> section. Including the database driver dependency ensures <MadCap:variable name="General.Liquibase"></MadCap:variable> has the appropriate driver available to communicate with your database. Since Maven allows multiple dependencies, specify the <code>&lt;dependencies&gt;</code> tag and put each of your configurations inside them – even if you only have one dependency:</p><pre><code class="language-text">&lt;dependencies&gt;
+        &lt;dependency&gt;
+        …
+        &lt;/depdendency&gt;
+&lt;/dependencies&gt;</code></pre>
+        <p>Moreover, the <MadCap:variable name="General.Liquibase" /> Maven integration let you specify  the <MadCap:variable name="General.Liquibase" /> extension in the <code>&lt;dependency&gt;</code> section of your POM file by adding the <code>org.liquibase.ext</code> dependency for the <MadCap:variable name="General.Liquibase" /> plugin. Make sure that the <MadCap:variable name="General.Liquibase" /> plugin and the extension have the same version.</p><pre xml:space="preserve"><code class="language-text">&lt;plugin&gt;
+     &lt;!--start with basic information to get Liquibase plugin:
+     include &lt;groupId&gt;, &lt;artifactID&gt;, and &lt;version&gt; elements--&gt;
+     &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+     &lt;artifactId&gt;liquibase-maven-plugin&lt;/artifactId&gt;
+     &lt;version&gt;<MadCap:variable name="software-versions.latest-liquibase-pro" />&lt;/version&gt;
+     &lt;configuration&gt;
+        &lt;!--set values for Liquibase properties and settings
+        for example, the location of a properties file to use--&gt;
+        &lt;propertyFile&gt;liquibase.properties&lt;/propertyFile&gt;
+     &lt;/configuration&gt;
+     &lt;dependencies&gt;
+         &lt;!--set up any dependencies for Liquibase to function in your
+         environment for example, a database-specific plugin--&gt;
+         &lt;dependency&gt;
+             &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+             &lt;artifactId&gt;liquibase-&lt;dbname&gt;&lt;/artifactId&gt;
+             &lt;version&gt;<MadCap:variable name="software-versions.latest-liquibase-pro" />&lt;/version&gt;
+        &lt;/dependency&gt;
+     &lt;/dependencies&gt;
+&lt;/plugin&gt;</code></pre>
+        <p>If you download the dependency extension JAR file from GitHub, reference that file locally:</p><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;com.sample&lt;/groupId&gt;
+    &lt;artifactId&gt;sample&lt;/artifactId&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+    &lt;scope&gt;system&lt;/scope&gt;
+    &lt;systemPath&gt;/path/to/liquibase-&lt;dbname&gt;.jar&lt;/systemPath&gt;
+&lt;/dependency&gt;</code></pre>
         <h2>Configuration property files</h2>
         <p>You can specify configuration settings for the Maven <MadCap:variable name="General.Liquibase" /> plugin  in standard Java Property files. If you specify a configuration property file, it will be used to set up the properties for the invocation of the Maven <MadCap:variable name="General.Liquibase" /> plugin.</p>
         <p>Each property defined in the file that matches a property in the goal you want to invoke will be set. If the property does not match any of the properties for the goal, then a warning message will be displayed, but execution will continue.</p>
@@ -139,10 +182,25 @@ dropFirst: false</code></pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code class="highlighter-rouge">-P</code> option refers Maven to the profile to use and thus to the set of values (from the filter properties file) to use for filtering.</p>
         <p>If you do not require filtering capabilities, replace the following in the super-POM plugin configuration:</p><pre><code class="language-text">&lt;propertyFile&gt;target/classes/liquibase.properties&lt;/propertyFile&gt; by &lt;propertyFile&gt;src/main/resources/liquibase.properties&lt;/propertyFile&gt;</code></pre>
         <p>where <code><MadCap:variable name="General.liquiPropFile" /></code> represents the name of the <MadCap:variable name="General.Liquibase" /> properties file. In this example, you can run only <code class="highlighter-rouge">mvn liquibase:update</code>.</p>
+        <h2>Excluding <MadCap:variable name="General.Liquibase"></MadCap:variable> JARs from your POM</h2>
+        <p><MadCap:variable name="General.Liquibase"></MadCap:variable> comes with two JAR&#160;files in <code>liquibase/internal/lib</code> serving as primary libraries, <code>liquibase-core</code> and <code>liquibase-commercial</code>. If you don't want to use the <code>liquibase-commercial</code> JAR in your project, you can exclude it with the <code>&lt;exclusions&gt;</code>&#160;tag in your Maven POM file:</p><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
+  &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+  &lt;artifactId&gt;liquibase-core&lt;/artifactId&gt;
+  &lt;version&gt;<MadCap:variable name="software-versions.latest-liquibase-pro"></MadCap:variable>&lt;/version&gt;
+  &lt;exclusions&gt;
+    &lt;exclusion&gt;
+      &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+      &lt;artifactId&gt;liquibase-commercial&lt;/artifactId&gt;
+    &lt;/exclusion&gt;
+  &lt;/exclusions&gt;
+&lt;/dependency&gt;</code></pre>
+        <h2>Installing proprietary JARs in your local repository</h2>
+        <p>If you want to use <MadCap:variable name="General.Liquibase"></MadCap:variable> with a JAR that is not hosted on a public Maven repository, such as a JDBC JAR for a proprietary database, you must install the JAR in your local repository. From your command line, enter the following Maven command to install the JAR:</p><pre xml:space="preserve"><code class="language-text">mvn install:install-file -Dfile=&lt;path-to-jar-file&gt; -DgroupId=&lt;group-id&gt; -DartifactId=&lt;artifact-id&gt; -Dversion=&lt;version&gt; -Dpackaging=&lt;packaging&gt;</code></pre>
+        <p>Then add this dependency to your <code>pom.xml</code> file. For more information, see <a href="https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html">Apache: Guide to installing 3rd party JARs</a>.</p>
         <h2>Related links</h2>
         <ul>
             <li>
-                <MadCap:xref href="properties-maven-pom-file.htm">Configuring [%=General.Liquibase%] [%=General.Param/Attr/Uppercased%]s in your Maven POM File</MadCap:xref>
+                <MadCap:xref href="maven-properties.htm">Configuring [%=General.Liquibase%] [%=General.Param/Attr/Uppercased%]s in your Maven POM File</MadCap:xref>
             </li>
         </ul>
     </body>
