@@ -787,6 +787,7 @@ variable "redirects" {
     { key = "/tools-integrations/maven/commands/maven-update-testing-rollback.html", website_redirect = "/tools-integrations/maven/commands/maven-updatetestingrollback.html" },
     { key = "/tools-integrations/maven/commands/maven-updateTestingRollback.html", website_redirect = "/tools-integrations/maven/commands/maven-updatetestingrollback.html" },
     { key = "/tools-integrations/maven/commands/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/tools-integrations/maven/using-liquibase-and-maven-pom-file.html", website_redirect = "/tools-integrations/maven/maven-pom-file.html" },
     { key = "/tools-integrations/maven/workflows/hub-pom-attributes.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
     { key = "/tools-integrations/maven/workflows/maven-get-oracle-drivers.html", website_redirect = "/start/tutorials/oracle.html" },
     { key = "/tools-integrations/observability/database-reports.html", website_redirect = "/tools-integrations/observability/operation-reports.html" },
