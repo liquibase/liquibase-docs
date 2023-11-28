@@ -82,6 +82,6 @@ $(function(){
 
     // add a current class also to the tab panel
     // controlled by the clicked tab
-    $("#"+$($tabs.get(index)).attr('aria-controls')).addClass('current');
+    $($tabs.get(index)).attr('data-bs-target').addClass('current');
   };
 });
