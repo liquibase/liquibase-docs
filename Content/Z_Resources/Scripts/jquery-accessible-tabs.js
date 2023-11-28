@@ -1,4 +1,6 @@
-﻿/* PD-3903: https://datical.atlassian.net/browse/PD-3903 */
+﻿/* Accessible Content: https://datical.atlassian.net/wiki/spaces/DOC/pages/3621650459/Accessible+Content
+ * PD-3903: https://datical.atlassian.net/browse/PD-3903
+ */
 jQuery(document).ready(function($) {
 
     /*
