@@ -2,7 +2,7 @@
 // Source code: http://web-accessibility.carnegiemuseums.org/code/tabs/
 $(function(){
   var index = 0;
-  var $tabs = $('li.tab');
+  var $tabs = $('li.button.tab');
 
   $tabs.bind(
   {
@@ -82,6 +82,6 @@ $(function(){
 
     // add a current class also to the tab panel
     // controlled by the clicked tab
-    $($tabs.get(index)).attr('data-bs-target').addClass('current');
+    $("#"+$($tabs.get(index)).attr('aria-controls')).addClass('current');
   };
 });
