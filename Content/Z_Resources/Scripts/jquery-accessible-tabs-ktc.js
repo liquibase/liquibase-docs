@@ -1,11 +1,8 @@
-﻿/* Accessible Content: https://datical.atlassian.net/wiki/spaces/DOC/pages/3621650459/Accessible+Content
- * PD-3903: https://datical.atlassian.net/browse/PD-3903
- */
 jQuery(document).ready(function($) {
 
     /*
      * jQuery Accessible tab panel system, using ARIA
-     * @version v1.5.3
+     * @version v1.6.1
      * Website: https://a11y.nicolas-hoffmann.net/tabs/
      * License MIT: https://github.com/nico3333fr/jquery-accessible-tabs-aria/blob/master/LICENSE
      */
@@ -92,6 +89,8 @@ jQuery(document).ready(function($) {
                     "aria-selected": "true",
                     "tabindex": 0
                 });
+                // KTC - add "current" class on the the selected "a" tag's parent "li"
+                $("#label_" + hash + ".js-tablist__link").closest("li").addClass("current");
             }
 
         }
@@ -108,9 +107,11 @@ jQuery(document).ready(function($) {
                     "aria-selected": "true",
                     "tabindex": 0
                 });
+                // KTC - add "current" class on the the selected "a" tag's parent "li"
+                $("#label_" + $tab_content_parent_id + ".js-tablist__link").closest("li").addClass("current");
             }
         }
-        
+
         // search if data-selected="1" is on a not disabled tab for each tab system
         $tabs.each(function() {
             var $this = $(this),
@@ -123,6 +124,9 @@ jQuery(document).ready(function($) {
                     "aria-selected": "true",
                     "tabindex": 0
                 });
+                // KTC - add "current" class on the the selected "a" tag's parent "li"
+                $tab_data_selected.closest("li").addClass("current");
+
                 $tab_data_selected_content.removeAttr("aria-hidden");
             }
         });
@@ -139,6 +143,9 @@ jQuery(document).ready(function($) {
                     "aria-selected": "true",
                     "tabindex": 0
                 });
+                // KTC - add "current" class on the the selected "a" tag's parent "li"
+                $first_link.closest("li").addClass("current");
+
                 $first_content.removeAttr("aria-hidden");
             }
         });
@@ -153,8 +160,11 @@ jQuery(document).ready(function($) {
                     $hash_to_update = $this.attr("aria-controls"),
                     $tab_content_linked = $("#" + $this.attr("aria-controls")),
                     $parent = $this.closest(".js-tabs"),
+                    options = $parent.data(),
+                    tabs_disable_fragments = typeof options.tabsDisableFragment !== 'undefined' ? true : false,
                     $all_tab_links = $parent.find(".js-tablist__link"),
-                    $all_tab_contents = $parent.find(".js-tabcontent");
+                    $all_tab_contents = $parent.find(".js-tabcontent"),
+                    $all_tab_list_elements = $parent.find(".js-tablist__item"); /* KTC */
 
                 // aria selected false on all links
                 $all_tab_links.attr({
@@ -167,6 +177,10 @@ jQuery(document).ready(function($) {
                     "aria-selected": "true",
                     "tabindex": 0
                 });
+                
+                // KTC - managing "current" class on list elements (added on 12/1/2023)
+                $all_tab_list_elements.removeClass("current");  //Remove current from all li elements
+                $this.closest("li").addClass("current");        // add "current" to class of selected "a" element's "li" parent
 
                 // add aria-hidden on all tabs contents
                 $all_tab_contents.attr("aria-hidden", "true");
@@ -175,9 +189,11 @@ jQuery(document).ready(function($) {
                 $tab_content_linked.removeAttr("aria-hidden");
 
                 // add fragment (timeout for transitions)
-                setTimeout(function() {
-                    history.pushState(null, null, location.pathname + location.search + '#' + $hash_to_update)
-                }, 1000);
+                if (tabs_disable_fragments === false) {
+                    setTimeout(function() {
+                        history.pushState(null, null, location.pathname + location.search + '#' + $hash_to_update)
+                    }, 1000);
+                }
 
                 event.preventDefault();
             })
