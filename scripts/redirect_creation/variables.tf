@@ -232,6 +232,8 @@ variable "redirects" {
     { key = "/commands/quality-checks/checks/changeset-context-check.html", website_redirect = "/commands/quality-checks/checks/changelog-checks/changeset-context-check.html" },
     { key = "/commands/quality-checks/checks/changeset-label-check.html", website_redirect = "/commands/quality-checks/checks/changelog-checks/changeset-label-check.html" },
     { key = "/commands/quality-checks/checks/constraint-must-exist.html", website_redirect = "/commands/quality-checks/checks/database-checks/constraint-must-exist.html" },
+    { key = "/commands/quality-checks/checks/database-checks/object-name-must-match.html", website_redirect = "/commands/quality-checks/checks/changelog-database-checks/object-name-must-match.html" },
+    { key = "/commands/quality-checks/checks/database-checks/object-name-must-not-match.html", website_redirect = "/commands/quality-checks/checks/changelog-database-checks/object-name-must-not-match.html
     { key = "/commands/quality-checks/checks/git-bash-quality-checks.html", website_redirect = "/commands/quality-checks/workflows/git-bash-quality-checks.html" },
     { key = "/commands/quality-checks/checks/modify-data-type-warn.html", website_redirect = "/commands/quality-checks/checks/changelog-checks/modify-data-type-warn.html" },
     { key = "/commands/quality-checks/checks/object-name-must-match.html", website_redirect = "/commands/quality-checks/checks/changelog-database-checks/object-name-must-match.html" },
