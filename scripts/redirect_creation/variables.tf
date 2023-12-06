@@ -677,6 +677,7 @@ variable "redirects" {
     { key = "/start/tutorials/maxdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/" },
     { key = "/start/tutorials/mongodb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
     { key = "/start/tutorials/mongodb-db-atlas-config.html", website_redirect = "/start/tutorials/mongodb/mongodb-atlas-config.html" },
+    { key = "/start/tutorials/mongodb-pro/mongodb-changelog-formats.html", website_redirect = "/start/tutorials/mongodb-pro/using-mongosh-changelog.html" },
     { key = "/start/tutorials/mongodb-pro.html", website_redirect = "/start/tutorials/mongodb/mongodb-pro-community-enterprise-server.html" },
     { key = "/start/tutorials/mongodb-pro-amazon-documentdb.html", website_redirect = "/start/tutorials/mongodb/mongodb-pro-amazon-documentdb.html" },
     { key = "/start/tutorials/mongodb-pro-aws-doc-config.html", website_redirect = "/start/tutorials/mongodb/mongodb-pro-aws-doc-config.html" },
