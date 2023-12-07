@@ -35,8 +35,28 @@
             <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Java 11 may already be present on your machine if you used the installer to install <MadCap:variable name="General.Liquibase" />. We recommend installing <MadCap:variable name="General.Liquibase" /> with Java 11 with the <a href="https://github.com/liquibase/liquibase/releases">installer asset available on GitHub</a>.</p>
             <li>Set the <code>supportsValidator</code> argument to <code>false</code> in one of the following ways:<ul><li><b>Command line:</b> <code>--supports-validator=false</code></li><li><b><code><MadCap:variable name="General.liquiPropFile" /></code> file:</b> <code>liquibase.mongodb.supportsValidator: false</code></li><li><b>Environment variable:</b> <code>LIQUIBASE_MONGODB_SUPPORTS_VALIDATOR=false</code></li></ul></li>
             <li>Set the <code>retryWrites</code> argument to <code>false</code> in one of the following ways:<ul><li><b>Command line:</b> <code>--retry-writes=false</code></li><li><b><code><MadCap:variable name="General.liquiPropFile" /></code> file:</b> <code>liquibase.mongodb.retryWrites: false</code></li><li><b>Environment variable:</b> <code>LIQUIBASE_MONGODB_RETRY_WRITES=false</code></li><li><b>JDBC URL:</b>&#160;<code>&amp;retryWrites=false</code>. See the following section for examples of full URLs.</li></ul></li>
-            <li>(Optional) If you are using TLS/SSL, configure the TLS/SSL encrypted connection for Amazon DocumentDB. For a step-by-step guide, see <MadCap:xref href="amazon-documentdb-tls-ssl.htm">MongoDB Pro and Amazon DocumentDB TLS/SSL&#160;Configuration</MadCap:xref>.</li>
+            <li>(Optional) If you are using TLS/SSL, configure the TLS/SSL encrypted connection for Amazon DocumentDB. For a step-by-step guide, see the below drop down guide</li>
         </ol>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size:1.1em">(Optional) Using <MadCap:variable name="General.Liquibase" /> MongoDB Pro with Amazon DocumentDB TLS/SSL&#160;Configuration</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+                <p>To <a href="amazon-documentdb.htm">use <MadCap:variable name="General.Liquibase" /> with Amazon&#160;DocumentDB</a>&#160;successfully, you must utilize the <a href="home.htm">MongoDB&#160;Pro extension</a> to create a connection between the two. If you want to use Amazon DocumentDB with TLS enabled, follow these instructions:</p>
+                <ol>
+                    <li>Follow the AWS instruction <a href="https://docs.aws.amazon.com/documentdb/latest/developerguide/connect-from-outside-a-vpc.html">Connecting to an Amazon DocumentDB Cluster from Outside an Amazon VPC</a> if needed to connect from outside an Amazon Virtual Private Cloud&#160;(VPC).</li>
+                    <li>Create Java Truststore. Items 1 and 2 in <a href="https://docs.aws.amazon.com/documentdb/latest/developerguide/connect_programmatically.html#connect_programmatically-tls_enabled">Connecting Programmatically to Amazon DocumentDB § Connecting with TLS Enabled</a> (for Java snippet)</li>
+                    <li>Add Amazon DocumentDB credentials (<code>liquibase.command.username</code>, <code>liquibase.command.password</code>) to the <a href="../../../concepts/connections/creating-config-properties.html"><code>liqubase.properties</code> file</a>, environment variables, or command line.</li>
+                    <li>Specify the <code>supportsValidator</code> property:</li><pre><code class="language-text">liquibase.mongodb.supportsValidator: false</code></pre>
+                    <li>Specify a connection string:</li><pre xml:space="preserve"><code class="language-text">liquibase.command.url: mongodb://localhost:27017/my_dbname?directConnection=true&amp;serverSelectionTimeoutMS=2000&amp;tls=true&amp;tlsAllowInvalidHostnames=true&amp;retryWrites=false&amp;tlsCAFile=PATH_TO_CAFILE/global-bundle.pem</code></pre>
+                    <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>location localhost:27017</code> is used from the SSH tunnel (created on the first step) <br /><br />For connection from outside an Amazon VPC, it should contain attributes <code>tls=true&amp;tlsAllowInvalidHostnames=true&amp;retryWrites=false&amp;tlsCAFile=PATH_TO_CAFILE/rds-combined-ca-bundle.pem</code></p>
+                    <li>Add information about Truststore (created on the second step) to environment variables before running <MadCap:variable name="General.Liquibase" /> commands:</li>
+                    <p>On Linux:</p><pre><code class="language-text">export JAVA_OPTS="-Djavax.net.ssl.trustStore=PATH_TO_TRUSTSTORE/rds-truststore.jks -Djavax.net.ssl.trustStorePassword=PASSWORD"</code></pre>
+                    <p>On Windows:</p><pre><code class="language-text">set JAVA_OPTS="-Djavax.net.ssl.trustStore=PATH_TO_TRUSTSTORE\\rds-truststore.jks -Djavax.net.ssl.trustStorePassword=PASSWORD"</code></pre>
+                </ol>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
         <h2>Test your connection</h2>
         <ol>
             <li>Ensure your Amazon DocumentDB&#160;database is configured. For more information, see <a href="https://docs.aws.amazon.com/documentdb/latest/developerguide/get-started-guide.html">AWS Documentation:&#160;Get Started with Amazon DocumentDB</a>.</li>
