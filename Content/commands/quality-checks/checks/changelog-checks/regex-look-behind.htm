@@ -14,7 +14,50 @@
         <h2>Run the RegexLookBehind check</h2>
         <p>To run the <code>RegexLookBehind</code> check, ensure you have a Liquibase Pro license and the <code>checks-scope</code> property includes <code>changelog</code>. The <MadCap:xref href="../../command-arguments/checks-scope.htm">checks-scope</MadCap:xref> parameter is set in the default properties file, environment variable, or any standard method.<br /></p>
         <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">LookBehind Logic:<br />If regex pattern X exists then Pattern A <b>must exist before</b> pattern X.</p>
-        <p>In this example, you are ensuring that all instances of Pattern A&#160;exist before pattern X. When this check runs successfully, a log will be created that displays all instances of Pattern A that exist before pattern X in your <MadCap:variable name="General.changelog" />.</p>
-        <p>Enable the <code>RegexLookBehind</code> check by running the following command in the CLI:<br /><code class="language-text">liquibase checks enable --check-name=regexLookBehind</code></p>
+        <p>In this example, you are ensuring that a&#160;backup of a specific table is taken before any DROP&#160;TABLE&#160;or ALTER&#160;TABLE command runs.</p>
+        <ol>
+            <li>Enable the <code>RegexLookBehind</code> check by running the following command in the CLI:<br /><code class="language-text">liquibase checks copy --check-name=regexLookBehindCheck</code></li>
+            <li>Give your check a short name for easy identification such as <code>AlterAndDropTableMustIncludeBackup</code>. The new <code>AlterTableMustIncludeBackup</code> check is created from the <code>RegexLookBehindCheck</code>.<br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can use up to 64 alpha-numeric characters in any short name.<br /></p></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when the check is triggered. In this example, we will set the severity to 1.<br />Your options are: 'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4)</p>
+            </li>
+            <li>
+                <p>Set the <code>'PRIMARY_SEARCH_STRING'</code> to a string or a valid regular expression. <br />In this example we will set it to a regular expression <code>(ALTER|DROP)\s*TABLE</code>.</p>
+            </li>
+            <li>
+                <p>Set the <code>'LOOKBEHIND_SEARCH_STRING'</code> to a string or a valid regular expression. <br />In this example we will set it to a regular expression <code>CREATE\s*SNAPSHOT\s*TABLE</code>.</p>
+            </li>
+            <li>
+                <p>Set the case sensitivity to true or false.<br />In this example we will set it to <code>'CASE_SENSITIVE' false</code>.</p>
+            </li>
+            <li>
+                <p>Set the 'LOOKBEHIND_MESSAGE'.<br />In this example we will set it to '&lt;LOOKBEHIND_SEARCH_STRING&gt;' must appear before '&lt;PRIMARY_SEARCH_STRING&gt;'</p>
+            </li>
+            <li>
+                <p>Set the 'STRIP_COMMENTS' to true or false.<br />In this example we will set it to true.</p>
+            </li>
+        </ol>
+        <p>Once successfully run, either of the two resulting reports appear:</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>Results if the check passes</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">--liquibase formatted sql
+--changeset user_name:01
+CREATE SNAPSHOT TABLE `sample_dataset_01.table_01-snapshot`
+CLONE `sample_dataset_01.table_01`;
+
+ALTER TABLE sample_dataset_01.table_01 add column col_new smallint;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>Results if the check fails</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">--liquibase formatted sql
+--changeset user_name:01
+ALTER TABLE sample_dataset_01.table_01 add column col_new smallint;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
     </body>
 </html>
