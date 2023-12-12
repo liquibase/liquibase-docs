@@ -682,7 +682,6 @@ variable "redirects" {
     { key = "/start/tutorials/mongodb/mongodb-pro-amazon-documentdb.htm", website_redirect = "/start/tutorials/mongodb-pro/amazon-documentdb.html" },
     { key = "/start/tutorials/mongodb/mongodb-atlas-config.html", website_redirect = "/start/tutorials/mongodb-pro/mongodb-atlas.html" },
     { key = "/start/tutorials/mongodb/mongodb-pro-aws-doc-config.html", website_redirect = "/start/tutorials/mongodb-pro/amazon-documentdb-tls-ssl.html" },
-    { key = "/start/tutorials/mongodb/mongodb-pro-aws-doc-config.html", website_redirect = "/start/tutorials/mongodb-pro/amazon-documentdb.html" },
     { key = "/start/tutorials/mongodb/mongodb-pro-user-roles.html", website_redirect = "/start/tutorials/mongodb-pro/config-user-roles-mongodb-pro.html" },
     { key = "/start/tutorials/mongodb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
     { key = "/start/tutorials/mongodb-db-atlas-config.html", website_redirect = "/start/tutorials/mongodb-pro/mongodb-atlas.html" },
