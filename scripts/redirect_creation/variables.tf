@@ -328,6 +328,7 @@ variable "redirects" {
     { key = "/commands/tag.html", website_redirect = "/commands/change-tracking/tag.html" },
     { key = "/commands/tagexists.html", website_redirect = "/commands/change-tracking/tag-exists.html" },
     { key = "/commands/unexpectedchangesets.html", website_redirect = "/commands/change-tracking/unexpected-changesets.html" },
+    { key = "/commands/update/drop-all.html", website_redirect = "/commands/maintenance/drop-all.html" },
     { key = "/commands/update.html", website_redirect = "/commands/update/update.html" },
     { key = "/commands/updatecount.html", website_redirect = "/commands/update/update-count.html" },
     { key = "/commands/updatecountsql.html", website_redirect = "/commands/update/update-count-sql.html" },
