@@ -26,10 +26,18 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Install spacectl
+        uses: spacelift-io/setup-spacectl@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+
+      - name: Preview liquibase-docs-stagging Stack run
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: https://liquibase.app.spacelift.io
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}    
+        run:
+          spacectl stack local-preview --id liquibase-docs-staging
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2

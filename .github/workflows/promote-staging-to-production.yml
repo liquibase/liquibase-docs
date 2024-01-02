@@ -33,11 +33,6 @@ jobs:
         working-directory: scripts/redirect_creation
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -46,9 +41,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
           aws-region: us-east-1
 
-      - name: Terraform Init
-        id: init
-        run: terraform init -backend-config=$TF_VAR_env.remote.tfbackend 
+      - name: Install spacectl
+        uses: spacelift-io/setup-spacectl@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     
+      
+      - name: Preview liquibase-docs-staging Stack run
+        run: spacectl stack local-preview --id liquibase-docs-prod 
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Deploy infrastructure
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: https://liquibase.app.spacelift.io
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: |
+          spacectl init -backend-config=$TF_VAR_env.remote.tfbackend
+          spacectl stack deploy --id liquibase-docs-prod
