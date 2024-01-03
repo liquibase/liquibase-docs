@@ -42,10 +42,15 @@ jobs:
         id: fmt
         run: terraform fmt
 
+      - name: Create Spacelift credentials file
+        run: |
+          echo "credentials \"${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}\" { token = \"${{ secrets.SPACELIFT_API_KEY_ID }}:${{ secrets.SPACELIFT_API_KEY_SECRET }}\" }" > spacelift_credentials.hcl
+
       - name: Terraform Init
         id: init
         run: |
-          terraform init -backend-config=staging.remote.tfbackend -backend-config="credentials=${{ secrets.SPACELIFT_API_KEY_ID }}:${{ secrets.SPACELIFT_API_KEY_SECRET }}@${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}"
+          terraform init -backend-config=staging.remote.tfbackend -reconfigure
+
 
       - name: Terraform Validate
         if: ${{ github.event_name == 'pull_request' }}
