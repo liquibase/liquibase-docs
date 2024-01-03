@@ -8,7 +8,7 @@ data "terraform_remote_state" "state" {
     hostname     = "spacelift.io"
     organization = "liquibase"
     workspaces = {
-      name = "liquibase-staging"
+      name = "liquibase-prod"
     }
   }
 }
