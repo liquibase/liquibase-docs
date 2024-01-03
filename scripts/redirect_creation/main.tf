@@ -7,6 +7,7 @@ terraform {
 data "terraform_remote_state" "state" {
   backend = "remote"
   config = {
+    hostname     = "spacelift.io"
     organization = "liquibase"
     workspaces = {
       name = "liquibase-${var.env}"
