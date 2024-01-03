@@ -2,10 +2,7 @@
 # See https://datical.atlassian.net/wiki/spaces/DOC/pages/2929426585/Working+in+the+MadCap+Flare+-+AWS+VM
 # DAT-12359 move map of redirects to https://github.com/Datical/liquibase-docs/tree/master/scripts
 
-variable "env" {
-  type        = string
-  description = "Environment to reference.  Should be staging || prod"
-}
+
 
 variable "redirects" {
   default = [
