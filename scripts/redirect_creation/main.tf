@@ -1,4 +1,7 @@
 
+terraform {
+  backend "remote" {}
+}
 
 # use Terraform Remote State Data stanza to read state from environment-based workspace
 data "terraform_remote_state" "state" {
