@@ -20,6 +20,7 @@ jobs:
       SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
       SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
       SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+      SPACELIFT_API_KEY: ${{ secrets.SPACELIFT_API_KEY }}
     defaults:
       run:
         working-directory: scripts/redirect_creation
@@ -41,9 +42,17 @@ jobs:
         id: fmt
         run: terraform fmt
 
+      - name: Set up credentials
+        run: |
+          echo "credentials \"spacelift.io\" { \
+            token = \"${{ secrets.SPACELIFT_API_TOKEN }}\"}" > /home/runner/.terraformrc
+        #run: echo "credentials \"${{ secrets.SPACELIFT_API_TOKEN }}\"" > credentials.tfrc.json
+
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config=$TF_VAR_env.remote.tfbackend 
+        run: |
+          terraform init -backend-config=staging.remote.tfbackend -reconfigure
+
 
       - name: Terraform Validate
         if: ${{ github.event_name == 'pull_request' }}
