@@ -1,6 +1,7 @@
 # Terraform Action to lint and apply updated redirects
 name: Publish Redirects to Staging for Docs
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -34,6 +35,9 @@ jobs:
           aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
           aws-region: us-east-1
+
+      - name: Wait for concurrent workflows
+        uses: ahmadnassri/action-workflow-queue@v1
           
       - name: Terraform Format
         if: ${{ github.event_name == 'pull_request' }}
@@ -103,4 +107,4 @@ jobs:
       - name: Terraform Apply
         if: ${{ github.event_name == 'push' }}
         run: |
-          terraform apply -auto-approve -lock=false
+          terraform apply -auto-approve
