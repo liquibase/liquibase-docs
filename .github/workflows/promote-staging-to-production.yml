@@ -28,16 +28,13 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       TF_VAR_env: "prod"
+      TF_TOKEN_spacelift_io: ${{ secrets.SPACELIFT_API_KEY }}
+
     defaults:
       run:
         working-directory: scripts/redirect_creation
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -51,4 +48,4 @@ jobs:
         run: terraform init -backend-config=$TF_VAR_env.remote.tfbackend 
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -lock=false

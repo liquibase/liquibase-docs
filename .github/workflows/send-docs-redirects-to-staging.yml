@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       TF_VAR_env: "staging"
+      TF_TOKEN_spacelift_io: ${{ secrets.SPACELIFT_API_KEY }}
+
     defaults:
       run:
         working-directory: scripts/redirect_creation
@@ -26,18 +28,13 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
           aws-region: us-east-1
-
+          
       - name: Terraform Format
         if: ${{ github.event_name == 'pull_request' }}
         id: fmt
@@ -56,7 +53,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         id: plan
         run: |
-          terraform plan -out=plan.tmp
+          terraform plan -out=plan.tmp -lock=false
           terraform show -no-color plan.tmp >${GITHUB_WORKSPACE}/plan.out
         continue-on-error: false
 
@@ -105,4 +102,5 @@ jobs:
 
       - name: Terraform Apply
         if: ${{ github.event_name == 'push' }}
-        run: terraform apply -auto-approve
+        run: |
+          terraform apply -auto-approve -lock=false
