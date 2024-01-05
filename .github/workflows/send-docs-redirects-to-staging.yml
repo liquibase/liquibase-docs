@@ -26,10 +26,10 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Install spacectl
+        uses: spacelift-io/setup-spacectl@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -45,20 +45,19 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config=$TF_VAR_env.remote.tfbackend 
+        run: terraform init
 
       - name: Terraform Validate
         if: ${{ github.event_name == 'pull_request' }}
         id: validate
         run: terraform validate -no-color
 
-      - name: Terraform Plan
-        if: ${{ github.event_name == 'pull_request' }}
-        id: plan
-        run: |
-          terraform plan -out=plan.tmp
-          terraform show -no-color plan.tmp >${GITHUB_WORKSPACE}/plan.out
-        continue-on-error: false
+      - name: Preview infrastructure
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: spacectl stack local-preview --id liquibase-docs-staging > ${GITHUB_WORKSPACE}/plan.out
 
       - name: Terraform Show Plan in PR
         uses: actions/github-script@v6
@@ -103,6 +102,12 @@ jobs:
               body: output
             })
 
-      - name: Terraform Apply
-        if: ${{ github.event_name == 'push' }}
-        run: terraform apply -auto-approve
+      - name: Deploy infrastructure
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/staging'}}
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: |
+          spacectl stack set-current-commit --id liquibase-docs-staging --sha ${{ github.sha }}
+          spacectl stack deploy --id liquibase-docs-staging --auto-confirm 

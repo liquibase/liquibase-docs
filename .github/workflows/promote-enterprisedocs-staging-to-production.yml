@@ -6,6 +6,8 @@ on:
 jobs:
   content:
     runs-on: ubuntu-20.04
+    env:
+      TF_VAR_env: "prod"
     defaults:
       run:
         working-directory: scripts/redirect_creation
@@ -25,8 +27,6 @@ jobs:
               
   redirects:
     runs-on: ubuntu-20.04
-    env:
-      TF_VAR_env: "prod"
     defaults:
       run:
         working-directory: scripts/redirect_creation
@@ -45,10 +45,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
           aws-region: us-east-1
 
-      - name: Terraform Init
-        id: init
-        run: terraform init -backend-config=$TF_VAR_env.remote.tfbackend 
-
-      - name: Terraform Apply
-        run: terraform apply -target=aws_s3_object.enterprise_redirects -auto-approve
+      - name: Deploy infrastructure
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'}}
+        env:
+          SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
+          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        run: |
+          spacectl stack set-current-commit --id liquibase-docs-prod --sha ${{ github.sha }}
+          spacectl stack deploy --id liquibase-docs-prod --auto-confirm 
      
