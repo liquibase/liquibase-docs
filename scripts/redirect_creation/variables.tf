@@ -802,7 +802,7 @@ variable "redirects" {
     { key = "/tools-integrations/maven/workflows/hub-pom-attributes.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
     { key = "/tools-integrations/maven/workflows/maven-get-oracle-drivers.html", website_redirect = "/start/tutorials/oracle.html" },
     { key = "/tools-integrations/observability/database-reports.html", website_redirect = "/tools-integrations/observability/operation-reports.html" },
-    { key = "/tools-integrations/observability/meta-data-structured-logs.html", website_redirect = "/tools-integrations/observability/structured-logging-custom-data.html"},
+    { key = "/tools-integrations/observability/meta-data-structured-logs.html", website_redirect = "/tools-integrations/observability/structured-logging-custom-data.html" },
     { key = "/tools-integrations/remote-files/create-changelogs-s3.html", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
     { key = "/tools-integrations/remote-files/remote-file-path-rules.html", website_redirect = "/tools-integrations/extensions/remote-files/remote-file-path-rules.html" },
     { key = "/tools-integrations/remote-files/s3.html", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
