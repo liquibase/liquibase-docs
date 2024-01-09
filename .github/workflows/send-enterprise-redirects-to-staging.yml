@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       TF_VAR_env: "staging"
-      TF_TOKEN_spacelift_io: ${{ secrets.SPACELIFT_GITHUB_TOKEN }}
       SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
       SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
       SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
@@ -54,14 +53,7 @@ jobs:
         run: terraform validate -no-color
 
       - name: Preview infrastructure
-        run: spacectl stack local-preview --id liquibase-docs-staging
-
-      - name: Terraform Plan
-        if: ${{ github.event_name == 'pull_request' }}
-        id: plan
-        run: |
-          terraform plan -lock=false  -out=plan.tmp
-          terraform show -no-color plan.tmp >${GITHUB_WORKSPACE}/plan.out
+        run: spacectl stack local-preview --id liquibase-docs-staging >${GITHUB_WORKSPACE}/plan.out
 
       - name: Terraform Show Plan in PR
         uses: actions/github-script@v6
