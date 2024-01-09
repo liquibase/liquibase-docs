@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       TF_VAR_env: "staging"
+      SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
+      SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+      SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
     defaults:
       run:
         working-directory: scripts/redirect_creation
@@ -50,10 +53,6 @@ jobs:
         run: terraform validate -no-color
 
       - name: Preview infrastructure
-        env:
-          SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
-          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
-          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
         run: spacectl stack local-preview --id liquibase-docs-staging > ${GITHUB_WORKSPACE}/plan.out
 
       - name: Terraform Show Plan in PR
@@ -100,11 +99,7 @@ jobs:
             })
 
       - name: Deploy infrastructure
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/staging'}}
-        env:
-          SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
-          SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
-          SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
+        if: ${{ github.event_name == 'push' }}
         run: |
           spacectl stack set-current-commit --id liquibase-docs-staging --sha ${{ github.sha }}
           spacectl stack deploy --id liquibase-docs-staging --auto-confirm 
