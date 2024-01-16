@@ -877,7 +877,7 @@ variable "redirects" {
     { key = "/workflows/database-setup-tutorials/interbase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
     { key = "/workflows/database-setup-tutorials/mariadb.html", website_redirect = "/start/tutorials/mariadb.html" },
     { key = "/workflows/database-setup-tutorials/maxdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/maxdb/" },
-    { key = "/workflows/database-setup-tutorials/mongodb", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/ },
+    { key = "/workflows/database-setup-tutorials/mongodb", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
     { key = "/workflows/database-setup-tutorials/mongodb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/mongodb/" },
     { key = "/workflows/database-setup-tutorials/mssql.html", website_redirect = "/start/tutorials/ms-sql-server.html" },
     { key = "/workflows/database-setup-tutorials/mssql-integrated-security-kerberos-authentication.html", website_redirect = "/start/tutorials/ms-sql-server-integrated-security-kerberos-authentication.html" },
