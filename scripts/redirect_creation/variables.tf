@@ -900,9 +900,17 @@ variable "redirects" {
     { key = "/workflows/database-setup-tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
     { key = "/workflows/liquibase-community/creating-config-properties.html", website_redirect = "/concepts/connections/creating-config-properties.html" },
     { key = "/workflows/liquibase-community/generating-docs.html", website_redirect = "/commands/change-tracking/db-doc.html" },
+    { key = "/workflows/liquibase-community/implementing-custom-change-exec-listener-class-with-liquibase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extension-guides/add-a-change-exec-listener/.html" },
     { key = "/workflows/liquibase-community/liquibase-auto-rollback.html", website_redirect = "/workflows/liquibase-community/automatic-custom-rollbacks.html" },
     { key = "/workflows/liquibase-community/run-liquibase-without-launch-scripts.html", website_redirect = "/workflows/liquibase-community/liquibase-launch-script.html" }
-  ]
+    { key = "/workflows/liquibase-community/running-liquibase-percona-toolkit-changes.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona/percona-toolkit/" }
+    { key = "/workflows/liquibase-community/setup-gitlab-cicd.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/gitlab-ci-cd/" }
+    { key = "/workflows/liquibase-community/using-liquibase-java-api.html", website_redirect = "https://contribute.liquibase.com/code/api/api-usage/" }
+    { key = "/workflows/liquibase-community/using-liquibase-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/overview/" }
+    { key = "/workflows/liquibase-community/using-the-liquibase-percona-toolkit-extension.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona/percona-toolkit/" }
+    { key = "/workflows/liquibase-community/using-the-jenkins-pipeline-stage-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-jenkins-pipeline-stage/" }
+    { key = "/workflows/liquibase-community/using-the-run-job-pipeline-stage-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-runjob-pipeline-stage/" }
+]
 }
 
 variable "enterprise_redirects" {
