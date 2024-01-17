@@ -8,6 +8,9 @@
         <p><MadCap:variable name="General.Liquibase" /> uses the <MadCap:variable name="General.databasechangeloghistory" /> (DBCLH) table to record a history of all changes it makes to the <MadCap:xref href="databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref>.</p>
         <p>The <MadCap:variable name="General.databasechangelog" /> (DBCL) table tracks all deployments you make to your database. However, the DBCL&#160;table only records the current state of the database. If you roll back a change, that row is removed from the table. In contrast, the DBCLH table tracks <b>every change</b> you make to your DBCL, including <a href="../../commands/update/update.html">updates</a>, <a href="../../commands/rollback/rollback-by-tag.htm">rollbacks</a>, <a href="../../commands/maintenance/drop-all.htm">drop-alls</a>, <a href="../../commands/change-tracking/changelog-sync.htm"><MadCap:variable name="General.changelog" /> syncs</a>, and <MadCap:xref href="../changelogs/attributes/runonchange.htm">runOnChange</MadCap:xref> activity.</p>
         <p>The <MadCap:variable name="General.databasechangeloghistory" /> table is available in <MadCap:variable name="General.Liquibase" /> 4.26.0 and later. It is only available to <MadCap:variable name="General.LBPro" /> users, so you need a valid <a href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm"><MadCap:variable name="General.LBPro" /> license key</a> to use it.</p>
+        <p>
+            <img src="../../Z_Resources/Images/dbcl-history-output-example-h2.png" alt="A table in the H2 database console displaying a record of all previous Liquibase operations" />
+        </p>
         <h2>Uses</h2>
         <p>The DBCLH table can help developers and DevOps easily see:</p>
         <ul>
@@ -20,8 +23,8 @@
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The DBCLH table is designed to provide <MadCap:variable name="General.Liquibase" /> users with an accessible way to track changes made to the DBCL table. It is not designed to satisfy security compliance or tracking audits.</p>
         <h2>Use the <MadCap:variable name="General.databasechangeloghistory" /> table</h2>
         <p>The <MadCap:variable name="General.databasechangeloghistory" /> table is <b>enabled by default</b>.</p>
-        <p>To display the DBCLH table in <code>STDOUT</code>, run the <code>dbcl-history</code> command in your <a href="../../parameters/working-with-command-parameters.htm">command line</a> or in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file. For example, to generate human-readable JSON output in the CLI:</p><pre xml:space="preserve"><code class="language-shell">liquibase dbcl-history --verbose --format=JSON_PRETTY</code></pre>
-        <p>You can use the <code>--<MadCap:xref href="../../parameters/output-file.htm">output-file</MadCap:xref></code> global parameter to send command output to a file:</p><pre xml:space="preserve"><code class="language-shell">liquibase --output-file=dbclh_2024-03-15.json dbcl-history --verbose --format=JSON_PRETTY</code></pre>
+        <p>To display the DBCLH table in <code>STDOUT</code>, run the <code><MadCap:xref href="../../commands/change-tracking/dbcl-history.htm">dbcl-history</MadCap:xref></code> command in your <a href="../../parameters/working-with-command-parameters.htm">command line</a> or in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file. For example, to generate human-readable JSON output in the CLI:</p><pre xml:space="preserve"><code class="language-shell">liquibase dbcl-history --format=JSON_PRETTY --verbose</code></pre>
+        <p>You can use the <code>--<MadCap:xref href="../../parameters/output-file.htm">output-file</MadCap:xref></code> global parameter to send command output to a file:</p><pre xml:space="preserve"><code class="language-shell">liquibase --output-file=dbclh_2024-03-15.json dbcl-history --format=JSON_PRETTY --verbose</code></pre>
         <h3>Capture SQL</h3>
         <p>By default, whenever the DBCLH table is enabled, <MadCap:variable name="General.Liquibase" /> <b>automatically captures all SQL</b> it generates in commands like <code>update</code> and <code>rollback</code>. It stores that SQL in the DBCLH table under the column <code>EXECUTEDSQL</code>.</p>
         <p>If you want to disable SQL capturing, set the <code>--dbcl-history-capture-sql</code> parameter to <code>false</code> in your <a href="../../parameters/working-with-command-parameters.htm">command line</a>, <code><a href="../connections/creating-config-properties.html"><MadCap:variable name="General.liquiPropFile" /> file</a></code> (defaults file), in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file, or as an <a href="../connections/liquibase-environment-variables.htm">environment variable</a>.</p>
@@ -209,182 +212,6 @@
                 </tr>
             </tbody>
         </table>
-        <h2>dbcl-history example output</h2>
-        <p>&lt;put this on the individual page&gt;</p>
-        <p>image</p>
-        <p>
-            <img src="../../Z_Resources/Images/dbcl-history-output-example-h2.png" alt="A table in the H2 database console displaying a record of all previous Liquibase operations" />
-        </p>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>JSON</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">[{"arguments":"--dbclhistory-enabled=true --license-key ***** update","author":"your.name","command":"update","comments":"example-comment","contexts":"example-context","deploymentId":"5441340119","description":"createTable tableName=person","end":"2024-01-16 16:42:20.158","executedSql":"CREATE TABLE PUBLIC.person (id INT GENERATED BY DEFAULT AS IDENTITY NOT NULL, name VARCHAR(50) NOT NULL, address1 VARCHAR(50), address2 VARCHAR(50), city VARCHAR(30), CONSTRAINT PK_PERSON PRIMARY KEY (id));","extensions":"internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal...","filename":"example-changelog.xml","hostname":"LAPTOP-74GFS93J","id":"1","internalCommand":"update","labels":"example-label","liquibaseInterface":"cli","liquibaseVersion":"DEV","md5Sum":"9:884ea70a8e61427b7b1a217a62954c48","outcome":"success","start":"2024-01-16 16:42:20.144","systemUser":"liquibase-user","tag":"null"},{"arguments":"--dbclhistory-enabled=true --license-key ***** update","author":"your.name","command":"update","comments":"example-comment","contexts":"example-context","deploymentId":"5441340119","description":"createTable tableName=company","end":"2024-01-16 16:42:20.216","executedSql":"CREATE TABLE PUBLIC.company (id INT GENERATED BY DEFAULT AS IDENTITY NOT NULL, name VARCHAR(50) NOT NULL, address1 VARCHAR(50), address2 VARCHAR(50), city VARCHAR(30), CONSTRAINT PK_COMPANY PRIMARY KEY (id));","extensions":"internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal...","filename":"example-changelog.xml","hostname":"LAPTOP-74GFS93J","id":"2","internalCommand":"update","labels":"example-label","liquibaseInterface":"cli","liquibaseVersion":"DEV","md5Sum":"9:0160e0cb8fe825cbd40207ef539e0d08","outcome":"success","start":"2024-01-16 16:42:20.208","systemUser":"liquibase-user","tag":"null"},{"arguments":"--dbclhistory-enabled=true --license-key ***** update","author":"other.dev","command":"update","comments":"example-comment","contexts":"example-context","deploymentId":"5441340119","description":"addColumn tableName=person","end":"2024-01-16 16:42:20.26","executedSql":"ALTER TABLE PUBLIC.person ADD country VARCHAR(2);","extensions":"internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal...","filename":"example-changelog.xml","hostname":"LAPTOP-74GFS93J","id":"3","internalCommand":"update","labels":"example-label","liquibaseInterface":"cli","liquibaseVersion":"DEV","md5Sum":"9:cf75e37ee64b860fb5d1d1bc943c75fb","outcome":"success","start":"2024-01-16 16:42:20.249","systemUser":"liquibase-user","tag":"null"}]Liquibase command 'dbcl-history' was executed successfully.</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>JSON_PRETTY</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">[
-  {
-    "arguments": "--dbclhistory-enabled=true --license-key ***** update",
-    "author": "your.name",
-    "command": "update",
-    "comments": "example-comment",
-    "contexts": "example-context",
-    "deploymentId": "5441340119",
-    "description": "createTable tableName=person",
-    "end": "2024-01-16 16:42:20.158",
-    "executedSql": "CREATE TABLE PUBLIC.person (id INT GENERATED BY DEFAULT AS IDENTITY NOT NULL, name VARCHAR(50) NOT NULL, address1 VARCHAR(50), address2 VARCHAR(50), city VARCHAR(30), CONSTRAINT PK_PERSON PRIMARY KEY (id));",
-    "extensions": "internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal...",
-    "filename": "example-changelog.xml",
-    "hostname": "LAPTOP-74GFS93J",
-    "id": "1",
-    "internalCommand": "update",
-    "labels": "example-label",
-    "liquibaseInterface": "cli",
-    "liquibaseVersion": "DEV",
-    "md5Sum": "9:884ea70a8e61427b7b1a217a62954c48",
-    "outcome": "success",
-    "start": "2024-01-16 16:42:20.144",
-    "systemUser": "liquibase-user",
-    "tag": "null"
-  },
-  {
-    "arguments": "--dbclhistory-enabled=true --license-key ***** update",
-    "author": "your.name",
-    "command": "update",
-    "comments": "example-comment",
-    "contexts": "example-context",
-    "deploymentId": "5441340119",
-    "description": "createTable tableName=company",
-    "end": "2024-01-16 16:42:20.216",
-    "executedSql": "CREATE TABLE PUBLIC.company (id INT GENERATED BY DEFAULT AS IDENTITY NOT NULL, name VARCHAR(50) NOT NULL, address1 VARCHAR(50), address2 VARCHAR(50), city VARCHAR(30), CONSTRAINT PK_COMPANY PRIMARY KEY (id));",
-    "extensions": "internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal...",
-    "filename": "example-changelog.xml",
-    "hostname": "LAPTOP-74GFS93J",
-    "id": "2",
-    "internalCommand": "update",
-    "labels": "example-label",
-    "liquibaseInterface": "cli",
-    "liquibaseVersion": "DEV",
-    "md5Sum": "9:0160e0cb8fe825cbd40207ef539e0d08",
-    "outcome": "success",
-    "start": "2024-01-16 16:42:20.208",
-    "systemUser": "liquibase-user",
-    "tag": "null"
-  },
-  {
-    "arguments": "--dbclhistory-enabled=true --license-key ***** update",
-    "author": "other.dev",
-    "command": "update",
-    "comments": "example-comment",
-    "contexts": "example-context",
-    "deploymentId": "5441340119",
-    "description": "addColumn tableName=person",
-    "end": "2024-01-16 16:42:20.26",
-    "executedSql": "ALTER TABLE PUBLIC.person ADD country VARCHAR(2);",
-    "extensions": "internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal...",
-    "filename": "example-changelog.xml",
-    "hostname": "LAPTOP-74GFS93J",
-    "id": "3",
-    "internalCommand": "update",
-    "labels": "example-label",
-    "liquibaseInterface": "cli",
-    "liquibaseVersion": "DEV",
-    "md5Sum": "9:cf75e37ee64b860fb5d1d1bc943c75fb",
-    "outcome": "success",
-    "start": "2024-01-16 16:42:20.249",
-    "systemUser": "liquibase-user",
-    "tag": "null"
-  }
-]
-Liquibase command 'dbcl-history' was executed successfully.</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>JSON_PRETTY verbose</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">
-[
-  {
-    "arguments": "--dbclhistory-enabled=true --license-key ***** update",
-    "author": "your.name",
-    "command": "update",
-    "comments": "example-comment",
-    "contexts": "example-context",
-    "deploymentId": "5441340119",
-    "description": "createTable tableName=person",
-    "end": "2024-01-16 16:42:20.158",
-    "executedSql": "CREATE TABLE PUBLIC.person (id INT GENERATED BY DEFAULT AS IDENTITY NOT NULL, name VARCHAR(50) NOT NULL, address1 VARCHAR(50), address2 VARCHAR(50), city VARCHAR(30), CONSTRAINT PK_PERSON PRIMARY KEY (id));",
-    "extensions": "internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal\\lib\\jaxb-core.jar: JAXB Core 4.0.4 By Eclipse Foundation, internal\\lib\\jaxb-runtime.jar: JAXB Runtime 4.0.4 By Eclipse Foundation, internal\\lib\\jaybird.jar: Jaybird 5.0.2.java8 (build: variant=jaybird tag=v5.0.2 date=202306070943) By Firebird project, internal\\lib\\jcc.jar: IBM JCC JDBC 4 Driver 1.4.0 By IBM, internal\\lib\\liquibase-commercial.jar: Commercial Liquibase Functionality DAT-16388-SNAPSHOT By Liquibase, internal\\lib\\mariadb-java-client.jar: mariadb-java-client 3.2.0 By mariadb.com, internal\\lib\\mssql-jdbc.jar: Microsoft JDBC Driver for SQL Server 12.4.1 By Microsoft Corporation, internal\\lib\\ojdbc8.jar: JDBC 19.21.0.0.0 By Oracle Corporation, internal\\lib\\opencsv.jar: opencsv 5.9.0, internal\\lib\\picocli.jar: picocli 4.7.5 By Remko Popma, internal\\lib\\postgresql.jar: PostgreSQL JDBC Driver 42.7.1 By PostgreSQL Global Development Group, internal\\lib\\snakeyaml.jar: SnakeYAML 2.2.0, internal\\lib\\snowflake-jdbc.jar: snowflake-jdbc 3.14.3, internal\\lib\\sqlite-jdbc.jar: SQLite JDBC 3.44.1.0",
-    "filename": "example-changelog.xml",
-    "hostname": "LAPTOP-74GFS93J",
-    "id": "1",
-    "internalCommand": "update",
-    "labels": "example-label",
-    "liquibaseInterface": "cli",
-    "liquibaseVersion": "DEV",
-    "md5Sum": "9:884ea70a8e61427b7b1a217a62954c48",
-    "outcome": "success",
-    "start": "2024-01-16 16:42:20.144",
-    "systemUser": "liquibase-user",
-    "tag": "null"
-  },
-  {
-    "arguments": "--dbclhistory-enabled=true --license-key ***** update",
-    "author": "your.name",
-    "command": "update",
-    "comments": "example-comment",
-    "contexts": "example-context",
-    "deploymentId": "5441340119",
-    "description": "createTable tableName=company",
-    "end": "2024-01-16 16:42:20.216",
-    "executedSql": "CREATE TABLE PUBLIC.company (id INT GENERATED BY DEFAULT AS IDENTITY NOT NULL, name VARCHAR(50) NOT NULL, address1 VARCHAR(50), address2 VARCHAR(50), city VARCHAR(30), CONSTRAINT PK_COMPANY PRIMARY KEY (id));",
-    "extensions": "internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal\\lib\\jaxb-core.jar: JAXB Core 4.0.4 By Eclipse Foundation, internal\\lib\\jaxb-runtime.jar: JAXB Runtime 4.0.4 By Eclipse Foundation, internal\\lib\\jaybird.jar: Jaybird 5.0.2.java8 (build: variant=jaybird tag=v5.0.2 date=202306070943) By Firebird project, internal\\lib\\jcc.jar: IBM JCC JDBC 4 Driver 1.4.0 By IBM, internal\\lib\\liquibase-commercial.jar: Commercial Liquibase Functionality DAT-16388-SNAPSHOT By Liquibase, internal\\lib\\mariadb-java-client.jar: mariadb-java-client 3.2.0 By mariadb.com, internal\\lib\\mssql-jdbc.jar: Microsoft JDBC Driver for SQL Server 12.4.1 By Microsoft Corporation, internal\\lib\\ojdbc8.jar: JDBC 19.21.0.0.0 By Oracle Corporation, internal\\lib\\opencsv.jar: opencsv 5.9.0, internal\\lib\\picocli.jar: picocli 4.7.5 By Remko Popma, internal\\lib\\postgresql.jar: PostgreSQL JDBC Driver 42.7.1 By PostgreSQL Global Development Group, internal\\lib\\snakeyaml.jar: SnakeYAML 2.2.0, internal\\lib\\snowflake-jdbc.jar: snowflake-jdbc 3.14.3, internal\\lib\\sqlite-jdbc.jar: SQLite JDBC 3.44.1.0",
-    "filename": "example-changelog.xml",
-    "hostname": "LAPTOP-74GFS93J",
-    "id": "2",
-    "internalCommand": "update",
-    "labels": "example-label",
-    "liquibaseInterface": "cli",
-    "liquibaseVersion": "DEV",
-    "md5Sum": "9:0160e0cb8fe825cbd40207ef539e0d08",
-    "outcome": "success",
-    "start": "2024-01-16 16:42:20.208",
-    "systemUser": "liquibase-user",
-    "tag": "null"
-  },
-  {
-    "arguments": "--dbclhistory-enabled=true --license-key ***** update",
-    "author": "other.dev",
-    "command": "update",
-    "comments": "example-comment",
-    "contexts": "example-context",
-    "deploymentId": "5441340119",
-    "description": "addColumn tableName=person",
-    "end": "2024-01-16 16:42:20.26",
-    "executedSql": "ALTER TABLE PUBLIC.person ADD country VARCHAR(2);",
-    "extensions": "internal\\lib\\commons-collections4.jar: Apache Commons Collections 4.4.0 By The Apache Software Foundation, internal\\lib\\commons-lang3.jar: Apache Commons Lang 3.13.0 By The Apache Software Foundation, internal\\lib\\commons-text.jar: Apache Commons Text 1.11.0 By The Apache Software Foundation, internal\\lib\\h2.jar: H2 Database Engine 2.2.224 By H2 Group, internal\\lib\\hsqldb.jar: HSQLDB 2.7.2 By The HSQL Development Group, internal\\lib\\jaxb-api.jar: jaxb-api 2.3.1 By Oracle Corporation, internal\\lib\\jaxb-core.jar: JAXB Core 4.0.4 By Eclipse Foundation, internal\\lib\\jaxb-runtime.jar: JAXB Runtime 4.0.4 By Eclipse Foundation, internal\\lib\\jaybird.jar: Jaybird 5.0.2.java8 (build: variant=jaybird tag=v5.0.2 date=202306070943) By Firebird project, internal\\lib\\jcc.jar: IBM JCC JDBC 4 Driver 1.4.0 By IBM, internal\\lib\\liquibase-commercial.jar: Commercial Liquibase Functionality DAT-16388-SNAPSHOT By Liquibase, internal\\lib\\mariadb-java-client.jar: mariadb-java-client 3.2.0 By mariadb.com, internal\\lib\\mssql-jdbc.jar: Microsoft JDBC Driver for SQL Server 12.4.1 By Microsoft Corporation, internal\\lib\\ojdbc8.jar: JDBC 19.21.0.0.0 By Oracle Corporation, internal\\lib\\opencsv.jar: opencsv 5.9.0, internal\\lib\\picocli.jar: picocli 4.7.5 By Remko Popma, internal\\lib\\postgresql.jar: PostgreSQL JDBC Driver 42.7.1 By PostgreSQL Global Development Group, internal\\lib\\snakeyaml.jar: SnakeYAML 2.2.0, internal\\lib\\snowflake-jdbc.jar: snowflake-jdbc 3.14.3, internal\\lib\\sqlite-jdbc.jar: SQLite JDBC 3.44.1.0",
-    "filename": "example-changelog.xml",
-    "hostname": "LAPTOP-74GFS93J",
-    "id": "3",
-    "internalCommand": "update",
-    "labels": "example-label",
-    "liquibaseInterface": "cli",
-    "liquibaseVersion": "DEV",
-    "md5Sum": "9:cf75e37ee64b860fb5d1d1bc943c75fb",
-    "outcome": "success",
-    "start": "2024-01-16 16:42:20.249",
-    "systemUser": "liquibase-user",
-    "tag": "null"
-  }
-]
-Liquibase command 'dbcl-history' was executed successfully.</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
         <h2>Troubleshooting</h2>
         <h3>DBCLH does not exist</h3>
         <p>If you try to display the DBCLH&#160;table but it does not exist, <MadCap:variable name="General.Liquibase" /> returns exit code 0 and displays the following message:</p><pre xml:space="preserve"><code class="language-text">WARNING: The DATABASECHANGELOGHISTORY does not currently exist. Please set your Pro License key, and set '--dbclhistory-enabled=true' on CLI or via Environment variable, etc and then run an update or rollback command. Then try 'liquibase dbcl-history' command again.</code></pre>
