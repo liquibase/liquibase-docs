@@ -903,11 +903,11 @@ variable "redirects" {
     { key = "/workflows/liquibase-community/liquibase-auto-rollback.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extension-guides/add-a-change-exec-listener/" },
     { key = "/workflows/liquibase-community/run-liquibase-without-launch-scripts.html", website_redirect = "/workflows/liquibase-community/liquibase-launch-script.html" }
   ]
-},
+}
 
 variable "enterprise_redirects" {
   type = map(string)
   default = {
     # Need to get a list of re-directs from @adrian or @amber
   },
-  }
+}
