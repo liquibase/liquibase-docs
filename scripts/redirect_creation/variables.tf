@@ -910,7 +910,7 @@ variable "redirects" {
     { key = "/workflows/liquibase-community/using-the-liquibase-percona-toolkit-extension.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona/percona-toolkit/" },
     { key = "/workflows/liquibase-community/using-the-jenkins-pipeline-stage-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-jenkins-pipeline-stage/" },
     { key = "/workflows/liquibase-community/using-the-run-job-pipeline-stage-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-runjob-pipeline-stage/" },
-    { key = "/workflows/liquibase-community/using-the-run-job-pipeline-stage-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-runjob-pipeline-stage/" }
+    { key = "/workflows/liquibase-community/using-the-run-job-pipeline-stage-with-spinnaker-test.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-runjob-pipeline-stage-test/" }
   ]
 }
 
