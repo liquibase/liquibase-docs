@@ -7,6 +7,7 @@ on:
 jobs:
   content:
     runs-on: ubuntu-20.04
+    permissions: write-all
     defaults:
       run:
         working-directory: scripts/redirect_creation
@@ -14,10 +15,9 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ADMIN_GITHUB_OIDC_ROLE_ARN_DOCS }}
           aws-region: us-east-1
 
       - name: Promote Staging Content to Production
@@ -26,6 +26,7 @@ jobs:
           
   redirects:
     runs-on: ubuntu-20.04
+    permissions: write-all
     env:
       TF_VAR_env: "prod"
       SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
@@ -43,10 +44,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ADMIN_GITHUB_OIDC_ROLE_ARN_DOCS }}
           aws-region: us-east-1
 
       - name: Deploy infrastructure
