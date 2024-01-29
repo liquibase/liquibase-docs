@@ -6,10 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1><MadCap:variable name="General.databasechangeloghistory" /> table</h1>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1><MadCap:variable name="General.databasechangeloghistory" /> table</h1>
         <p><MadCap:variable name="General.Liquibase" /> uses the <MadCap:variable name="General.databasechangeloghistory" /> (DBCLH) table to record a history of all changes it makes to the database. It is a more powerful version of the <MadCap:xref href="databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref>.</p>
-        <p>The <MadCap:variable name="General.databasechangelog" /> (DBCL) table tracks all deployments you make to your database. However, the DBCL table only records the current state of the database. If you roll back a change, that row is removed from the table. In contrast, the DBCLH table tracks <b>every change</b> you make to your DBCL, including <a href="../../commands/update/update.html">updates</a>, <a href="../../commands/rollback/rollback-by-tag.htm">rollbacks</a>, <a href="../../commands/maintenance/drop-all.htm">drop-alls</a>, <a href="../../commands/change-tracking/changelog-sync.htm"><MadCap:variable name="General.changelog" /> syncs</a>, and <MadCap:xref href="../changelogs/attributes/runonchange.htm">runOnChange</MadCap:xref> activity.</p>
+        <p>The <MadCap:variable name="General.databasechangelog" /> (DBCL) table tracks all deployments you make to your database. However, it only shows changes that have been applied and are currently active. If you roll back a change, that row is removed from the DBCL.</p>
+        <p>In contrast, the DBCLH table tracks <b>every change</b> you make to your database with <MadCap:variable name="General.Liquibase" />, including <a href="../../commands/update/update.html">updates</a>, <a href="../../commands/rollback/rollback-by-tag.htm">rollbacks</a>, <a href="../../commands/maintenance/drop-all.htm">drop-alls</a>, <a href="../../commands/change-tracking/changelog-sync.htm"><MadCap:variable name="General.changelog" /> syncs</a>, and <MadCap:xref href="../changelogs/attributes/runonchange.htm">runOnChange</MadCap:xref> activity.</p>
         <p>The <MadCap:variable name="General.databasechangeloghistory" /> table is available in <MadCap:variable name="General.Liquibase" /> 4.26.0 and later. It is only available to <MadCap:variable name="General.LBPro" /> users, so you need a valid <a href="../../workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.htm"><MadCap:variable name="General.LBPro" /> license key</a> to use it.</p>
         <p>
             <img src="../../Z_Resources/Images/dbcl-history-output-example-h2.png" alt="A table in the H2 database console displaying a record of all previous Liquibase operations" />
@@ -19,25 +20,29 @@
         <ul>
             <li>Which changes were made to the database and then rolled back</li>
             <li>How many times a change has been made, rolled back, and re-deployed</li>
-            <li>When rollbacks happened and what the context behind those actions is</li>
+            <li>When rollbacks happened in relation to other changes</li>
             <li>Any other changes that modified your database at any time</li>
         </ul>
         <p>You can use the DBCLH table to <b>understand how the database reached its current state</b>. This reveals your team's deployment and rollback patterns, such as frequent rollbacks after deploying a certain kind of change or number of changes. With this information, you can easily identify whether the source of deployment issues are problems with the changes themselves or with deployment processes.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The DBCLH table is designed to provide <MadCap:variable name="General.Liquibase" /> users with an accessible way to track changes made to the DBCL table. It is not designed to satisfy security compliance or tracking audits.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The DBCLH table is designed to provide <MadCap:variable name="General.Liquibase" /> users with an accessible way to track changes made to the DBCL table. It is not necessarily designed to meet security or regulatory needs.</p>
         <h2>Use the <MadCap:variable name="General.databasechangeloghistory" /> table</h2>
         <p>The following section describes global arguments you can set in your <a href="../../parameters/working-with-command-parameters.htm">command line</a>, <code><a href="../connections/creating-config-properties.html"><MadCap:variable name="General.liquiPropFile" /> file</a></code> (defaults file), in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file, or as an <a href="../connections/liquibase-environment-variables.htm">environment variable</a>.</p>
         <h3>Enable or disable the DBCLH</h3>
-        <p>The <MadCap:variable name="General.databasechangeloghistory" /> table is <b>enabled by default</b>. To create the table for the first time, run a command like <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code> in your <a href="../../parameters/working-with-command-parameters.htm">command line</a> or in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file.</p>
-        <p>If you want to stop <MadCap:variable name="General.Liquibase" /> from recording your database changes in the DBCLH table,  set the <code>--<MadCap:xref href="../../parameters/dbclhistory-enabled.htm">dbclhistory-enabled</MadCap:xref></code> parameter to <code>false</code>. You can re-enable the DBCLH table later by setting <code>--dbclhistory-enabled</code> to <code>true</code>.</p>
+        <p>The <MadCap:variable name="General.databasechangeloghistory" /> table is <b>disabled by default</b>. To create the table for the first time, you must:</p>
+        <ol>
+            <li>Set the <code>--<MadCap:xref href="../../parameters/dbclhistory-enabled.htm">dbclhistory-enabled</MadCap:xref></code> parameter to <code class="language-text">true</code></li>
+            <li>Run a command like <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code> in your <a href="../../parameters/working-with-command-parameters.htm">command line</a> or in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file</li>
+        </ol>
+        <p>If you want to stop <MadCap:variable name="General.Liquibase" /> from recording your database changes in the DBCLH table,  set the <code>--<MadCap:xref href="../../parameters/dbclhistory-enabled.htm">dbclhistory-enabled</MadCap:xref></code> parameter to <code class="language-text">false</code>. You can re-enable the DBCLH table later by setting <code class="language-text">--dbclhistory-enabled</code> to <code class="language-text">true</code>.</p>
         <h3>Display the DBCLH</h3>
-        <p>To display the DBCLH table in <code>STDOUT</code>, run the <code><MadCap:xref href="../../commands/change-tracking/dbcl-history.htm">dbcl-history</MadCap:xref></code> command. For example, to generate human-readable JSON output in the CLI:</p><pre xml:space="preserve"><code class="language-shell">liquibase dbcl-history --format=JSON_PRETTY --verbose</code></pre>
+        <p>To display the DBCLH table in <code class="language-text">STDOUT</code>, run the <code><MadCap:xref href="../../commands/change-tracking/dbcl-history.htm">dbcl-history</MadCap:xref></code> command. For example, to generate human-readable JSON output in the CLI:</p><pre xml:space="preserve"><code class="language-shell">liquibase dbcl-history --format=JSON_PRETTY --verbose</code></pre>
         <p>You can use the <code>--<MadCap:xref href="../../parameters/output-file.htm">output-file</MadCap:xref></code> global parameter to send command output to a file:</p><pre xml:space="preserve"><code class="language-shell">liquibase --output-file=dbclh_2024-03-15.json dbcl-history --format=JSON_PRETTY --verbose</code></pre>
         <h3>Capture extensions or SQL</h3>
-        <p>By default, whenever the DBCLH table is enabled, <MadCap:variable name="General.Liquibase" />&#160;<b>automatically captures all extension information</b> when you run commands. It stores that data in the DBCLH table under the column <code>EXTENSIONS</code>. You can control this behavior by setting <code>--<MadCap:xref href="../../parameters/dbclhistory-capture-extensions.htm">dbclhistory-capture-extensions</MadCap:xref></code>.</p>
-        <p>Also, <MadCap:variable name="General.Liquibase" />&#160;<b>automatically captures all SQL</b> it generates in commands like <code>update</code> and <code>rollback</code>. It stores that SQL in the DBCLH table under the column <code>EXECUTEDSQL</code>. You can control this behavior by setting <code>--<MadCap:xref href="../../parameters/dbclhistory-capture-sql.htm">dbclhistory-capture-sql</MadCap:xref></code>.</p>
-        <p>If you want to disable extension information or SQL capturing, set either parameter mentioned previously to <code>false</code>.</p>
+        <p>By default, whenever the DBCLH table is enabled, <MadCap:variable name="General.Liquibase" />&#160;<b>automatically captures all extension information</b> when you run commands. It stores that data in the DBCLH table under the column <code class="language-text">EXTENSIONS</code>. You can control this behavior by setting <code>--<MadCap:xref href="../../parameters/dbclhistory-capture-extensions.htm">dbclhistory-capture-extensions</MadCap:xref></code>.</p>
+        <p>Also, <MadCap:variable name="General.Liquibase" />&#160;<b>automatically captures all SQL</b> it generates in commands like <code class="language-text">update</code> and <code class="language-text">rollback</code>. It stores that SQL in the DBCLH table under the column <code class="language-text">EXECUTEDSQL</code>. You can control this behavior by setting <code>--<MadCap:xref href="../../parameters/dbclhistory-capture-sql.htm">dbclhistory-capture-sql</MadCap:xref></code>.</p>
+        <p>If you want to disable extension information or SQL capturing, set either parameter mentioned previously to <code class="language-text">false</code>.</p>
         <h3>Set a severity level</h3>
-        <p>By default, <MadCap:variable name="General.Liquibase" /> <b>returns an exit code of <code>1</code> if it halts</b> while recording an operation to the DBCLH table. If you want to change the severity level of the DBCLH table, set the <code>--<MadCap:xref href="../../parameters/dbclhistory-severity.htm">dbclhistory-severity</MadCap:xref></code> parameter to a different value.</p>
+        <p>By default, <MadCap:variable name="General.Liquibase" /> <b>returns an exit code of <code class="language-text">1</code> if it halts</b> while recording an operation to the DBCLH table. If you want to change the severity level of the DBCLH table, set the <code>--<MadCap:xref href="../../parameters/dbclhistory-severity.htm">dbclhistory-severity</MadCap:xref></code> parameter to a different value.</p>
         <h2>Columns</h2>
         <table style="margin-left: auto;margin-right: auto;width: 100%;">
             <thead>
@@ -49,198 +54,198 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><code>ID</code>
+                    <td><code class="language-text">ID</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/id.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>AUTHOR</code>
+                    <td><code class="language-text">AUTHOR</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/author.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>FILENAME</code>
+                    <td><code class="language-text">FILENAME</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/filename.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>COMMAND</code>
+                    <td><code class="language-text">COMMAND</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/command.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>INTERNAL_COMMAND</code>
+                    <td><code class="language-text">INTERNAL_COMMAND</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/internal-command.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>ARGUMENTS</code>
+                    <td><code class="language-text">ARGUMENTS</code>
                     </td>
-                    <td><code>VARCHAR(2500)</code>
+                    <td><code class="language-text">VARCHAR(2500)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/arguments.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>OUTCOME</code>
+                    <td><code class="language-text">OUTCOME</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/exectype-outcome.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>START</code>
+                    <td><code class="language-text">START</code>
                     </td>
-                    <td><code>TIMESTAMP</code>
+                    <td><code class="language-text">TIMESTAMP</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/start.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>END</code>
+                    <td><code class="language-text">END</code>
                     </td>
-                    <td><code>TIMESTAMP</code>
+                    <td><code class="language-text">TIMESTAMP</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/end.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>TAG</code>
+                    <td><code class="language-text">TAG</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/tag.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>CONTEXTS</code>
+                    <td><code class="language-text">CONTEXTS</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/contexts.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>LABELS</code>
+                    <td><code class="language-text">LABELS</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/labels.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>MD5SUM</code>
+                    <td><code class="language-text">MD5SUM</code>
                     </td>
-                    <td><code>VARCHAR(35)</code>
+                    <td><code class="language-text">VARCHAR(35)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/md5sum.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>DESCRIPTION</code>
+                    <td><code class="language-text">DESCRIPTION</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/description.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>COMMENTS</code>
+                    <td><code class="language-text">COMMENTS</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/comments.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>DEPLOYMENT_ID</code>
+                    <td><code class="language-text">DEPLOYMENT_ID</code>
                     </td>
-                    <td><code>VARCHAR(10)</code>
+                    <td><code class="language-text">VARCHAR(10)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/deployment-id.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>EXECUTEDSQL</code>
+                    <td><code class="language-text">EXECUTEDSQL</code>
                     </td>
-                    <td><code>CLOB</code>
+                    <td><code class="language-text">CLOB</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/executed-sql.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>LIQUIBASEVERSION</code>
+                    <td><code class="language-text">LIQUIBASEVERSION</code>
                     </td>
-                    <td><code>VARCHAR(20)</code>
+                    <td><code class="language-text">VARCHAR(20)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/liquibase-liquibaseversion.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>HOSTNAME</code>
+                    <td><code class="language-text">HOSTNAME</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/hostname.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>SYSTEMUSER</code>
+                    <td><code class="language-text">SYSTEMUSER</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/system-user.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>INTERFACE</code>
+                    <td><code class="language-text">INTERFACE</code>
                     </td>
-                    <td><code>VARCHAR(255)</code>
+                    <td><code class="language-text">VARCHAR(255)</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/interface-liquibase-interface.flsnp" />
                     </td>
                 </tr>
                 <tr>
-                    <td><code>EXTENSIONS</code>
+                    <td><code class="language-text">EXTENSIONS</code>
                     </td>
-                    <td><code>CLOB</code>
+                    <td><code class="language-text">CLOB</code>
                     </td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/extensions.flsnp" />
@@ -250,10 +255,10 @@
         </table>
         <h2>Troubleshooting</h2>
         <h3>DBCLH does not exist</h3>
-        <p>If you try to display the DBCLH&#160;table but it does not exist, <MadCap:variable name="General.Liquibase" /> returns exit code <code>0</code> and displays the following message:</p><pre xml:space="preserve"><code class="language-text">WARNING: The DATABASECHANGELOGHISTORY does not currently exist. Please set your Pro License key, and set '--dbclhistory-enabled=true' on CLI or via Environment variable, etc and then run an update or rollback command. Then try 'liquibase dbcl-history' command again.</code></pre>
-        <p>To create the DBCLH table, run an <code>update</code> operation with the <code>--dbclhistory-enabled</code> parameter set to <code>true</code> in your <a href="../../parameters/working-with-command-parameters.htm">command line</a>, <code><a href="../connections/creating-config-properties.html"><MadCap:variable name="General.liquiPropFile" /> file</a></code> (defaults file), in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file, or as an <a href="../connections/liquibase-environment-variables.htm">environment variable</a>. For example, in the CLI:</p><pre xml:space="preserve"><code class="language-shell">liquibase --dbclhistory-enabled=true update</code></pre>
+        <p>If you try to display the DBCLH table but it does not exist, <MadCap:variable name="General.Liquibase" /> returns exit code <code class="language-text">0</code> and displays the following message:</p><pre xml:space="preserve"><code class="language-text">WARNING: The DATABASECHANGELOGHISTORY does not currently exist. Please set your Pro License key, and set '--dbclhistory-enabled=true' on CLI or via Environment variable, etc and then run an update or rollback command. Then try 'liquibase dbcl-history' command again.</code></pre>
+        <p>To create the DBCLH table, run the <code class="language-text">update</code> command with the <code class="language-text">--dbclhistory-enabled</code> parameter set to <code class="language-text">true</code> in your <a href="../../parameters/working-with-command-parameters.htm">command line</a>, <code><a href="../connections/creating-config-properties.html"><MadCap:variable name="General.liquiPropFile" /> file</a></code> (defaults file), in a <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file, or as an <a href="../connections/liquibase-environment-variables.htm">environment variable</a>. For example, in the CLI:</p><pre xml:space="preserve"><code class="language-shell">liquibase --dbclhistory-enabled=true update</code></pre>
         <p>When successful, <MadCap:variable name="General.Liquibase" /> produces the following output:</p><pre xml:space="preserve"><code class="language-text">INFO: A new table 'DATABASECHANGELOGHISTORY' was created in 'DEV' to track database changing Liquibase operations. The Pro property 'liquibase.dbclhistory.enabled=true' was configured on the CLI, or as Environment Variable or defaults file property, etc. To pause collecting history, set to 'false'.</code></pre>
         <h3>DBCLH is disabled</h3>
-        <p>If you try to display the DBCLH table but it is disabled, <MadCap:variable name="General.Liquibase" /> returns exit code <code>0</code> and displays the following message:</p><pre xml:space="preserve"><code class="language-text">WARNING: The DATABASECHANGELOGHISTORY is not currently enabled. Please set your Pro License key, and set '--dbclhistory-enabled=true' on CLI or via Environment variable, etc. Then try 'liquibase dbcl-history' command again.</code></pre>
+        <p>If you try to display the DBCLH table but it is disabled, <MadCap:variable name="General.Liquibase" /> returns exit code <code class="language-text">0</code> and displays the following message:</p><pre xml:space="preserve"><code class="language-text">WARNING: The DATABASECHANGELOGHISTORY is not currently enabled. Please set your Pro License key, and set '--dbclhistory-enabled=true' on CLI or via Environment variable, etc. Then try 'liquibase dbcl-history' command again.</code></pre>
     </body>
 </html>
