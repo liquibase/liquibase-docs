@@ -219,7 +219,7 @@ variable "redirects" {
     { key = "/commands/liquibase-start/init-project.html", website_redirect = "/commands/init/project.html" },
     { key = "/commands/liquibase-start/init-start-h2.html", website_redirect = "/commands/init/start-h2.html" },
     { key = "/commands/listlocks.html", website_redirect = "/commands/utility/list-locks.html" },
-    { key = "/commands/maintenance/calculate-checksum.html", website_redirect = "/commands/utility/calculate-checksum.html },
+    { key = "/commands/maintenance/calculate-checksum.html", website_redirect = "/commands/utility/calculate-checksum.html" },
     { key = "/commands/maintenance/changelog-sync.html", website_redirect = "/commands/utility/changelog-sync.html" },
     { key = "/commands/maintenance/changelog-sync-sql.html", website_redirect = "/commands/utility/changelog-sync-sql.html" },
     { key = "/commands/maintenance/changelog-sync-to-tag.html", website_redirect = "/commands/utility/changelog-sync-to-tag.html" },
