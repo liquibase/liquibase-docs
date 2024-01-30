@@ -1,28 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <link rel="canonical" href="https://docs.liquibase.com/commands/change-tracking/tag.html" />
-        <meta name="description" content="Reference information and use cases for the tag command. The tag command command marks the current database state so you can roll back or deploy changes in the future." />
+        <link rel="canonical" href="https://docs.liquibase.com/commands/utility/db-doc.html" />
+        <meta name="description" content="Reference information and use cases for the db-doc command. The db-doc command generates documentation in a a Javadoc format based on the existing database and changelogs." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1><code>tag</code>
+        <h1><code>db-doc</code>
         </h1>
-        <p>The <code>tag</code> command marks the current database state so you can roll back changes in the future.</p>
+        <p>The <code>db-doc</code> command generates documentation in a Javadoc format based on the existing database and <MadCap:variable name="General.changelog" />s.</p>
         <h2>Uses</h2>
-        <p>The <code>tag</code> command is typically used to mark the current database state, version, release, or any other information by adding the tag to the last row in the <MadCap:variable name="General.databasechangelog" /> table. After setting the tag, you can use the <MadCap:xref href="../rollback/rollback-by-tag.htm">rollback</MadCap:xref> command to roll back all changes up to that tag.</p>
-        <p>The image below shows the <MadCap:variable name="General.databasechangelog" /> table structure. Running the command <code>tag version1</code> applies the tag <code>version1</code> to the last row in the <MadCap:variable name="General.databasechangelog" /> table. If you run <code>rollback version1</code> command, it will roll back only <code>createTable C</code> value.</p>
+        <p>The <code>db-doc</code> command is typically used to generate database documentation with the change information stored in the <MadCap:variable name="General.changelog" />s and the existing database. It captures the current state of your database including everything that has been performed against it.</p>
+        <p>The image below shows an example of the database documentation.</p>
         <p style="text-align: center;">
-            <img src="../../Z_Resources/Images/Screenshots/commands/NewrollbackDiagram.png" style="width: 506px;height: 270px;" />
+            <img src="../../Z_Resources/Images/Screenshots/commands/dbDoc.jpg" />
         </p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is best practice to tag your <MadCap:variable name="General.changeset" />s before running any other commands against your database.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">See the <a href="../../Z_Resources/Files/changelogDocs/changelogDocs.zip"><code>changelogDocs.zip</code></a> file for an example of the database documentation structure with the related directories and files.</p>
         <h2>Syntax</h2>
-        <p>To run the <code>tag</code> command, specify the driver, classpath, and URL in the <MadCap:variable name="General.Liquibase" /> properties file. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Create and Configure a [%=General.liquiPropFile%] File</MadCap:xref>. You can also specify these properties in your command line.</p>
-        <p>Then run the <code>tag</code> command:</p><pre xml:space="preserve"><code class="language-text">liquibase tag --tag=myTag</code></pre>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-attribute-positional-tag.flsnp" />
+        <p>To run the <code>db-doc</code> command, specify the driver, classpath, and URL in your <MadCap:variable name="General.Liquibase" /> properties file. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Create and Configure a [%=General.liquiPropFile%] File</MadCap:xref>. You can also specify these properties from the command line.</p>
+        <p>Then run the <code>db-doc</code> command:</p><pre><code class="language-text">liquibase db-doc --output-directory=exampleDirectory --changelog-file=example-changelog.xml</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>--output-directory=exampleDirectory</code> syntax was added in <MadCap:variable name="General.Liquibase" /> 4.4. If you use an older version, specify your output directory as a positional argument: <code>&lt;command&gt; exampleDirectory</code>. It is best practice to specify a new empty directory because the <code>db-doc</code> command creates its own directories, the CSS file, and multiple HTML files.</p>
         <h2>Command arguments</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
         <table>
+            <col style="width: 600px;" />
+            <col style="width: 600px;" />
+            <col style="width: 600px;" />
             <thead>
                 <tr>
                     <th><MadCap:variable name="General.Param/Attr/Uppercased" />
@@ -33,6 +36,15 @@
             </thead>
             <tbody>
                 <tr>
+                    <td><code>--changelog-file</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-changelog-file.flsnp" MadCap:conditionTagExpression="include[command-changelog-file.root-changelog]" />
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
                     <td><code>--url</code>
                     </td>
                     <td>
@@ -42,20 +54,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><code>--tag</code>
+                    <td><code>--output-directory</code>
                     </td>
                     <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-tag.flsnp" />
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-output-directory.flsnp" />
                     </td>
                     <td><b>Required</b>
                     </td>
-                </tr>
-                <tr>
-                    <td><code>--add-row</code> <MadCap:snippetText src="../../Z_Resources/Snippets/images/icon-pro-inline.flsnp" /></td>
-                    <td>
-                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-add-row.flsnp" />
-                    </td>
-                    <td>Optional</td>
                 </tr>
                 <tr>
                     <td><code>--default-catalog-name</code>
@@ -108,17 +113,14 @@
             </tbody>
         </table>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-username-password.flsnp" />
-        <h2>Output</h2><pre xml:space="preserve"><code class="language-text">Liquibase Community 4.9.1 by Liquibase
-Successfully tagged 'DBUSER@jdbc:h2:tcp://localhost:9090/mem:dev'
-
-Liquibase command 'tag' was executed successfully.</code></pre>
+        <h2>Output</h2><pre xml:space="preserve"><code class="language-text">Liquibase command 'db-doc' was executed successfully.</code></pre>
         <h2>Related links</h2>
         <ul>
             <li>
-                <MadCap:xref href="../../tools-integrations/ant/commands/tagdatabase.html">Ant tagDatabase</MadCap:xref>
+                <MadCap:xref href="../../tools-integrations/maven/commands/maven-dbdoc.html">Maven dbDoc</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="../../tools-integrations/maven/commands/maven-tag.html">Maven tag</MadCap:xref>
+                <MadCap:xref href="../../tools-integrations/ant/commands/dbdoc.html">Ant dbDoc</MadCap:xref>
             </li>
         </ul>
     </body>
