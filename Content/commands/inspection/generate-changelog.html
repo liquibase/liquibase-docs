@@ -15,13 +15,1082 @@
         <h2 id="uses">Uses </h2>
         <p>The <code class="highlighter-rouge">generate-changelog</code> command is typically used when you want to capture the current state of a database, then apply those changes to any number of databases. This is typically only done when a project has an existing database, but hasn't used <MadCap:variable name="General.Liquibase" /> before. See <MadCap:xref href="../../workflows/liquibase-community/existing-project.html">How to set up [%=General.Liquibase%] with an Existing Project and Multiple Environments</MadCap:xref> for more details.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">When using the <MadCap:xref href="../update/update.html">update</MadCap:xref> command to apply the changes in the <MadCap:variable name="General.changelog" />, <MadCap:variable name="General.Liquibase" /> will not create a new database or schema. You must create them <strong><em>before</em></strong> applying the <MadCap:variable name="General.changelog" /> to it.</p>
-        <h2 id="running-the-generate-changelog-command">Syntax</h2>
-        <p>To generate a <MadCap:variable name="General.changelog" />:</p>
+        <h2 id="running-the-generate-changelog-command">Run the <code>generate-changelog</code> command</h2>
+        <p>In this example, our sample database has the following content:</p>
+        <p>
+            <img src="../../Z_Resources/Images/command-generate-changelog-initial-database.png" />
+        </p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot style="font-size: 14pt;">Database snapshot</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">Database snapshot for jdbc:postgresql://localhost:54322/lbadmindb
+-----------------------------------------------------------------
+Database type: PostgreSQL
+Database version: 16.0 (Debian 16.0-1.pgdg120+1)
+Database user: lbadminuser
+Included types:
+    com.datical.liquibase.ext.appdba.synonym.Synonym
+    com.datical.liquibase.ext.storedlogic.checkconstraint.CheckConstraint
+    com.datical.liquibase.ext.storedlogic.databasepackage.DatabasePackage
+    com.datical.liquibase.ext.storedlogic.databasepackage.DatabasePackageBody
+    com.datical.liquibase.ext.storedlogic.function.Function
+    com.datical.liquibase.ext.storedlogic.trigger.Trigger
+    liquibase.structure.core.Catalog
+    liquibase.structure.core.Column
+    liquibase.structure.core.ForeignKey
+    liquibase.structure.core.Index
+    liquibase.structure.core.PrimaryKey
+    liquibase.structure.core.Schema
+    liquibase.structure.core.Sequence
+    liquibase.structure.core.StoredProcedure
+    liquibase.structure.core.Table
+    liquibase.structure.core.UniqueConstraint
+    liquibase.structure.core.View
+
+Catalog &amp; Schema: lbadmindb / public
+    com.datical.liquibase.ext.storedlogic.checkconstraint.CheckConstraint:
+        testtable_check
+            body: ((number &gt; 0))
+            disabled: false
+            table: testtable
+        
+    com.datical.liquibase.ext.storedlogic.function.Function:
+        customfunction()
+            body: CREATE OR REPLACE FUNCTION public.customfunction()
+             RETURNS trigger
+             LANGUAGE plpgsql
+            AS $function$
+            BEGIN
+            	IF NEW.text &lt;&gt; OLD.text THEN
+            		 INSERT INTO testtable (text,number,date)
+            		 VALUES(new.text,new.number,new.date);
+            	END IF;
+            
+            	RETURN NEW;
+            END;
+            $function$
+            
+            functionName: customfunction
+            valid: true
+        
+    com.datical.liquibase.ext.storedlogic.trigger.Trigger:
+        customtrigger
+            body: CREATE TRIGGER customtrigger BEFORE UPDATE ON public.testtable FOR EACH ROW EXECUTE FUNCTION customfunction()
+            disabled: false
+            tableName: testtable
+            valid: true
+        
+    liquibase.structure.core.ForeignKey:
+        fk_foreigntable
+            deferrable: false
+            deleteRule: importedKeyNoAction
+            foreignKeyColumns: 
+                foreignid
+            foreignKeyTable: foreigntable
+            initiallyDeferred: false
+            primaryKeyColumns: 
+                number
+            primaryKeyTable: testtable
+            updateRule: importedKeyNoAction
+        
+    liquibase.structure.core.Index:
+        testtable_un
+            columns: 
+                number
+            table: testtable
+            unique: true
+        
+    liquibase.structure.core.StoredProcedure:
+        customProcedure
+            body: CREATE OR REPLACE PROCEDURE public."customProcedure"()
+             LANGUAGE plpgsql
+            AS $procedure$
+            	BEGIN
+            		insert into public.testtable (text,date) values ('first',CURRENT_DATE);
+            	END;
+            $procedure$
+            
+            type: plpgsql
+        
+    liquibase.structure.core.Table:
+        foreigntable
+            columns: 
+                foreignid
+                    nullable: false
+                    order: 2
+                    type: int4
+                id
+                    autoIncrementInformation: GENERATED null AUTO INCREMENT START WITH 1 INCREMENT BY 1
+                    nullable: false
+                    order: 1
+                    type: int4
+            default_tablespace: false
+            outgoingForeignKeys: 
+                fk_foreigntable
+                    deferrable: false
+                    deleteRule: importedKeyNoAction
+                    foreignKeyColumns: 
+                        foreignid
+                    initiallyDeferred: false
+                    primaryKeyColumns: 
+                        number
+                    primaryKeyTable: testtable
+                    updateRule: importedKeyNoAction
+        testtable
+            checkConstraints: 
+                testtable_check
+                    body: ((number &gt; 0))
+                    disabled: false
+            columns: 
+                date
+                    nullable: false
+                    order: 3
+                    type: date
+                number
+                    autoIncrementInformation: GENERATED null AUTO INCREMENT START WITH 1 INCREMENT BY 1
+                    nullable: false
+                    order: 2
+                    type: int4
+                text
+                    defaultValue: My text value
+                    nullable: true
+                    order: 1
+                    type: varchar
+            default_tablespace: false
+            indexes: 
+                testtable_un
+                    columns: 
+                        number
+                    unique: true
+            uniqueConstraints: 
+                testtable_un
+                    backingIndex: testtable_un
+                    clustered: false
+                    columns: 
+                        number
+                    deferrable: false
+                    disabled: false
+                    initiallyDeferred: false
+                    validate: true
+        
+    liquibase.structure.core.UniqueConstraint:
+        testtable_un
+            backingIndex: testtable_un
+            clustered: false
+            columns: 
+                number
+            deferrable: false
+            disabled: false
+            initiallyDeferred: false
+            table: testtable
+            validate: true
+        
+    liquibase.structure.core.View:
+        customview
+            columns: 
+                foreignid
+                    nullable: true
+                    order: 2
+                    type: int4
+                id
+                    nullable: true
+                    order: 1
+                    type: int4
+            definition: SELECT id,
+                foreignid
+               FROM foreigntable;</code></pre>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <p>To generate a <MadCap:variable name="General.changelog" /> from our sample database:</p>
         <ol>
-            <li>Configure the <MadCap:variable name="General.Liquibase" /> properties file to include your driver, classpath, and URL for the database you want to capture.</li>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For more information on how to configure the <MadCap:variable name="General.Liquibase" /> properties file, see the <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Create and Configure a [%=General.liquiPropFile%] File</MadCap:xref> topic. Instead of using a properties file, you can pass the necessary information from the command line.</p>
-            <li>Open your CLI and run the following command:</li><pre><code class="language-sql">liquibase generate-changelog --changelog-file=example-changelog.xml </code></pre>
+            <li>Configure the <a href="../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.Liquibase" /> properties file</a> to include your driver, classpath, and URL for the database you want to capture. Alternatively, you can pass the necessary information as <a href="../../concepts/connections/liquibase-environment-variables.htm">environment variables</a> or from the command line.</li>
+            <li>Decide which data types you want to include. You can specify these with the <code>--diff-types</code> parameter.</li>
+            <li>Open your CLI and run one of the following commands:</li>
+            <ul>
+                <li>Generate a <MadCap:variable name="General.changelog" /> without specifying diff types (<MadCap:variable name="General.Liquibase" /> uses the default diff types):</li><pre><code class="language-sql">liquibase generate-changelog --changelog-file=example-changelog.xml</code></pre>
+                <li>Generate a <MadCap:variable name="General.changelog" /> with specific diff types:</li><pre><code class="language-sql">liquibase generate-changelog --changelog-file=example-changelog.xml --diff-types=catalogs,checkconstraints,columns,databasepackage,databasepackagebody,foreignkeys,functions,indexes,primarykeys,sequences,storedprocedures,tables,triggers,uniqueconstraints,views,views</code></pre>
+            </ul>
         </ol>
+        <p><MadCap:variable name="General.Liquibase" /> then generates your <MadCap:variable name="General.changelog" /> and displays the following message:</p><pre xml:space="preserve"><code class="language-text">BEST PRACTICE: The changelog generated by diffChangeLog/generateChangeLog should be inspected for correctness and completeness before being deployed. Some database objects and their dependencies cannot be represented automatically, and they may need to be manually updated before being deployed.
+Generated changelog written to example-changelog.xml
+Liquibase command 'generate-changelog' was executed successfully.</code></pre>
+        <h2>Output <MadCap:variable name="General.changelog" />s</h2>
+        <h3>Default diff types</h3>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#sql_example" id="label_sql_example" class="js-tablist__link">SQL example</a>
+                </li>
+            </ul>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+    http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-1"&gt;
+        &lt;createTable tableName="testtable"&gt;
+            &lt;column defaultValue="My text value" name="text" type="VARCHAR" /&gt;
+            &lt;column autoIncrement="true" name="number" type="INTEGER"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+            &lt;column name="date" type="date"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-2"&gt;
+        &lt;pro:createFunction functionName="customfunction"
+            path="objects/function/customfunction-bcd8b0c2.sql" relativeToChangelogFile="true" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-3"&gt;
+        &lt;createTable tableName="foreigntable"&gt;
+            &lt;column autoIncrement="true" name="id" type="INTEGER"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+            &lt;column name="foreignid" type="INTEGER"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-4"&gt;
+        &lt;pro:createTrigger disabled="false"
+            path="objects/trigger/testtable_customtrigger-41365cf7.sql"
+            relativeToChangelogFile="true" tableName="testtable" triggerName="customtrigger" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-5"&gt;
+        &lt;addUniqueConstraint columnNames="number" constraintName="testtable_un"
+            tableName="testtable" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-6"&gt;
+        &lt;createView fullDefinition="false" viewName="customview"&gt;SELECT id,
+            foreignid
+            FROM foreigntable;
+        &lt;/createView&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-7"&gt;
+        &lt;createProcedure path="objects/storedprocedure/customProcedure.sql"
+            procedureName="customProcedure" relativeToChangelogFile="true" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821089427-8"&gt;
+        &lt;addForeignKeyConstraint baseColumnNames="foreignid" baseTableName="foreigntable"
+            constraintName="fk_foreigntable" deferrable="false" initiallyDeferred="false"
+            onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="number"
+            referencedTableName="testtable" validate="true" /&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </div>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+- changeSet:
+    id: 1704821121380-1
+    author: tfernandez (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            defaultValue: My text value
+            name: text
+            type: VARCHAR
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+            name: number
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: date
+            type: date
+        tableName: testtable
+- changeSet:
+    id: 1704821121380-2
+    author: tfernandez (generated)
+    changes:
+    - createFunction:
+        functionName: customfunction
+        path: objects/function/customfunction-bcd8b0c2.sql
+        relativeToChangelogFile: true
+- changeSet:
+    id: 1704821121380-3
+    author: tfernandez (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+            name: id
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: foreignid
+            type: INTEGER
+        tableName: foreigntable
+- changeSet:
+    id: 1704821121380-4
+    author: tfernandez (generated)
+    changes:
+    - createTrigger:
+        disabled: false
+        path: objects/trigger/testtable_customtrigger-41365cf7.sql
+        relativeToChangelogFile: true
+        tableName: testtable
+        triggerName: customtrigger
+- changeSet:
+    id: 1704821121380-5
+    author: tfernandez (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: number
+        constraintName: testtable_un
+        tableName: testtable
+- changeSet:
+    id: 1704821121380-6
+    author: tfernandez (generated)
+    changes:
+    - createView:
+        fullDefinition: false
+        selectQuery: |-
+          SELECT id,
+              foreignid
+             FROM foreigntable;
+        viewName: customview
+- changeSet:
+    id: 1704821121380-7
+    author: tfernandez (generated)
+    changes:
+    - createProcedure:
+        path: objects/storedprocedure/customProcedure.sql
+        procedureName: customProcedure
+        relativeToChangelogFile: true
+- changeSet:
+    id: 1704821121380-8
+    author: tfernandez (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: foreignid
+        baseTableName: foreigntable
+        constraintName: fk_foreigntable
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: number
+        referencedTableName: testtable
+        validate: true</code></pre>
+            </div>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{ "databaseChangeLog": [
+  {
+    "changeSet": {
+      "id": "1704821132889-1",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createTable": {
+            "columns": [
+              {
+                "column": {
+                  "defaultValue": "My text value",
+                  "name": "text",
+                  "type": "VARCHAR"
+                }
+              },
+              {
+                "column": {
+                  "autoIncrement": true,
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "number",
+                  "type": "INTEGER"
+                }
+              },
+              {
+                "column": {
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "date",
+                  "type": "date"
+                }
+              }
+            ]
+            ,
+            "tableName": "testtable"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821132889-2",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createFunction": {
+            "functionName": "customfunction",
+            "path": "objects/function/customfunction-bcd8b0c2.sql",
+            "relativeToChangelogFile": true
+          }
+        }
+      ]
+      
+    }
+  },
+  {
+    "changeSet": {
+      "id": "1704821132889-3",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createTable": {
+            "columns": [
+              {
+                "column": {
+                  "autoIncrement": true,
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "id",
+                  "type": "INTEGER"
+                }
+              },
+              {
+                "column": {
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "foreignid",
+                  "type": "INTEGER"
+                }
+              }
+            ]
+            ,
+            "tableName": "foreigntable"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821132889-4",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createTrigger": {
+            "disabled": false,
+            "path": "objects/trigger/testtable_customtrigger-41365cf7.sql",
+            "relativeToChangelogFile": true,
+            "tableName": "testtable",
+            "triggerName": "customtrigger"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821132889-5",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "addUniqueConstraint": {
+            "columnNames": "number",
+            "constraintName": "testtable_un",
+            "tableName": "testtable"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821132889-6",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createView": {
+            "fullDefinition": false,
+            "selectQuery": "SELECT id,\n    foreignid\n   FROM foreigntable;",
+            "viewName": "customview"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821132889-7",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createProcedure": {
+            "path": "objects/storedprocedure/customProcedure.sql",
+            "procedureName": "customProcedure",
+            "relativeToChangelogFile": true
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821132889-8",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "addForeignKeyConstraint": {
+            "baseColumnNames": "foreignid",
+            "baseTableName": "foreigntable",
+            "constraintName": "fk_foreigntable",
+            "deferrable": false,
+            "initiallyDeferred": false,
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "referencedColumnNames": "number",
+            "referencedTableName": "testtable",
+            "validate": true
+          }
+        }
+      ]
+      
+    }
+  }
+  
+]}</code></pre>
+            </div>
+            <div id="sql_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql"></code></pre>
+            </div>
+        </div>
+        <h3>Specific diff types</h3>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h2">
+                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#sql_example" id="label_sql_example" class="js-tablist__link">SQL example</a>
+                </li>
+            </ul>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+&lt;databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+    http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd
+    http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-1"&gt;
+        &lt;createTable tableName="testtable"&gt;
+            &lt;column defaultValue="My text value" name="text" type="VARCHAR" /&gt;
+            &lt;column autoIncrement="true" name="number" type="INTEGER"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+            &lt;column name="date" type="date"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-2"&gt;
+        &lt;insert tableName="testtable"&gt;
+            &lt;column name="text" value="one" /&gt;
+            &lt;column name="number" valueNumeric="1" /&gt;
+            &lt;column name="date" valueDate="2024-01-09" /&gt;
+        &lt;/insert&gt;
+        &lt;insert tableName="testtable"&gt;
+            &lt;column name="text" value="three" /&gt;
+            &lt;column name="number" valueNumeric="2" /&gt;
+            &lt;column name="date" valueDate="2024-01-09" /&gt;
+        &lt;/insert&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-3"&gt;
+        &lt;pro:createFunction functionName="customfunction"
+            path="objects/function/customfunction-bcd8b0c2.sql" relativeToChangelogFile="true" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-4"&gt;
+        &lt;createTable tableName="foreigntable"&gt;
+            &lt;column autoIncrement="true" name="id" type="INTEGER"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+            &lt;column name="foreignid" type="INTEGER"&gt;
+                &lt;constraints nullable="false" /&gt;
+            &lt;/column&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704822563807-1"&gt;
+        &lt;pro:addCheckConstraint constraintName="testtable_check" disabled="false" tableName="testtable"&gt;
+            ((number &gt; 0))
+        &lt;/pro:addCheckConstraint&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-5"&gt;
+        &lt;pro:createTrigger disabled="false"
+            path="objects/trigger/testtable_customtrigger-41365cf7.sql"
+            relativeToChangelogFile="true" tableName="testtable" triggerName="customtrigger" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-6"&gt;
+        &lt;addUniqueConstraint columnNames="number" constraintName="testtable_un"
+            tableName="testtable" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-7"&gt;
+        &lt;createView fullDefinition="false" viewName="customview"&gt;SELECT id,
+            foreignid
+            FROM foreigntable;
+        &lt;/createView&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-8"&gt;
+        &lt;addForeignKeyConstraint baseColumnNames="foreignid" baseTableName="foreigntable"
+            constraintName="fk_foreigntable" deferrable="false" initiallyDeferred="false"
+            onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="number"
+            referencedTableName="testtable" validate="true" /&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="tfernandez (generated)" id="1704821340603-9"&gt;
+        &lt;createProcedure path="objects/storedprocedure/customProcedure.sql"
+            procedureName="customProcedure" relativeToChangelogFile="true" /&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
+            </div>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+- changeSet:
+    id: 1704821709768-1
+    author: tfernandez (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            defaultValue: My text value
+            name: text
+            type: VARCHAR
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+            name: number
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: date
+            type: date
+        tableName: testtable
+- changeSet:
+    id: 1704821709768-2
+    author: tfernandez (generated)
+    changes:
+    - insert:
+        columns:
+        - column:
+            name: text
+            value: one
+        - column:
+            name: number
+            valueNumeric: 1
+        - column:
+            name: date
+            valueDate: 2024-01-09
+        tableName: testtable
+    - insert:
+        columns:
+        - column:
+            name: text
+            value: three
+        - column:
+            name: number
+            valueNumeric: 2
+        - column:
+            name: date
+            valueDate: 2024-01-09
+        tableName: testtable
+- changeSet:
+    id: 1704821709768-3
+    author: tfernandez (generated)
+    changes:
+    - createFunction:
+        functionName: customfunction
+        path: objects/function/customfunction-bcd8b0c2.sql
+        relativeToChangelogFile: true
+- changeSet:
+    id: 1704821709768-4
+    author: tfernandez (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              nullable: false
+            name: id
+            type: INTEGER
+        - column:
+            constraints:
+              nullable: false
+            name: foreignid
+            type: INTEGER
+        tableName: foreigntable
+- changeSet:
+    id: 1704822601396-1
+    author: tfernandez (generated)
+    changes:
+    - addCheckConstraint:
+        constraintBody: ((number &gt; 0))
+        constraintName: testtable_check
+        disabled: false
+        tableName: testtable
+- changeSet:
+    id: 1704821709768-5
+    author: tfernandez (generated)
+    changes:
+    - createTrigger:
+        disabled: false
+        path: objects/trigger/testtable_customtrigger-41365cf7.sql
+        relativeToChangelogFile: true
+        tableName: testtable
+        triggerName: customtrigger
+- changeSet:
+    id: 1704821709768-6
+    author: tfernandez (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: number
+        constraintName: testtable_un
+        tableName: testtable
+- changeSet:
+    id: 1704821709768-7
+    author: tfernandez (generated)
+    changes:
+    - createView:
+        fullDefinition: false
+        selectQuery: |-
+          SELECT id,
+              foreignid
+             FROM foreigntable;
+        viewName: customview
+- changeSet:
+    id: 1704821709768-8
+    author: tfernandez (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: foreignid
+        baseTableName: foreigntable
+        constraintName: fk_foreigntable
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: number
+        referencedTableName: testtable
+        validate: true
+- changeSet:
+    id: 1704821709768-9
+    author: tfernandez (generated)
+    changes:
+    - createProcedure:
+        path: objects/storedprocedure/customProcedure.sql
+        procedureName: customProcedure
+        relativeToChangelogFile: true</code></pre>
+            </div>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{ "databaseChangeLog": [
+  {
+    "changeSet": {
+      "id": "1704821676788-1",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createTable": {
+            "columns": [
+              {
+                "column": {
+                  "defaultValue": "My text value",
+                  "name": "text",
+                  "type": "VARCHAR"
+                }
+              },
+              {
+                "column": {
+                  "autoIncrement": true,
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "number",
+                  "type": "INTEGER"
+                }
+              },
+              {
+                "column": {
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "date",
+                  "type": "date"
+                }
+              }
+            ]
+            ,
+            "tableName": "testtable"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821676788-2",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "insert": {
+            "columns": [
+              {
+                "column": {
+                  "name": "text",
+                  "value": "one"
+                }
+              },
+              {
+                "column": {
+                  "name": "number",
+                  "valueNumeric": 1
+                }
+              },
+              {
+                "column": {
+                  "name": "date",
+                  "valueDate": "2024-01-09"
+                }
+              }
+            ]
+            ,
+            "tableName": "testtable"
+          }
+        },
+        {
+          "insert": {
+            "columns": [
+              {
+                "column": {
+                  "name": "text",
+                  "value": "three"
+                }
+              },
+              {
+                "column": {
+                  "name": "number",
+                  "valueNumeric": 2
+                }
+              },
+              {
+                "column": {
+                  "name": "date",
+                  "valueDate": "2024-01-09"
+                }
+              }
+            ]
+            ,
+            "tableName": "testtable"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821676788-3",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createFunction": {
+            "functionName": "customfunction",
+            "path": "objects/function/customfunction-bcd8b0c2.sql",
+            "relativeToChangelogFile": true
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821676788-4",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createTable": {
+            "columns": [
+              {
+                "column": {
+                  "autoIncrement": true,
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "id",
+                  "type": "INTEGER"
+                }
+              },
+              {
+                "column": {
+                  "constraints": {
+                    "nullable": false
+                  },
+                  "name": "foreignid",
+                  "type": "INTEGER"
+                }
+              }
+            ]
+            ,
+            "tableName": "foreigntable"
+          }
+        }
+      ]
+      
+    }
+  },
+  {
+    "changeSet": {
+      "id": "1704822683055-1",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "addCheckConstraint": {
+            "constraintBody": "((number &gt; 0))",
+            "constraintName": "testtable_check",
+            "disabled": false,
+            "tableName": "testtable"
+          }
+        }
+      ]
+      
+    }
+  },
+  {
+    "changeSet": {
+      "id": "1704821676788-5",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createTrigger": {
+            "disabled": false,
+            "path": "objects/trigger/testtable_customtrigger-41365cf7.sql",
+            "relativeToChangelogFile": true,
+            "tableName": "testtable",
+            "triggerName": "customtrigger"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821676788-6",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "addUniqueConstraint": {
+            "columnNames": "number",
+            "constraintName": "testtable_un",
+            "tableName": "testtable"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821676788-7",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createView": {
+            "fullDefinition": false,
+            "selectQuery": "SELECT id,\n    foreignid\n   FROM foreigntable;",
+            "viewName": "customview"
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821676788-8",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "addForeignKeyConstraint": {
+            "baseColumnNames": "foreignid",
+            "baseTableName": "foreigntable",
+            "constraintName": "fk_foreigntable",
+            "deferrable": false,
+            "initiallyDeferred": false,
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "referencedColumnNames": "number",
+            "referencedTableName": "testtable",
+            "validate": true
+          }
+        }
+      ]
+      
+    }
+  },
+  
+  {
+    "changeSet": {
+      "id": "1704821676788-9",
+      "author": "tfernandez (generated)",
+      "changes": [
+        {
+          "createProcedure": {
+            "path": "objects/storedprocedure/customProcedure.sql",
+            "procedureName": "customProcedure",
+            "relativeToChangelogFile": true
+          }
+        }
+      ]
+      
+    }
+  }
+  
+]}</code></pre>
+            </div>
+            <div id="sql_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql"></code></pre>
+            </div>
+        </div>
         <h2>Global arguments</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
         <table style="margin-left: auto;margin-right: auto;width: 100%;">
@@ -455,7 +1524,7 @@
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Some database platforms may  not support all of these stored logic types.</p>
         <p>The <code>generate-changelog</code> command will not create the <code>Objects</code> directory if:</p>
         <ul>
-            <li>You don't have a valid <code>ProKey</code></li>
+            <li>You don't have a valid <MadCap:variable name="General.LBPro" /> license key</li>
             <li>There are no stored logic objects in the database</li>
             <li>The <MadCap:variable name="General.changelog" /> file is written in formatted SQL (the <code>Objects</code> folder can only be created when generating XML, JSON or YAML <MadCap:variable name="General.changelog" />s)</li>
             <li>The target database is not supported with the <code>generate-changelog</code> command and stored logic objects</li>
