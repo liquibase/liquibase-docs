@@ -5,7 +5,7 @@
     <body>
         <ol start="3">
             <li>
-                <p>Create a text file called <a href="../../../../concepts/changelogs/home.html">changelog</a> (<code>.xml</code>) in your project directory and add a <a href="../../../../concepts/changelogs/changeset.html">changeset</a>.
+                <p MadCap:conditions="database.default">Create a text file called <a href="../../../../concepts/changelogs/home.html">changelog</a> (<code>.xml</code>, <code>.sql</code>, <code>.yaml</code>, or <code>.json</code>) in your project directory and add a <a href="../../../../concepts/changelogs/changeset.html">changeset</a>.
 			</p>
                 <p MadCap:conditions="database.default">If you already created a <MadCap:variable name="General.changelog" /> using the <code><MadCap:xref href="../../../../commands/init/project.htm">init project</MadCap:xref></code> command, you can use that instead of creating a new file. When adding onto an existing <MadCap:variable name="General.changelog" />, be sure to only add the <MadCap:variable name="General.changeset" /> and to not duplicate the <MadCap:variable name="General.changelog" /> header.</p>
             </li>
@@ -86,6 +86,10 @@ CREATE TABLE test_table (test_id INT, test_column VARCHAR(255), PRIMARY KEY (tes
 }</code></pre>
                 </div>
             </div>
+            <li MadCap:conditions="database.amazon-dynamodb">
+                <p>Create a text file called <a href="../../../../concepts/changelogs/home.html">changelog</a> (<code>.xml</code>, <code>.yaml</code>, or <code>.json</code>) in your project directory and add a <a href="../../../../concepts/changelogs/changeset.html">changeset</a>.
+			</p>
+            </li>
             <div class="js-tabs" MadCap:conditions="database.amazon-dynamodb">
                 <ul class="js-tablist" data-hx="h3">
                     <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
@@ -95,16 +99,243 @@ CREATE TABLE test_table (test_id INT, test_column VARCHAR(255), PRIMARY KEY (tes
                     <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
                     </li>
                 </ul>
-                <div id="xml_example" class="js-tabcontent">
-                    <p>Tab content</p>
+                <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:dynamodb="http://www.liquibase.org/xml/ns/pro-dynamodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/pro-dynamodb http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
+
+    &lt;changeSet id="1" author="fl"&gt;
+        &lt;dynamodb:createDynamoTable tableName="Music3XML" billingMode="PROVISIONED" tableClass="STANDARD" deletionProtectionEnabled="false"&gt;
+            &lt;dynamodb:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
+            &lt;dynamodb:attributeDefinitions&gt;
+                &lt;dynamodb:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
+                &lt;dynamodb:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
+                &lt;dynamodb:attributeDefinition attributeName="Album" attributeType="N"/&gt;
+            &lt;/dynamodb:attributeDefinitions&gt;
+            &lt;dynamodb:provisionedThroughput readCapacityUnits="5" writeCapacityUnits="5"/&gt;
+            &lt;dynamodb:localSecondaryIndexes&gt;
+                &lt;dynamodb:localSecondaryIndex indexName="localSecondaryIndex"&gt;
+                    &lt;dynamodb:keySchema hashAttributeName="Artist" rangeAttributeName="Album"/&gt;
+                    &lt;dynamodb:projection projectionType="INCLUDE"&gt;
+                        &lt;dynamodb:nonKeyAttributes attributeName="SongTitle"/&gt;
+                    &lt;/dynamodb:projection&gt;
+                &lt;/dynamodb:localSecondaryIndex&gt;
+            &lt;/dynamodb:localSecondaryIndexes&gt;
+            &lt;dynamodb:globalSecondaryIndexes&gt;
+                &lt;dynamodb:globalSecondaryIndex indexName="SongTitleGlobalIndex"&gt;
+                    &lt;dynamodb:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
+                    &lt;dynamodb:projection projectionType="INCLUDE"&gt;
+                        &lt;dynamodb:nonKeyAttributes attributeName="Album"/&gt;
+                    &lt;/dynamodb:projection&gt;
+                    &lt;dynamodb:provisionedThroughput readCapacityUnits="5" writeCapacityUnits="5"/&gt;
+                &lt;/dynamodb:globalSecondaryIndex&gt;
+            &lt;/dynamodb:globalSecondaryIndexes&gt;
+            &lt;dynamodb:tags&gt;
+                &lt;dynamodb:tag key="tag" value="tagValue"/&gt;
+                &lt;dynamodb:tag key="tag2" value="tagValue2"/&gt;
+            &lt;/dynamodb:tags&gt;
+            &lt;dynamodb:streamSpecification streamEnabled="true" streamViewType="NEW_IMAGE"/&gt;
+            &lt;dynamodb:sseSpecification enabled="true" sseType="KMS"/&gt;
+        &lt;/dynamodb:createDynamoTable&gt;
+
+        &lt;rollback&gt;
+            &lt;dynamodb:deleteDynamoTable tableName="Music3XML"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
                 </div>
-                <div id="yaml_example" class="js-tabcontent">
-                    <p>Tab content</p>
+                <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: fl
+      changes:
+        - createDynamoTable:
+            tableName: Music3YAML
+            billingMode: PROVISIONED
+            tableClass: STANDARD
+            deletionProtectionEnabled: false
+            keySchema:
+              hashAttributeName: Artist
+              rangeAttributeName: SongTitle
+            attributeDefinitions:
+              - attributeDefinition:
+                  attributeName: Artist
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: SongTitle
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: Album
+                  attributeType: N
+            provisionedThroughput:
+                readCapacityUnits: 5
+                writeCapacityUnits: 5
+            localSecondaryIndexes:
+                - localSecondaryIndex:
+                    indexName: localSecondaryIndex
+                    keySchema:
+                      hashAttributeName: Artist
+                      rangeAttributeName: Album
+                    projection:
+                        projectionType: INCLUDE
+                        nonKeyAttributes:
+                          - attributeName: SongTitle
+            globalSecondaryIndexes:
+                - globalSecondaryIndex:
+                    indexName: SongTitleGlobalIndex
+                    keySchema:
+                      hashAttributeName: Artist
+                      rangeAttributeName: SongTitle
+                    projection:
+                        projectionType: INCLUDE
+                        nonKeyAttributes:
+                          - attributeName: Album
+                    provisionedThroughput:
+                        readCapacityUnits: 5
+                        writeCapacityUnits: 5
+            streamSpecification:
+              streamEnabled: true
+              streamViewType: NEW_IMAGE
+            sseSpecification:
+              enabled: true
+              sseType: KMS
+            tags:
+              - key: tag
+                value: tagValue
+              - key: tag2
+                value: tagValue2
+      rollback:
+        deleteDynamoTable:
+          tableName: Music3YAML</code></pre>
                 </div>
-                <div id="json_example" class="js-tabcontent">
-                    <p>Tab content</p>
+                <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "fl",
+        "changes": [
+          {
+            "createDynamoTable": {
+              "tableName": "Music3JSON",
+              "billingMode": "PROVISIONED",
+              "tableClass": "STANDARD",
+              "deletionProtectionEnabled": false,
+              "keySchema": {
+                "hashAttributeName": "Artist",
+                "rangeAttributeName": "SongTitle"
+              },
+              "attributeDefinitions": [
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Artist",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "SongTitle",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Album",
+                    "attributeType": "N"
+                  }
+                }
+              ],
+              "provisionedThroughput": {
+                "readCapacityUnits": 5,
+                "writeCapacityUnits": 5
+              },
+              "localSecondaryIndexes": [
+                {
+                  "localSecondaryIndex": {
+                    "indexName": "localSecondaryIndex",
+                    "keySchema": {
+                      "hashAttributeName": "Artist",
+                      "rangeAttributeName": "Album"
+                    },
+                    "projection": {
+                      "projectionType": "INCLUDE",
+                      "nonKeyAttributes": [
+                        {
+                          "attributeName": "SongTitle"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "globalSecondaryIndexes": [
+                {
+                  "globalSecondaryIndex": {
+                    "indexName": "SongTitleGlobalIndex",
+                    "keySchema": {
+                      "hashAttributeName": "Artist",
+                      "rangeAttributeName": "SongTitle"
+                    },
+                    "projection": {
+                      "projectionType": "INCLUDE",
+                      "nonKeyAttributes": [
+                        {
+                          "attributeName": "Album"
+                        }
+                      ]
+                    },
+                    "provisionedThroughput": {
+                      "readCapacityUnits": 5,
+                      "writeCapacityUnits": 5
+                    }
+                  }
+                }
+              ],
+              "sseSpecification": {
+                "enable": true,
+                "sseType": "KMS"
+              },
+              "streamSpecification": {
+                "streamEnabled": true,
+                "streamViewType": "NEW_IMAGE"
+              },
+              "tags": [
+                {
+                  "tag": {
+                    "key": "tag",
+                    "value": "tagValue"
+                  }
+                },
+                {
+                  "tag": {
+                    "key": "tag2",
+                    "value": "tagValue2"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "deleteDynamoTable": {
+              "tableName": "Music3JSON"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
                 </div>
             </div>
+            <li MadCap:conditions="database.mongodb">
+                <p>Create a text file called <a href="../../../../concepts/changelogs/home.html">changelog</a> (<code>.js</code>, <code>.xml</code>, <code>.yaml</code>, or <code>.json</code>) in your project directory and add a <a href="../../../../concepts/changelogs/changeset.html">changeset</a>.
+			</p>
+            </li>
             <p MadCap:conditions="database.mongodb">In each <MadCap:variable name="General.changeset" />, you must specify the <code>mongosh</code> native executor using the <code><MadCap:xref href="../../../../concepts/changelogs/attributes/runwith.htm">runWith</MadCap:xref></code>&#160;<MadCap:variable name="General.Param/Attribute" />:</p>
             <ul MadCap:conditions="database.mongodb">
                 <li>Formatted Mongo: <code>runWith:mongosh</code></li>
