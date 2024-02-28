@@ -32,7 +32,63 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><code class="language-text">attr1</code>
+                    <td><code class="language-text">billingMode</code>
+                    </td>
+                    <td>
+                        <p>Default:&#160;PAY_PER_REQUEST</p>
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">tableClass</code>
+                    </td>
+                    <td>
+                        <p>&#160;</p>
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">tableName</code>
+                    </td>
+                    <td>Name of the table to create.</td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">deletionProtectionEnabled</code>
+                    </td>
+                    <td>&#160;</td>
+                    <td>Optional</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Nested tags</h2>
+        <table>
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Requirement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code class="language-text">keySchema</code>
+                    </td>
+                    <td>
+                        <p>Accepts the following parameters:</p>
+                        <ul>
+                            <li>hashAttributeName</li>
+                            <li>rangeAttributeName</li>
+                        </ul>
+                    </td>
+                    <td>&#160;</td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">attributeDefinitions</code>
                     </td>
                     <td>
                         <p>&#160;</p>
@@ -40,15 +96,13 @@
                     <td>&#160;</td>
                 </tr>
                 <tr>
-                    <td><code class="language-text">attr2</code>
+                    <td><code class="language-text">f</code>
                     </td>
-                    <td>
-                        <p>&#160;</p>
-                    </td>
+                    <td>&#160;</td>
                     <td>&#160;</td>
                 </tr>
                 <tr>
-                    <td><code class="language-text">attr3</code>
+                    <td><code class="language-text">f</code>
                     </td>
                     <td>&#160;</td>
                     <td>&#160;</td>
@@ -65,14 +119,237 @@
                 <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
                 </li>
             </ul>
-            <div id="xml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:dynamodb="http://www.liquibase.org/xml/ns/pro-dynamodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/pro-dynamodb http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
+
+    &lt;changeSet id="1" author="fl"&gt;
+        &lt;dynamodb:createDynamoTable tableName="Music3XML" billingMode="PROVISIONED" tableClass="STANDARD" deletionProtectionEnabled="false"&gt;
+            &lt;dynamodb:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
+            &lt;dynamodb:attributeDefinitions&gt;
+                &lt;dynamodb:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
+                &lt;dynamodb:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
+                &lt;dynamodb:attributeDefinition attributeName="Album" attributeType="N"/&gt;
+            &lt;/dynamodb:attributeDefinitions&gt;
+            &lt;dynamodb:provisionedThroughput readCapacityUnits="5" writeCapacityUnits="5"/&gt;
+            &lt;dynamodb:localSecondaryIndexes&gt;
+                &lt;dynamodb:localSecondaryIndex indexName="localSecondaryIndex"&gt;
+                    &lt;dynamodb:keySchema hashAttributeName="Artist" rangeAttributeName="Album"/&gt;
+                    &lt;dynamodb:projection projectionType="INCLUDE"&gt;
+                        &lt;dynamodb:nonKeyAttributes attributeName="SongTitle"/&gt;
+                    &lt;/dynamodb:projection&gt;
+                &lt;/dynamodb:localSecondaryIndex&gt;
+            &lt;/dynamodb:localSecondaryIndexes&gt;
+            &lt;dynamodb:globalSecondaryIndexes&gt;
+                &lt;dynamodb:globalSecondaryIndex indexName="SongTitleGlobalIndex"&gt;
+                    &lt;dynamodb:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
+                    &lt;dynamodb:projection projectionType="INCLUDE"&gt;
+                        &lt;dynamodb:nonKeyAttributes attributeName="Album"/&gt;
+                    &lt;/dynamodb:projection&gt;
+                    &lt;dynamodb:provisionedThroughput readCapacityUnits="5" writeCapacityUnits="5"/&gt;
+                &lt;/dynamodb:globalSecondaryIndex&gt;
+            &lt;/dynamodb:globalSecondaryIndexes&gt;
+            &lt;dynamodb:tags&gt;
+                &lt;dynamodb:tag key="tag" value="tagValue"/&gt;
+                &lt;dynamodb:tag key="tag2" value="tagValue2"/&gt;
+            &lt;/dynamodb:tags&gt;
+            &lt;dynamodb:streamSpecification streamEnabled="true" streamViewType="NEW_IMAGE"/&gt;
+            &lt;dynamodb:sseSpecification enabled="true" sseType="KMS"/&gt;
+        &lt;/dynamodb:createDynamoTable&gt;
+
+        &lt;rollback&gt;
+            &lt;dynamodb:deleteDynamoTable tableName="Music3XML"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
             </div>
-            <div id="yaml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: fl
+      changes:
+        - createDynamoTable:
+            tableName: Music3YAML
+            billingMode: PROVISIONED
+            tableClass: STANDARD
+            deletionProtectionEnabled: false
+            keySchema:
+              hashAttributeName: Artist
+              rangeAttributeName: SongTitle
+            attributeDefinitions:
+              - attributeDefinition:
+                  attributeName: Artist
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: SongTitle
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: Album
+                  attributeType: N
+            provisionedThroughput:
+                readCapacityUnits: 5
+                writeCapacityUnits: 5
+            localSecondaryIndexes:
+                - localSecondaryIndex:
+                    indexName: localSecondaryIndex
+                    keySchema:
+                      hashAttributeName: Artist
+                      rangeAttributeName: Album
+                    projection:
+                        projectionType: INCLUDE
+                        nonKeyAttributes:
+                          - attributeName: SongTitle
+            globalSecondaryIndexes:
+                - globalSecondaryIndex:
+                    indexName: SongTitleGlobalIndex
+                    keySchema:
+                      hashAttributeName: Artist
+                      rangeAttributeName: SongTitle
+                    projection:
+                        projectionType: INCLUDE
+                        nonKeyAttributes:
+                          - attributeName: Album
+                    provisionedThroughput:
+                        readCapacityUnits: 5
+                        writeCapacityUnits: 5
+            streamSpecification:
+              streamEnabled: true
+              streamViewType: NEW_IMAGE
+            sseSpecification:
+              enabled: true
+              sseType: KMS
+            tags:
+              - key: tag
+                value: tagValue
+              - key: tag2
+                value: tagValue2
+      rollback:
+        deleteDynamoTable:
+          tableName: Music3YAML</code></pre>
             </div>
-            <div id="json_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "fl",
+        "changes": [
+          {
+            "createDynamoTable": {
+              "tableName": "Music3JSON",
+              "billingMode": "PROVISIONED",
+              "tableClass": "STANDARD",
+              "deletionProtectionEnabled": false,
+              "keySchema": {
+                "hashAttributeName": "Artist",
+                "rangeAttributeName": "SongTitle"
+              },
+              "attributeDefinitions": [
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Artist",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "SongTitle",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Album",
+                    "attributeType": "N"
+                  }
+                }
+              ],
+              "provisionedThroughput": {
+                "readCapacityUnits": 5,
+                "writeCapacityUnits": 5
+              },
+              "localSecondaryIndexes": [
+                {
+                  "localSecondaryIndex": {
+                    "indexName": "localSecondaryIndex",
+                    "keySchema": {
+                      "hashAttributeName": "Artist",
+                      "rangeAttributeName": "Album"
+                    },
+                    "projection": {
+                      "projectionType": "INCLUDE",
+                      "nonKeyAttributes": [
+                        {
+                          "attributeName": "SongTitle"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "globalSecondaryIndexes": [
+                {
+                  "globalSecondaryIndex": {
+                    "indexName": "SongTitleGlobalIndex",
+                    "keySchema": {
+                      "hashAttributeName": "Artist",
+                      "rangeAttributeName": "SongTitle"
+                    },
+                    "projection": {
+                      "projectionType": "INCLUDE",
+                      "nonKeyAttributes": [
+                        {
+                          "attributeName": "Album"
+                        }
+                      ]
+                    },
+                    "provisionedThroughput": {
+                      "readCapacityUnits": 5,
+                      "writeCapacityUnits": 5
+                    }
+                  }
+                }
+              ],
+              "sseSpecification": {
+                "enable": true,
+                "sseType": "KMS"
+              },
+              "streamSpecification": {
+                "streamEnabled": true,
+                "streamViewType": "NEW_IMAGE"
+              },
+              "tags": [
+                {
+                  "tag": {
+                    "key": "tag",
+                    "value": "tagValue"
+                  }
+                },
+                {
+                  "tag": {
+                    "key": "tag2",
+                    "value": "tagValue2"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "deleteDynamoTable": {
+              "tableName": "Music3JSON"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
             </div>
         </div>
         <h2 id="database-support">Database support</h2>
