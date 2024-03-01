@@ -23,38 +23,33 @@
             <col />
             <col />
             <col />
+            <col />
             <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Type</th>
                     <th>Description</th>
                     <th>Requirement</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><code class="language-text">attr1</code>
+                    <td><code class="language-text">tableName</code>
                     </td>
+                    <td>String</td>
                     <td>
                         <p>&#160;</p>
                     </td>
-                    <td>&#160;</td>
-                </tr>
-                <tr>
-                    <td><code class="language-text">attr2</code>
+                    <td><b>Required</b>
                     </td>
-                    <td>
-                        <p>&#160;</p>
-                    </td>
-                    <td>&#160;</td>
-                </tr>
-                <tr>
-                    <td><code class="language-text">attr3</code>
-                    </td>
-                    <td>&#160;</td>
-                    <td>&#160;</td>
                 </tr>
             </tbody>
         </table>
+        <h2>Nested tags</h2>
+        <h3><code>attributeDefinitions</code>
+        </h3>
+        <h3><code>globalSecondaryIndex</code>
+        </h3>
         <h2 id="examples">Examples</h2>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
@@ -65,14 +60,173 @@
                 <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
                 </li>
             </ul>
-            <div id="xml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:dynamodb-pro="http://www.liquibase.org/xml/ns/pro-dynamodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/pro-dynamodb
+    http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
+    &lt;changeSet id="1.5" author="Oleh"&gt;
+        &lt;dynamodb-pro:createDynamoTable tableName="GlobalIndexTest"&gt;
+            &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
+            &lt;dynamodb-pro:attributeDefinitions&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
+            &lt;/dynamodb-pro:attributeDefinitions&gt;
+            &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="10" writeCapacityUnits="10"/&gt;
+        &lt;/dynamodb-pro:createDynamoTable&gt;
+
+        &lt;dynamodb-pro:createGlobalSecondaryIndex tableName="GlobalIndexTest"&gt;
+            &lt;dynamodb-pro:attributeDefinitions&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="AlbumTitle" attributeType="S"/&gt;
+            &lt;/dynamodb-pro:attributeDefinitions&gt;
+            &lt;dynamodb-pro:globalSecondaryIndex indexName="globalIndex2"&gt;
+                &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="AlbumTitle"/&gt;
+                &lt;dynamodb-pro:projection projectionType="INCLUDE"&gt;
+                    &lt;dynamodb-pro:nonKeyAttributes attributeName="SongTitle"/&gt;
+                &lt;/dynamodb-pro:projection&gt;
+                &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="9" writeCapacityUnits="9"/&gt;
+            &lt;/dynamodb-pro:globalSecondaryIndex&gt;
+        &lt;/dynamodb-pro:createGlobalSecondaryIndex&gt;
+
+        &lt;rollback&gt;
+            &lt;dynamodb-pro:deleteDynamoTable tableName="GlobalIndexTest"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
             </div>
-            <div id="yaml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1.5
+      author: Oleh
+      changes:
+        - createDynamoTable:
+            tableName: GlobalIndexTestYaml
+            keySchema:
+              hashAttributeName: Artist
+              rangeAttributeName: SongTitle
+            attributeDefinitions:
+              - attributeDefinition:
+                  attributeName: Artist
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: SongTitle
+                  attributeType: S
+            provisionedThroughput:
+              readCapacityUnits: 10
+              writeCapacityUnits: 10
+        - createGlobalSecondaryIndex:
+            tableName: GlobalIndexTestYaml
+            attributeDefinitions:
+              - attributeDefinition:
+                  attributeName: Artist
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: AlbumTitle
+                  attributeType: S
+            globalSecondaryIndex:
+              indexName: globalIndex2Yaml
+              keySchema:
+                hashAttributeName: Artist
+                rangeAttributeName: AlbumTitle
+              projection:
+                projectionType: INCLUDE
+                nonKeyAttributes:
+                  - attributeName: SongTitle
+              provisionedThroughput:
+                readCapacityUnits: 9
+                writeCapacityUnits: 9
+      rollback:
+        - deleteDynamoTable:
+            tableName: GlobalIndexTestYaml</code></pre>
             </div>
-            <div id="json_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1.5",
+        "author": "Oleh",
+        "changes": [
+          {
+            "createDynamoTable": {
+              "tableName": "GlobalIndexTestJson",
+              "keySchema": {
+                "hashAttributeName": "Artist",
+                "rangeAttributeName": "SongTitle"
+              },
+              "attributeDefinitions": [
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Artist",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "SongTitle",
+                    "attributeType": "S"
+                  }
+                }
+              ],
+              "provisionedThroughput": {
+                "readCapacityUnits": 10,
+                "writeCapacityUnits": 10
+              }
+            }
+          },
+          {
+            "createGlobalSecondaryIndex": {
+              "tableName": "GlobalIndexTestJson",
+              "attributeDefinitions": [
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Artist",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "AlbumTitle",
+                    "attributeType": "S"
+                  }
+                }
+              ],
+              "globalSecondaryIndex": {
+                "indexName": "globalIndex2Json",
+                "keySchema": {
+                  "hashAttributeName": "Artist",
+                  "rangeAttributeName": "AlbumTitle"
+                },
+                "projection": {
+                  "projectionType": "INCLUDE",
+                  "nonKeyAttributes": [
+                    {
+                      "attributeName": "SongTitle"
+                    }
+                  ]
+                },
+                "provisionedThroughput": {
+                  "readCapacityUnits": 9,
+                  "writeCapacityUnits": 9
+                }
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "deleteDynamoTable": {
+              "tableName": "GlobalIndexTestJson"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
             </div>
         </div>
         <h2 id="database-support">Database support</h2>
