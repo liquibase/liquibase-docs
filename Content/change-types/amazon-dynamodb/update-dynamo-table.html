@@ -32,29 +32,43 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><code class="language-text">attr1</code>
+                    <td><code class="language-text">tableName</code>
                     </td>
                     <td>
                         <p>&#160;</p>
                     </td>
-                    <td>&#160;</td>
+                    <td><b>Required</b>
+                    </td>
                 </tr>
                 <tr>
-                    <td><code class="language-text">attr2</code>
+                    <td><code class="language-text">billingMode</code>
+                    </td>
+                    <td>&#160;</td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">tableClass</code>
                     </td>
                     <td>
                         <p>&#160;</p>
                     </td>
-                    <td>&#160;</td>
+                    <td>Optional</td>
                 </tr>
                 <tr>
-                    <td><code class="language-text">attr3</code>
+                    <td><code class="language-text">deletionProtectionEnabled</code>
                     </td>
                     <td>&#160;</td>
-                    <td>&#160;</td>
+                    <td>Optional</td>
                 </tr>
             </tbody>
         </table>
+        <h2>Nested tags</h2>
+        <h3><code>provisionedThroughput</code>
+        </h3>
+        <h3><code>streamSpecification</code>
+        </h3>
+        <h3><code>sseSpecification</code>
+        </h3>
         <h2 id="examples">Examples</h2>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
@@ -65,14 +79,232 @@
                 <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
                 </li>
             </ul>
-            <div id="xml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:dynamodb-pro="http://www.liquibase.org/xml/ns/pro-dynamodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/pro-dynamodb http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
+
+    &lt;changeSet id="1" author="v" labels="table1"&gt;
+        &lt;dynamodb-pro:createDynamoTable tableName="UpdateMusicXML" billingMode="PAY_PER_REQUEST" tableClass="STANDARD"&gt;
+            &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle" /&gt;
+            &lt;dynamodb-pro:attributeDefinitions&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
+            &lt;/dynamodb-pro:attributeDefinitions&gt;
+            &lt;dynamodb-pro:streamSpecification streamEnabled="false" /&gt;
+            &lt;dynamodb-pro:sseSpecification enabled="false" /&gt;
+        &lt;/dynamodb-pro:createDynamoTable&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="2" author="v"&gt;
+        &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" tableClass="STANDARD_INFREQUENT_ACCESS" /&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="3" author="v"&gt;
+        &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" billingMode="PROVISIONED"&gt;
+            &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="5" writeCapacityUnits="5"/&gt;
+        &lt;/dynamodb-pro:updateDynamoTable&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="4" author="v"&gt;
+        &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" deletionProtectionEnabled="true"/&gt;
+
+        &lt;rollback&gt;
+            &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" deletionProtectionEnabled="false"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="5" author="v" labels="table1"&gt;
+        &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML"&gt;
+            &lt;dynamodb-pro:streamSpecification streamEnabled="true" streamViewType="NEW_IMAGE" /&gt;
+        &lt;/dynamodb-pro:updateDynamoTable&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="6" author="v"&gt;
+        &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML"&gt;
+            &lt;dynamodb-pro:sseSpecification enabled="true" sseType="KMS"/&gt;
+        &lt;/dynamodb-pro:updateDynamoTable&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="7" author="v"&gt;
+        &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" deletionProtectionEnabled="false"/&gt;
+
+        &lt;rollback&gt;
+            &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" deletionProtectionEnabled="false"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
             </div>
-            <div id="yaml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: v
+      changes:
+        - createDynamoTable:
+            tableName: UpdateMusicYAML
+            billingMode: PROVISIONED
+            tableClass: STANDARD
+            keySchema:
+              hashAttributeName: Artist
+              rangeAttributeName: SongTitle
+            attributeDefinitions:
+              - attributeDefinition:
+                  attributeName: Artist
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: SongTitle
+                  attributeType: S
+            provisionedThroughput:
+                readCapacityUnits: 5
+                writeCapacityUnits: 5
+            streamSpecification:
+              streamEnabled: false
+            sseSpecification:
+              enabled: false
+      rollback:
+        deleteDynamoTable:
+          tableName: UpdateMusicYAML
+
+  - changeSet:
+      id: 3
+      author: v
+      changes:
+        - updateDynamoTable:
+            tableName: UpdateMusicYAML
+            billingMode: PAY_PER_REQUEST
+      rollback:
+        updateDynamoTable:
+          tableName: UpdateMusicYAML
+          billingMode: PAY_PER_REQUEST
+          provisionedThroughput:
+            readCapacityUnits: 5
+            writeCapacityUnits: 5
+
+  - changeSet:
+      id: 5
+      author: v
+      changes:
+        - updateDynamoTable:
+            tableName: UpdateMusicYAML
+            streamSpecification:
+              streamEnabled: true
+              streamViewType: NEW_IMAGE
+      rollback:
+        updateDynamoTable:
+          tableName: UpdateMusicYAML
+          streamSpecification:
+            streamEnabled: false</code></pre>
             </div>
-            <div id="json_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "v",
+        "changes": [
+          {
+            "createDynamoTable": {
+              "tableName": "UpdateMusicJSON",
+              "billingMode": "PROVISIONED",
+              "tableClass": "STANDARD",
+              "keySchema": {
+                "hashAttributeName": "Artist",
+                "rangeAttributeName": "SongTitle"
+              },
+              "attributeDefinitions": [
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Artist",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "SongTitle",
+                    "attributeType": "S"
+                  }
+                }
+              ],
+              "provisionedThroughput": {
+                "readCapacityUnits": 5,
+                "writeCapacityUnits": 5
+              },
+              "sseSpecification": {
+                "enable": false
+              },
+              "streamSpecification": {
+                "streamEnabled": false
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "deleteDynamoTable": {
+              "tableName": "UpdateMusicJSON"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "v",
+        "changes": [
+          {
+            "updateDynamoTable": {
+              "tableName": "UpdateMusicJSON",
+              "billingMode": "PAY_PER_REQUEST"
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "updateDynamoTable": {
+              "tableName": "UpdateMusicJSON",
+              "billingMode": "PROVISIONED",
+              "provisionedThroughput": {
+                "readCapacityUnits": 5,
+                "writeCapacityUnits": 5
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "5",
+        "author": "v",
+        "changes": [
+          {
+            "updateDynamoTable": {
+              "tableName": "UpdateMusicJSON",
+              "streamSpecification": {
+                "streamEnabled": true,
+                "streamViewType": "NEW_IMAGE"
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "updateDynamoTable": {
+              "tableName": "UpdateMusicJSON",
+              "streamSpecification": {
+                "streamEnabled": false
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
             </div>
         </div>
         <h2 id="database-support">Database support</h2>
