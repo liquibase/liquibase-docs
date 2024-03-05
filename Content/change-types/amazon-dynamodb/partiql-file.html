@@ -74,70 +74,38 @@
     http://www.liquibase.org/xml/ns/pro-dynamodb
     http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
 
-    &lt;changeSet id="1" author="your.name" labels="example-label" context="example-context" failOnError="true"&gt;
-        &lt;dynamodb-pro:createDynamoTable tableName="Music" billingMode="PROVISIONED" deletionProtectionEnabled="false"
-            tableClass="STANDARD"&gt;
+    &lt;changeSet id="1" author="your.name"&gt;
+        &lt;dynamodb-pro:createDynamoTable tableName="MusicPartiqlFileTest"&gt;
             &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
             &lt;dynamodb-pro:attributeDefinitions&gt;
                 &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
                 &lt;dynamodb-pro:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
-                &lt;dynamodb-pro:attributeDefinition attributeName="AlbumTitle" attributeType="S"/&gt;
             &lt;/dynamodb-pro:attributeDefinitions&gt;
-
             &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="10" writeCapacityUnits="10"/&gt;
-
-            &lt;dynamodb-pro:localSecondaryIndexes&gt;
-                &lt;dynamodb-pro:localSecondaryIndex indexName="secondaryIndex"&gt;
-                    &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="AlbumTitle"/&gt;
-                    &lt;dynamodb-pro:projection projectionType="INCLUDE"&gt;
-                        &lt;dynamodb-pro:nonKeyAttributes attributeName="SongTitle"/&gt;
-                    &lt;/dynamodb-pro:projection&gt;
-                &lt;/dynamodb-pro:localSecondaryIndex&gt;
-            &lt;/dynamodb-pro:localSecondaryIndexes&gt;
-
-            &lt;dynamodb-pro:globalSecondaryIndexes&gt;
-                &lt;dynamodb-pro:globalSecondaryIndex indexName="globalIndex"&gt;
-                    &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="AlbumTitle"/&gt;
-                    &lt;dynamodb-pro:projection projectionType="INCLUDE"&gt;
-                        &lt;dynamodb-pro:nonKeyAttributes attributeName="SongTitle"/&gt;
-                    &lt;/dynamodb-pro:projection&gt;
-                    &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="12" writeCapacityUnits="12"/&gt;
-                &lt;/dynamodb-pro:globalSecondaryIndex&gt;
-            &lt;/dynamodb-pro:globalSecondaryIndexes&gt;
-            &lt;dynamodb-pro:streamSpecification streamEnabled="true" streamViewType="NEW_IMAGE"/&gt;
-            &lt;dynamodb-pro:sseSpecification enabled="true" sseType="KMS"/&gt;
-            &lt;dynamodb-pro:tags&gt;
-                &lt;dynamodb-pro:tag key="tagKey1" value="tagValue1"/&gt;
-                &lt;dynamodb-pro:tag key="tagKey2" value="tagValue2"/&gt;
-            &lt;/dynamodb-pro:tags&gt;
         &lt;/dynamodb-pro:createDynamoTable&gt;
 
         &lt;rollback&gt;
-            &lt;dynamodb-pro:deleteDynamoTable tableName="Music"/&gt;
+            &lt;dynamodb-pro:deleteDynamoTable tableName="MusicPartiqlFileTest"/&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
 
     &lt;changeSet id="2" author="your.name"&gt;
-        &lt;dynamodb-pro:partiqlFile path="test.sql" relativeToChangelogFile="true" splitStatements="true"/&gt;
+        &lt;dynamodb-pro:partiqlFile path="test.partiql" splitStatements="true" endDelimiter="@@"/&gt;
 
         &lt;rollback&gt;
-            &lt;dynamodb-pro:partiqlFile path="test-rollback.sql" relativeToChangelogFile="true"/&gt;
+            &lt;dynamodb-pro:partiqlFile path="test-rollback.partiql" splitStatements="true" endDelimiter="@@"/&gt;
         &lt;/rollback&gt;
-    &lt;/changeSet&gt;</code></pre>
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
             </div>
             <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
       id: 1
       author: your.name
-      labels: example-label
-      context: example-context
-      failOnError: true
       changes:
         - createDynamoTable:
-            tableName: Music
-            billingMode: PROVISIONED
-            deletionProtectionEnabled: false
-            tableClass: STANDARD
+            tableName: MusicPartiqlFileTest
             keySchema:
               hashAttributeName: Artist
               rangeAttributeName: SongTitle
@@ -148,64 +116,26 @@
               - attributeDefinition:
                   attributeName: SongTitle
                   attributeType: S
-              - attributeDefinition:
-                  attributeName: AlbumTitle
-                  attributeType: S
-            localSecondaryIndexes:
-              - localSecondaryIndex:
-                  indexName: secondaryIndex
-                  keySchema:
-                    hashAttributeName: Artist
-                    rangeAttributeName: AlbumTitle
-                  projection:
-                    projectionType: INCLUDE
-                    nonKeyAttributes:
-                      - attributeName: SongTitle
-            globalSecondaryIndexes:
-              - globalSecondaryIndex:
-                  indexName: globalIndex
-                  keySchema:
-                    hashAttributeName: Artist
-                    rangeAttributeName: AlbumTitle
-                  projection:
-                    projectionType: INCLUDE
-                    nonKeyAttributes:
-                      - attributeName: SongTitle
-                  provisionedThroughput:
-                    readCapacityUnits: 12
-                    writeCapacityUnits: 12
-            streamSpecification:
-              streamEnabled: true
-              streamViewType: NEW_IMAGE
-            sseSpecification:
-              enabled: true
-              sseType: KMS
-            tags:
-              - key: tagKey1
-                value: tagValue1
-              - key: tagKey2
-                value: tagValue2
             provisionedThroughput:
               readCapacityUnits: 10
               writeCapacityUnits: 10
-
       rollback:
         deleteDynamoTable:
-          tableName: Music
+          tableName: MusicPartiqlFileTest
 
   - changeSet:
       id: 2
       author: your.name
       changes:
         - partiqlFile:
-            path: "test.sql"
-            dbms: dynamodb
-            relativeToChangelogFile: "true"
+            path: "test.partiql"
             splitStatements: true
+            endDelimiter: "@@"
         - rollback:
             partiqlFile:
-              path: "test-rollback.sql"
-              relativeToChangelogFile: "true"</code></pre>
+              path: "test-rollback.partiql"
+              splitStatements: true
+              endDelimiter: "@@"</code></pre>
             </div>
             <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
@@ -213,16 +143,10 @@
       "changeSet": {
         "id": "1",
         "author": "your.name",
-        "labels": "example-label",
-        "context": "example-context",
-        "failOnError": true,
         "changes": [
           {
             "createDynamoTable": {
-              "tableName": "Music",
-              "billingMode": "PROVISIONED",
-              "deletionProtectionEnabled": false,
-              "tableClass": "STANDARD",
+              "tableName": "MusicPartiqlFileTest",
               "keySchema": {
                 "hashAttributeName": "Artist",
                 "rangeAttributeName": "SongTitle"
@@ -239,76 +163,6 @@
                     "attributeName": "SongTitle",
                     "attributeType": "S"
                   }
-                },
-                {
-                  "attributeDefinition": {
-                    "attributeName": "AlbumTitle",
-                    "attributeType": "S"
-                  }
-                }
-              ],
-              "localSecondaryIndexes": [
-                {
-                  "localSecondaryIndex": {
-                    "indexName": "secondaryIndex",
-                    "keySchema": {
-                      "hashAttributeName": "Artist",
-                      "rangeAttributeName": "AlbumTitle"
-                    },
-                    "projection": {
-                      "projectionType": "INCLUDE",
-                      "nonKeyAttributes":[
-                        {
-                          "attributeName": "SongTitle"
-                        }
-                      ]
-                    }
-                  }
-                }
-              ],
-              "globalSecondaryIndexes": [
-                {
-                  "globalSecondaryIndex": {
-                    "indexName": "globalIndex",
-                    "keySchema": {
-                      "hashAttributeName": "Artist",
-                      "rangeAttributeName": "AlbumTitle"
-                    },
-                    "projection": {
-                      "projectionType": "INCLUDE",
-                      "nonKeyAttributes": [
-                        {
-                          "attributeName": "SongTitle"
-                        }
-                      ]
-                    },
-                    "provisionedThroughput": {
-                      "readCapacityUnits": 12,
-                      "writeCapacityUnits": 12
-                    }
-                  }
-                }
-              ],
-              "sseSpecification": {
-                "enable": true,
-                "sseType": "KMS"
-              },
-              "streamSpecification": {
-                "streamEnabled": true,
-                "streamViewType": "NEW_IMAGE"
-              },
-              "tags": [
-                {
-                  "tag": {
-                    "key": "tagKey1",
-                    "value": "tagValue1"
-                  }
-                },
-                {
-                  "tag": {
-                    "key": "tagKey2",
-                    "value": "tagValue2"
-                  }
                 }
               ],
               "provisionedThroughput": {
@@ -321,7 +175,7 @@
         "rollback": [
           {
             "deleteDynamoTable": {
-              "tableName": "Music"
+              "tableName": "MusicPartiqlFileTest"
             }
           }
         ]
@@ -334,17 +188,18 @@
         "changes": [
           {
             "partiqlFile": {
-              "path": "test.sql",
-              "relativeToChangelogFile": true,
-              "splitStatements": true
+              "path": "test.partiql",
+              "splitStatements": true,
+              "endDelimiter":"@@"
             }
           }
         ],
         "rollback": [
           {
             "partiqlFile": {
-              "path": "test-rollback.sql",
-              "relativeToChangelogFile": true
+              "path": "test-rollback.partiql",
+              "splitStatements": true,
+              "endDelimiter":"@@"
             }
           }
         ]
@@ -354,10 +209,8 @@
 }</code></pre>
             </div>
             <h2>PartiQL file contents</h2>
-            <p>In this example, you can use the following PartiQL for <code class="language-text">test.sql</code>:</p><pre xml:space="preserve"><code class="language-sql">INSERT INTO "Music" value {'Artist' : 'Taras Chubay','SongTitle' : 'Вона'};
-INSERT INTO "Music" value {'Artist' : 'Alan Walker','SongTitle' : 'Faded'};</code></pre>
-            <p>You can use the following PartiQL for <code class="language-text">test-rollback.sql</code>:</p><pre xml:space="preserve"><code class="language-sql">DELETE FROM Music WHERE Artist='Taras Chubay' AND SongTitle='Вона';
-DELETE FROM Music WHERE Artist='Alan Walker' AND SongTitle='Faded'</code></pre>
+            <p>In this example, you can use the following PartiQL for <code class="language-text">test.partiql</code>:</p><pre xml:space="preserve"><code class="language-sql">INSERT INTO MusicPartiqlFileTest value {'Artist' : 'Taras Chubay','SongTitle' : 'Вона'} @@ INSERT INTO MusicPartiqlFileTestXML value {'Artist' : 'Alan Walker','SongTitle' : 'Faded'}</code></pre>
+            <p>You can use the following PartiQL for <code class="language-text">test-rollback.partiql</code>:</p><pre xml:space="preserve"><code class="language-sql">DELETE FROM MusicPartiqlFileTest WHERE Artist='Taras Chubay' AND SongTitle='Вона' @@ DELETE FROM MusicPartiqlFileTestXML WHERE Artist='Alan Walker' AND SongTitle='Faded'</code></pre>
         </div>
         <h2 id="database-support">Database support</h2>
         <p>This <MadCap:variable name="General.changetypes" /> is only supported for <a href="../../start/tutorials/amazon-dynamodb/amazon-dynamodb.htm">Amazon DynamoDB</a>.</p>

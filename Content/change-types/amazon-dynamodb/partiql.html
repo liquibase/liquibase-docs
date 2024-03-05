@@ -74,71 +74,43 @@
     http://www.liquibase.org/xml/ns/pro-dynamodb
     http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
 
-    &lt;changeSet id="1" author="as" labels="example-label" context="example-context" failOnError="true"&gt;
-        &lt;dynamodb-pro:createDynamoTable tableName="Music" billingMode="PROVISIONED" deletionProtectionEnabled="false"
-            tableClass="STANDARD"&gt;
+    &lt;changeSet id="1" author="your.name"&gt;
+        &lt;dynamodb-pro:createDynamoTable tableName="MusicPartiqlTestXML"&gt;
             &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
             &lt;dynamodb-pro:attributeDefinitions&gt;
                 &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
                 &lt;dynamodb-pro:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
-                &lt;dynamodb-pro:attributeDefinition attributeName="AlbumTitle" attributeType="S"/&gt;
             &lt;/dynamodb-pro:attributeDefinitions&gt;
-
             &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="10" writeCapacityUnits="10"/&gt;
-
-            &lt;dynamodb-pro:localSecondaryIndexes&gt;
-                &lt;dynamodb-pro:localSecondaryIndex indexName="secondaryIndex"&gt;
-                    &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="AlbumTitle"/&gt;
-                    &lt;dynamodb-pro:projection projectionType="INCLUDE"&gt;
-                        &lt;dynamodb-pro:nonKeyAttributes attributeName="SongTitle"/&gt;
-                    &lt;/dynamodb-pro:projection&gt;
-                &lt;/dynamodb-pro:localSecondaryIndex&gt;
-            &lt;/dynamodb-pro:localSecondaryIndexes&gt;
-
-            &lt;dynamodb-pro:globalSecondaryIndexes&gt;
-                &lt;dynamodb-pro:globalSecondaryIndex indexName="globalIndex"&gt;
-                    &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="AlbumTitle"/&gt;
-                    &lt;dynamodb-pro:projection projectionType="INCLUDE"&gt;
-                        &lt;dynamodb-pro:nonKeyAttributes attributeName="SongTitle"/&gt;
-                    &lt;/dynamodb-pro:projection&gt;
-                    &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="12" writeCapacityUnits="12"/&gt;
-                &lt;/dynamodb-pro:globalSecondaryIndex&gt;
-            &lt;/dynamodb-pro:globalSecondaryIndexes&gt;
-            &lt;dynamodb-pro:streamSpecification streamEnabled="true" streamViewType="NEW_IMAGE"/&gt;
-            &lt;dynamodb-pro:sseSpecification enabled="true" sseType="KMS"/&gt;
-            &lt;dynamodb-pro:tags&gt;
-                &lt;dynamodb-pro:tag key="tagKey1" value="tagValue1"/&gt;
-                &lt;dynamodb-pro:tag key="tagKey2" value="tagValue2"/&gt;
-            &lt;/dynamodb-pro:tags&gt;
         &lt;/dynamodb-pro:createDynamoTable&gt;
 
         &lt;rollback&gt;
-            &lt;dynamodb-pro:deleteDynamoTable tableName="Music"/&gt;
+            &lt;dynamodb-pro:deleteDynamoTable tableName="MusicPartiqlTestXML"/&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
 
     &lt;changeSet id="2" author="your.name"&gt;
-        &lt;dynamodb-pro:partiql&gt;INSERT INTO Music value {'Artist' : 'Steve Jablonsky','SongTitle' : 'Arrival to Earth'}&lt;/dynamodb-pro:partiql&gt;
+        &lt;comment&gt;partiql with splitStatements and endDelimiter test&lt;/comment&gt;
+        &lt;dynamodb-pro:partiql splitStatements="true" endDelimiter="@@"&gt;
+            INSERT INTO MusicPartiqlTestXML value {'Artist' : '3 Doors Down','SongTitle' : 'Kryptonite'}@@ INSERT INTO MusicPartiqlTestXML value {'Artist' : 'Mike Oldfield','SongTitle' : 'Man in the Rain'}
+        &lt;/dynamodb-pro:partiql&gt;
 
         &lt;rollback&gt;
-            &lt;dynamodb-pro:partiql&gt;DELETE FROM Music WHERE Artist='Steve Jablonsky' AND SongTitle='Arrival to Earth'&lt;/dynamodb-pro:partiql&gt;
+            &lt;dynamodb-pro:partiql splitStatements="true" endDelimiter="@@"&gt;
+                DELETE FROM MusicPartiqlTestXML WHERE Artist='3 Doors Down' AND SongTitle='Kryptonite'@@ DELETE FROM MusicPartiqlTestXML WHERE Artist='Mike Oldfield' AND SongTitle='Man in the Rain'
+            &lt;/dynamodb-pro:partiql&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
+
 &lt;/databaseChangeLog&gt;</code></pre>
             </div>
             <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
       id: 1
       author: your.name
-      labels: example-label
-      context: example-context
-      failOnError: true
       changes:
         - createDynamoTable:
-            tableName: Music
-            billingMode: PROVISIONED
-            deletionProtectionEnabled: false
-            tableClass: STANDARD
+            tableName: MusicPartiqlTestYAML
             keySchema:
               hashAttributeName: Artist
               rangeAttributeName: SongTitle
@@ -149,60 +121,27 @@
               - attributeDefinition:
                   attributeName: SongTitle
                   attributeType: S
-              - attributeDefinition:
-                  attributeName: AlbumTitle
-                  attributeType: S
-            localSecondaryIndexes:
-              - localSecondaryIndex:
-                  indexName: secondaryIndex
-                  keySchema:
-                    hashAttributeName: Artist
-                    rangeAttributeName: AlbumTitle
-                  projection:
-                    projectionType: INCLUDE
-                    nonKeyAttributes:
-                      - attributeName: SongTitle
-            globalSecondaryIndexes:
-              - globalSecondaryIndex:
-                  indexName: globalIndex
-                  keySchema:
-                    hashAttributeName: Artist
-                    rangeAttributeName: AlbumTitle
-                  projection:
-                    projectionType: INCLUDE
-                    nonKeyAttributes:
-                      - attributeName: SongTitle
-                  provisionedThroughput:
-                    readCapacityUnits: 12
-                    writeCapacityUnits: 12
-            streamSpecification:
-              streamEnabled: true
-              streamViewType: NEW_IMAGE
-            sseSpecification:
-              enabled: true
-              sseType: KMS
-            tags:
-              - key: tagKey1
-                value: tagValue1
-              - key: tagKey2
-                value: tagValue2
             provisionedThroughput:
               readCapacityUnits: 10
               writeCapacityUnits: 10
-
       rollback:
         deleteDynamoTable:
-          tableName: Music
+          tableName: MusicPartiqlTestYAML
 
   - changeSet:
       id: 2
       author: your.name
+      comment: partiql with splitStatements and endDelimiter test
       changes:
         - partiql:
-            partiql: "INSERT INTO Music value {'Artist' : 'Steve Jablonsky','SongTitle' : 'Arrival to Earth'}"
+            splitStatements: true
+            endDelimiter: "@@"
+            partiql: "INSERT INTO MusicPartiqlTestYAML value {'Artist' : '3 Doors Down','SongTitle' : 'Kryptonite'}@@ INSERT INTO MusicPartiqlTestYAML value {'Artist' : 'Mike Oldfield','SongTitle' : 'Man in the Rain'}"
         - rollback:
             partiql:
-              partiql: "DELETE FROM Music WHERE Artist='Steve Jablonsky' AND SongTitle='Arrival to Earth'"</code></pre>
+              splitStatements: true
+              endDelimiter: "@@"
+              partiql: "DELETE FROM MusicPartiqlTestYAML WHERE Artist='3 Doors Down' AND SongTitle='Kryptonite'@@ DELETE FROM MusicPartiqlTestYAML WHERE Artist='Mike Oldfield' AND SongTitle='Man in the Rain'"</code></pre>
             </div>
             <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
@@ -210,16 +149,10 @@
       "changeSet": {
         "id": "1",
         "author": "your.name",
-        "labels": "example-label",
-        "context": "example-context",
-        "failOnError": true,
         "changes": [
           {
             "createDynamoTable": {
-              "tableName": "Music",
-              "billingMode": "PROVISIONED",
-              "deletionProtectionEnabled": false,
-              "tableClass": "STANDARD",
+              "tableName": "MusicPartiqlTestJson",
               "keySchema": {
                 "hashAttributeName": "Artist",
                 "rangeAttributeName": "SongTitle"
@@ -236,76 +169,6 @@
                     "attributeName": "SongTitle",
                     "attributeType": "S"
                   }
-                },
-                {
-                  "attributeDefinition": {
-                    "attributeName": "AlbumTitle",
-                    "attributeType": "S"
-                  }
-                }
-              ],
-              "localSecondaryIndexes": [
-                {
-                  "localSecondaryIndex": {
-                    "indexName": "secondaryIndex",
-                    "keySchema": {
-                      "hashAttributeName": "Artist",
-                      "rangeAttributeName": "AlbumTitle"
-                    },
-                    "projection": {
-                      "projectionType": "INCLUDE",
-                      "nonKeyAttributes":[
-                        {
-                          "attributeName": "SongTitle"
-                        }
-                      ]
-                    }
-                  }
-                }
-              ],
-              "globalSecondaryIndexes": [
-                {
-                  "globalSecondaryIndex": {
-                    "indexName": "globalIndex",
-                    "keySchema": {
-                      "hashAttributeName": "Artist",
-                      "rangeAttributeName": "AlbumTitle"
-                    },
-                    "projection": {
-                      "projectionType": "INCLUDE",
-                      "nonKeyAttributes": [
-                        {
-                          "attributeName": "SongTitle"
-                        }
-                      ]
-                    },
-                    "provisionedThroughput": {
-                      "readCapacityUnits": 12,
-                      "writeCapacityUnits": 12
-                    }
-                  }
-                }
-              ],
-              "sseSpecification": {
-                "enable": true,
-                "sseType": "KMS"
-              },
-              "streamSpecification": {
-                "streamEnabled": true,
-                "streamViewType": "NEW_IMAGE"
-              },
-              "tags": [
-                {
-                  "tag": {
-                    "key": "tagKey1",
-                    "value": "tagValue1"
-                  }
-                },
-                {
-                  "tag": {
-                    "key": "tagKey2",
-                    "value": "tagValue2"
-                  }
                 }
               ],
               "provisionedThroughput": {
@@ -318,7 +181,7 @@
         "rollback": [
           {
             "deleteDynamoTable": {
-              "tableName": "Music"
+              "tableName": "MusicPartiqlTestJson"
             }
           }
         ]
@@ -328,17 +191,22 @@
       "changeSet": {
         "id": "2",
         "author": "your.name",
+        "comment": "partiql with splitStatements and endDelimiter test",
         "changes": [
           {
             "partiql": {
-              "partiql": "INSERT INTO Music value {'Artist' : 'Steve Jablonsky','SongTitle' : 'Arrival to Earth'}"
+              "partiql": "INSERT INTO MusicPartiqlTestJson value {'Artist' : '3 Doors Down','SongTitle' : 'Kryptonite'}@@ INSERT INTO MusicPartiqlTestJson value {'Artist' : 'Mike Oldfield','SongTitle' : 'Man in the Rain'}",
+              "splitStatements": true,
+              "endDelimiter": "@@"
             }
           }
         ],
         "rollback": [
           {
             "partiql": {
-              "partiql": "DELETE FROM Music WHERE Artist='Steve Jablonsky' AND SongTitle='Arrival to Earth'"
+              "partiql": "DELETE FROM MusicPartiqlTestJson WHERE Artist='3 Doors Down' AND SongTitle='Kryptonite'@@ DELETE FROM MusicPartiqlTestJson WHERE Artist='Mike Oldfield' AND SongTitle='Man in the Rain'",
+              "splitStatements": true,
+              "endDelimiter": "@@"
             }
           }
         ]
