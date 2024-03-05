@@ -65,14 +65,287 @@
                 <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
                 </li>
             </ul>
-            <div id="xml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:dynamodb-pro="http://www.liquibase.org/xml/ns/pro-dynamodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+    http://www.liquibase.org/xml/ns/pro-dynamodb
+    http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
+
+    &lt;changeSet id="1" author="as" labels="example-label" context="example-context" failOnError="true"&gt;
+        &lt;dynamodb-pro:createDynamoTable tableName="Music" billingMode="PROVISIONED" deletionProtectionEnabled="false"
+            tableClass="STANDARD"&gt;
+            &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
+            &lt;dynamodb-pro:attributeDefinitions&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
+                &lt;dynamodb-pro:attributeDefinition attributeName="AlbumTitle" attributeType="S"/&gt;
+            &lt;/dynamodb-pro:attributeDefinitions&gt;
+
+            &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="10" writeCapacityUnits="10"/&gt;
+
+            &lt;dynamodb-pro:localSecondaryIndexes&gt;
+                &lt;dynamodb-pro:localSecondaryIndex indexName="secondaryIndex"&gt;
+                    &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="AlbumTitle"/&gt;
+                    &lt;dynamodb-pro:projection projectionType="INCLUDE"&gt;
+                        &lt;dynamodb-pro:nonKeyAttributes attributeName="SongTitle"/&gt;
+                    &lt;/dynamodb-pro:projection&gt;
+                &lt;/dynamodb-pro:localSecondaryIndex&gt;
+            &lt;/dynamodb-pro:localSecondaryIndexes&gt;
+
+            &lt;dynamodb-pro:globalSecondaryIndexes&gt;
+                &lt;dynamodb-pro:globalSecondaryIndex indexName="globalIndex"&gt;
+                    &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="AlbumTitle"/&gt;
+                    &lt;dynamodb-pro:projection projectionType="INCLUDE"&gt;
+                        &lt;dynamodb-pro:nonKeyAttributes attributeName="SongTitle"/&gt;
+                    &lt;/dynamodb-pro:projection&gt;
+                    &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="12" writeCapacityUnits="12"/&gt;
+                &lt;/dynamodb-pro:globalSecondaryIndex&gt;
+            &lt;/dynamodb-pro:globalSecondaryIndexes&gt;
+            &lt;dynamodb-pro:streamSpecification streamEnabled="true" streamViewType="NEW_IMAGE"/&gt;
+            &lt;dynamodb-pro:sseSpecification enabled="true" sseType="KMS"/&gt;
+            &lt;dynamodb-pro:tags&gt;
+                &lt;dynamodb-pro:tag key="tagKey1" value="tagValue1"/&gt;
+                &lt;dynamodb-pro:tag key="tagKey2" value="tagValue2"/&gt;
+            &lt;/dynamodb-pro:tags&gt;
+        &lt;/dynamodb-pro:createDynamoTable&gt;
+
+        &lt;rollback&gt;
+            &lt;dynamodb-pro:deleteDynamoTable tableName="Music"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="2" author="your.name"&gt;
+        &lt;dynamodb-pro:partiql&gt;INSERT INTO Music value {'Artist' : 'Steve Jablonsky','SongTitle' : 'Arrival to Earth'}&lt;/dynamodb-pro:partiql&gt;
+
+        &lt;rollback&gt;
+            &lt;dynamodb-pro:partiql&gt;DELETE FROM Music WHERE Artist='Steve Jablonsky' AND SongTitle='Arrival to Earth'&lt;/dynamodb-pro:partiql&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
             </div>
-            <div id="yaml_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: your.name
+      labels: example-label
+      context: example-context
+      failOnError: true
+      changes:
+        - createDynamoTable:
+            tableName: Music
+            billingMode: PROVISIONED
+            deletionProtectionEnabled: false
+            tableClass: STANDARD
+            keySchema:
+              hashAttributeName: Artist
+              rangeAttributeName: SongTitle
+            attributeDefinitions:
+              - attributeDefinition:
+                  attributeName: Artist
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: SongTitle
+                  attributeType: S
+              - attributeDefinition:
+                  attributeName: AlbumTitle
+                  attributeType: S
+            localSecondaryIndexes:
+              - localSecondaryIndex:
+                  indexName: secondaryIndex
+                  keySchema:
+                    hashAttributeName: Artist
+                    rangeAttributeName: AlbumTitle
+                  projection:
+                    projectionType: INCLUDE
+                    nonKeyAttributes:
+                      - attributeName: SongTitle
+            globalSecondaryIndexes:
+              - globalSecondaryIndex:
+                  indexName: globalIndex
+                  keySchema:
+                    hashAttributeName: Artist
+                    rangeAttributeName: AlbumTitle
+                  projection:
+                    projectionType: INCLUDE
+                    nonKeyAttributes:
+                      - attributeName: SongTitle
+                  provisionedThroughput:
+                    readCapacityUnits: 12
+                    writeCapacityUnits: 12
+            streamSpecification:
+              streamEnabled: true
+              streamViewType: NEW_IMAGE
+            sseSpecification:
+              enabled: true
+              sseType: KMS
+            tags:
+              - key: tagKey1
+                value: tagValue1
+              - key: tagKey2
+                value: tagValue2
+            provisionedThroughput:
+              readCapacityUnits: 10
+              writeCapacityUnits: 10
+
+      rollback:
+        deleteDynamoTable:
+          tableName: Music
+
+  - changeSet:
+      id: 2
+      author: your.name
+      changes:
+        - partiql:
+            partiql: "INSERT INTO Music value {'Artist' : 'Steve Jablonsky','SongTitle' : 'Arrival to Earth'}"
+        - rollback:
+            partiql:
+              partiql: "DELETE FROM Music WHERE Artist='Steve Jablonsky' AND SongTitle='Arrival to Earth'"</code></pre>
             </div>
-            <div id="json_example" class="js-tabcontent">
-                <p>Tab content</p>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "your.name",
+        "labels": "example-label",
+        "context": "example-context",
+        "failOnError": true,
+        "changes": [
+          {
+            "createDynamoTable": {
+              "tableName": "Music",
+              "billingMode": "PROVISIONED",
+              "deletionProtectionEnabled": false,
+              "tableClass": "STANDARD",
+              "keySchema": {
+                "hashAttributeName": "Artist",
+                "rangeAttributeName": "SongTitle"
+              },
+              "attributeDefinitions": [
+                {
+                  "attributeDefinition": {
+                    "attributeName": "Artist",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "SongTitle",
+                    "attributeType": "S"
+                  }
+                },
+                {
+                  "attributeDefinition": {
+                    "attributeName": "AlbumTitle",
+                    "attributeType": "S"
+                  }
+                }
+              ],
+              "localSecondaryIndexes": [
+                {
+                  "localSecondaryIndex": {
+                    "indexName": "secondaryIndex",
+                    "keySchema": {
+                      "hashAttributeName": "Artist",
+                      "rangeAttributeName": "AlbumTitle"
+                    },
+                    "projection": {
+                      "projectionType": "INCLUDE",
+                      "nonKeyAttributes":[
+                        {
+                          "attributeName": "SongTitle"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "globalSecondaryIndexes": [
+                {
+                  "globalSecondaryIndex": {
+                    "indexName": "globalIndex",
+                    "keySchema": {
+                      "hashAttributeName": "Artist",
+                      "rangeAttributeName": "AlbumTitle"
+                    },
+                    "projection": {
+                      "projectionType": "INCLUDE",
+                      "nonKeyAttributes": [
+                        {
+                          "attributeName": "SongTitle"
+                        }
+                      ]
+                    },
+                    "provisionedThroughput": {
+                      "readCapacityUnits": 12,
+                      "writeCapacityUnits": 12
+                    }
+                  }
+                }
+              ],
+              "sseSpecification": {
+                "enable": true,
+                "sseType": "KMS"
+              },
+              "streamSpecification": {
+                "streamEnabled": true,
+                "streamViewType": "NEW_IMAGE"
+              },
+              "tags": [
+                {
+                  "tag": {
+                    "key": "tagKey1",
+                    "value": "tagValue1"
+                  }
+                },
+                {
+                  "tag": {
+                    "key": "tagKey2",
+                    "value": "tagValue2"
+                  }
+                }
+              ],
+              "provisionedThroughput": {
+                "readCapacityUnits": 10,
+                "writeCapacityUnits": 10
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "deleteDynamoTable": {
+              "tableName": "Music"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "your.name",
+        "changes": [
+          {
+            "partiql": {
+              "partiql": "INSERT INTO Music value {'Artist' : 'Steve Jablonsky','SongTitle' : 'Arrival to Earth'}"
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "partiql": {
+              "partiql": "DELETE FROM Music WHERE Artist='Steve Jablonsky' AND SongTitle='Arrival to Earth'"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
             </div>
         </div>
         <h2 id="database-support">Database support</h2>
