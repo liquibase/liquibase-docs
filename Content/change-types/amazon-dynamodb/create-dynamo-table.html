@@ -70,31 +70,55 @@
             </tbody>
         </table>
         <h2>Nested tags</h2>
+        <p>For more information, see <a href="https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_CreateTable.html#API_CreateTable_RequestParameters">Amazon DynamoDB: CreateTable</a>.</p>
         <h3><code>keySchema</code>
         </h3>
-        <p><b>Required.</b> Specifies the attributes that make up the primary key for a table or an index. The attributes in <code class="language-text">keySchema</code> must also be defined in the <code class="language-text">attributeDefinitions</code> array.</p>
-        <p><code class="language-text">keySchema</code> has the following <MadCap:variable name="General.Param/Attribute" />s:</p>
+        <p><b>Required.</b> Specifies the attributes that make up the primary key for a table or an index. You must also define all attributes in <code class="language-text">keySchema</code> in the <code class="language-text">attributeDefinitions</code> array.</p>
+        <p><code class="language-text">keySchema</code> has the following attributes:</p>
         <ul>
-            <li><code>hashAttributeName</code>: partition key (primary key). DynamoDB uses an internal hash function to evenly distribute data items across partitions, based on their partition key values.</li>
-            <li><code>rangeAttributeName</code>: sort key. DynamoDB stores items with the same partition key physically close together, in sorted order by the sort key value.</li>
+            <li><code>hashAttributeName</code>&#160;<b>(required)</b>: the name of the partition key (primary key). DynamoDB uses an internal hash function to evenly distribute data items across partitions, based on their partition key values.</li>
+            <li><code>rangeAttributeName</code>&#160;<b>(required)</b>: the name of the sort key. DynamoDB stores items with the same partition key physically close together, in sorted order by the sort key value.</li>
         </ul>
-        <p>&lt;more stuff. Is it needed?&gt;</p>
         <h3><code>attributeDefinitions</code>
         </h3>
-        <p><b>Required.</b>
-        </p>
+        <p><b>Required.</b> An array of attributes that describe the key schema for tables and indexes. You must specify any attributes in <code>keySchema</code> within individual <code>attributeDefinition</code> objects in the <code>attributeDefinitions</code> array.</p>
+        <p>Individual <code>attributeDefinition</code> objects have the following <MadCap:variable name="General.Param/Attribute" />s:</p>
+        <ul>
+            <li><code>attributeName</code>&#160;<b>(required)</b>: the name of the attribute.</li>
+            <li><code>attributeType</code>&#160;<b>(required)</b>: the data type of the attribute. Valid values are <code>S</code> (string), <code>N</code> (number), and <code>B</code> (binary).</li>
+        </ul>
         <h3><code>provisionedThroughput</code>
         </h3>
+        <p><b>Optional.</b> Specifies the provisioned throughput settings for a specified table or index. You can modify these settings using the <code><MadCap:xref href="update-dynamo-table.html">updateDynamoTable</MadCap:xref></code> and <code><MadCap:xref href="update-table-provisioned-throughput.html">updateTableProvisionedThroughput</MadCap:xref></code> <MadCap:variable name="General.changetypes" />s.</p>
+        <p>If you set <code>billingMode</code> to <code>PROVISIONED</code>, you must specify this property. If you set <code>billingMode</code> to <code>PAY_PER_REQUEST</code>, you cannot specify this property.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you originally set <code>billingMode</code> to <code>PROVISIONED</code> and want to change it to <code>PAY_PER_REQUEST</code>, you must do this with <code>updateDynamoTable</code>. You cannot use <code>updateTableProvisionedThroughput</code> because it only accepts the <code>PROVISIONED</code> billing mode.</p>
+        <p><code>provisionedThroughput</code> has the following attributes:</p>
+        <ul>
+            <li><code>readCapacityUnits</code>&#160;<b>(required)</b>: the maximum number of reads per second before DynamoDB returns a <code>ThrottlingException</code>. Minimum valid value:&#160;<code>1</code>.</li>
+            <li><code>writeCapacityUnits</code>&#160;<b>(required)</b>: the maximum number of writes per second before DynamoDB returns a <code>ThrottlingException</code>. Minimum valid value:&#160;<code>1</code>.</li>
+        </ul>
+        <p>If you set <code>billingMode</code> to <code>PAY_PER_REQUEST</code>, <MadCap:variable name="General.Liquibase" /> sets the values of <code>readCapacityUnits</code> and <code>writeCapacityUnits</code> to <code>0</code>.</p>
+        <p>For more information, see <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.ReadWriteCapacityMode.html">Read/write capacity mode</a> and <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ProvisionedThroughput.html">Managing settings on DynamoDB provisioned capacity tables</a>.</p>
         <h3><code>localSecondaryIndexes</code>
         </h3>
+        <p><b>Optional.</b>
+        </p>
         <h3><code>globalSecondaryIndexes</code>
         </h3>
+        <p><b>Optional.</b>
+        </p>
         <h3><code>tags</code>
         </h3>
+        <p><b>Optional.</b>
+        </p>
         <h3><code>streamSpecification</code>
         </h3>
+        <p><b>Optional.</b>
+        </p>
         <h3><code>sseSpecification</code>
         </h3>
+        <p><b>Optional.</b>
+        </p>
         <h2 id="examples">Examples</h2>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
@@ -112,7 +136,7 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
     http://www.liquibase.org/xml/ns/pro-dynamodb http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
 
-    &lt;changeSet id="1" author="fl"&gt;
+    &lt;changeSet id="1" author="your.name"&gt;
         &lt;dynamodb:createDynamoTable tableName="Music3XML" billingMode="PROVISIONED" tableClass="STANDARD" deletionProtectionEnabled="false"&gt;
             &lt;dynamodb:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
             &lt;dynamodb:attributeDefinitions&gt;
@@ -156,7 +180,7 @@
             <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
       id: 1
-      author: fl
+      author: your.name
       changes:
         - createDynamoTable:
             tableName: Music3YAML
@@ -222,7 +246,7 @@
     {
       "changeSet": {
         "id": "1",
-        "author": "fl",
+        "author": "your.name",
         "changes": [
           {
             "createDynamoTable": {
