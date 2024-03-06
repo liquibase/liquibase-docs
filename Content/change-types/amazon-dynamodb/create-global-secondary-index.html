@@ -8,12 +8,12 @@
     <body>
         <h1 id="create-global-secondary-index"><code>createGlobalSecondaryIndex</code>
         </h1>
-        <p>The <code class="language-text">createGlobalSecondaryIndex</code>&#160;<MadCap:variable name="General.changetypes" /> &lt;purpose&gt;.</p>
+        <p><code class="language-text">createGlobalSecondaryIndex</code> is a <MadCap:variable name="General.changetypes" /> in the <a href="../../start/tutorials/amazon-dynamodb/home.htm"><MadCap:variable name="General.Liquibase" /> DynamoDB extension</a> that creates a new global secondary index. For more information, see <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html">Using Global Secondary Indexes in DynamoDB</a>.</p>
         <h2>Uses</h2>
-        <p>&lt;uses&gt;</p>
+        <p>A secondary index lets you query the data in the table using an alternate key, in addition to queries against the primary key. For more information, see <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html">Core components of Amazon DynamoDB</a>.</p>
         <h2>Run <code class="language-text">createGlobalSecondaryIndex</code></h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/change-type-run-syntax.flsnp" />
-        <p>Now, you should see &lt;result&gt;.</p>
+        <p>Now, you should see your new global secondary index.</p>
         <h2 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-amazon-dynamodb-required-attributes.flsnp" />
         <table>
@@ -45,8 +45,15 @@
         </table>
         <h3><code>attributeDefinitions</code>
         </h3>
+        <p><b>Required.</b>
+        </p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/change-types/dynamodb/change-type-attribute-definitions.flsnp" />
         <h3><code>globalSecondaryIndex</code>
         </h3>
+        <p><b>Required.</b>
+        </p>
+        <p>An individual <code>globalSecondaryIndex</code> object to create on the table. You can specify between 1 and 20 global secondary indexes on a particular table.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/change-types/dynamodb/change-type-global-secondary-index.flsnp" />
         <h2 id="examples">Examples</h2>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
@@ -66,7 +73,7 @@
     http://www.liquibase.org/xml/ns/pro-dynamodb
     http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
 
-    &lt;changeSet id="1.5" author="Oleh"&gt;
+    &lt;changeSet id="1" author="your.name"&gt;
         &lt;dynamodb-pro:createDynamoTable tableName="GlobalIndexTest"&gt;
             &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
             &lt;dynamodb-pro:attributeDefinitions&gt;
@@ -76,6 +83,12 @@
             &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="10" writeCapacityUnits="10"/&gt;
         &lt;/dynamodb-pro:createDynamoTable&gt;
 
+        &lt;rollback&gt;
+            &lt;dynamodb-pro:deleteDynamoTable tableName="GlobalIndexTest"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="2" author="your.name"&gt;
         &lt;dynamodb-pro:createGlobalSecondaryIndex tableName="GlobalIndexTest"&gt;
             &lt;dynamodb-pro:attributeDefinitions&gt;
                 &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
@@ -91,7 +104,7 @@
         &lt;/dynamodb-pro:createGlobalSecondaryIndex&gt;
 
         &lt;rollback&gt;
-            &lt;dynamodb-pro:deleteDynamoTable tableName="GlobalIndexTest"/&gt;
+            &lt;dynamodb-pro:deleteGlobalSecondaryIndex tableName="GlobalIndexTest" indexName="globalIndex2" /&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
 
@@ -99,8 +112,8 @@
             </div>
             <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
-      id: 1.5
-      author: Oleh
+      id: 1
+      author: your.name
       changes:
         - createDynamoTable:
             tableName: GlobalIndexTestYaml
@@ -117,6 +130,14 @@
             provisionedThroughput:
               readCapacityUnits: 10
               writeCapacityUnits: 10
+      rollback:
+        - deleteDynamoTable:
+            tableName: GlobalIndexTestYaml
+
+  - changeSet:
+      id: 2
+      author: your.name
+      changes:
         - createGlobalSecondaryIndex:
             tableName: GlobalIndexTestYaml
             attributeDefinitions:
@@ -139,15 +160,16 @@
                 readCapacityUnits: 9
                 writeCapacityUnits: 9
       rollback:
-        - deleteDynamoTable:
-            tableName: GlobalIndexTestYaml</code></pre>
+        - deleteGlobalSecondaryIndex:
+            tableName: GlobalIndexTestYaml
+            indexName: globalIndex2Yaml</code></pre>
             </div>
             <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
     {
       "changeSet": {
-        "id": "1.5",
-        "author": "Oleh",
+        "id": "1",
+        "author": "your.name",
         "changes": [
           {
             "createDynamoTable": {
@@ -175,7 +197,22 @@
                 "writeCapacityUnits": 10
               }
             }
-          },
+          }
+        ],
+        "rollback": [
+          {
+            "deleteDynamoTable": {
+              "tableName": "GlobalIndexTestJson"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "your.name",
+        "changes": [
           {
             "createGlobalSecondaryIndex": {
               "tableName": "GlobalIndexTestJson",
@@ -217,8 +254,9 @@
         ],
         "rollback": [
           {
-            "deleteDynamoTable": {
-              "tableName": "GlobalIndexTestJson"
+            "deleteGlobalSecondaryIndex": {
+              "tableName": "GlobalIndexTestJson",
+              "indexName": "globalIndex2Json"
             }
           }
         ]
