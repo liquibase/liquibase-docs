@@ -9,6 +9,7 @@
         <h1 id="update-dynamo-table"><code>updateDynamoTable</code>
         </h1>
         <p><code class="language-text">updateDynamoTable</code> is a <MadCap:variable name="General.changetypes" /> in the <a href="../../start/tutorials/amazon-dynamodb/home.htm"><MadCap:variable name="General.Liquibase" /> DynamoDB extension</a> that updates an existing table. It works for tables that use both the <code class="language-text">PROVISIONED</code> and <code class="language-text">PAY_PER_REQUEST</code> billing modes.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">DynamoDB <a href="https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateTable.html">requires</a> that you specify update operations <b>one at a time</b>. This means you must specify updates to optional <MadCap:variable name="General.Liquibase" /> attributes in separate <MadCap:variable name="General.changeset" />s.</p>
         <h2>Uses</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-amazon-dynamodb-table-summary.flsnp" />
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/parameter-amazon-dynamodb-read-write-capacity.flsnp" />
@@ -76,7 +77,7 @@
         </table>
         <h3><code>provisionedThroughput</code>
         </h3>
-        <p><b>Optional.</b>
+        <p><b>Sometimes required.</b>
         </p>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/change-types/dynamodb/change-type-provisioned-throughput.flsnp" />
         <h3><code>streamSpecification</code>
@@ -99,30 +100,12 @@
                 <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
                 </li>
             </ul>
-            <div id="xml_example" class="js-tabcontent">
-                <p>The following <MadCap:variable name="General.changeset" />s work on both local and cloud instances of DynamoDB:</p><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:dynamodb-pro="http://www.liquibase.org/xml/ns/pro-dynamodb"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
     http://www.liquibase.org/xml/ns/pro-dynamodb http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
-
-    &lt;changeSet id="1" author="your.name"&gt;
-        &lt;dynamodb-pro:createDynamoTable tableName="UpdateMusicXML" billingMode="PROVISIONED" tableClass="STANDARD"&gt;
-            &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
-            &lt;dynamodb-pro:attributeDefinitions&gt;
-                &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
-                &lt;dynamodb-pro:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
-            &lt;/dynamodb-pro:attributeDefinitions&gt;
-            &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="5" writeCapacityUnits="5"/&gt;
-            &lt;dynamodb-pro:streamSpecification streamEnabled="false"/&gt;
-            &lt;dynamodb-pro:sseSpecification enabled="false"/&gt;
-        &lt;/dynamodb-pro:createDynamoTable&gt;
-
-        &lt;rollback&gt;
-            &lt;dynamodb-pro:deleteDynamoTable tableName="UpdateMusicXML"/&gt;
-        &lt;/rollback&gt;
-    &lt;/changeSet&gt;
 
     &lt;changeSet id="2" author="your.name"&gt;
         &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" billingMode="PAY_PER_REQUEST"/&gt;
@@ -145,13 +128,6 @@
             &lt;/dynamodb-pro:updateDynamoTable&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
-&lt;/databaseChangeLog&gt;</code></pre>
-                <p>The following <MadCap:variable name="General.changeset" />s only work on cloud instances of DynamoDB:</p><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:dynamodb-pro="http://www.liquibase.org/xml/ns/pro-dynamodb"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
-    http://www.liquibase.org/xml/ns/pro-dynamodb http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
 
     &lt;changeSet id="4" author="your.name"
         &lt;dynamodb-pro:updateDynamoTable tableName="UpdateMusicXML" tableClass="STANDARD_INFREQUENT_ACCESS" /&gt;
@@ -181,37 +157,7 @@
 
 &lt;/databaseChangeLog&gt;</code></pre>
             </div>
-            <div id="yaml_example" class="js-tabcontent">
-                <p>The following <MadCap:variable name="General.changeset" />s work on both local and cloud instances of DynamoDB:</p><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
-  - changeSet:
-      id: 1
-      author: your.name
-      changes:
-        - createDynamoTable:
-            tableName: UpdateMusicYAML
-            billingMode: PROVISIONED
-            tableClass: STANDARD
-            keySchema:
-              hashAttributeName: Artist
-              rangeAttributeName: SongTitle
-            attributeDefinitions:
-              - attributeDefinition:
-                  attributeName: Artist
-                  attributeType: S
-              - attributeDefinition:
-                  attributeName: SongTitle
-                  attributeType: S
-            provisionedThroughput:
-                readCapacityUnits: 5
-                writeCapacityUnits: 5
-            streamSpecification:
-              streamEnabled: false
-            sseSpecification:
-              enabled: false
-      rollback:
-        deleteDynamoTable:
-          tableName: UpdateMusicYAML
-
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
       id: 2
       author: your.name
@@ -240,8 +186,8 @@
         updateDynamoTable:
             tableName: UpdateMusicYAML
             streamSpecification:
-              streamEnabled: false</code></pre>
-                <p>The following <MadCap:variable name="General.changeset" />s only work on cloud instances of DynamoDB:</p><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+              streamEnabled: false
+
   - changeSet:
       id: 4
       author: your.name
@@ -279,59 +225,8 @@
       rollback:
         empty</code></pre>
             </div>
-            <div id="json_example" class="js-tabcontent">
-                <p>The following <MadCap:variable name="General.changeset" />s work on both local and cloud instances of DynamoDB:</p><pre xml:space="preserve"><code class="language-json">{
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
-    {
-      "changeSet": {
-        "id": "1",
-        "author": "your.name",
-        "changes": [
-          {
-            "createDynamoTable": {
-              "tableName": "UpdateMusicJSON",
-              "billingMode": "PROVISIONED",
-              "tableClass": "STANDARD",
-              "keySchema": {
-                "hashAttributeName": "Artist",
-                "rangeAttributeName": "SongTitle"
-              },
-              "attributeDefinitions": [
-                {
-                  "attributeDefinition": {
-                    "attributeName": "Artist",
-                    "attributeType": "S"
-                  }
-                },
-                {
-                  "attributeDefinition": {
-                    "attributeName": "SongTitle",
-                    "attributeType": "S"
-                  }
-                }
-              ],
-              "provisionedThroughput": {
-                "readCapacityUnits": 5,
-                "writeCapacityUnits": 5
-              },
-              "sseSpecification": {
-                "enabled": false
-              },
-              "streamSpecification": {
-                "streamEnabled": false
-              }
-            }
-          }
-        ],
-        "rollback": [
-          {
-            "deleteDynamoTable": {
-              "tableName": "UpdateMusicJSON"
-            }
-          }
-        ]
-      }
-    },
     {
       "changeSet": {
         "id": "2",
@@ -384,11 +279,7 @@
           }
         ]
       }
-    }
-  ]
-}</code></pre>
-                <p>The following <MadCap:variable name="General.changeset" />s only work on cloud instances of DynamoDB:</p><pre xml:space="preserve"><code class="language-json">{
-  "databaseChangeLog": [
+    },
     {
       "changeSet": {
         "id": "4",
@@ -457,5 +348,9 @@
         </div>
         <h2 id="database-support">Database support</h2>
         <p>This <MadCap:variable name="General.changetypes" /> is only supported for <a href="../../start/tutorials/amazon-dynamodb/home.htm">Amazon DynamoDB</a>.</p>
+        <h2>Troubleshooting</h2>
+        <p>If you try to specify incompatible operations in a single <code class="language-text">updateDynamoTable</code>&#160;<MadCap:variable name="General.changeset" />, DynamoDB throws the following error:</p><pre><code class="language-text">Caused by: software.amazon.awssdk.services.dynamodb.model.DynamoDbException: One or more parameter values were invalid: TableClass modification must be the only operation in the request (Service: DynamoDB, Status Code: 400, Request ID: RAG07IRI7RM15B61Q5OE2J7M7JVV4KQNSO5AEMVJF66Q9ASUAAJG)</code></pre>
+        <p>If you experience this error, you must separate your changes into different <MadCap:variable name="General.changeset" />s. This way, <MadCap:variable name="General.Liquibase" /> sends DynamoDB each change sequentially, so a particular request only ever contains one operation.</p>
+        <p>For example, if you were trying to update the values of <code class="language-text">tableClass</code> and <code class="language-text">deletionProtectionEnabled</code> in a single <MadCap:variable name="General.changeset" />, you must instead use one <MadCap:variable name="General.changeset" /> for the class and a second <MadCap:variable name="General.changeset" /> for the protection status.</p>
     </body>
 </html>
