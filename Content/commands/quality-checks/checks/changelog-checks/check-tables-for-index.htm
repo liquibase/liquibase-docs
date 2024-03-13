@@ -7,13 +7,13 @@
         <p>
             <MadCap:snippetText src="../../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         </p>
-        <p>This check enforces the Liquibase best-practice recommendationto assign labels to every changeset to provide better deployment control and to enhance traceability and granularity of deployments across changesets.</p>
+        <p>This check scans your target URL&#160;database tables to find tables which do not have an associated index.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Context and Label are similar, but the best-practice is to use <b>context</b> for <b>deployment environments</b> and <b>labels</b> more like <b>free-form tags</b> for features, content, release, or other process-centric filter.</p>
         <h2>Uses</h2>
         <p>Use the check to enhance deployment control of specific changesets by requiring labels be assigned to every changeset in a changelog. Whether in automation or manual testing of proposed schema changes at the dev level, labels provide better deployment control. Using labels allows just the changesets which match specified label filter(s) to be run. For example, a team could label change sets by release, or branch name, or developer name, etc and when a Liquibase job is run, only the specified subset of label-matching changesets will be deployed. This quality check, like other checks, can be configured with a severity level which returns an exit code designed to stop automated jobs, giving your team time to apply this Liquibase best practice.</p>
-        <h2>Run the ChangesetLabelCheck check</h2>
-        <p>The <code class="language-text">ChangesetLabelCheck</code> check is enabled by default, so you will not need to turn it on if you have not changed your settings previously. To run the <code class="language-text">ChangesetLabelCheck</code> check, ensure you have a  <MadCap:variable name="General.LBPro" /> license  and the <code class="language-text">checks-scope</code> property includes <code class="language-text"><MadCap:variable name="General.changelog" /></code>. The  <MadCap:xref href="../../command-arguments/checks-scope.htm">checks-scope</MadCap:xref> parameter is set in the default properties file, environment variable, or any standard method. Then, check the changelog to see if <code class="language-text">ChangesetLabelCheck</code> is enabled. </p>
-        <p>Enable the <code class="language-text">ChangesetLabelCheck</code> check by running the following command in the CLI:</p><pre><code class="language-text">liquibase checks enable --check-name=ChangesetLabelCheck</code></pre>
+        <h2>Run the checkTablesForIndex check</h2>
+        <p>The <code class="language-text">checkTablesForIndex</code> check is enabled by default, so you will not need to turn it on if you have not changed your settings previously. To run the <code class="language-text">checkTablesForIndex</code> check, ensure you have a  <MadCap:variable name="General.LBPro" /> license  and the <code class="language-text">checks-scope</code> property includes <code class="language-text">database</code>. The  <MadCap:xref href="../../command-arguments/checks-scope.htm">checks-scope</MadCap:xref> parameter is set in the default properties file, environment variable, or any standard method. Then, check the changelog to see if <code class="language-text">checkTablesForIndex</code> is enabled. </p>
+        <p>Enable the <code class="language-text">checkTablesForIndex</code> check by running the following command in the CLI:</p><pre><code class="language-text">liquibase checks enable --check-name=checkTablesForIndex</code></pre>
         <table>
             <col style="width: auto;" />
             <col style="width: auto;" />
@@ -33,10 +33,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><code class="language-text">ChangesetLabelCheck</code>
+                    <td><code class="language-text">checkTablesForIndex</code>
                     </td>
-                    <td><MadCap:variable name="General.changelog" />
-                    </td>
+                    <td>database</td>
                     <td>
                         <p>true</p>
                     </td>
@@ -47,16 +46,16 @@
                     <td>
                         <p>&lt;None&gt;</p>
                     </td>
-                    <td>This check enforces the Liquibase recommendation that labels be assigned to each changeset to provide better deployment control and to enhance traceability of efforts across changesets.</td>
+                    <td>This check scans your target URL&#160;database tables to find tables which do not have an associated index.</td>
                 </tr>
             </tbody>
         </table>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot><code class="language-text">liquibase checks enable --check-name=ChangesetLabelCheck</code> example output</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot><code class="language-text">liquibase checks enable --check-name=checkTablesForIndex</code> example output</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">
-Check 'ChangesetLabelCheck' has been enabled.
+Check 'checkTablesForIndex' has been enabled.
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
 | #   | Check Name                     | Short Name                 | Description                    | Enabled | Customization                  | Severity | Scope      |
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
@@ -184,7 +183,11 @@ Check 'ChangesetLabelCheck' has been enabled.
 |     |                                |                            | specific user-supplied         |         | SEARCH_STRING = PRIMARY_TABLE  |          | database   |
 |     |                                |                            | patterns are found in Table    |         | MESSAGE = MATCH                |          |            |
 |     |                                |                            | Comments.                      |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+<br />| CheckTablesForIndex             | database   | true    | 0        | &lt;None&gt;                         | This check scans your target   |                            |            |         |          |                                | URL database tables to find    |
+                |                                 |            |         |          |                                | tables which do not have an    |
+                |                                 |            |         |          |                                | associated index.
+               |
++---------------------------------+------------+---------+----------+--------------------------------+--------------------------------+
 | 510 | Table Comment Pattern Check    | TableCommentPatternCheck   | This check triggers when       | false   | OPERATOR = CONTAINS            | 0        | changelog, |
 |     |                                |                            | specific user-supplied         |         | SEARCH_STRING = null           |          | database   |
 |     |                                |                            | patterns are found in Table    |         | MESSAGE = A match for regular  |          |            |
@@ -214,8 +217,40 @@ Check 'ChangesetLabelCheck' has been enabled.
 |     |                                |                            | contain the required           |         | CASE_SENSITIVE = false         |          |            |
 |     |                                |                            | constraint(s).                 |         | MESSAGE = any                  |          |            |
 +-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-Liquibase command 'checks enable' was executed successfully.</code></pre>
-            </MadCap:dropDownBody>
+Liquibase command 'checks enable' was executed successfully.</code></pre>|                                 |            |         |          |                                | URL database tables to find    |
+                |                                 |            |         |          |                                | tables which do not have an    |
+                |                                 |            |         |          |                                | associated index.
+               |
+                <p>+---------------------------------+------------+---------+----------+--------------------------------+--------------------------------+</p><pre xml:space="preserve"><code class="language-text"><br />| 510 | Table Comment Pattern Check    | TableCommentPatternCheck   | This check triggers when       | false   | OPERATOR = CONTAINS            | 0        | changelog, |
+|     |                                |                            | specific user-supplied         |         | SEARCH_STRING = null           |          | database   |
+|     |                                |                            | patterns are found in Table    |         | MESSAGE = A match for regular  |          |            |
+|     |                                |                            | Comments.                      |         | expression SEARCH_STRING was   |          |            |
+|     |                                |                            |                                |         | detected in IDENTIFIER.        |          |            |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
+| 570 | Constraint must exist          | ConstraintCheckShortName   | Check for and alert when       | true    | CONSTRAINT_OPERATOR = CONTAINS | 1        | database   |
+|     |                                |                            | specified table does not       |         | TABLE_NAME = PRIMARY_TABLE     |          |            |
+|     |                                |                            | contain the required           |         | COLUMN_NAME = NULLABLECOL      |          |            |
+|     |                                |                            | constraint(s).                 |         | CONSTRAINT = PRIMARYKEY        |          |            |
+|     |                                |                            |                                |         | CASE_SENSITIVE = false         |          |            |
+|     |                                |                            |                                |         | MESSAGE = Example Message      |          |            |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
+| 570 | Constraint must exist          | ConstraintMustExist        | Check for and alert when       | false   | CONSTRAINT_OPERATOR =          | 0        | database   |
+|     |                                |                            | specified table does not       |         | STARTS_WITH                    |          |            |
+|     |                                |                            | contain the required           |         | TABLE_NAME = null              |          |            |
+|     |                                |                            | constraint(s).                 |         | COLUMN_NAME = null             |          |            |
+|     |                                |                            |                                |         | CONSTRAINT = PRIMARYKEY        |          |            |
+|     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |            |
+|     |                                |                            |                                |         | MESSAGE = The specified table  |          |            |
+|     |                                |                            |                                |         | 'TABLE_NAME' does not          |          |            |
+|     |                                |                            |                                |         | contain the required           |          |            |
+|     |                                |                            |                                |         | 'CONSTRAINT' constraint.       |          |            |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
+| 570 | Constraint must exist          | ConstraintMustExistTEST    | Check for and alert when       | true    | CONSTRAINT_OPERATOR = ALL      | 0        | database   |
+|     |                                |                            | specified table does not       |         | CONSTRAINT = Primarykey        |          |            |
+|     |                                |                            | contain the required           |         | CASE_SENSITIVE = false         |          |            |
+|     |                                |                            | constraint(s).                 |         | MESSAGE = any                  |          |            |
++-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
+Liquibase command 'checks enable' was executed successfully.</code></pre></MadCap:dropDownBody>
         </MadCap:dropDown>
     </body>
 </html>
