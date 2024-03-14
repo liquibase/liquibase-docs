@@ -2,15 +2,16 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/change-types/amazon-dynamodb/partiql-file.html" />
-        <meta name="description" content="Reference information for the partiqlFile changetype. partiqlFile is a changetype in the Liquibase DynamoDB extension that allows you to specify PartiQL statements in an external file." />
+        <meta name="description" content="Reference information for the partiqlFile changetype. partiqlFile is a changetype in the Liquibase DynamoDB extension that allows you to specify some PartiQL statements from an external file in your changesets." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <h1 id="partiql-file"><code>partiqlFile</code>
         </h1>
-        <p><code class="language-text">partiqlFile</code> is a <MadCap:variable name="General.changetypes" /> in the <a href="../../start/tutorials/amazon-dynamodb/home.htm"><MadCap:variable name="General.Liquibase" /> DynamoDB extension</a> that allows you to specify PartiQL statements in an external file. In DynamoDB <MadCap:variable name="General.changeset" />s, use <code class="language-text">partiqlFile</code> instead of <code><MadCap:xref href="../sql-file.html">sqlFile</MadCap:xref></code>.</p>
+        <p><code class="language-text">partiqlFile</code> is a <MadCap:variable name="General.changetypes" /> in the <a href="../../start/tutorials/amazon-dynamodb/home.htm"><MadCap:variable name="General.Liquibase" /> DynamoDB extension</a> that allows you to specify some PartiQL statements from an external file in your <MadCap:variable name="General.changeset" />s. In DynamoDB <MadCap:variable name="General.changeset" />s, use <code class="language-text">partiqlFile</code> instead of <code><MadCap:xref href="../sql-file.html">sqlFile</MadCap:xref></code>. For more information, see <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ql-reference.html">PartiQL - a SQL-compatible query language for Amazon DynamoDB</a>.</p>
         <h2>Uses</h2>
         <p><code class="language-text">partiqlFile</code> is useful for complex changes that are not supported through <MadCap:variable name="General.Liquibase" /> automated <MadCap:variable name="General.changetypes" />s such as stored procedures. The PartiQL contained in the file can be multi-line.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">PartiQL files must use the <code class="language-text">.sql</code> file extension to guarantee that your operating system can recognize them.</p>
         <h2>Run <code>partiqlFile</code></h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/change-type-run-syntax.flsnp" />
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/change-type-amazon-dynamodb-read-consistency.flsnp" />
@@ -35,6 +36,7 @@
                     <td>String</td>
                     <td>
                         <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/change-types/change-type-dbms.flsnp" />
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/change-type-amazon-dynamodb-partiql-dbms-support.flsnp" />
                     </td>
                     <td>Optional</td>
                 </tr>
@@ -111,26 +113,11 @@
     http://www.liquibase.org/xml/ns/pro-dynamodb
     http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
 
-    &lt;changeSet id="1" author="your.name"&gt;
-        &lt;dynamodb-pro:createDynamoTable tableName="MusicPartiqlFileTest"&gt;
-            &lt;dynamodb-pro:keySchema hashAttributeName="Artist" rangeAttributeName="SongTitle"/&gt;
-            &lt;dynamodb-pro:attributeDefinitions&gt;
-                &lt;dynamodb-pro:attributeDefinition attributeName="Artist" attributeType="S"/&gt;
-                &lt;dynamodb-pro:attributeDefinition attributeName="SongTitle" attributeType="S"/&gt;
-            &lt;/dynamodb-pro:attributeDefinitions&gt;
-            &lt;dynamodb-pro:provisionedThroughput readCapacityUnits="10" writeCapacityUnits="10"/&gt;
-        &lt;/dynamodb-pro:createDynamoTable&gt;
-
-        &lt;rollback&gt;
-            &lt;dynamodb-pro:deleteDynamoTable tableName="MusicPartiqlFileTest"/&gt;
-        &lt;/rollback&gt;
-    &lt;/changeSet&gt;
-
     &lt;changeSet id="2" author="your.name"&gt;
-        &lt;dynamodb-pro:partiqlFile path="test.partiql" splitStatements="true" endDelimiter="@@"/&gt;
+        &lt;dynamodb-pro:partiqlFile path="partiql-test.sql" splitStatements="true" endDelimiter="@@"/&gt;
 
         &lt;rollback&gt;
-            &lt;dynamodb-pro:partiqlFile path="test-rollback.partiql" splitStatements="true" endDelimiter="@@"/&gt;
+            &lt;dynamodb-pro:partiqlFile path="partiql-test-rollback.sql" splitStatements="true" endDelimiter="@@"/&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
 
@@ -138,39 +125,16 @@
             </div>
             <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
-      id: 1
-      author: your.name
-      changes:
-        - createDynamoTable:
-            tableName: MusicPartiqlFileTest
-            keySchema:
-              hashAttributeName: Artist
-              rangeAttributeName: SongTitle
-            attributeDefinitions:
-              - attributeDefinition:
-                  attributeName: Artist
-                  attributeType: S
-              - attributeDefinition:
-                  attributeName: SongTitle
-                  attributeType: S
-            provisionedThroughput:
-              readCapacityUnits: 10
-              writeCapacityUnits: 10
-      rollback:
-        deleteDynamoTable:
-          tableName: MusicPartiqlFileTest
-
-  - changeSet:
       id: 2
       author: your.name
       changes:
         - partiqlFile:
-            path: "test.partiql"
+            path: "partiql-test.sql"
             splitStatements: true
             endDelimiter: "@@"
         - rollback:
             partiqlFile:
-              path: "test-rollback.partiql"
+              path: "partiql-test-rollback.sql"
               splitStatements: true
               endDelimiter: "@@"</code></pre>
             </div>
@@ -178,54 +142,12 @@
   "databaseChangeLog": [
     {
       "changeSet": {
-        "id": "1",
-        "author": "your.name",
-        "changes": [
-          {
-            "createDynamoTable": {
-              "tableName": "MusicPartiqlFileTest",
-              "keySchema": {
-                "hashAttributeName": "Artist",
-                "rangeAttributeName": "SongTitle"
-              },
-              "attributeDefinitions": [
-                {
-                  "attributeDefinition": {
-                    "attributeName": "Artist",
-                    "attributeType": "S"
-                  }
-                },
-                {
-                  "attributeDefinition": {
-                    "attributeName": "SongTitle",
-                    "attributeType": "S"
-                  }
-                }
-              ],
-              "provisionedThroughput": {
-                "readCapacityUnits": 10,
-                "writeCapacityUnits": 10
-              }
-            }
-          }
-        ],
-        "rollback": [
-          {
-            "deleteDynamoTable": {
-              "tableName": "MusicPartiqlFileTest"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "changeSet": {
         "id": "2",
         "author": "your.name",
         "changes": [
           {
             "partiqlFile": {
-              "path": "test.partiql",
+              "path": "partiql-test.sql",
               "splitStatements": true,
               "endDelimiter":"@@"
             }
@@ -234,7 +156,7 @@
         "rollback": [
           {
             "partiqlFile": {
-              "path": "test-rollback.partiql",
+              "path": "partiql-test-rollback.sql",
               "splitStatements": true,
               "endDelimiter":"@@"
             }
@@ -246,10 +168,9 @@
 }</code></pre>
             </div>
             <h2>PartiQL file contents</h2>
-            <p>In this example, you can use the following PartiQL for <code class="language-text">test.partiql</code>:</p><pre xml:space="preserve"><code class="language-sql">INSERT INTO MusicPartiqlFileTest value {'Artist' : 'Taras Chubay','SongTitle' : 'Вона'} @@ INSERT INTO MusicPartiqlFileTestXML value {'Artist' : 'Alan Walker','SongTitle' : 'Faded'}</code></pre>
-            <p>You can use the following PartiQL for <code class="language-text">test-rollback.partiql</code>:</p><pre xml:space="preserve"><code class="language-sql">DELETE FROM MusicPartiqlFileTest WHERE Artist='Taras Chubay' AND SongTitle='Вона' @@ DELETE FROM MusicPartiqlFileTestXML WHERE Artist='Alan Walker' AND SongTitle='Faded'</code></pre>
+            <p>In this example, you can use the following PartiQL for <code class="language-text">partiql-test.sql</code>:</p><pre xml:space="preserve"><code class="language-sql">INSERT INTO MusicPartiqlFileTest value {'Artist' : 'Taras Chubay','SongTitle' : 'Вона'} @@ INSERT INTO MusicPartiqlFileTestXML value {'Artist' : 'Alan Walker','SongTitle' : 'Faded'}</code></pre>
+            <p>You can use the following PartiQL for <code class="language-text">partiql-test-rollback.sql</code>:</p><pre xml:space="preserve"><code class="language-sql">DELETE FROM MusicPartiqlFileTest WHERE Artist='Taras Chubay' AND SongTitle='Вона' @@ DELETE FROM MusicPartiqlFileTestXML WHERE Artist='Alan Walker' AND SongTitle='Faded'</code></pre>
         </div>
-        <h2 id="database-support">Database support</h2>
-        <p>This <MadCap:variable name="General.changetypes" /> is only supported for <a href="../../start/tutorials/amazon-dynamodb/home.htm">Amazon DynamoDB</a>.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/change-type-amazon-dynamodb-database-support.flsnp" />
     </body>
 </html>
