@@ -12,6 +12,10 @@
         <h2>Syntax</h2>
         <p>To run the <code>drop-all</code> command, specify the driver, classpath, and URL in the <MadCap:variable name="General.Liquibase" /> properties file. For more information, see <MadCap:xref href="../../concepts/connections/creating-config-properties.html">Create and Configure a [%=General.liquiPropFile%] File</MadCap:xref>. You can also specify these properties in your command line.</p>
         <p>Then run the <code>drop-all</code> command:</p><pre><code class="language-text">liquibase drop-all</code></pre>
+        <p MadCap:conditions="exclude.future-4-27-0">If you use <MadCap:variable name="General.Liquibase" /> 4.27.0 and later, it is a best practice to specify <code>liquibase.dropAllRequireForce</code> or <code>LIQUIBASE_DROP_ALL_REQUIRE_FORCE</code> in your <code><MadCap:variable name="General.liquiPropFile" /></code> file or as an environment variable. This makes it mandatory for developers to specify <code>--force</code> whenever they run <code>drop-all</code> in the CLI:</p><pre MadCap:conditions="exclude.future-4-27-0"><code class="language-text">liquibase drop-all --force</code></pre>
+        <h2 id="the-impacts-of-rollback-one-changeset" MadCap:conditions="exclude.future-4-27-0">Impact</h2>
+        <p MadCap:conditions="exclude.future-4-27-0">Using the <code class="highlighter-rouge">drop-all</code> command comes with <b>risks of unintended consequences</b>. Because of this, in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later, the command lets you use <code>--drop-all-require-force</code> to require developers to specify a <code class="highlighter-rouge">--force</code> flag to indicate that they intend to run it.</p>
+        <p class="warning" MadCap:conditions="exclude.future-4-27-0" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">Look for potential unintended consequences <strong style="font-weight: normal; font-style: italic;">before</strong> using this command.</p>
         <h2>Command arguments</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-parameter-kebab.flsnp" />
         <table>
@@ -24,6 +28,17 @@
                 </tr>
             </thead>
             <tbody>
+                <tr MadCap:conditions="exclude.future-4-27-0">
+                    <td><code>--force</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-force.flsnp" />
+                        <p><MadCap:variable name="General.Liquibase" /> 4.27.0+ only. If you use an earlier version, this flag is optional.</p>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">In <MadCap:variable name="General.Liquibase" /> 4.27.0 and later, if you specify <code>--drop-all-require-force</code> to <code>false</code>, then setting <code>--force</code> to <code>false</code> does not prevent <code>--drop-all</code> from executing.</p>
+                    </td>
+                    <td><b>Required</b>
+                    </td>
+                </tr>
                 <tr>
                     <td><code>--url</code>
                     </td>
@@ -65,7 +80,15 @@
                     </td>
                     <td>Optional</td>
                 </tr>
-                <tr>
+                <tr MadCap:conditions="exclude.future-4-27-0">
+                    <td><code>--drop-all-require-force</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/cli-cmd-drop-all-require-force.flsnp" />
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr MadCap:conditions="exclude.future-4-27-0">
                     <td><code>--drop-dbclhistory</code>
                     </td>
                     <td>
@@ -104,6 +127,54 @@
         <p>When successful, the <code>drop-all</code> command produces the following output:</p><pre xml:space="preserve"><code class="language-text">Liquibase Pro 3.9.0  licensed to Liquibase Pro Customer until Tue Sep 22 19:00:00 CDT 2020
 All objects dropped from MVN_UAT@jdbc:oracle:thin:@support.datical.net:1521:ORCL
 Liquibase command 'drop-all' was executed successfully.</code></pre>
+        <h3 MadCap:conditions="exclude.future-4-27-0">Output in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later</h3>
+        <table style="width: 100%;" MadCap:conditions="exclude.future-4-27-0">
+            <col />
+            <col />
+            <col />
+            <col />
+            <thead>
+                <tr>
+                    <th>Value of <code class="language-text">--drop-all-require-force</code></th>
+                    <th>Value of <code class="language-text">--force</code></th>
+                    <th>Command executes?</th>
+                    <th>Output message</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code class="language-text">true</code>
+                    </td>
+                    <td><code class="language-text">true</code>
+                    </td>
+                    <td>Yes</td>
+                    <td>Standard success message</td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">true</code>
+                    </td>
+                    <td><code class="language-text">false</code> or not specified</td>
+                    <td>No</td>
+                    <td><code class="language-text">ERROR: The drop-all command may result in unrecoverable destructive changes to objects at &lt;jdbc connection info&gt;. This message can be suppressed and the drop-all executed by adding the --force flag.</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">false</code> or not specified</td>
+                    <td><code class="language-text">true</code>
+                    </td>
+                    <td>Yes</td>
+                    <td>Standard success message</td>
+                </tr>
+                <tr>
+                    <td><code class="language-text">false</code> or not specified</td>
+                    <td><code class="language-text">false</code> or not specified</td>
+                    <td>Yes</td>
+                    <td>
+                        <p>Standard success message as well as the following message: <code class="language-text">INFO: The drop-all command may result in unrecoverable destructive changes to objects at &lt;jdbc connection info&gt;. To protect against unwanted drops, set 'LIQUIBASE_COMMAND_DROPALL_REQUIRE_FORCE=true' which will require a --force=true flag on the command. Learn more at https://docs.liquibase.com/dropall</code></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <h2>Related links</h2>
         <ul>
             <li>

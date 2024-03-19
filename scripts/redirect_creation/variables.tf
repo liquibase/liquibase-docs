@@ -511,6 +511,8 @@ variable "redirects" {
     { key = "/documentation/maven/maven_updatetestingrollback.html", website_redirect = "/tools-integrations/maven/commands/maven-updatetestingrollback.html" },
     { key = "/drift-reports", website_redirect = "/tools-integrations/observability/operation-reports-drift-report.html" },
     { key = "/drift-reports.html", website_redirect = "/tools-integrations/observability/operation-reports-drift-report.html" },
+    { key = "/dropall", website_redirect = "/commands/utility/drop-all.html " },
+    { key = "/dropall.html", website_redirect = "/commands/utility/drop-all.html " },
     { key = "/environment-variables", website_redirect = "/parameters/home.html" },
     { key = "/extensions/index.html", website_redirect = "/tools-integrations/home.html" },
     { key = "/feature-flags", website_redirect = "/tools-integrations/feature-flags/home.html" },
