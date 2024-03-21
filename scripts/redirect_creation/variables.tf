@@ -963,6 +963,7 @@ variable "redirects" {
     { key = "/workflows/database-setup-tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
     { key = "/workflows/liquibase-community/creating-config-properties.html", website_redirect = "/concepts/connections/creating-config-properties.html" },
     { key = "/workflows/liquibase-community/generating-docs.html", website_redirect = "/commands/utility/db-doc.html" },
+    { key = "/workflows/liquibase-community/homebrew-installation-for-macos.html", website_redirect = "/start/install/liquibase-macos.html" },
     { key = "/workflows/liquibase-community/implementing-custom-change-exec-listener-class-with-liquibase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extension-guides/add-a-change-exec-listener/" },
     { key = "/workflows/liquibase-community/liquibase-auto-rollback.html", website_redirect = "/workflows/liquibase-community/automatic-custom-rollbacks.html" },
     { key = "/workflows/liquibase-community/run-liquibase-without-launch-scripts.html", website_redirect = "/workflows/liquibase-community/liquibase-launch-script.html" },
