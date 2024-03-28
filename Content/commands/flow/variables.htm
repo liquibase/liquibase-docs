@@ -68,71 +68,145 @@
 ##########  learn more http://docs.liquibase.com/flow  ##########
 
 ## NOTE: This is an advanced example flowfile, compared to the other sample at examples/liquibase.flowfile.yaml
+#### HOW TO USE THIS FILE:
+#### example for CLI: liquibase flow --flow-file=liquibase.advanced.flowfile.yaml
+#### example for ENV Var: LIQUIBASE_FLOW_FLOW_FILE=liquibase.advanced.flowfile.yaml
+
 ## Advanced options show in this file include:
-## non-default name of 'liquibase.advanced.flow' (use by setting flowfile property to this name)
-#### example for CLI: liquibase flow --flow-file=liquibase.advanced.flow
-#### example for ENV Var: LIQUIBASE_FLOW_FLOW_FILE=liquibase.advanced.flow
-## use of 'include' to inject namespaced yaml files of key:val variables
-## use of globalVariables and stageVariables
-## use of globalArgs and cmdArgs
-## use of property substitution
-## use of a nested flowfile (in this case in the endStage, but could be elsewhere)
+#### non-default name of 'liquibase.advanced.flowfile.yaml' (use by setting flowfile property to this name)
+#### use of 'include' to inject namespaced yaml files of key: val variables
+#### use of globalVariables and stageVariables
+#### use of globalArgs and cmdArgs
+#### use of property substitution
+#### use of a nested flowfile (in this case in the endStage, but could be elsewhere)
+#### use of if: conditional which allows a -type: shell or -type: liquibase command to run
+###### In the example below, we set an environment variable LIQUIBASE_CURRENT_TARGET, such as 'export LIQUIBASE_CURRENT_TARGET=dev'
+###### This could be determined dynamically, of course, from the build tools, bu tthis is simpler for this example "if:" conditional
+#### use of shell commands in a -type: shell block.
+######  command: bash -c "the shell command || and its chained commands &amp;&amp; go in the quotes"
+########
+#### POTENTIAL use of environment variables:
+######  DATETIME STAMP
+######## In this file, you could replace ${FLOWVARS.THISDATE} with an env var, such as ${LIQUIBASE_THISDATE} set via .bash_profile
+######## for example 'export LIQUIBASE_THISDATE=$( date +'%Y-%m-%dT%H-%M-%S' )'
 
 ## Bring in and namespace an external file with yaml 'key: val' pairs for use in this file
-## The variables will be used as ${namespace.variablename}, seen in this example as $(DATES.THISDATE)
+## The variables will be used as ${namespace.variablename}, seen in this example as ${FLOWVARS.PROJNAME}
 include:
-  DATES: liquibase.flowvariables.yaml
+  FLOWVARS: liquibase.flowvariables.yaml
 
 ## Set up some global variables for property substitution in ANY stage
 globalVariables:
-  PROJNAME: "MyFlowProject"
+  DIRNAME: "./${FLOWVARS.PROJNAME}_${FLOWVARS.THISDATE}"
+  STATUSFILE: "status.txt"
+  UPDATELOG: "update.log"
+  HISTORYFILE: "history.txt"
 
-## Start the stages. There can be more than one, if desired.
-stages:  
-  
-  ## The first stage. There can be more than one if desired.
-  stage1:
+## Start of the stages.
+stages:
+
+  ## A prep stage. There can be more than one stage if desired.
+  stage-prep:
+
+    actions:
+      - type: shell
+        command: bash -c "mkdir -p ${DIRNAME}"
+
+  ## Another stage.
+  stage-dowork:
 
     ## set up vars for property substitution in THIS stage only
     stageVariables:
+
       VERBOSESTATE: TRUE
 
     actions:
-    
-    # Do a validate command 
-    - type: liquibase
-      command: validate
+      # Do a validate command
+      - type: liquibase
+        command: validate
 
-    # tell me what is pending a deployment
-    - type: liquibase
-      command: status
-      cmdArgs: {verbose: "${VERBOSESTATE}"}
+      # Tell me what is pending a deployment
+      - type: shell
+        command: bash -c "liquibase --show-banner false --outputfile ./${DIRNAME}/${STATUSFILE} status --verbose ${VERBOSESTATE}"
 
-    # And then save a version in detail
-    - type: liquibase
-      command: updatesql
-      globalArgs: {outputfile: "${PROJNAME}-${DATES.THISDATE}-updatesql.log"}
+          # This is the structured way to setup a liquibase command, if you dont want to run it as one 'bash -c' command
+          #- type: liquibase
+          #  command: status
+          #  globalArgs:
+          #    outputfile: "${DIRNAME}/${STATUSFILE}"
+          #    showbanner: false
+          #  cmdArgs: {verbose: "${VERBOSESTATE}"
 
-    # Quality Checks for changelog 
-    - type: liquibase
-      command: checks run
-      cmdArgs: {checks-scope: changelog}
+      # And then save a version in detail, if env var LIQUIBASE_FILE_OUTPUT == 1
+      - type: shell
+        command: bash -c "echo 'LIQUIBASE_ env vars ' &amp;&amp; env | grep 'LIQUIBASE_' "
 
-    # Run update
-    - type: liquibase
-      command: update
-      
-    # Quality Checks for database
-    - type: liquibase
-      command: checks run
-      cmdArgs: {checks-scope: database}
+      - type: liquibase
+        ## if this var LIQUIBASE_CURRENT_TARGET is "dev", then the updatesql will run
+        if: "${LIQUIBASE_CURRENT_TARGET} == dev"
+        command: updatesql
+        globalArgs: {outputfile: "${DIRNAME}/${UPDATELOG}"}
 
-## Put your clean up and other actions for after success in all stage(s) above in the endStage
+      - type: shell
+        ## if this var LIQUIBASE_CURRENT_TARGET is not "dev", then the message will be displayed
+        if: "${LIQUIBASE_CURRENT_TARGET} != dev"
+        command: echo "No output files created. Set env var LIQUIBASE_CURRENT_TARGET to dev to trigger file creation."
+
+      # Quality Checks for changelog
+      - type: liquibase
+        command: checks run
+        cmdArgs: {checks-scope: changelog}
+
+      # Run update
+      - type: liquibase
+        command: update
+
+      # Quality Checks for database
+      - type: liquibase
+        command: checks run
+        cmdArgs: {checks-scope: database}
+
+      # Create a history file
+      - type: liquibase
+        command: history
+        globalArgs: {outputfile: "${DIRNAME}/${HISTORYFILE}"}
+
+## The endStage ALWAYS RUNS.
+## So put actions here which you desire to perform whether previous stages' actions succeed or fail.
+## If you do not want any actions to ALWAYS RUN, simply delete the endStage from your flow file.
+
 endStage:
   actions:
     - type: liquibase
+      ## Notice this is a flow command in a flow file, and it called a 'nested' flowfile, which in this case lives in the same dir, but could be elsewhere
       command: flow
       cmdArgs: {flowfile: liquibase.endstage.flow}</code></pre>
+        <h3>Example <code>endStage</code> Flow File</h3>
+        <p>In this example, we run some final commands in an <code>endStage</code> file. The <code>endStage</code> always runs, so you can use it for processes that you want to run after every deployment. For example, see the following example of content in <code>liquibase.endstage.flow</code>:</p><pre xml:space="preserve"><code class="language-yaml">##########           LIQUIBASE FLOW FILE               ##########
+##########  learn more http://docs.liquibase.com/flow  ##########
+
+## NOTE: This example flowfile is called from the examples/liquibase.advanced.flowfile.yaml file
+## While it could be run on its own, this file is designed to show that flow-files can be decomposed
+## into separate files as makes sense for your use cases.
+
+stages:
+  cleanuptheDB:
+    actions:
+
+      # Clear out the database
+      - type: liquibase
+        command: dropAll
+
+      # Check that database is empty by seeing what is ready to be deployed
+      - type: liquibase
+        command: status
+        cmdArgs: {verbose: TRUE}
+
+## The endStage ALWAYS RUNS. 
+## So put actions here which you desire to perform whether previous stages' actions succeed or fail.
+## If you do not want any actions to ALWAYS RUN, simply delete the endStage from your flow file,
+## as it has been deleted here in this liquibase.endStage.flow file.</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can also keep all your actions in a single flow file. However,  using a main flow file to call on other flow files is a modular approach that can keep you organized.</p>
         <h2>Related links</h2>
         <ul>
             <li>
