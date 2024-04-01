@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="Default.EXCLUDE">
+    <head>
+    </head>
+    <body>
+        <h1>end-delimiter-exists-when-pattern-exists<br /></h1>
+        <p>
+            <MadCap:snippetText src="../../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        </p>
+        <p>This check triggers when a <MadCap:variable name="General.changeset" /> contains the supplied pattern string or regex, but does not have an end delimiter set specifically in the <MadCap:variable name="General.changeset" /> or via options such as 'pro-global-end-delimiter' or 'endDelimiter' attribute in a modifyChangesets tag.</p>
+        <h2>Uses</h2>
+        <p>Certain <MadCap:variable name="General.changeset" />s need an end delimiter specifically set, while other <MadCap:variable name="General.changeset" />s do not need the end delimiter. <MadCap:variable name="General.Liquibase" /> does not process <MadCap:variable name="General.changeset" />s without an end delimiter, the <MadCap:variable name="General.changeset" /> deployment fails which often fails the whole job. This check is a check against that missing end delimiter for those specific <MadCap:variable name="General.changeset" />s that require one.</p>
+        <h2>Run the endDelimiterExistsWhenPatternExists check</h2>
+        <p>To run the <code>endDelimiterExistsWhenPatternExists</code> check, ensure you have a Liquibase Pro license and the <code>checks-scope</code> property includes <code>changelog</code>. The <MadCap:xref href="../../command-arguments/checks-scope.htm">checks-scope</MadCap:xref> parameter is set in the default properties file, environment variable, or any standard method.<br /></p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><b><code>endDelimiterExistsWhenPatternExists </code></b>logic: If regular expression pattern X exists then Pattern A <b>must not exist after</b> pattern X.</p>
+        <p>In this example, you are ensuring that all instances of regular expression pattern X are not followed by regular expression pattern Y. When this check runs successfully, a log will be created that displays all instances when regular expression pattern X are not followed by regular expression pattern Y.</p>
+        <ol>
+            <li>
+                <p>Enable the <code>PatternANotFollowedByPatternB</code> check by running the following command in the CLI:</p><pre>liquibase checks enable --check-name=<code>PatternANotFollowedByPatternB</code></pre>
+            </li>
+            <li>Give your check a short name for easy identification such as <code>RegexNegativeLookAheadCheck</code>. The new <code>RegexNegativeLookAheadCheck</code> check is created from the <code class="language-text">PatternANotFollowedByPatternB</code>.<br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can use up to 64 alpha-numeric characters in any short name.<br /></p></li>
+            <li>
+                <p>In the CLI, set the Severity to return a code of 0-4 when the check is triggered. Set the severity to 0.<br />Your options are: </p><pre>'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4)</pre>
+            </li>
+            <li>
+                <p>Set the <code>'PRIMARY_SEARCH_STRING'</code> to a string or a valid regular expression. <br />Set it to a regular expression <code>(ALTER|DROP)\s*TABLE</code>.</p>
+            </li>
+            <li>
+                <p>Set the <code>'LOOKAHEAD_SEARCH_STRING'</code> to a string or a valid regular expression. <br />Set it to a regular expression <code>CREATE\s*SNAPSHOT\s*TABLE</code>.</p>
+            </li>
+            <li>
+                <p>Set the case sensitivity to true or false.<br />Set it to <code>'CASE_SENSITIVE' false</code>.</p>
+            </li>
+            <li>
+                <p>Set the 'LOOKAHEAD_MESSAGE'.<br />Set it to <code>'&lt;LOOKAHEAD_SEARCH_STRING&gt;'</code> must <b>not</b> follow <code>'&lt;PRIMARY_SEARCH_STRING&gt;'</code></p>
+            </li>
+            <li>
+                <p>Set the 'STRIP_COMMENTS' to <code>true</code> or <code>false</code>.<br />Set it to <code>true</code>.</p>
+                <p>Once successfully run, either of the two resulting reports appear:</p><pre xml:space="preserve"><code class="language-text">CHANGELOG CHECKS
+					----------------
+					Checks completed validation of the changelog and found the following issues:
+
+					Check Name:         Pattern a not followed by pattern b (RegexNegativeLookAheadCheck)
+					Changeset ID:       createFunction
+					Changeset Filepath: changelog.sql
+					Check Severity:     INFO (Return code: 0)
+				Message:            A match for regular expression '&lt;PRIMARY_SEARCH_STRING&gt;' must not appear before '&lt;LOOKAHEAD_SEARCH_STRING&gt;' was detected in Changeset 'createFunction'.</code></pre>
+            </li>
+        </ol>
+    </body>
+</html>
