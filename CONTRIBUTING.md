@@ -8,7 +8,7 @@ Project Overview - How to apply changes to https://docs.liquibase.com
 ========================================================================
 
 1. **Clone/checkout docs.liquibase.com repository**
-    1. git clone https://github.com/Datical/liquibase-docs.git
+    1. git clone https://github.com/liquibase/liquibase-docs
     2. git checkout staging
     3. git branch [newBranchName] (to create a local branch)
     4. git checkout [newBranchName]
@@ -30,7 +30,7 @@ Project Overview - How to apply changes to https://docs.liquibase.com
 Where and how to find and modify the required html file from the url
 ====================================================================
 
-The file system hierarchy in the https://github.com/Datical/liquibase-docs.git repository mirrors the way they are presented in the https://docs.liquibase.com website.
+The file system hierarchy in the https://github.com/liquibase/liquibase-docs repository mirrors the way they are presented in the https://docs.liquibase.com website.
 
 For example: 
 - For the file residing in **liquibase-docs/Content/commands/pro/rollbackonechangeset.html** repository
