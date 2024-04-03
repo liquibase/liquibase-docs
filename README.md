@@ -12,7 +12,8 @@ How to make docs changes
 ====================================================================
 
 This workflow is as follows:
-
+# TODO: It is unclear which team is alluded to : can anyone belong to this team ? 
+# If so, how can we access to Flare, as we are required to do it before creating a pull request
 1. Documentation team members publish updated content to a staging site directly from their content management system (Flare).
 2. They then create a Pull Request (PR) from a new branch to the `master` branch or sometimes make commits directly to `master` branch that adds or updates 301 redirects in the `repo/scripts/redirect_creation/variables.tf` file.
 3. The creation of the PR runs `send-docs-redirects-to-staging.yml` first and then after it's completion runs `send-enterprise-redirects-to-staging.yml`, which automatically runs the Terraform plan and outputs changes to be applied in the `s3://stage-docsstageliquibasecom-origin` and `s3://stage-enterprisestagedocsliquibasecom-origin` respectively to their stagging bucket.

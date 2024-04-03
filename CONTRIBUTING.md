@@ -9,7 +9,7 @@ Project Overview - How to apply changes to https://docs.liquibase.com
 
 1. **Clone/checkout docs.liquibase.com repository**
     1. git clone https://github.com/liquibase/liquibase-docs
-    2. git checkout staging
+    2. git checkout master
     3. git branch [newBranchName] (to create a local branch)
     4. git checkout [newBranchName]
 2. **Make Desired Documentation Changes**
