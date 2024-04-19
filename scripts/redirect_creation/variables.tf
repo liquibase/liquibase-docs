@@ -968,6 +968,7 @@ variable "redirects" {
     { key = "/workflows/liquibase-community/homebrew-installation-for-macos.html", website_redirect = "/start/install/liquibase-macos.html" },
     { key = "/workflows/liquibase-community/implementing-custom-change-exec-listener-class-with-liquibase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/extension-guides/add-a-change-exec-listener/" },
     { key = "/workflows/liquibase-community/liquibase-auto-rollback.html", website_redirect = "/workflows/liquibase-community/automatic-custom-rollbacks.html" },
+    { key = "/workflows/liquibase-community/modify-sql.html", website_redirect = "/change-types/modify-sql.html" },
     { key = "/workflows/liquibase-community/run-liquibase-without-launch-scripts.html", website_redirect = "/workflows/liquibase-community/liquibase-launch-script.html" },
     { key = "/workflows/liquibase-community/running-liquibase-percona-toolkit-changes.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona/percona-toolkit/" },
     { key = "/workflows/liquibase-community/setup-github-actions-workflow.html", website_redirect = "https://github.com/liquibase-github-actions" },
