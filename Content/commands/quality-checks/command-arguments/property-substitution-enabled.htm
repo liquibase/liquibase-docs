@@ -1,51 +1,89 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="Default.EXCLUDE">
-    <head>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/commands/quality-checks/command-arguments/property-substitution-enabled.html" />
+        <meta name="description" content="--property-substitution-enabled is a command argument specific to checks run that allows you to determine when property substitution occurs in a changelog. " />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1><code class="language-text">--property-substitution-enabled</code>
-        </h1>
         <p>
             <MadCap:snippetText src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         </p>
+        <h1><code>--property-substitution-enabled</code>
+        </h1>
         <p><code>--property-substitution-enabled</code> is a command argument specific to <code>checks run</code> that allows you to determine when property substitution occurs  in a <MadCap:variable name="General.changelog" />. You can change the default timing of property expansion in your <MadCap:variable name="General.changeset" />s.  This argument is for the whole of <code>checks run</code>, not a specific quality check.</p>
         <ul>
             <li>When <code>--property-substitution-enabled</code> is <b>true</b>, the checks run command evaluates the <MadCap:variable name="General.changeset" /><![CDATA[  ]]><b>after</b> <MadCap:variable name="General.Liquibase" /> replaces the property token, <code>${token}</code>, with a value.</li>
             <li>When <code>--property-substitution-enabled</code> is <b>false</b>, the checks run command evaluates the <MadCap:variable name="General.changeset" /><![CDATA[  ]]><b>before</b> <MadCap:variable name="General.Liquibase" /> replaces the property token, <code>${token}</code>, with a value.</li>
         </ul>
-        <p>Learn more here: <MadCap:xref href="../../../concepts/changelogs/property-substitution.html">Substituting Properties in Changelogs</MadCap:xref></p>
-        <table>
+        <p>Learn more here: <MadCap:xref href="../../../concepts/changelogs/property-substitution.html">Substituting Properties in Changelogs</MadCap:xref>.</p>
+        <h2>Uses</h2>
+        <p>For example, consider a stored procedure that you want to modify depending on your environment, which you configure using <MadCap:xref href="../../../concepts/changelogs/attributes/contexts.html">Contexts</MadCap:xref>. You can use the <code>--property-substitution-enabled</code> parameter on <code>checks run</code> to dynamically modify your SQL.</p>
+        <p>In this example, <MadCap:variable name="General.Liquibase" /> replaces <code>${prop}</code> with <code>@uat_db</code> within <MadCap:variable name="General.changeset" />s where the UAT context is active  and <code>@prod_db</code> within <MadCap:variable name="General.changeset" />s where the PROD context is active:</p><pre>&lt;property  name="prop"  value="<code>@uat_db</code>"  context="UAT"/&gt;<br />&lt;property  name="prop"  value="<code>@prod_db</code>"  context="PROD"/&gt;</pre>
+        <p>Notice <code>${prop}</code> in the example below. That is the name of the example property.</p><pre>SELECT *<br />FROM my_table${prop}<br />WHERE column1 &gt; column2;<br /></pre>
+        <ul>
+            <li>If <code>--property-substitution-enabled=true</code>, the <code>checks run</code> command sees the value of the property substitution (which could be the string <code>@uat_db</code> or the string <code>@prod_db</code>):</li><pre xml:space="preserve">SELECT *
+FROM my_table@uat_db
+WHERE column1 &gt; column2;</pre>
+            <li>If <code>--property-substitution-enabled=false</code>, the <code>checks run</code> command sees the token string:</li><pre>SELECT *
+FROM my_table${prop}
+WHERE column1 &gt; column2;</pre>
+        </ul>
+        <h2>Syntax</h2>
+        <p> You can set this parameter in the following ways:</p>
+        <table style="width: 100%;">
             <col />
             <col />
-            <col style="width: 450px;" />
-            <col />
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Syntax</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
-                    <td>
-                        <p><code class="language-text">--property-substitution</code> (Boolean)</p>
-                        <p>Alias:</p>
-                        <p><code class="language-text">--property-sub</code>
-                        </p>
+                    <td><a href="../../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.Liquibase" /> properties file</a>
                     </td>
-                    <td>true|false</td>
-                    <td>CLI: <code class="language-text">liquibase checks run --property-substitution-enabled=true|false</code><p>Property: <code class="language-text">liquibase.command.checks.property.substitution</code><br /><br />Environment Variable: <code class="language-text">LIQUIBASE_COMMAND_CHECKS_RUN_PROPERTY_SUBSTITUTION</code></p></td>
-                    <td>Allows you to check to see if <MadCap:variable name="General.changeset" /> text is evaluated pre or post property substitution. This argument is for the whole of <code>checks run</code>, not a specific quality check.</td>
+                    <td><pre xml:space="preserve"><code class="language-text">liquibase.propertySubstitutionEnabled: &lt;true|false&gt;</code></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Command <a href="../../flow/home.htm">flow file</a> argument (example)</td>
+                    <td><pre xml:space="preserve"><code class="language-text">stages:
+  Default:
+    actions:
+      - type: liquibase
+        command: checks run
+        cmdArgs: { property-substitution-enabled: "&lt;true|false&gt;" }</code></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Command CLI parameter</td>
+                    <td><pre xml:space="preserve"><code class="language-text">liquibase checks run
+ --property-substitution-enabled=&lt;true|false&gt;</code></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>JVM system property (<MadCap:xref href="../../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>)</p>
+                    </td>
+                    <td><pre><code class="language-text">JAVA_OPTS=-Dliquibase.propertySubstitutionEnabled=&lt;true|false&gt;</code></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <MadCap:xref href="../../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref>
+                    </td>
+                    <td><pre><code class="language-text">LIQUIBASE_PROPERTY_SUBSTITUTION_ENABLED=&lt;TRUE|FALSE&gt;</code></pre>
+                    </td>
                 </tr>
             </tbody>
         </table>
-        <h2>Use Cases</h2>
-        <p>When you create a stored procedure, you want to confirm that developers follow the best practice to drop the procedure if it exists, create the new procedure, and assign privileges to roles on the new procedure in the same <MadCap:variable name="General.changeset" />.  <code>property-substitution</code> allows you to reuse the name of that procedure to enforce those three requirements.</p>
-        <p>You can use property substitution tokens to replace database links. </p>
-        <p>In this example,  <code>${main_table}</code> replaces <code>uat_table</code> in the UAT&#160;environment and  <code>${PE}</code> replaces <code>prod_table</code> in the PROD environment.</p><pre>&lt;property  name="main_table"  value="<code>uat_table</code>"  context="UAT"/&gt;<br />&lt;property  name="main_table"  value="<code>prod_table</code>"  context="PROD"/&gt;</pre>
-        <p>Notice <code>uat_table</code> in the example below. That is the database name used in the UAT environment.</p><pre>SELECT TO_DATE(lookup_str_value1||TO_CHAR(p_indate,'YYYY'),'MMDDYYYY')<br />INTO v_annual_tag_date<br />from ALPS_MML_LOOKUP<code>uat_table</code><br />WHERE lookup_group = 'MARKET_ANNUAL_TAG'<br />AND lookup_code = p_market;</pre>
-        <p><MadCap:variable name="General.Liquibase" /> replaces <code>uat_table</code> with <code>${main_table}</code> after the property-substitution token is created.</p>
+        <p>For more information, see <MadCap:xref href="../../../parameters/working-with-command-parameters.htm">Working with Command Parameters</MadCap:xref>.</p>
         <h2>Related links</h2>
         <ul>
             <li>
-                <MadCap:xref href="../../../change-types/drop-procedure.html">dropProcedure</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../../../change-types/create-procedure.html">createProcedure</MadCap:xref>
+                <MadCap:xref href="../../../concepts/changelogs/property-substitution.html">Substituting Properties in Changelogs</MadCap:xref>
             </li>
         </ul>
     </body>
