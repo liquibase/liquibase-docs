@@ -1,0 +1,357 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="Default.EXCLUDE">
+	<head><title><MadCap:variable name="Heading.Level1" /></title>
+		<link rel="canonical" href="https://docs.liquibase.com/change-types/modify-sql.html" />
+		<meta name="description" content="This page explains how to modify generated SQL to fit your particular needs." />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	</head>
+    <body>
+        <h1 id="modifying-generated-sql">modifySql</h1>
+        <p><code>modifySql</code> allows you to change data types or add additional vendor-specific clauses such as <code>ENGINE INNODB</code> to <code>CREATE TABLE</code> statements.  <strong>Available in <MadCap:variable name="General.Liquibase" /> 1.9+</strong></p>
+        <h2>Uses</h2>
+        <p>Although <MadCap:variable name="General.Liquibase" /> supports most standard SQL statements with its <MadCap:variable name="General.changetypes" />s, there are times when you need the generated SQL to be different. This <MadCap:variable name="General.changetypes" /> allows you to change data types or add additional vendor-specific clauses such as <code>ENGINE INNODB</code> to <code>CREATE TABLE</code> statements.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>modifySql</code><MadCap:variable name="General.changetypes" /> is only available in XML, YAML, and JSON formatted <MadCap:variable name="General.changelog" />s.</p>
+        <h2>Running the <code>modifySql</code><MadCap:variable name="General.changetypes" /></h2>
+        <MadCap:snippetBlock src="../Z_Resources/Snippets/text/change-type-run-syntax.flsnp" />
+        <p>Now, you should see a new table.</p>
+        <h2 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <table>
+            <col style="width: 280px;" />
+            <col style="width: 280px;" />
+            <thead>
+                <tr>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>dbms</td>
+                    <td>
+                        The type of a database for which that <MadCap:variable name="General.changeset" /> will be used. When the migration step is running, it checks the database type against this 
+ attribute. To see all database type names, refer to the <a href="https://www.liquibase.org/get-started/databases">supported databases</a> page. <br />You can also do the following:
+                        <ul><li>List multiple databases separated by commas</li><li>Specify that a <MadCap:variable name="General.changeset" /> is not applicable to a particular database type by applying <code>!</code></li><li>Specify the keywords <code>all</code> and <code>none</code></li></ul></td>
+                </tr>
+                <tr>
+                    <td>context</td>
+                    <td>Specifies the list of <MadCap:xref href="../concepts/changelogs/attributes/contexts.html">Contexts</MadCap:xref> in which to run the SQL modification. If you do not specify any context, every <MadCap:variable name="General.changeset" /> will be applied. <b>Since 2.0</b></td>
+                </tr>
+                <tr>
+                    <td>applyToRollback</td>
+                    <td>Defines whether the SQL modification should be applied to rollback statements. The default value is <code>false</code>. <b>Since 2.0</b></td>
+                </tr>
+            </tbody>
+        </table>
+        <h2 id="available-sub-tags">Available subtags</h2>
+        <table>
+            <col style="width: 300px;" />
+            <col style="width: 300px;" />
+            <col style="width: 300px;" />
+            <thead>
+                <tr>
+                    <th>Subtag</th>
+                    <th>Description</th>
+                    <th><MadCap:variable name="General.Param/Attr/Uppercased" />
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>prepend</td>
+                    <td>Adds SQL to the beginning of the statement.</td>
+                    <td><b>value</b> – the text to add to the beginning of the statement.</td>
+                </tr>
+                <tr>
+                    <td>append</td>
+                    <td>Adds SQL to the end of the statement.</td>
+                    <td><b>value</b> – the text to add to the end of the statement.</td>
+                </tr>
+                <tr>
+                    <td>replace</td>
+                    <td>Replaces all instances of the text specified.</td>
+                    <td>
+                        <ul>
+                            <li><b>replace</b> – the text to replace.</li>
+                            <li><b>with</b> – the text with which to replace.</li>
+                        </ul>
+                        <p><![CDATA[  ]]></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>regExpReplace</td>
+                    <td>Replaces all instances of the regular expression specified.</td>
+                    <td>
+                        <ul>
+                            <li><b>replace</b> – the regular expression specifying the text to replace.</li>
+                            <li><b>with</b> – the text with which to replace.</li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Examples</h2>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h2">
+                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;changeSet  id="1"  author="nvoxland"&gt;  
+    &lt;createTable  tableName="person"&gt;
+        &lt;column  name="id"  type="bigint"/&gt; 
+        &lt;column  name="firstname"  type="varchar(255)"/&gt;  
+        &lt;column  name="lastname"  type="varchar(255)"/&gt;  
+    &lt;/createTable&gt;  
+    &lt;modifySql&gt;  
+         &lt;replace  replace="bigint"  with="long"/&gt;
+    &lt;/modifySql&gt;  
+    &lt;modifySql  dbms="mysql"&gt;  
+         &lt;append  value="engine innodb"/&gt;
+    &lt;/modifySql&gt;  
+&lt;/changeSet&gt;</code></pre>
+            </div>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+ -  changeSet:
+     id:  1
+     author:  nvoxland
+     changes:
+      -  createTable:
+          tableName:  person
+          columns:
+           -  column:
+               name:  id
+               type:  bigint
+               autoIncrement:  true
+               constraints:
+                primaryKey:  true
+                nullable:  false
+           -  column:
+               name:  firstname
+               type:  varchar(50)
+           -  column: 
+               name:  lastname
+               type:  varchar(50)
+               constraints:
+                nullable:  false
+           -  column:
+               name:  state
+               type:  char(2)
+      - modifySql:
+         replace:
+          replace: bigint
+          with: long
+      - modifySql: 
+         dbms: mysql
+         append: 
+	      value: engine innodb</code></pre>
+            </div>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+	{
+	  "changeSet": {
+		"id": "1",
+		"author": "nvoxland",
+		"changes": [
+		  {
+		    "createTable": {
+			  "tableName": "person",
+			  "columns": [
+				{
+				  "column": {
+					"name": "id",
+					 "type": "bigint",
+					 "autoIncrement": true,
+					 "constraints": {
+					   "primaryKey": true,
+					   "nullable": false
+					 },      
+				    }
+				   },
+				   {
+					 "column": {
+					   "name": "firstname",
+					   "type": "varchar(50)"
+					 }
+					},
+					{
+					  "column": {
+						"name": "lastname",
+						"type": "varchar(50)",
+						"constraints": {
+						  "nullable": false
+					  },      
+					 }
+					},
+					{
+					  "column": {
+						"name": "state",
+						"type": "char(2)"
+						}
+					  },
+					{
+					  "modifySql": {
+						"replace": {
+						"replace": "bigint",
+						"with":long
+					   }
+					  }
+					 },
+					{
+						"modifySql": {
+						"dbms": "mysql", 
+						"append": {
+						"value": "engine innodb"
+						}
+					  }
+					}	
+				  ]
+				}
+			  }
+		    ]
+		  }
+		},
+	  ]	
+    }</code></pre>
+            </div>
+        </div>
+        <h2 id="database-support">Database support</h2>
+        <table>
+            <col style="width: 600px;" />
+            <col style="width: 600px;" />
+            <col style="width: 600px;" />
+            <thead>
+                <tr>
+                    <th>Database</th>
+                    <th>Notes</th>
+                    <th><a href="../workflows/liquibase-community/automatic-custom-rollbacks.htm">Auto Rollback</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>DB2/LUW</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>DB2/z</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Derby</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Firebird</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>H2</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>HyperSQL</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>INGRES</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Informix</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MariaDB</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MySQL</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Oracle</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>PostgreSQL</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Snowflake</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SQL Server</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>SQLite</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Sybase</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Sybase Anywhere</td>
+                    <td><b>Supported</b>
+                    </td>
+                    <td><b>Yes</b>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>
