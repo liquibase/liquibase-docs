@@ -16,17 +16,25 @@
             <li>Perform data checks before performing an unrecoverable change such as <MadCap:xref href="../../change-types/drop-table.html">dropTable</MadCap:xref>.</li>
             <li>Control what <MadCap:variable name="General.changeset" />s are run and not run based on the state of the database.</li>
         </ul>
-        <p>You can use all <MadCap:variable name="General.Liquibase" /> preconditions in XML, YAML, and JSON&#160;<MadCap:variable name="General.changelog" />s. The only supported precondition for SQL&#160;<MadCap:variable name="General.changelog" />s is <code>sqlCheck</code>. For a list of preconditions, see <MadCap:xref href="#available-preconditions">Available preconditions</MadCap:xref>.</p>
+        <p>You can use all <MadCap:variable name="General.Liquibase" /> preconditions in XML, YAML, and JSON&#160;<MadCap:variable name="General.changelog" />s. Only some preconditions are supported in SQL <MadCap:variable name="General.changelog" />s. For a list of preconditions, see <MadCap:xref href="#available-preconditions">Available preconditions</MadCap:xref>.</p>
         <h2>Syntax</h2>
         <p>You can use one <b>local</b>&#160;<code>&lt;preConditions&gt;</code> tag per <MadCap:variable name="General.changeset" /> and one <b>global</b>&#160;<code>&lt;preConditions&gt;</code> tag in the <MadCap:variable name="General.changelog" /> (outside any <MadCap:variable name="General.changeset" />). In XML, YAML, and JSON <MadCap:variable name="General.changelog" />s, you can use conditional logic to add multiple preconditions within a single <code>&lt;preConditions&gt;</code> tag.</p>
         <p>Preconditions at the <MadCap:variable name="General.changelog" /> level are applied to all <MadCap:variable name="General.changeset" />s, not just those listed in the current <MadCap:variable name="General.changelog" /> or its child <MadCap:variable name="General.changelog" />s.</p>
         <p>The following example XML, YAML, and JSON <MadCap:variable name="General.changelog" />s will only be run if the database executed against is Oracle and the database user executing the script is <code>SYSTEM</code>. Also, they will run the <MadCap:variable name="General.changeset" /> with the <code>sqlCheck</code> precondition and <MadCap:xref href="../../change-types/create-table.html">createTable</MadCap:xref>. The example SQL <MadCap:variable name="General.changelog" /> only runs the <code>sqlCheck</code> precondition and <code>createTable</code>.</p>
         <p>If the preconditions check fails, you will receive a warning and it will continue executing the <MadCap:variable name="General.changeset" /> as normal because of the <code>onFail="WARN"</code> precondition. To prevent the execution of the <MadCap:variable name="General.changeset" /> when the precondition fails, you can set <code>HALT</code> or <code>CONTINUE</code> values. For more information, see <MadCap:xref href="#onFail/onError">onFail/onError values</MadCap:xref>.</p>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+        <h2>Example <MadCap:variable name="General.changelog" />s with preconditions</h2>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#xml_example_main" id="label_xml_example_main" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_main" id="label_yaml_example_main" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_main" id="label_json_example_main" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#sql_example_main" id="label_sql_example_main" class="js-tablist__link">SQL example</a>
+                </li>
+            </ul>
+            <div id="xml_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
 <MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
 
     &lt;preConditions&gt;
@@ -52,31 +60,8 @@
         &lt;/createTable&gt;
     &lt;/changeSet&gt;
 &lt;/databaseChangeLog&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">SQL example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
-			
---changeset Liquibase User:1
---preconditions onFail:WARN 
---precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM example_table
---comment: /* Comments should go after the precondition. Otherwise, Liquibase returns an error. */
-create table example_table (  
-	id int primary key,
-	firstname varchar(50),
-	lastname varchar(50) not null,
-	state char(2)
-)</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+            </div>
+            <div id="yaml_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
  - preConditions:
      - dbms:
         type: oracle
@@ -113,13 +98,8 @@ create table example_table (
           - column:
              name:  state
              type:  char(2)</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 18pt;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre><code class="language-json">{
+            </div>
+            <div id="json_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
     {
       "preConditions": [
@@ -194,28 +174,46 @@ create table example_table (
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+            <div id="sql_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+			
+--changeset Liquibase User:1
+--preconditions onFail:WARN 
+--precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM example_table
+--comment: /* Comments should go after the precondition. Otherwise, Liquibase returns an error. */
+create table example_table (  
+	id int primary key,
+	firstname varchar(50),
+	lastname varchar(50) not null,
+	state char(2)
+)</code></pre>
+            </div>
+        </div>
         <h3>Multiple preconditions</h3>
         <p> In XML, JSON, and YAML <MadCap:variable name="General.changelog" />s, you can set multiple preconditions in one <code>&lt;preConditions&gt;</code> tag by using nestable <code>AND</code>, <code>OR</code>, and <code>NOT</code> conditional logic tags. If no conditional tags are specified, the default value is <code>AND</code>.</p>
         <p><MadCap:variable name="General.Liquibase" /> uses lazy evaluation (call-by-need) when running preconditions. For example, if the first condition of an <code>AND</code> expression fails, <MadCap:variable name="General.Liquibase" /> does not evaluate the second condition. If the first condition of an <code>OR</code> expression succeeds, <MadCap:variable name="General.Liquibase" /> does not evaluate the second condition.</p>
-        <ul>
-            <li>
-                <p>XML:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#xml_example_multiple" id="label_xml_example_multiple" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_multiple" id="label_yaml_example_multiple" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_multiple" id="label_json_example_multiple" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_multiple" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
     &lt;or&gt;
         &lt;CONDITION_1&gt;
         &lt;CONDITION_2&gt;
     &lt;/or&gt;
 &lt;/preConditions&gt;</code></pre>
-            </li>
-            <li>
-                <p>YAML:</p><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_multiple" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - or:
         - CONDITION_1
         - CONDITION_2</code></pre>
-            </li>
-            <li>
-                <p>JSON:</p><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_multiple" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "or": [
@@ -229,8 +227,8 @@ create table example_table (
     }
   ]
 }</code></pre>
-            </li>
-        </ul>
+            </div>
+        </div>
         <h3>Examples</h3>
         <p>The following syntax example will check that the update is running on Oracle and with the <code>SYSTEM</code> user but will only generate a warning message if the precondition fails:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
     &lt;dbms  type="oracle"  /&gt;
@@ -319,7 +317,7 @@ myChangelog.xml : liquibase.precondition.core.SqlPrecondition@5745ca0e : ERROR: 
 1 preconditions failed
 myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         <h2 id="available-preconditions"><a name="available-preconditions"></a>Available preconditions</h2>
-        <p>The examples of preconditions shown in the table doesn't include the <code>schemaName</code> <MadCap:variable name="General.Param/Attribute" />. It is best practice not to keep the <code>schemaName</code> in the <MadCap:variable name="General.changeset" /> and rely on the default schema except for times you don’t want to create something in the default schema.</p>
+        <p>The examples of preconditions shown in the table doesn't include the <code>schemaName</code> <MadCap:variable name="General.Param/Attribute" />. It is best practice not to keep the <code>schemaName</code> in the <MadCap:variable name="General.changeset" /> and rely on the default schema except for times you don't want to create something in the default schema.</p>
         <p>Additionally, you can include the <code>onError</code> or <code>onFail</code> <MadCap:variable name="General.Param/Attribute" />s with the <code>WARN</code>, <code>HALT</code>, <code>CONTINUE</code>, or <code>MARK_RAN</code> value in the preconditions tag, however, the <code>CONTINUE</code> and <code>MARK_RAN</code> options can only be applied to preconditions inside a <MadCap:variable name="General.changeset" />.</p>
         <h3><code>changeLogPropertyDefined</code>
         </h3>
@@ -351,32 +349,27 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_changeLogPropertyDefined" id="label_xml_example_changeLogPropertyDefined" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_changeLogPropertyDefined" id="label_yaml_example_changeLogPropertyDefined" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_changeLogPropertyDefined" id="label_json_example_changeLogPropertyDefined" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_changeLogPropertyDefined" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;changeLogPropertyDefined property="myproperty"
                               value="requiredvalue"/&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_changeLogPropertyDefined" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - changeLogPropertyDefined:
        property: myproperty
        value: requiredvalue</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_changeLogPropertyDefined" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -389,8 +382,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>changeSetExecuted</code>
         </h3>
         <p>Defines if the specified <MadCap:variable name="General.changeset" /> has already been executed.</p>
@@ -427,34 +420,29 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_changeSetExecuted" id="label_xml_example_changeSetExecuted" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_changeSetExecuted" id="label_yaml_example_changeSetExecuted" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_changeSetExecuted" id="label_json_example_changeSetExecuted" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_changeSetExecuted" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
     &lt;changeSetExecuted id="1"
-                       author="liquibase"
-                       changeLogFile="changelog.xml" /&gt;
+                          author="liquibase"
+                          changeLogFile="changelog.xml" /&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_changeSetExecuted" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: HALT
     - changeSetExecuted:
        id: 1
        author: liquibase
        changeLogFile: changelog.xml</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_changeSetExecuted" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "HALT"
@@ -468,8 +456,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>columnExists</code>
         </h3>
         <p>Defines if the specified column exists in the database.</p>
@@ -505,32 +493,27 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_columnExists" id="label_xml_example_columnExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_columnExists" id="label_yaml_example_columnExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_columnExists" id="label_json_example_columnExists" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_columnExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;columnExists tableName="table1"
                   columnName="column1" /&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_columnExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - columnExists:
        tableName: table1
        columnName: column1</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_columnExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -543,8 +526,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>dbms</code>
         </h3>
         <p>Defines if the database executed against matches the type specified.</p>
@@ -569,36 +552,31 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_dbms" id="label_xml_example_dbms" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_dbms" id="label_yaml_example_dbms" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_dbms" id="label_json_example_dbms" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_dbms" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
   &lt;or&gt;
     &lt;dbms  type="oracle"  /&gt;
     &lt;dbms  type="mysql"  /&gt;
   &lt;/or&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre style="white-space:pre-wrap;"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_dbms" class="js-tabcontent"><pre style="white-space:pre-wrap;"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - or:
        - dbms:
           type: oracle
        - dbms:
           type: mysql</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_dbms" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -619,8 +597,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>foreignKeyConstraintExists</code>
         </h3>
         <p>Defines if the specified foreign key exists in a table in the database.</p>
@@ -655,32 +633,27 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_foreignKeyConstraintExists" id="label_xml_example_foreignKeyConstraintExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_foreignKeyConstraintExists" id="label_yaml_example_foreignKeyConstraintExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_foreignKeyConstraintExists" id="label_json_example_foreignKeyConstraintExists" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_foreignKeyConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;foreignKeyConstraintExists foreignKeyName="PK_2354"
                                 foreignKeyTableName="myTable" /&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_foreignKeyConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - foreignKeyConstraintExists:
        foreignKeyName: PK_2354
        foreignKeyTableName: myTable</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_foreignKeyConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -693,8 +666,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>indexExists</code>
         </h3>
         <p>Defines if the specified index exists in the database. You can either specify the <code>indexName</code>&#160;<MadCap:variable name="General.Param/Attribute" /> or <code>tableName</code> and <code>columnNames</code>&#160;<MadCap:variable name="General.Param/Attribute" />s.</p>
@@ -735,11 +708,16 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_indexExists" id="label_xml_example_indexExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_indexExists" id="label_yaml_example_indexExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_indexExists" id="label_json_example_indexExists" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_indexExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;indexExists indexName="originindex"/&gt;
 &lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;indexExists tableName="MY_NEW_TABLE"
@@ -748,13 +726,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     &lt;indexExists indexName="originindex"
                  tableName="MY_NEW_TABLE"/&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_indexExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - indexExists:
        indexName: originindex</code></pre><pre xml:space="preserve"><code class="language-yaml">- preConditions:
@@ -766,13 +739,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     - indexExists:
        indexName: originindex
        tableName: MY_NEW_TABLE</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_indexExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -808,8 +776,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>primaryKeyExists</code>
         </h3>
         <p>Defines if the specified primary key exists in the database.</p>
@@ -843,32 +811,27 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_primaryKeyExists" id="label_xml_example_primaryKeyExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_primaryKeyExists" id="label_yaml_example_primaryKeyExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_primaryKeyExists" id="label_json_example_primaryKeyExists" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_primaryKeyExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
     &lt;primaryKeyExists primaryKeyName="ID_2354"
                       tableName="table1" /&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_primaryKeyExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: HALT
     - primaryKeyExists:
        primaryKeyName: ID_2354
        tableName: table1</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_primaryKeyExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "HALT"
@@ -881,8 +844,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>rowCount</code>
         </h3>
         <p>Checks that the number of rows in a table matches an expected value.</p>
@@ -912,32 +875,27 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_rowCount" id="label_xml_example_rowCount" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_rowCount" id="label_yaml_example_rowCount" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_rowCount" id="label_json_example_rowCount" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_rowCount" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;rowCount expectedRows="5"
               tableName="person"/&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_rowCount" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - rowCount:
        expectedRows: 5
        tableName: person</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_rowCount" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -950,8 +908,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>runningAs</code>
         </h3>
         <p>Defines if the database user executed under matches the username specified.</p>
@@ -974,33 +932,28 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_runningAs" id="label_xml_example_runningAs" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_runningAs" id="label_yaml_example_runningAs" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_runningAs" id="label_json_example_runningAs" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_runningAs" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
     &lt;dbms  type="oracle"  /&gt;
     &lt;runningAs  username="SYSTEM"  /&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_runningAs" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - dbms:
        type: oracle
     - runningAs:
        username: SYSTEM</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_runningAs" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -1017,8 +970,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>sequenceExists</code>
         </h3>
         <p>Defines if the specified sequence exists in the database.</p>
@@ -1047,30 +1000,25 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_sequenceExists" id="label_xml_example_sequenceExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_sequenceExists" id="label_yaml_example_sequenceExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_sequenceExists" id="label_json_example_sequenceExists" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_sequenceExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;sequenceExists sequenceName="idnumber" /&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_sequenceExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - sequenceExists:
        sequenceName: idnumber</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_sequenceExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -1082,8 +1030,8 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>sqlCheck</code>
         </h3>
         <p>Executes an SQL string and checks the returned value. The SQL must return a single row with a single value.</p>
@@ -1117,50 +1065,32 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">SQL example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">--changeset Liquibase User:1
---preconditions onFail:WARN
---precondition-sql-check expectedResult:1 SELECT COUNT(1) FROM pg_tables WHERE&#160;TABLENAME = 'myRequiredTable'
-create table example_table (
-	id int primary key,
-	firstname varchar(50),
-	lastname varchar(50) not null,
-	state char(2)
-)</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_sqlCheck" id="label_xml_example_sqlCheck" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_sqlCheck" id="label_yaml_example_sqlCheck" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_sqlCheck" id="label_json_example_sqlCheck" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#sql_example_sqlCheck" id="label_sql_example_sqlCheck" class="js-tablist__link">SQL example</a>
+                </li>
+            </ul>
+            <div id="xml_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;sqlCheck expectedResult="1"&gt;
         SELECT COUNT(1)
         FROM pg_tables
         WHERE TABLENAME = 'myRequiredTable'
     &lt;/sqlCheck&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - sqlCheck:
        expectedResult: 1
-       sql: SELECT&#160;COUNT(1)&#160;FROM pg_tables WHERE&#160;TABLENAME = 'myRequiredTable'</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+       sql: SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'</code></pre>
+            </div>
+            <div id="json_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -1168,13 +1098,23 @@ create table example_table (
     {
       "sqlCheck": {
         "expectedResult": "1",
-        "sql": "SELECT&#160;COUNT(1)&#160;FROM pg_tables WHERE&#160;TABLENAME = 'myRequiredTable'"
+        "sql": "SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'"
       }
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+            <div id="sql_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--changeset your.name:1
+--preconditions onFail:WARN
+--precondition-sql-check expectedResult:1 SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'
+create table example_table (
+	id int primary key,
+	firstname varchar(50),
+	lastname varchar(50) not null,
+	state char(2)
+)</code></pre>
+            </div>
+        </div>
         <h3><code>tableExists</code>
         </h3>
         <p>Defines if the specified table exists in the database.</p>
@@ -1203,11 +1143,18 @@ create table example_table (
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="author" id="1"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_tableExists" id="label_xml_example_tableExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_tableExists" id="label_yaml_example_tableExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_tableExists" id="label_json_example_tableExists" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#sql_example_tableExists" id="label_sql_example_tableExists" class="js-tablist__link">SQL example</a>
+                </li>
+            </ul>
+            <div id="xml_example_tableExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="author" id="1"&gt;
    &lt;preConditions onFail="MARK_RAN"&gt;
        &lt;not&gt;
            &lt;tableExists tableName="MY_NEW_TABLE"/&gt;
@@ -1223,13 +1170,8 @@ create table example_table (
                type="${integer.type}"/&gt;
    &lt;/createTable&gt;
 &lt;/changeSet&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- changeSet:
+            </div>
+            <div id="yaml_example_tableExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- changeSet:
     preConditions:
       - onFail: MARK_RAN
       - not:
@@ -1244,13 +1186,8 @@ create table example_table (
                type: ${integer.type}
                constraints:
                  nullable: false</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_tableExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "changeSet": {
     "preConditions": [
       {
@@ -1286,8 +1223,16 @@ create table example_table (
     ]
   }
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+            <div id="sql_example_tableExists" class="js-tabcontent">
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code class="language-text">tableExists</code> is supported for SQL <MadCap:variable name="General.changelog" />s in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later.</p><pre xml:space="preserve"><code class="language-sql">--changeset your.name:1
+--preconditions onFail:MARK_RAN
+--precondition-table-exists table:table1 schema:12345
+create table table2 (
+    id int primary key
+);</code></pre>
+            </div>
+        </div>
         <h3><code>uniqueConstraintExists</code>
         </h3>
         <p>Checks for the existence of unique constraints before running the update. (since <MadCap:variable name="General.Liquibase" /> 4.9.0)</p>
@@ -1322,24 +1267,24 @@ create table example_table (
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_uniqueConstraintExists" id="label_xml_example_uniqueConstraintExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_uniqueConstraintExists" id="label_yaml_example_uniqueConstraintExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_uniqueConstraintExists" id="label_json_example_uniqueConstraintExists" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_uniqueConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;uniqueConstraintExists constraintName="uq_constraint_name"
                             tableName="test_table"/&gt;
 &lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
     &lt;uniqueConstraintExists tableName="test_table"
                             columnNames="first_name, last_name"/&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_uniqueConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - uniqueConstraintExists:
        constraintName: uq_constraint_name
@@ -1348,13 +1293,8 @@ create table example_table (
     - uniqueConstraintExists:
        tableName: test_table
        columnNames: first_name, last_name</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_uniqueConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "WARN"
@@ -1379,8 +1319,8 @@ create table example_table (
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
         <h3><code>viewExists</code>
         </h3>
         <p>Defines if the specified view exists in the database.</p>
@@ -1409,30 +1349,27 @@ create table example_table (
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_viewExists" id="label_xml_example_viewExists" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_viewExists" id="label_yaml_example_viewExists" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_viewExists" id="label_json_example_viewExists" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#sql_example_viewExists" id="label_sql_example_viewExists" class="js-tablist__link">SQL example</a>
+                </li>
+            </ul>
+            <div id="xml_example_viewExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
     &lt;viewExists viewName="liquibase" /&gt;
 &lt;/preConditions&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            </div>
+            <div id="yaml_example_viewExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: HALT
     - viewExists:
        viewName: liquibase</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_viewExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "onFail": "HALT"
@@ -1444,8 +1381,16 @@ create table example_table (
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+            <div id="sql_example_viewExists" class="js-tabcontent">
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code class="language-text">viewExists</code> is supported for SQL <MadCap:variable name="General.changelog" />s in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later.</p><pre xml:space="preserve"><code class="language-json">--changeset your.name:1
+--preconditions onFail:MARK_RAN
+--precondition-view-exists view:view1 schema:12345
+create table table1 (
+    id int primary key
+);</code></pre>
+            </div>
+        </div>
         <h3><code>customPrecondition</code>
         </h3>
         <p>Can be created by adding a class that implements the <code><a href="https://javadocs.liquibase.com/liquibase-core/liquibase/precondition/CustomPrecondition.html">liquibase.precondition.CustomPrecondition</a></code> interface. Parameters on custom classes are set through reflection based on the <code>&lt;param&gt;</code> sub-tags. Pass parameters as strings to the custom precondition.</p>
@@ -1496,23 +1441,23 @@ create table example_table (
                 </tr>
             </tbody>
         </table>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;customPrecondition className="com.example.CustomTableCheck"&gt;
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example_customPrecondition" id="label_xml_example_customPrecondition" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example_customPrecondition" id="label_yaml_example_customPrecondition" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example_customPrecondition" id="label_json_example_customPrecondition" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example_customPrecondition" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;customPrecondition className="com.example.CustomTableCheck"&gt;
      &lt;param name="tableName"
             value="our_table"/&gt;
      &lt;param name="count"
             value="42"/&gt;
 &lt;/customPrecondition&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">- customPrecondition:
+            </div>
+            <div id="yaml_example_customPrecondition" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- customPrecondition:
     - className: com.example.CustomTableCheck
     - param:
        name: tableName
@@ -1520,13 +1465,8 @@ create table example_table (
     - param:
        name: count
        value: 42</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot style="font-size: 1.1em;">JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example_customPrecondition" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "customPrecondition": [
     {
       "className": "com.example.CustomTableCheck"
@@ -1545,7 +1485,7 @@ create table example_table (
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+        </div>
     </body>
 </html>
