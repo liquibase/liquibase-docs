@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/using-liquibase-and-aws-rds.html" />
-		<meta name="description" content="Reference information for Liquibase and AWS RDS." />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Reference information for Liquibase and AWS RDS." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <h1>Using <MadCap:variable name="General.Liquibase" /> and AWS RDS </h1>
@@ -11,6 +11,29 @@
         <p><a href="https://aws.amazon.com/rds/">Amazon Relational Database Service</a> (Amazon RDS) is a web service that helps you set up, operate, and scale a relational database in the AWS Cloud. Amazon RDS is available on several <a href="https://aws.amazon.com/rds/instance-types/">database instance types</a> and offers six database engines including <a href="https://aws.amazon.com/rds/aurora/">Amazon Aurora</a>, <a href="https://aws.amazon.com/rds/postgresql/">PostgreSQL</a>, <a href="https://aws.amazon.com/rds/mysql/">MySQL</a>, <a href="https://aws.amazon.com/rds/mariadb/">MariaDB</a>, <a href="https://aws.amazon.com/rds/oracle/">Oracle Database</a>, and <a href="https://aws.amazon.com/rds/sqlserver/">SQL Server</a>.</p>
         <p>Each Amazon RDS DB instance has an endpoint, and each endpoint has the DNS name (host) and port number for the DB instance to connect.</p>
         <p><MadCap:variable name="General.Liquibase" /> integrates with application build and deploy tools for CI/CD on AWS and automates the deployment of database changes in-line with related application changes. Using <MadCap:variable name="General.Liquibase" /> and AWS RDS, you can access database engines like PostgreSQL, MariaDB, or Oracle in cloud and control your deployments by versioning them with the SQL, XML, JSON, or YAML files. It means that the code, applications, and tools you use with your existing databases can be used with <MadCap:variable name="General.Liquibase" /> and Amazon RDS to track, manage, and apply database schema changes.</p>
+        <h2>Use AWS IAM&#160;Auth Token to connect <MadCap:variable name="General.Liquibase" /> to AWS&#160;RDS&#160;Databases</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <p>AWS provides the ability to generate tokens to authenticate a user to connect to a database. <br />Further information can be found in this article: <a href="https://aws.amazon.com/blogs/database/using-iam-authentication-to-connect-with-pgadmin-amazon-aurora-postgresql-or-amazon-rds-for-postgresql/">Using IAM authentication to connect with pgAdmin Amazon Aurora PostgreSQL or Amazon RDS for PostgreSQL</a></p>
+        <p><MadCap:variable name="General.Liquibase" /> doesn't natively support these tokens in the <b>liquibase.properties</b> file. However, in combination with <MadCap:xref href="../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref>, <MadCap:variable name="General.Liquibase" /> can pass along the token as the password for connecting to the target AWS database.</p>
+        <h3>Environment Conditions:</h3>
+        <ul>
+            <li><MadCap:variable name="General.Liquibase" />
+            </li>
+            <li>AWS</li>
+            <li>AWS CLI</li>
+        </ul>
+        <h3>How to:</h3>
+        <ol>
+            <li>Depending on your platform/pipeline, you set the environment password variable  (LIQUIBASE_COMMAND_PASSWORD), which is the variable that <MadCap:variable name="General.Liquibase" /> can read from during <MadCap:variable name="General.Liquibase" /> operations.
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you use the environment variable for the password, do not pass it via the CLI or have the password in the liquibase.properties file.</p></li>
+            <li>Below is an example of how this would be on a Linux/Mac platform:
+        <ul><pre>export LIQUIBASE_COMMAND_PASSWORD="$(aws rds generate-db-auth-token \
+--hostname $RDSHOST \
+--port 5432 \
+--region us-east-1 \
+--username mydbuser)"</pre><p><b>RDSHOST –</b> The hostname of the DB cluster (cluster endpoint) that you want to access.</p><p><b>mydbuser –</b> The name of the database account to associate with IAM authentication.</p></ul></li>
+            <li>With the AWS CLI, you are able to call <b>generate-db-auth-token</b> to auto-generate a token, which <b>LIQUIBASE_COMMAND_PASSWORD</b> will be set to. This will allow you to connect to an AWS RDS via the token.</li>
+        </ol>
         <p>Need to know more about <MadCap:variable name="General.Liquibase" /> and AWS RDS? Check out the following topics:</p>
         <ul>
             <li>Learn what the <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html">Amazon Relational Database Service</a> is</li>
@@ -21,6 +44,11 @@
             <li>Learn about <a href="https://docs.liquibase.com/install/tutorials/postgresql.html"><MadCap:variable name="General.Liquibase" /> and PostgreSQL</a>  on AWS RDS</li>
             <li>Learn about <a href="https://docs.liquibase.com/install/tutorials/mariadb.html"><MadCap:variable name="General.Liquibase" /> and MariaDB</a> on AWS RDS</li>
             <li>Learn about <a href="https://docs.liquibase.com/install/tutorials/mysql.html"><MadCap:variable name="General.Liquibase" /> and MySQL</a> on AWS RDS</li>
+            <li><a href="https://aws.amazon.com/blogs/database/using-iam-authentication-to-connect-with-pgadmin-amazon-aurora-postgresql-or-amazon-rds-for-postgresql/">Using IAM authentication to connect with pgAdmin Amazon Aurora PostgreSQL or Amazon RDS for PostgreSQL</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref>
+            </li>
         </ul>
     </body>
 </html>
