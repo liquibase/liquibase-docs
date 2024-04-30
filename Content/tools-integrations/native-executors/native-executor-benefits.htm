@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Benefits of Using Native Executors</h1>
+        <p>Using native executors can provide distinct advantages including the ability to process database client-specific settings, commands,  and environment variables within the SQL script.</p>
+        <h2>Special Script Handling</h2>
+        <p>A business analyst requests a data change that includes special characters that may interfere with the default script deployment behavior. <b>Native database clients offer flexibility</b> when deploying these types of scripts or when SQL statements need special handling.</p>
+        <p>For example, Oracle's native client "sqlplus" offers a wide range of commands such as <b>SET</b>, that can be intermixed with the script to modify the <b>script deployment behavior at runtim</b>e.</p>
+        <ul>
+            <li>Using these commands may be necessary when data containing special characters are loaded into tables.</li>
+            <li>Using these commands consistently ensures that all changes to the database follow a pattern such as an Oracle client's SPOOL command to indicate a spool output file.</li>
+            <li>Additional commands can be added for special script handling such as Oracle client's WHENEVER command to indicate how to handle errors during script execution.</li>
+        </ul>
+        <h2>Connection Attributes</h2>
+        <p>Native database clients can be used to toggle various attributes:</p>
+        <ul>
+            <li>Microsoft SQL Server client's <b>SQLCMDLOGINTIMEOUT</b> environment variable configures login timeout for the client.</li>
+            <li>The client's <b>SQLCMDINI</b> environment variable configures the <b>init script</b> to run when the client is started.</li>
+        </ul>
+        <p>A DBA may want all deployments to run an init script prior to any deployments to their SQL Server database.</p>
+        <h2>Logging</h2>
+        <p>Native database clients typically provide more insight into database deployments than JDBC drivers. Stakeholders are familiar with native database clients and are accustomed to browsing log files to quickly identify issues, spot patterns, and expected output.</p>
+        <p>One example is when a SQL developer authored a script to update a large number of rows. They would be interested in reviewing the native database client log to verify the exact number of rows that were updated.</p>
+        <h2>Native Database Responses</h2>
+        <p>Below are examples of different responses from a native database client and JDBC driver.</p>
+        <p>Sample SQL:</p><pre xml:space="preserve">--liquibase formatted sql
+
+--changeset Adeel:person_table
+create table person (
+id int primary key,
+name varchar(50) not null,
+address1 varchar(50)
+);
+--rollback drop table person;
+
+--changeset Adeel:person_insert
+INSERT INTO PERSON (ID,NAME,ADDRESS1) VALUES (1,'John Smith','101 State St');
+INSERT INTO person (id, name, address1) VALUES (2, 'Henry Blair', '812 Michigan Ave');
+INSERT INTO person (id, name, address1) VALUES (3, 'Amy Long', '25 Waldorf Way');
+INSERT INTO person (id, name, address1) VALUES (100, 'John Doe', '100 Liquibase Ave');
+INSERT INTO person (id, name, address1) VALUES (1001, 'John Doe', '100 Liquibase Ave');
+--rollback truncate table person;
+
+--changeset Adeel:person_update
+UPDATE person
+SET address1=NULL
+WHERE ID &gt;= '100'
+--rollback update person set address1='100 Liquibase Ave' WHERE ID &gt;= '100'</pre>
+        <p>Below are three changesets that were deployed. Successful output from the CREATE TABLE statement with the JDBC driver does not reveal what operation was performed on the database:</p>
+		<pre xml:space="preserve">Running Changeset: release1/1.person.sql::1::Adeel
+INFO [liquibase.changelog] Custom SQL executed
+INFO [liquibase.changelog] ChangeSet release1/1.person.sql::person_table::Adeel ran successfully in 22ms
+Running Changeset: release1/1.person.sql::2::Adeel
+INFO [liquibase.changelog] Custom SQL executed
+INFO [liquibase.changelog] ChangeSet release1/1.person.sql::person_insert::Adeel ran successfully in 83ms
+Running Changeset: release1/1.person.sql::3::Adeel
+INFO [liquibase.changelog] Custom SQL executed
+INFO [liquibase.changelog] ChangeSet release1/1.person.sql::person_update::Adeel ran successfully in 8ms</pre>
+        <p>The successful output from the same statement with the native database client provides more valuable information. It indicates that: 1) a table was created, 2) several rows were inserted and 3) a couple of rows were updated:</p>
+    </body>
+</html>
