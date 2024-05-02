@@ -545,6 +545,7 @@ variable "redirects" {
     { key = "/feature-flags/readmes/Usage.html", website_redirect = "/tools-integrations/feature-flags/home.html" },
     { key = "/flow", website_redirect = "/commands/flow/flow.html" },
     { key = "/flow.html", website_redirect = "/commands/flow/flow.html" },
+    { key = "/install/drivers-extensions.html", website_redirect = "/start/tutorials/home.html" },
     { key = "/install/liquibase-downloaded-files.html", website_redirect = "/start/install/liquibase-installation-files.html" },
     { key = "/install/liquibase-installation-files.html", website_redirect = "/start/install/liquibase-installation-files.html" },
     { key = "/install/liquibase-installation-troubleshooting.html", website_redirect = "/start/install/liquibase-installation-troubleshooting.html" },
