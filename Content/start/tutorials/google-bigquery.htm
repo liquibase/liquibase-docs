@@ -20,7 +20,88 @@
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
         <h3>CLI users</h3>
-        <p>To use <MadCap:variable name="General.Liquibase" /> and BigQuery, you need several JAR files.</p>
-        <p>&#160;</p>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and BigQuery, you need several JAR files:</p>
+        <ul>
+            <li>All of the JAR files in the <a href="https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers#current_jdbc_driver">BigQuery JDBC ZIP file</a> (under "Current JDBC driver")</li>
+            <li>The <a href="https://github.com/liquibase/liquibase-bigquery/releases"><MadCap:variable name="General.Liquibase" /> extension for Google BigQuery</a> (<code class="language-text">liquibase-bigquery-&lt;version&gt;.jar</code> in the "Assets" section)</li>
+        </ul>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-driver.flsnp" MadCap:conditionTagExpression="include[database-driver.driver-manually-installed or database-driver.maven-jar-public]" /><pre><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;google-cloud-bigquery&lt;/artifactId&gt;
+    &lt;version&gt;<MadCap:variable name="software-versions.latest-google-bigquery" />&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+    &lt;artifactId&gt;liquibase-bigquery&lt;/artifactId&gt;
+    &lt;version&gt;<MadCap:variable name="software-versions.latest-liquibase-pro" />&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <p>Make sure that the <MadCap:variable name="General.Liquibase" /> plugin and the extension have the same version.</p>
+        <h2>Configure connection</h2>
+        <ol>
+            <li>Ensure your BigQuery database is configured. See <a href="https://cloud.google.com/bigquery/docs/quickstarts">BigQuery Quickstarts</a> for more information. For example, you can run a query of a sample table in BigQuery using the <a href="https://cloud.google.com/bigquery/docs/quickstarts/load-data-bq"><code class="language-text">bq</code> command-line tool</a>.</li><pre xml:space="preserve"><code class="language-shell">bq show bigquery-public-data:samples.shakespeare</code></pre>
+            <li>
+                <MadCap:snippetText src="../../Z_Resources/Snippets/text/database-tutorials/database-properties-url.flsnp" />
+            </li><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://&lt;Host&gt;:&lt;Port&gt;;ProjectId=&lt;Project&gt;;OAuthType=&lt;AuthValue&gt;;&lt;Property1&gt;=&lt;Value1&gt;;&lt;Property2&gt;=&lt;Value2&gt;;...</code></pre>
+            <ul>
+                <li>Specify the ID of your BigQuery project as the value of <code class="language-text">ProjectId</code>.</li>
+                <li>Specify your BigQuery authentication method as the value of <code class="language-text">OAuthType</code>.</li>
+            </ul>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Detailed information on JDBC Connections for Big Query can be found here: <a href="https://storage.googleapis.com/simba-bq-release/jdbc/Simba Google BigQuery JDBC Connector Install and Configuration Guide_1.5.0.1001.pdf">Simba Google BigQuery JDBC Connector Install and Configuration Guide_1.5.0.1001.pdf</a>.</p>
+            <p>Click on the following tabs to see example JDBC URLs for each authentication type:</p>
+            <div class="js-tabs">
+                <ul class="js-tablist" data-hx="h3">
+                    <li class="js-tablist__item"><a href="#OAuthType0" id="label_OAuthType0" class="js-tablist__link"><code>OAuthType0</code></a>
+                    </li>
+                    <li class="js-tablist__item"><a href="#OAuthType1" id="label_OAuthType1" class="js-tablist__link"><code>OAuthType1</code></a>
+                    </li>
+                    <li class="js-tablist__item"><a href="#OAuthType2" id="label_OAuthType2" class="js-tablist__link"><code>OAuthType2</code></a>
+                    </li>
+                    <li class="js-tablist__item"><a href="#OAuthType3" id="label_OAuthType3" class="js-tablist__link"><code>OAuthType3</code></a>
+                    </li>
+                </ul>
+                <div id="OAuthType0" class="js-tabcontent">
+                    <p><b>Google Services</b>. Requires the options <code class="language-text">OAuthServiceAcctEmail</code> and <code class="language-text">OAuthPvtKeyPath</code> in your <MadCap:variable name="General.Liquibase" />&#160;<code class="language-text">url</code> property. For example:</p><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://https://googleapis.com/bigquery/v2:443;
+ProjectId=myProject;
+OAuthType=0;
+OAuthServiceAcctEmail=lbtest@bq123.iam.gserviceaccount.com;
+OAuthPvtKeyPath=C:\path\serviceKey.p12;</code></pre>
+                </div>
+                <div id="OAuthType1" class="js-tabcontent">
+                    <p><b>Google User Account authentication</b>. Requires your user account credentials. For example:</p><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://https://googleapis.com/bigquery/v2:443;
+ProjectId=myProject;
+OAuthType=1;</code></pre>
+                </div>
+                <div id="OAuthType2" class="js-tabcontent">
+                    <p><b>Google Authorization Server Access Token</b>. Requires the options <code class="language-text">OAuthAccessToken</code>, <code class="language-text">OAuthRefreshToken</code>, <code class="language-text">OAuthClientId</code>, and <code class="language-text">OAuthClientSecret</code> in your <MadCap:variable name="General.Liquibase" />&#160;<code class="language-text">url</code> property. For example:</p><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://https://googleapis.com/bigquery/v2:443;
+ProjectId=myProject;
+OAuthType=2;
+OAuthAccessToken=a25c7cfd36214f94a79d;
+OAuthRefreshToken=2kl0Qvuw9qt4abia54qga5t97;
+OAuthClientId=22n6627g243322f7;
+OAuthClientSecret=cDE+F2g3Hcjk4K5lazM;</code></pre>
+                </div>
+                <div id="OAuthType3" class="js-tabcontent">
+                    <p><b>Application Default Credentials</b>. For example:</p><pre xml:space="preserve"><code class="language-text">url: jdbc:bigquery://https://googleapis.com/bigquery/v2:443;
+ProjectId=myProject;
+OAuthType=3;</code></pre>
+                </div>
+            </div>
+        </ol>
+        <h2>Test connection</h2>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/database-tutorials/database-changelog-test-connection.flsnp" MadCap:conditionTagExpression="include[database.default]" />
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://cloud.google.com/bigquery/docs/introduction">BigQuery overview</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../commands/home.htm">About [%=General.Liquibase%] Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../workflows/home.htm">Workflows</MadCap:xref>
+            </li>
+        </ul>
     </body>
 </html>
