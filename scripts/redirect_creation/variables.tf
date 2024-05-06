@@ -743,6 +743,8 @@ variable "redirects" {
     { key = "/start/release-notes/liquibase-4.24.0.html", website_redirect = "/start/release-notes/liquibase-release-notes/liquibase-4.24.0.html" },
     { key = "/start/release-notes/liquibase-4.25.0.html", website_redirect = "/start/release-notes/liquibase-release-notes/liquibase-4.25.0.html" },
     { key = "/start/release-notes/mongodb-extension-release-notes.html", website_redirect = "/start/release-notes/mongodb/home.html" },
+    { key = "/start/tutorials/amazon-dynamodb/amazon-dynamodb.html", website_redirect = "/start/tutorials/amazon-dynamodb-pro/amazon-dynamodb.html" },
+    { key = "/start/tutorials/amazon-dynamodb/home.html", website_redirect = "/start/tutorials/amazon-dynamodb-pro/home.html" },
     { key = "/start/tutorials/apache-derby.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/apache-derby/" },
     { key = "/start/tutorials/aws-redshift.html", website_redirect = "/start/tutorials/amazon-redshift.html" },
     { key = "/start/tutorials/bigquery.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/bigquery/" },
