@@ -63,6 +63,30 @@
         <h3>Example of Flow File include functionality:</h3><pre><code class="language-yaml">include:
 - postgresNamespace: postgres-vars.yaml</code></pre>
         <p>To enable the functionality, you will then add the created variable name to the <code>cmdArgs</code> section or your <MadCap:variable name="General.changelog" />.</p><pre><code class="language-yaml">cmdArgs: { url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}</code></pre>
+        <h2 MadCap:conditions="exclude.future-4-27-1">Property substitution with full YAML&#160;strings</h2>
+        <p MadCap:conditions="exclude.future-4-27-1">In <MadCap:variable name="General.Liquibase" /> 4.27.1 and later, you can also use variables to dynamically expand into full YAML&#160;strings during property substitution. The YAML&#160;strings you insert can also contain other variables, which can expand into more YAML&#160;strings.</p>
+        <p MadCap:conditions="exclude.future-4-27-1">For example, this may be useful if you want multiple stages of a single flow file to run a command, but you want to substitute different variables to modify that command in different stages of a flow file.</p><pre xml:space="preserve" MadCap:conditions="exclude.future-4-27-1"><code class="language-yaml">globalVariables:
+  COMMAND_ARGS: "changelogfile: './liquibase.${STAGE_CHANGELOG}.yaml'"
+
+## Start of the stages.
+stages:
+
+  ## Another stage.
+  stage01:
+
+    ## set up vars for property substitution in THIS stage only
+    stageVariables:
+      STAGE_CHANGELOG: "stage01"
+
+    actions:
+      #
+      # Do an update command
+      #
+      - type: liquibase
+        command: update
+        cmdArgs: {"${COMMAND_ARGS}"}
+        ## this expands to: cmdArgs: { changelogfile: './liquibase.${STAGE_CHANGELOG}.yaml'}
+        ## which expands to: cmdArgs: { changelogfile: './liquibase.stage01.yaml'</code></pre>
         <h2>Example Flow File</h2>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
