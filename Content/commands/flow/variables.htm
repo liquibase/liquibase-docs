@@ -11,27 +11,56 @@
         <p>
             <img src="../../Z_Resources/Images/Diagrams/flowfile.png" alt="Structure of variable definitions, flow file stages, and nested actions that call on variables." style="width: 35%; float:right" />
         </p>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.17.0+, you can define <b>variables</b> in <a href="home.htm">flow files</a> to use in one or more stages that execute when you run the <code><MadCap:xref href="flow.htm">flow</MadCap:xref></code> command. You can define variables in three ways:</p>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.17.0+, you can define <b>variables</b> in <a href="home.htm">flow files</a> to use in one or more stages. When you run the <code><MadCap:xref href="flow.htm">flow</MadCap:xref></code> command, <MadCap:variable name="General.Liquibase" /> substitutes the variable names for their values.</p>
+        <p>You can define variables in three ways:</p>
         <ul>
             <li>As <b>global variables</b> in the flow file's header section</li>
-            <li>As <b>stage variables</b> within individual stages</li>
+            <li>As <b>stage variables</b> within individual stages (overrides global variables)</li>
             <li>Included in an <b>external YAML&#160;file</b> that you reference in the flow file's header section</li>
         </ul>
         <p>In <MadCap:variable name="General.Liquibase" /> 4.24.0+, <MadCap:variable name="General.Liquibase" /> shares variables you define across "nested" flow files (flow files included by other flow files). This lets you pass variables through multiple layers.</p>
         <h2>Uses</h2>
-        <p>Variables let you define one object that could have multiple unique values. This is useful if you want to run similar (but not identical) commands in different stages of a flow file. It also helps reduce duplication by letting you define a piece of code in one place in your flow file.</p>
-        <p>For example, consider a flow file with two stages: a and b.</p>
+        <p>You can define a variable once but reuse it many times in different situations in your flow file. This provides flexibility and reduces code duplication. For example, variables may be useful to efficiently run multiple kinds of commands that contain the same file, directory, or other string.</p>
         <p>You can also check the values of variables in <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref> to dynamically run code in your flow files.</p>
-        <h2>Structure</h2>
-        <h3>Default variable values</h3>
-        <p>You can set default values for variables by setting the value after <code>:-</code>.  These can be set in global variables or stage variables.  With optional arguments in place such as labels or contexts, a Flow file will detect the null argument value and it won't pass an empty attribute in the command. </p>
+        <p>When you call variables you've previously defined, you can specify a default value for <MadCap:variable name="General.Liquibase" /> to use if it doesn't receive one. For example, you could use this to specify optional command arguments (such as <a href="../../concepts/changelogs/attributes/contexts.html">contexts</a> and <a href="../../concepts/changelogs/attributes/labels.html">labels</a>) as <code class="language-text">NULL</code> if not explicitly specified in your definition.</p>
+        <h2>Syntax</h2>
+        <h3>Define variables</h3>
+        <p>Define global variables at the top of your flow file:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
+  statusFile: "status.txt"
+  updateLog: "update.log"
+  historyFile: "history.txt"</code></pre>
+        <p>Define stage variables within a particular stage, in this case called <code class="language-text">stage-status</code>:</p><pre xml:space="preserve"><code class="language-yaml">stages:
+  stage-status:
+    stageVariables:
+      statusFile: "status.txt"</code></pre>
+        <h3>Use variables</h3>
+        <p>The syntax to use a variable is verbose: "${verboseState}".</p>
+        <p>For example, we can run the status command using both global and stage variables:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
+  statusFile: "status.txt"
+
+stages:
+  stage-status:
+
+    stageVariables:
+      verboseState: "true"
+
+    actions:
+      - type: liquibase
+        command: status
+        globalArgs: {output-file: "${statusFile}"}
+        cmdArgs: {verbose: "${verboseState}"</code></pre>
+        <h3>Included variables</h3>
+        <p>The variables will be used as ${namespace.variablename}, seen in this example as ${FLOWVARS.PROJNAME}</p><pre xml:space="preserve"><code class="language-yaml">include:
+  FLOWVARS: liquibase.flowvariables.yaml
+
+globalVariables:
+  DIRNAME: "./${FLOWVARS.PROJNAME}_${FLOWVARS.THISDATE}"</code></pre>
+        <h3>Default values</h3>
+        <p>After you define your variables, you can set default values whenever you call them elsewhere in your flow file.</p>
         <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>CHANGELOG_FILE: "${changelogFile:-null}"</code>
         </p>
         <p>In this example, if the user passes a value to <code>${changelogFile}</code>, <MadCap:variable name="General.Liquibase" /> sets <code>CHANGELOG_FILE</code> to that value. Otherwise, <MadCap:variable name="General.Liquibase" /> sets the variable <code>CHANGELOG_FILE</code> to null by default.</p>
         <h2>globalVariables</h2>
-        <p><code>globalVariables</code> must be defined at the top of the Flow File with the syntax shown in the example Flow File. Each Action specified in the Flow File can reference a <code>globalVariable</code> as a command argument. This saves you time and keeps your Flow File tidy.</p>
-        <p>Define a global variable:</p><pre><code class="language-yaml">offlineRefUrl: "offline:postgres?snapshot=refSnapshot.json"</code></pre>
-        <p>Use a global variable you have defined:</p><pre xml:space="preserve"><code class="language-yaml">cmdArgs: { url: "${offlineRefUrl}"}</code></pre>
         <h3>Reference System Environment Variables through globalVariables</h3>
         <p>globalVariables can reference System Environment Variables to provide values within a Flow file. Within the Flow file example below, notice that the command echoes <code>"Running Liquibase from ${LIQUIBASE_HOME}"</code>. This allows you to change environment variables as desired without changing the Flow file.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">&#160;Place the environment variable you want to reference between the parenthesis: <code>"Running Liquibase from ${INSERT_ENVIRONMENT_VARIABLE_HERE}"</code></p>
