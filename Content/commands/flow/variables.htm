@@ -11,7 +11,7 @@
         <p>
             <img src="../../Z_Resources/Images/Diagrams/flowfile.png" alt="Structure of variable definitions, flow file stages, and nested actions that call on variables." style="width: 35%; float:right" />
         </p>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.17.0+, you can define <b>variables</b> in <a href="home.htm">flow files</a> to use in one or more stages. When you run the <code><MadCap:xref href="flow.htm">flow</MadCap:xref></code> command, <MadCap:variable name="General.Liquibase" /> substitutes the variable names for their values.</p>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.17.0+, you can define <b>variables</b> as key-value pairs to use in one or more stages of your <a href="home.htm">flow files</a>. When you run the <code><MadCap:xref href="flow.htm">flow</MadCap:xref></code> command, <MadCap:variable name="General.Liquibase" /> substitutes the variable names for their values.</p>
         <p>You can define variables in three ways:</p>
         <ul>
             <li>As <b>global variables</b> in the flow file's header section</li>
@@ -25,17 +25,28 @@
         <p>When you call variables you've previously defined, you can specify a default value for <MadCap:variable name="General.Liquibase" /> to use if it doesn't receive one. For example, you could use this to specify optional command arguments (such as <a href="../../concepts/changelogs/attributes/contexts.html">contexts</a> and <a href="../../concepts/changelogs/attributes/labels.html">labels</a>) as <code class="language-text">NULL</code> if not explicitly specified in your definition.</p>
         <h2>Syntax</h2>
         <h3>Define variables</h3>
-        <p>Define global variables at the top of your flow file:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
+        <p>Variable definitions always use the syntax <code class="language-text">key: "value"</code>. You must specify quotation marks around the value.</p>
+        <p>You can define <b>included variables</b> in an external YAML file, in this case <code class="language-text">liquibase.flowvariables.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">projectName: "MyFlowProject"
+thisDate: "2024-05-12T15-00-20"</code></pre>
+        <p>You can define <b>global variables</b> at the top of your flow file, in this case <code class="language-text">liquibase.myflowfile.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
   statusFile: "status.txt"
   updateLog: "update.log"
   historyFile: "history.txt"</code></pre>
-        <p>Define stage variables within a particular stage, in this case called <code class="language-text">stage-status</code>:</p><pre xml:space="preserve"><code class="language-yaml">stages:
+        <p>You can define <b>stage variables</b> within a particular stage, in this case called <code class="language-text">stage-status</code>:</p><pre xml:space="preserve"><code class="language-yaml">stages:
   stage-status:
     stageVariables:
       statusFile: "status.txt"</code></pre>
         <h3>Use variables</h3>
-        <p>The syntax to use a variable is verbose: "${verboseState}".</p>
-        <p>For example, we can run the status command using both global and stage variables:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
+        <p>Variable calls in your flow files use the following syntax:</p>
+        <ul>
+            <li><b>Included</b> variables: <code>${namespace.variableKey}</code></li>
+            <li><b>Global and stage</b> variables: <code>${variableKey}</code></li>
+        </ul>
+        <p>For example, we can run the <code><MadCap:xref href="../change-tracking/status.htm">status</MadCap:xref></code> command in a flow file using included, global, and stage variables. In this example, the included variables all have the namespace <code class="language-text">flowVars</code> and reference variables we previously defined in the file <code class="language-text">liquibase.flowvariables.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">include:
+  flowVars: liquibase.flowvariables.yaml
+
+globalVariables:
+  directoryName: "./${flowVars.projectName}_${flowVars.thisDate}"
   statusFile: "status.txt"
 
 stages:
@@ -47,61 +58,32 @@ stages:
     actions:
       - type: liquibase
         command: status
-        globalArgs: {output-file: "${statusFile}"}
+        globalArgs: {output-file: "${directoryName}/${statusFile}"}
         cmdArgs: {verbose: "${verboseState}"</code></pre>
-        <h3>Included variables</h3>
-        <p>The variables will be used as ${namespace.variablename}, seen in this example as ${FLOWVARS.PROJNAME}</p><pre xml:space="preserve"><code class="language-yaml">include:
-  FLOWVARS: liquibase.flowvariables.yaml
-
-globalVariables:
-  DIRNAME: "./${FLOWVARS.PROJNAME}_${FLOWVARS.THISDATE}"</code></pre>
         <h3>Default values</h3>
-        <p>After you define your variables, you can set default values whenever you call them elsewhere in your flow file.</p>
+        <p>After you define your variables, you can set <b>default values</b> whenever you call them elsewhere in your flow file.</p>
         <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>CHANGELOG_FILE: "${changelogFile:-null}"</code>
         </p>
         <p>In this example, if the user passes a value to <code>${changelogFile}</code>, <MadCap:variable name="General.Liquibase" /> sets <code>CHANGELOG_FILE</code> to that value. Otherwise, <MadCap:variable name="General.Liquibase" /> sets the variable <code>CHANGELOG_FILE</code> to null by default.</p>
-        <h2>globalVariables</h2>
-        <h3>Reference System Environment Variables through globalVariables</h3>
-        <p>globalVariables can reference System Environment Variables to provide values within a Flow file. Within the Flow file example below, notice that the command echoes <code>"Running Liquibase from ${LIQUIBASE_HOME}"</code>. This allows you to change environment variables as desired without changing the Flow file.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">&#160;Place the environment variable you want to reference between the parenthesis: <code>"Running Liquibase from ${INSERT_ENVIRONMENT_VARIABLE_HERE}"</code></p>
-        <MadCap:codeSnippet>
-            <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">stages:
-	systemEnvironmentVariableSample:
-		actions:
-		- type: shell
-			command: echo "Running Liquibase from ${LIQUIBASE_HOME}"</MadCap:codeSnippetBody>
-        </MadCap:codeSnippet>
-        <h2>stageVariables</h2>
-        <p><code>stageVariables</code> work exactly like <code>globalVariables</code> except they are declared inside of each stage group. If you have the same variable declared as a <code>globalVariable</code>, the <code>stageVariables</code> are applied, not the <code>globalVariable</code>. For example, if you have a <MadCap:variable name="General.changelog" />&#160;<code>globalVariable</code> but need to specify a different <MadCap:variable name="General.changelog" />, you can apply that via a <code>stageVariable</code>. <code>stageVariables</code> always override <code>globalVariables</code>.</p>
-        <p>All variables, especially labels and context, must be specified in the Flow File with quotations to operate properly. If you want to run all <MadCap:variable name="General.changeset" />s with or without labels, you must leave the label names quotes empty so you do not have to list all labels individually.</p>
-        <MadCap:codeSnippet>
-            <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetCaption>Label Example 1</MadCap:codeSnippetCaption>
-            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">Default:
+        <h3>System environment variables</h3>
+        <p>You can substitute the values of system environment variables like <code class="language-text">LIQUIBASE_HOME</code> in your flow file. This allows you to change environment variables as desired without changing the flow file itself. The syntax is the same as substituting other variables. For example:</p><pre xml:space="preserve"><code class="language-yaml">stages:
+  systemEnvars:
+    actions:
+      - type: shell
+        command: echo "Running Liquibase from ${LIQUIBASE_HOME}"</code></pre>
+        <h3>Empty strings</h3>
+        <p>You can specify the empty string as the value of a variable. For example, if you want to run all <MadCap:variable name="General.changeset" />s in your <MadCap:variable name="General.changelog" /> regardless of their contexts/labels:</p><pre xml:space="preserve"><code class="language-yaml">stages:
+  default:
+
     stageVariables:
-      LABELNAMES: ""</MadCap:codeSnippetBody>
-        </MadCap:codeSnippet>
-        <MadCap:codeSnippet>
-            <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetCaption>Label Example 2</MadCap:codeSnippetCaption>
-            <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">#
-# Run the update
-#
-- type: liquibase
-  command: update
-  cmdArgs: {labels: "${LABELNAMES}"}</MadCap:codeSnippetBody>
-        </MadCap:codeSnippet>
-        <h2>Include configured YAML files within a Flow File</h2>
-        <p>Flow Files can include references to other YAML files with configuration by using the include section of the file. You need only create a variable name for the referenced YAML file and then reference the file title so that the Flow File can locate it.</p>
-        <h3>The <code>include</code> variable should be in the following format:</h3><pre><code class="language-text">username: actual-Username</code></pre>
-        <p>The key is <code>username</code> and the value is <code>actual-Username</code>. To use the values defined in the included file in the Flow File, you need to reference the namespace and the key. For example:</p><pre xml:space="preserve"><code class="language-yaml">cmdArgs: {username: "${username}"}</code></pre>
-        <p>When the <code>flow</code> command executes, it will read the included file, locate the username key and substitute the value for that key into the <MadCap:variable name="General.Liquibase" /> action. In the case of the <code>key:value</code> example here, the substitution results in <code>${postgresNamespace.user}</code> becoming <code>actual-Username</code>. The <MadCap:variable name="General.Liquibase" /> action executes using <code>actual-Username</code> as the user property.</p>
-        <h3>Example of Flow File include functionality:</h3><pre><code class="language-yaml">include:
-- postgresNamespace: postgres-vars.yaml</code></pre>
-        <p>To enable the functionality, you will then add the created variable name to the <code>cmdArgs</code> section or your <MadCap:variable name="General.changelog" />.</p><pre><code class="language-yaml">cmdArgs: { url: "${postgresNamespace.url}", username: "${postgresNamespace.user}", password: "${postgresNamespace.password}", changelog-file: "${postgresNamespace.changelogFile}"}</code></pre>
+      labelNames: ""
+
+    actions:
+      - type: liquibase
+        command: update
+        cmdArgs: {labels: "${labelNames}"}</code></pre>
         <h2 MadCap:conditions="exclude.future-4-27-1">Property substitution with full YAML&#160;strings</h2>
-        <p MadCap:conditions="exclude.future-4-27-1">In <MadCap:variable name="General.Liquibase" /> 4.27.1 and later, you can also use variables to dynamically expand into full YAML&#160;strings during property substitution. The YAML&#160;strings you insert can also contain other variables, which can expand into more YAML&#160;strings.</p>
+        <p MadCap:conditions="exclude.future-4-27-1">In <MadCap:variable name="General.Liquibase" /> 4.28.0 and later, you can also use variables to dynamically expand into full YAML&#160;strings during property substitution. The YAML&#160;strings you insert can also contain other variables, which can expand into more YAML&#160;strings.</p>
         <p MadCap:conditions="exclude.future-4-27-1">For example, this may be useful if you want multiple stages of a single flow file to run a command, but you want to substitute different variables to modify that command in different stages of a flow file.</p><pre xml:space="preserve" MadCap:conditions="exclude.future-4-27-1"><code class="language-yaml">globalVariables:
   COMMAND_ARGS: "changelogfile: './liquibase.${STAGE_CHANGELOG}.yaml'"
 
