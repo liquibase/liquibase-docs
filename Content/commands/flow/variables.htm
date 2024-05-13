@@ -18,9 +18,11 @@
             <li>As <b>stage variables</b> within individual stages (overrides global variables)</li>
             <li>Included in an <b>external YAML&#160;file</b> that you reference in the flow file's header section</li>
         </ul>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.24.0+, <MadCap:variable name="General.Liquibase" /> shares variables you define across "nested" flow files (flow files included by other flow files). This lets you pass variables through multiple layers.</p>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.24.0+, <MadCap:variable name="General.Liquibase" /> lets flow files inherit variables from other flow files that you call on. This lets you pass variables through multiple nested layers of flow files.</p>
+        <p>Stage variables have the highest precedence, followed by included variables, then global variables, and then variables inherited from another flow file.</p>
         <h2>Uses</h2>
         <p>You can define a variable once but reuse it many times in different situations in your flow file. This provides flexibility and reduces code duplication. For example, variables may be useful to efficiently run multiple kinds of commands that contain the same file, directory, or other string.</p>
+        <p>It is a best practice to use global variables for things that can apply to your whole flow file, and stage variables for things that only apply to specific stages. Included variables are best for things that apply to multiple flow files.</p>
         <p>You can also check the values of variables in <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref> to dynamically run code in your flow files.</p>
         <p>When you call variables you've previously defined, you can specify a default value for <MadCap:variable name="General.Liquibase" /> to use if it doesn't receive one. For example, you could use this to specify optional command arguments (such as <a href="../../concepts/changelogs/attributes/contexts.html">contexts</a> and <a href="../../concepts/changelogs/attributes/labels.html">labels</a>) as <code class="language-text">NULL</code> if not explicitly specified in your definition.</p>
         <h2>Syntax</h2>
@@ -65,6 +67,7 @@ stages:
         <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>CHANGELOG_FILE: "${changelogFile:-null}"</code>
         </p>
         <p>In this example, if the user passes a value to <code>${changelogFile}</code>, <MadCap:variable name="General.Liquibase" /> sets <code>CHANGELOG_FILE</code> to that value. Otherwise, <MadCap:variable name="General.Liquibase" /> sets the variable <code>CHANGELOG_FILE</code> to null by default.</p>
+        <p>If you define a default value for a variable, that default is inherited by any nested flow files that call on the parent.</p>
         <h3>System environment variables</h3>
         <p>You can substitute the values of system environment variables like <code class="language-text">LIQUIBASE_HOME</code> in your flow file. This allows you to change environment variables as desired without changing the flow file itself. The syntax is the same as substituting other variables. For example:</p><pre xml:space="preserve"><code class="language-yaml">stages:
   systemEnvars:
