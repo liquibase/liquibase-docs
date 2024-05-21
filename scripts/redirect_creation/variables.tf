@@ -913,6 +913,7 @@ variable "redirects" {
     { key = "/tools-integrations/maven/workflows/using-liquibase-maven-plugin-and-springboot.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/using-springboot-with-maven/" },
     { key = "/tools-integrations/observability/database-reports.html", website_redirect = "/tools-integrations/observability/operation-reports.html" },
     { key = "/tools-integrations/observability/meta-data-structured-logs.html", website_redirect = "/tools-integrations/observability/structured-logging-custom-data.html" },
+    { key = "/tools-integrations/observability/operation-reports-checks-run-report.html", website_redirect = "/tools-integrations/observability/operation-reports-checks-report.html" },
     { key = "/tools-integrations/remote-files/create-changelogs-s3.html", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
     { key = "/tools-integrations/remote-files/remote-file-path-rules.html", website_redirect = "/tools-integrations/extensions/remote-files/remote-file-path-rules.html" },
     { key = "/tools-integrations/remote-files/s3.html", website_redirect = "/tools-integrations/extensions/remote-files/s3.html" },
