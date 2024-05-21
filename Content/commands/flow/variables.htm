@@ -119,6 +119,18 @@ stages:
         globalArgs: {changelog-file: "${LIQUIBASE_OUTPUT_FILE}"}</code></pre>
         <p>This lets you avoid manually updating information in your flow file, such as the path of the system environment variable <code class="language-text">LIQUIBASE_HOME</code>, which could change if you later modify your installation directory.</p>
         <p>Substituting environment variables may also be useful if you want to avoid modifying your flow file whenever you change the value of <MadCap:variable name="General.Liquibase" /> parameters like <code class="language-text">LIQUIBASE_OUTPUT_FILE</code>. Instead of defining and updating variables in your flow file, you can simply update the values of the external environment variables the flow file calls on. Then, when you run your flow file, <MadCap:variable name="General.Liquibase" /> uses the new values without you ever having modified the flow file itself.</p>
+        <h3>Command substitutions</h3>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.28.0 and later, you can also use variables in the <code class="language-text">command</code> field of a flow file action. For example:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
+  MY_COMMAND:&#160;"status"
+  MY_CHANGELOG: "newChangelog.txt"
+
+stages:
+  myStage:
+    actions:
+      - type: liquibase
+        command: ${MY_COMMAND}
+        cmdArgs: {changelog-file: "${MY_CHANGELOG}"}</code></pre>
+        <p>The preceding example calls on a global variable from the <code class="language-text">command</code> field. You can use the same syntax to call on environment variables instead.</p>
         <h3>Empty strings</h3>
         <p>You can specify the empty string as the value of a variable. For example, if you want to run all <MadCap:variable name="General.changeset" />s in your <MadCap:variable name="General.changelog" /> regardless of their contexts/labels:</p><pre xml:space="preserve"><code class="language-yaml">stages:
   default:
@@ -130,9 +142,9 @@ stages:
       - type: liquibase
         command: update
         cmdArgs: {label-filter: "${LABEL_NAMES}"}</code></pre>
-        <h2 MadCap:conditions="exclude.future-4-27-1">Property substitution with full YAML&#160;strings</h2>
-        <p MadCap:conditions="exclude.future-4-27-1">In <MadCap:variable name="General.Liquibase" /> 4.28.0 and later, you can also use variables to dynamically expand into full YAML&#160;strings during property substitution. The YAML&#160;strings you insert can also contain other variables, which can expand into more YAML&#160;strings.</p>
-        <p MadCap:conditions="exclude.future-4-27-1">For example, this may be useful if you want multiple stages of a single flow file to run a command, but you want to substitute different variables to modify that command in each stage of the flow file.</p><pre xml:space="preserve" MadCap:conditions="exclude.future-4-27-1"><code class="language-yaml">globalVariables:
+        <h2>Property substitution with full YAML&#160;strings</h2>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.28.0 and later, you can also use variables to dynamically expand into full YAML&#160;strings during property substitution. The YAML&#160;strings you insert can also contain other variables, which can expand into more YAML&#160;strings.</p>
+        <p>For example, this may be useful if you want multiple stages of a single flow file to run a command, but you want to substitute different variables to modify that command in each stage of the flow file.</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
   COMMAND_ARGS: "changelog-file: './liquibase.${STAGE_CHANGELOG}.yaml'"
 
 stages:
