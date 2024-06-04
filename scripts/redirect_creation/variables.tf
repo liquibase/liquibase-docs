@@ -84,6 +84,8 @@ variable "redirects" {
     { key = "/change-types/pro/home.html", website_redirect = "/change-types/home.html" },
     { key = "/change-types/pro/mark-unused.html", website_redirect = "/change-types/mark-unused.html" },
     { key = "/change-types/pro/rename-trigger.html", website_redirect = "/change-types/rename-trigger.html" },
+    { key = "/checks-packages", website_redirect = "/commands/quality-checks/checks-packages/home.html" },
+    { key = "/checks-packages.html", website_redirect = "/commands/quality-checks/checks-packages/home.html" },
     { key = "/command-line/index.html", website_redirect = "/parameters/working-with-command-parameters.html" },
     { key = "/commands/calculatechecksum.html", website_redirect = "/commands/utility/calculate-checksum.html" },
     { key = "/commands/change-tracking/changelog-sync.html", website_redirect = "/commands/utility/changelog-sync.html" },
