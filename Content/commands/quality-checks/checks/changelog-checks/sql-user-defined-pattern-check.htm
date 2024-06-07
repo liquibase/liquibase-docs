@@ -12,9 +12,36 @@
         <h2>Uses</h2>
         <p>Use the check to notify you when your custom specific patterns in the changelog are found. This quality check is an "open-ended" check which you can copy and customize for as many custom patterns, defined as simple strings or regex, as your naming, security, compliance, and other policies require. For example, if your polices require all tables to begin with <code class="language-text">tbl_</code> or indexes to end with <code class="language-text">_id</code>, this check is easy copied and customized into two checks with those patterns. If you are handy with regex, the limit for pattern finding is greatly expanded. This quality check, like other checks, can be configured with a severity level which returns an exit code designed to stop automated jobs, giving your team time to investigate your user-defined patterns before they are deployed.</p>
         <h2>Run the SqlUserDefinedPatternCheck check</h2>
-        <p>To run the <code class="language-text">SqlUserDefinedPatternCheck</code> check, ensure you have a <MadCap:variable name="General.LBPro" /> license key and the <code class="language-text">checks-scope</code> property includes <code class="language-text"><MadCap:variable name="General.changelog" /></code>. The <MadCap:xref href="../../command-arguments/checks-scope.htm">checks-scope</MadCap:xref> parameter is set in the default properties file, environment variable, or any standard method. Then, check the changelog to see if <code class="language-text">SqlUserDefinedPatternCheck</code> is enabled.</p>
-        <p>Enable the <code class="language-text">SqlUserDefinedPatternCheck</code> check by running the following command in the CLI:</p><pre><code class="language-text">liquibase checks enable --check-name=SqlUserDefinedPatternCheck</code></pre><pre>This check can not be enabled directly because one or more fields does not have a default value.  Create a copy of this check and initiate the customization workflow.<br /><br />Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [SqlUserDefinedPatternCheck1]:<br /></pre>
-        <p>In this example we will use <code>NoGrantAdminInGrantsPath</code> as our short name.</p>
+        <p><b>Prerequisites:</b>&#160;To run the <code class="language-text">SqlUserDefinedPatternCheck</code> check, ensure you have a <MadCap:variable name="General.LBPro" /> license key and the <code class="language-text">checks-scope</code> property includes <code class="language-text"><MadCap:variable name="General.changelog" /></code>. The <MadCap:xref href="../../command-arguments/checks-scope.htm">checks-scope</MadCap:xref> parameter is set in the default properties file, environment variable, or any standard method. Then, check the changelog to see if <code class="language-text">SqlUserDefinedPatternCheck</code> is enabled.</p>
+        <ol>
+            <li>
+                <p>Enable the <code class="language-text">SqlUserDefinedPatternCheck</code> check by running the following command in the CLI:</p><pre><code class="language-text">liquibase checks enable --check-name=SqlUserDefinedPatternCheck</code></pre>
+            </li>
+            <li>
+                <p>You will see this message in the CLI:</p><pre>This check can not be enabled directly because one or more fields does not have a default value.  Create a copy of this check and initiate the customization workflow.<br /><br />Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [SqlUserDefinedPatternCheck1]:<br /></pre>
+                <p>In this example we will use <code>NoGrantAdminInGrantsPath</code> as our short name.</p>
+            </li>
+            <li>
+                <p>You will see this message in the CLI:</p><pre>New check 'NoGrantAdminInGrantsPath' created from 'SqlUserDefinedPatternCheck'<br></br><br></br>Set the Severity to return a code of 0-4 when triggered. (options: 'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4)? [INFO]:</pre>
+                <p>In this example, we will set the severity to 3.</p>
+            </li>
+            <li>Set your <code>SEARCH_STRING</code> (options: a string, or a valid regular expression).<br />In this example we will use <code>tbl_</code>.</li>
+            <li>
+                <p>Set the message you want to display when the search string is found if you would like it to be something other than the default message.<br />Default message:</p><pre>A match for regular expression &lt;SEARCH_STRING&gt; was detected in Changeset &lt;CHANGESET&gt;.</pre>
+            </li>
+            <li>
+                <p>Set <code>STRIP_COMMENTS</code> if you would like to remove any text (options: true, false).</p>
+                <p>In this example we will set it to false because removing comments is not necessary in this example.</p>
+            </li>
+            <li>
+                <p>Optional</p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">In <MadCap:variable name="General.Liquibase" /> 4.27.0+ you can choose to enable the PATH_FILTER option. This can be used  to filter all changesets in changelogs in a specific directory that contain a specified string or regex.</p>
+                <p>You will see this message in the CLI:</p><pre>Set 'PATH_FILTER_REGEX':</pre>
+                <p>In this example we will set the <code>PATH_FILTER_REGEX</code> to <code>admin</code>.</p>
+                <p>Your filter is successfully set. Now your new quality check will look for all <MadCap:variable name="General.changelog" />s that include the string <code>admin</code> and notify you when it finds any that fit the filter criteria.</p>
+                <p>Liquibase command 'checks enable' was executed successfully.</p>
+            </li>
+        </ol>
         <table>
             <col style="width: auto;" />
             <col style="width: auto;" />
@@ -54,23 +81,6 @@
                 </tr>
             </tbody>
         </table>
-        <h3>Optional Compatible filters</h3>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.27.0+ you can choose to enable the PATH_FILTER option. This can be used  to filter all changesets in changelogs in a specific directory that contain a specified string or regex.</p>
-        <h4>Example</h4>
-        <ol>
-            <li>
-                <p> When you are prompted, give your check a short name for easier identification.<br /></p>
-                <p>In this example we will use <code>NoGrantAdminInGrantsPath</code> as our short name.</p>
-            </li>
-            <li><pre>New check 'NoGrantAdminInGrantsPath' created from 'SqlUserDefinedPatternCheck'<br /><br />Set the Severity to return a code of 0-4 when triggered. (options: 'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4)? [INFO]:</pre>
-                <p>In this example, we will set the severity to 3.</p>
-            </li>
-            <li>
-                <p>You will go through a set of other conditions and see:</p><pre>Set 'PATH_FILTER_REGEX':</pre>
-                <p>In this example we will set the <code>PATH_FILTER_REGEX</code> to <code>admin</code>.</p>
-            </li>
-            <p>Your filter is successfully set. Now your new quality check will look for all <MadCap:variable name="General.changelog" />s that include the string <code>admin</code> and notify you when it finds any that fit the filter criteria.</p>
-        </ol>
         <table style="width: 100%; margin-left: auto; margin-right: auto;">
             <col />
             <col />
@@ -104,168 +114,437 @@
         </table>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot><code class="language-text">liquibase checks enable --check-name=SqlUserDefinedPatternCheck</code> example output</MadCap:dropDownHotspot>
+                <MadCap:dropDownHotspot><code class="language-text">liquibase checks enable&lt;&gt; --check-name=SqlUserDefinedPatternCheck</code> example output</MadCap:dropDownHotspot>
             </MadCap:dropDownHead>
             <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-text">
-Check 'SqlUserDefinedPatternCheck' has been enabled.
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| #   | Check Name                     | Short Name                 | Description                    | Enabled | Customization                  | Severity | Scope      |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 10  | Warn on Detection of 'GRANT'   | SqlGrantWarn               | This check warns a user when   | false   | None                           | 0        | changelog  |
-|     | Statements                     |                            | SQL contains 'GRANT'           |         |                                |          |            |
-|     |                                |                            | statements so that they can    |         |                                |          |            |
-|     |                                |                            | ensure that the privilege      |         |                                |          |            |
-|     |                                |                            | being granted won't lead to    |         |                                |          |            |
-|     |                                |                            | security issues.               |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 20  | Warn on Detection of 'REVOKE'  | SqlRevokeWarn              | This check warns a user when   | false   | None                           | 0        | changelog  |
-|     | Statements                     |                            | SQL contains 'REVOKE'          |         |                                |          |            |
-|     |                                |                            | statements so that they can    |         |                                |          |            |
-|     |                                |                            | ensure that the privilege      |         |                                |          |            |
-|     |                                |                            | being revoked won't lead to    |         |                                |          |            |
-|     |                                |                            | data access and dependency     |         |                                |          |            |
-|     |                                |                            | issues.                        |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 30  | Warn when 'DROP TABLE'         | ChangeDropTableWarn        | This check warns a user when a | false   | None                           | 0        | changelog  |
-|     | detected                       |                            | table is being dropped so that |         |                                |          |            |
-|     |                                |                            | they can ensure that dropping  |         |                                |          |            |
-|     |                                |                            | the table won't lead to        |         |                                |          |            |
-|     |                                |                            | unintentional loss of data.    |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 40  | Warn when 'DROP COLUMN'        | ChangeDropColumnWarn       | This check warns a user when a | false   | None                           | 0        | changelog  |
-|     | detected                       |                            | column is being dropped so     |         |                                |          |            |
-|     |                                |                            | that they can ensure that      |         |                                |          |            |
-|     |                                |                            | dropping the column won't lead |         |                                |          |            |
-|     |                                |                            | to unintentional loss of data. |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 50  | Warn when 'MODIFY column'    | ModifyDataTypeWarn         | This check warns a user when a | false   | None                           | 0        | changelog  |
-|     | detected                       |                            | change will result in          |         |                                |          |            |
-|     |                                |                            | modification of a data type so |         |                                |          |            |
-|     |                                |                            | they can ensure that modifying |         |                                |          |            |
-|     |                                |                            | the data type won't lead to    |         |                                |          |            |
-|     |                                |                            | unintentional loss of data     |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 60  | Check for specific patterns in | SqlUserDefinedPatternCheck | This check scans raw SQL for   | false   | SEARCH_STRING = null           | 0        | changelog  |
-|     | sql                            |                            | the presence of specific       |         | MESSAGE = A match for regular  |          |            |
-|     |                                |                            | patterns and warns the user    |         | expression SEARCH_STRING was   |          |            |
-|     |                                |                            | when they are found.           |         | detected in Changeset          |          |            |
-|     |                                |                            |                                |         | CHANGESET.                     |          |            |
-|     |                                |                            |                                |         | STRIP_COMMENTS = true          |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 70  | Check Table Column Count       | TableColumnLimit           | Ensures that no table has more | true    | MAX_COLUMNS = 2                | 1        | changelog, |
-|     |                                |                            | than a threshold number of     |         |                                |          | database   |
-|     |                                |                            | columns.                       |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 80  | Object name pattern match      | ObjectNameMustMatch        | This check confirms the listed | false   | OPERATOR = STARTS_WITH         | 0        | changelog, |
-|     |                                |                            | object names conform to the    |         | SEARCH_STRING = null           |          | database   |
-|     |                                |                            | supplied pattern.              |         | OBJECT_TYPES = null            |          |            |
-|     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 85  | Object name pattern not match  | ObjectNameMustNotMatch     | This check confirms the listed | false   | OPERATOR = STARTS_WITH         | 0        | changelog, |
-|     |                                |                            | object names do not match the  |         | SEARCH_STRING = null           |          | database   |
-|     |                                |                            | supplied pattern.              |         | OBJECT_TYPES = null            |          |            |
-|     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 90  | Warn on Grant of Specific      | SqlGrantSpecificPrivsWarn  | This check warns a user when   | false   | PRIVILEGE_LIST = null          | 0        | changelog  |
-|     | Privileges                     |                            | changeset includes or          |         |                                |          |            |
-|     |                                |                            | generates sql that grants      |         |                                |          |            |
-|     |                                |                            | specific privileges to a user  |         |                                |          |            |
-|     |                                |                            | or role                        |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 100 | Warn when 'TRUNCATE TABLE'     | ChangeTruncateTableWarn    | This check warns a user when a | false   | None                           | 0        | changelog  |
-|     | detected                       |                            | table is being truncated so    |         |                                |          |            |
-|     |                                |                            | that they can ensure that      |         |                                |          |            |
-|     |                                |                            | truncating the table won't     |         |                                |          |            |
-|     |                                |                            | lead to unintentional loss of  |         |                                |          |            |
-|     |                                |                            | data.                          |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 110 | Warn on Detection of grant     | SqlGrantOptionWarn         | This check warns a user when   | false   | None                           | 0        | changelog  |
-|     | that contains 'WITH GRANT      |                            | SQL contains 'GRANT'           |         |                                |          |            |
-|     | OPTION'                        |                            | statements that include the    |         |                                |          |            |
-|     |                                |                            | 'WITH GRANT OPTION' clause so  |         |                                |          |            |
-|     |                                |                            | that they can ensure that the  |         |                                |          |            |
-|     |                                |                            | privilege being granted won't  |         |                                |          |            |
-|     |                                |                            | lead to security issues        |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 130 | Warn on Detection of grant     | SqlGrantAdminWarn          | This check warns a user when   | false   | None                           | 0        | changelog  |
-|     | that contains 'WITH ADMIN      |                            | SQL contains 'GRANT'           |         |                                |          |            |
-|     | OPTION'                        |                            | statements that include the    |         |                                |          |            |
-|     |                                |                            | 'WITH ADMIN OPTION' clause so  |         |                                |          |            |
-|     |                                |                            | that they can ensure that the  |         |                                |          |            |
-|     |                                |                            | privilege being granted won't  |         |                                |          |            |
-|     |                                |                            | lead to security issues        |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 160 | Rollback Required for          | RollbackRequired           | This check triggers when a     | false   | None                           | 0        | changelog  |
-|     | Changeset                      |                            | changeset does not have a      |         |                                |          |            |
-|     |                                |                            | rollback defined.              |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 170 | Changesets Must Have a Label   | ChangesetLabelCheck        | This check enforces the        | false   | None                           | 0        | changelog  |
-|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |          |            |
-|     |                                |                            | labels be assigned to each     |         |                                |          |            |
-|     |                                |                            | changeset to provide better    |         |                                |          |            |
-|     |                                |                            | deployment control and to      |         |                                |          |            |
-|     |                                |                            | enhance traceability of        |         |                                |          |            |
-|     |                                |                            | efforts across changesets.     |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 173 | Changesets Must Have a Context | ChangesetContextCheck      | This check enforces the        | false   | None                           | 0        | changelog  |
-|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |          |            |
-|     |                                |                            | contexts be assigned to each   |         |                                |          |            |
-|     |                                |                            | changeset to provide better    |         |                                |          |            |
-|     |                                |                            | deployment control and to      |         |                                |          |            |
-|     |                                |                            | enhance traceability of        |         |                                |          |            |
-|     |                                |                            | efforts across changesets.     |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 176 | Changesets Must Have a Comment | ChangesetCommentCheck      | This check enforces the        | false   | None                           | 0        | changelog  |
-|     | Assigned                       |                            | Liquibase recommendation that  |         |                                |          |            |
-|     |                                |                            | comments be added to each      |         |                                |          |            |
-|     |                                |                            | changeset to document the      |         |                                |          |            |
-|     |                                |                            | purpose of a changeset for     |         |                                |          |            |
-|     |                                |                            | other/future consumers of this |         |                                |          |            |
-|     |                                |                            | changelog                      |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 500 | Table must have a comment      | TableCommentCheck          | This check flags any Table     | true    | None                           | 0        | database   |
-|     |                                |                            | described in a changelog or    |         |                                |          |            |
-|     |                                |                            | existing on a database target  |         |                                |          |            |
-|     |                                |                            | which does not have a Comment. |         |                                |          |            |
-|     |                                |                            | (Note: This is not a check for |         |                                |          |            |
-|     |                                |                            | a Liquibase changelog          |         |                                |          |            |
-|     |                                |                            | comment.)                      |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 510 | Table Comment Pattern Check    | ExamplePatternCheck        | This check triggers when       | true    | OPERATOR = CONTAINS            | 1        | changelog, |
-|     |                                |                            | specific user-supplied         |         | SEARCH_STRING = PRIMARY_TABLE  |          | database   |
-|     |                                |                            | patterns are found in Table    |         | MESSAGE = MATCH                |          |            |
-|     |                                |                            | Comments.                      |         |                                |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 510 | Table Comment Pattern Check    | TableCommentPatternCheck   | This check triggers when       | false   | OPERATOR = CONTAINS            | 0        | changelog, |
-|     |                                |                            | specific user-supplied         |         | SEARCH_STRING = null           |          | database   |
-|     |                                |                            | patterns are found in Table    |         | MESSAGE = A match for regular  |          |            |
-|     |                                |                            | Comments.                      |         | expression SEARCH_STRING was   |          |            |
-|     |                                |                            |                                |         | detected in IDENTIFIER.        |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 570 | Constraint must exist          | ConstraintCheckShortName   | Check for and alert when       | true    | CONSTRAINT_OPERATOR = CONTAINS | 1        | database   |
-|     |                                |                            | specified table does not       |         | TABLE_NAME = PRIMARY_TABLE     |          |            |
-|     |                                |                            | contain the required           |         | COLUMN_NAME = NULLABLECOL      |          |            |
-|     |                                |                            | constraint(s).                 |         | CONSTRAINT = PRIMARYKEY        |          |            |
-|     |                                |                            |                                |         | CASE_SENSITIVE = false         |          |            |
-|     |                                |                            |                                |         | MESSAGE = Example Message      |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 570 | Constraint must exist          | ConstraintMustExist        | Check for and alert when       | false   | CONSTRAINT_OPERATOR =          | 0        | database   |
-|     |                                |                            | specified table does not       |         | STARTS_WITH                    |          |            |
-|     |                                |                            | contain the required           |         | TABLE_NAME = null              |          |            |
-|     |                                |                            | constraint(s).                 |         | COLUMN_NAME = null             |          |            |
-|     |                                |                            |                                |         | CONSTRAINT = PRIMARYKEY        |          |            |
-|     |                                |                            |                                |         | CASE_SENSITIVE = true          |          |            |
-|     |                                |                            |                                |         | MESSAGE = The specified table  |          |            |
-|     |                                |                            |                                |         | 'TABLE_NAME' does not          |          |            |
-|     |                                |                            |                                |         | contain the required           |          |            |
-|     |                                |                            |                                |         | 'CONSTRAINT' constraint.       |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-| 570 | Constraint must exist          | ConstraintMustExistTEST    | Check for and alert when       | true    | CONSTRAINT_OPERATOR = ALL      | 0        | database   |
-|     |                                |                            | specified table does not       |         | CONSTRAINT = Primarykey        |          |            |
-|     |                                |                            | contain the required           |         | CASE_SENSITIVE = false         |          |            |
-|     |                                |                            | constraint(s).                 |         | MESSAGE = any                  |          |            |
-+-----+--------------------------------+----------------------------+--------------------------------+---------+--------------------------------+----------+------------+
-Liquibase command 'checks enable' was executed successfully.</code></pre>
+Customization complete. Review the table below to confirm your changes.
++-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+| Short Name                          | Scope      | Status   | Severity | Customization                  | Description                    |
++-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SqlGrantWarn                        | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when   |
+						|                                     |            |          |          |                                | SQL contains 'GRANT'           |
+						|                                     |            |          |          |                                | statements so that they can    |
+						|                                     |            |          |          |                                | ensure that the privilege      |
+						|                                     |            |          |          |                                | being granted won't lead to    |
+						|                                     |            |          |          |                                | security issues.               |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SqlRevokeWarn                       | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when   |
+						|                                     |            |          |          |                                | SQL contains 'REVOKE'          |
+						|                                     |            |          |          |                                | statements so that they can    |
+						|                                     |            |          |          |                                | ensure that the privilege      |
+						|                                     |            |          |          |                                | being revoked won't lead to    |
+						|                                     |            |          |          |                                | data access and dependency     |
+						|                                     |            |          |          |                                | issues.                        |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| WarnOnUseDatabase                   | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when   |
+						|                                     |            |          |          |                                | generated or raw SQL contains  |
+						|                                     |            |          |          |                                | 'USE DATABASE' directive.      |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ChangeDropTableWarn                 | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when a |
+						|                                     |            |          |          |                                | table is being dropped so that |
+						|                                     |            |          |          |                                | they can ensure that dropping  |
+						|                                     |            |          |          |                                | the table won't lead to        |
+						|                                     |            |          |          |                                | unintentional loss of data.    |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ChangeDropColumnWarn                | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when a |
+						|                                     |            |          |          |                                | column is being dropped so     |
+						|                                     |            |          |          |                                | that they can ensure that      |
+						|                                     |            |          |          |                                | dropping the column won't lead |
+						|                                     |            |          |          |                                | to unintentional loss of data. |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ModifyDataTypeWarn                  | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when a |
+						|                                     |            |          |          |                                | change will result in          |
+						|                                     |            |          |          |                                | modification of a data type so |
+						|                                     |            |          |          |                                | they can ensure that modifying |
+						|                                     |            |          |          |                                | the data type won't lead to    |
+						|                                     |            |          |          |                                | unintentional loss of data     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SqlSelectStarWarn                   | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when   |
+						|                                     |            |          |          |                                | generated or raw SQL contains  |
+						|                                     |            |          |          |                                | 'SELECT *' statements so that  |
+						|                                     |            |          |          |                                | they can ensure  selecting all |
+						|                                     |            |          |          |                                | fields from a table in a query |
+						|                                     |            |          |          |                                | is safe and necessary          |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| NoGrantAdminInGrantsPath            | changelog  | enabled  | 3        | SEARCH_STRING = admin          | This check scans SQL for the   |
+						|                                     |            |          |          | MESSAGE = A match for regular  | presence of specific patterns  |
+						|                                     |            |          |          | expression &lt;SEARCH_STRING&gt; was | in specified changelog paths,  |
+						|                                     |            |          |          | detected in Changeset          | and warns the user when they   |
+						|                                     |            |          |          | &lt;CHANGESET&gt;.                   | are found.                     |
+						|                                     |            |          |          | STRIP_COMMENTS = true          |
+						|
+						|                                     |            |          |          | PATH_FILTER_REGEX = admin      |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| NoGrantAdminInGrantsPath2           | changelog  | enabled  | 3        | SEARCH_STRING = tbl_           | This check scans SQL for the   |
+						|                                     |            |          |          | MESSAGE = A match for regular  | presence of specific patterns  |
+						|                                     |            |          |          | expression &lt;SEARCH_STRING&gt; was | in specified changelog paths,  |
+						|                                     |            |          |          | detected in Changeset          | and warns the user when they   |
+						|                                     |            |          |          | &lt;CHANGESET&gt;.                   | are found.                     |
+						|                                     |            |          |          | STRIP_COMMENTS = false         |
+						|
+						|                                     |            |          |          | PATH_FILTER_REGEX = admin      |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SqlUserDefinedPatternCheck          | changelog  | disabled | 0        | SEARCH_STRING = null           | This check scans SQL for the   |
+						|                                     |            |          |          | MESSAGE = A match for regular  | presence of specific patterns  |
+						|                                     |            |          |          | expression &lt;SEARCH_STRING&gt; was | in specified changelog paths,  |
+						|                                     |            |          |          | detected in Changeset          | and warns the user when they   |
+						|                                     |            |          |          | &lt;CHANGESET&gt;.                   | are found.                     |
+						|                                     |            |          |          | STRIP_COMMENTS = true          |
+						|
+						|                                     |            |          |          | PATH_FILTER_REGEX = null       |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| EndDelimiterExistsWhenPatternExists | changelog  | disabled | 0        | SEARCH_STRING = null           | This check triggers when a     |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | changeset contains the         |
+						|                                     |            |          |          | STRIP_COMMENTS = true          | supplied pattern string or     |
+						|                                     |            |          |          | MESSAGE = The pattern          | regex, but does not have an    |
+						|                                     |            |          |          | '&lt;SEARCH_STRING&gt;' was found    | end delimiter set specifically |
+						|                                     |            |          |          | without an end delimiter in    | in the changeset or via        |
+						|                                     |            |          |          | Changeset '&lt;CHANGESET&gt;'.       | options such as                |
+						|                                     |            |          |          |                                | 'pro-global-end-delimiter' or  |
+						|                                     |            |          |          |                                | 'endDelimiter' attribute in a  |
+						|                                     |            |          |          |                                | modifyChangesets tag.          |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| endDelimiterPattern                 | changelog  | enabled  | 1        | SEARCH_STRING =                | This check triggers when a     |
+						|                                     |            |          |          | (ALTER|DROP)\s*TABLE           | changeset contains the         |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | supplied pattern string or     |
+						|                                     |            |          |          | STRIP_COMMENTS = true          | regex, but does not have an    |
+						|                                     |            |          |          | MESSAGE = The pattern          | end delimiter set specifically |
+						|                                     |            |          |          | '&lt;SEARCH_STRING&gt;' was found    | in the changeset or via        |
+						|                                     |            |          |          | without an end delimiter in    | options such as                |
+						|                                     |            |          |          | Changeset '&lt;CHANGESET&gt;'.       | 'pro-global-end-delimiter' or  |
+						|                                     |            |          |          |                                | 'endDelimiter' attribute in a  |
+						|                                     |            |          |          |                                | modifyChangesets tag.          |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| PatternAFollowedByPatternB          | changelog  | disabled | 0        | PRIMARY_SEARCH_STRING = null   | Check triggers if the          |
+						|                                     |            |          |          | LOOKAHEAD_SEARCH_STRING = null | user-supplied regex pattern A  |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | is followed by the             |
+						|                                     |            |          |          | LOOKAHEAD_MESSAGE = Match      | user-supplied regex pattern B  |
+						|                                     |            |          |          | found:                         |
+						|
+						|                                     |            |          |          | '&lt;PRIMARY_SEARCH_STRING&gt;' is   |
+						|
+						|                                     |            |          |          | followed by                    |
+						|
+						|                                     |            |          |          | '&lt;LOOKAHEAD_SEARCH_STRING&gt;' in |
+						|
+						|                                     |            |          |          | Changeset '&lt;CHANGESET&gt;'.       |
+						|
+						|                                     |            |          |          | STRIP_COMMENTS = true          |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| PatternAPrecededByPatternB          | changelog  | disabled | 0        | PRIMARY_SEARCH_STRING = null   | Check triggers if the          |
+						|                                     |            |          |          | LOOKBEHIND_SEARCH_STRING =     | user-supplied regex pattern A  |
+						|                                     |            |          |          | null                           | is preceded by the             |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | user-supplied regex pattern B  |
+						|                                     |            |          |          | LOOKBEHIND_MESSAGE = Match     |
+						|
+						|                                     |            |          |          | found:                         |
+						|
+						|                                     |            |          |          | '&lt;LOOKBEHIND_SEARCH_STRING&gt;'   |
+						|
+						|                                     |            |          |          | is preceded by                 |
+						|
+						|                                     |            |          |          | '&lt;PRIMARY_SEARCH_STRING&gt;' in   |
+						|
+						|                                     |            |          |          | Changeset '&lt;CHANGESET&gt;'.       |
+						|
+						|                                     |            |          |          | STRIP_COMMENTS = true          |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| PatternANotFollowedByPatternB       | changelog  | disabled | 0        | PRIMARY_SEARCH_STRING = null   | Check triggers if the          |
+						|                                     |            |          |          | LOOKAHEAD_SEARCH_STRING = null | user-supplied regex pattern A  |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | is NOT followed by the         |
+						|                                     |            |          |          | NEGATIVE_LOOKAHEAD_MESSAGE =   | user-supplied regex pattern B  |
+						|                                     |            |          |          | Match found:                   |
+						|
+						|                                     |            |          |          | '&lt;PRIMARY_SEARCH_STRING&gt;' is   |
+						|
+						|                                     |            |          |          | not followed by                |
+						|
+						|                                     |            |          |          | '&lt;LOOKAHEAD_SEARCH_STRING&gt;' in |
+						|
+						|                                     |            |          |          | Changeset '&lt;CHANGESET&gt;'.       |
+						|
+						|                                     |            |          |          | STRIP_COMMENTS = true          |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| PatternANotPrecededByPatternB       | changelog  | disabled | 0        | PRIMARY_SEARCH_STRING = null   | Check triggers if the          |
+						|                                     |            |          |          | LOOKBEHIND_SEARCH_STRING =     | user-supplied regex pattern A  |
+						|                                     |            |          |          | null                           | is NOT preceded by the         |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | user-supplied regex pattern B  |
+						|                                     |            |          |          | NEGATIVE_LOOKBEHIND_MESSAGE =  |
+						|
+						|                                     |            |          |          | Match found:                   |
+						|
+						|                                     |            |          |          | '&lt;LOOKBEHIND_SEARCH_STRING&gt;'   |
+						|
+						|                                     |            |          |          | is not preceded by             |
+						|
+						|                                     |            |          |          | '&lt;PRIMARY_SEARCH_STRING&gt;' in   |
+						|
+						|                                     |            |          |          | Changeset '&lt;CHANGESET&gt;'.       |
+						|
+						|                                     |            |          |          | STRIP_COMMENTS = true          |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| TableColumnLimit                    | changelog, | enabled  | 0        | MAX_COLUMNS = 50               | Ensures that no table has more |
+						|                                     | database   |          |          |                                | than a threshold number of     |
+						|                                     |            |          |          |                                | columns.                       |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| MaxAffectedRowsAllowedDelete        | changelog  | enabled  | 0        | MAX_ROWS = 50                  | This checks triggers when the  |
+						|                                     |            |          |          | MESSAGE = &lt;AFFECTED_ROWS&gt; rows | Max Affected Rows Allowed      |
+						|                                     |            |          |          | will be affected, which is     | value is exceeded by the       |
+						|                                     |            |          |          | more than the allowed          | number of rows DELETED by a    |
+						|                                     |            |          |          | '&lt;THRESHOLD&gt;' rows. The SQL    | SQL statement.  The SQL        |
+						|                                     |            |          |          | statement is '&lt;STATEMENT&gt;' in  | statement is executed against  |
+						|                                     |            |          |          | '&lt;CHANGESET&gt;'.                 | the database, and then rolled  |
+						|                                     |            |          |          |                                | back.                          |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| MaxAffectedRowsAllowedInsert        | changelog  | disabled | 0        | MAX_ROWS = 50                  | This checks triggers when the  |
+						|                                     |            |          |          | MESSAGE = &lt;AFFECTED_ROWS&gt; rows | Max Affected Rows Allowed      |
+						|                                     |            |          |          | will be affected, which is     | value is exceeded by the       |
+						|                                     |            |          |          | more than the allowed          | number of rows INSERTED by a   |
+						|                                     |            |          |          | '&lt;THRESHOLD&gt;' rows. The SQL    | SQL statement.  The SQL        |
+						|                                     |            |          |          | statement is '&lt;STATEMENT&gt;' in  | statement is executed against  |
+						|                                     |            |          |          | '&lt;CHANGESET&gt;'.                 | the database, and then rolled  |
+						|                                     |            |          |          |                                | back.                          |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| MaxAffectedRowsAllowedUpdate        | changelog  | enabled  | 0        | MAX_ROWS = 50                  | This checks triggers when the  |
+						|                                     |            |          |          | MESSAGE = &lt;AFFECTED_ROWS&gt; rows | Max Affected Rows Allowed      |
+						|                                     |            |          |          | will be affected, which is     | value is exceeded by the       |
+						|                                     |            |          |          | more than the allowed          | number of rows UPDATED by a    |
+						|                                     |            |          |          | '&lt;THRESHOLD&gt;' rows. The SQL    | SQL statement.  The SQL        |
+						|                                     |            |          |          | statement is '&lt;STATEMENT&gt;' in  | statement is executed against  |
+						|                                     |            |          |          | '&lt;CHANGESET&gt;'.                 | the database, and then rolled  |
+						|                                     |            |          |          |                                | back.                          |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ObjectNameMustMatch                 | changelog, | disabled | 0        | OPERATOR = STARTS_WITH         | This check confirms the listed |
+						|                                     | database   |          |          | SEARCH_STRING = null           | object names conform to the    |
+						|                                     |            |          |          | OBJECT_TYPES = null            | supplied pattern.              |
+						|                                     |            |          |          | CASE_SENSITIVE = true          |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ObjectNameMustNotMatch              | changelog, | disabled | 0        | OPERATOR = STARTS_WITH         | This check confirms the listed |
+						|                                     | database   |          |          | SEARCH_STRING = null           | object names do not match the  |
+						|                                     |            |          |          | OBJECT_TYPES = null            | supplied pattern.              |
+						|                                     |            |          |          | CASE_SENSITIVE = true          |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SqlGrantSpecificPrivsWarn           | changelog  | disabled | 0        | PRIVILEGE_LIST = null          | This check warns a user when   |
+						|                                     |            |          |          | STRIP_COMMENTS = true          | changeset includes or          |
+						|                                     |            |          |          |                                | generates sql that grants      |
+						|                                     |            |          |          |                                | specific privileges to a user  |
+						|                                     |            |          |          |                                | or role                        |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| CheckRunInTransactionValue          | changelog  | disabled | 0        | RUN_IN_TRANSACTION_VALUE =     | This check triggers when a     |
+						|                                     |            |          |          | false                          | changeset contains the         |
+						|                                     |            |          |          | MESSAGE = A match for regular  | user-specified                 |
+						|                                     |            |          |          | expression &lt;SEARCH_STRING&gt; was | runInTransactions value of     |
+						|                                     |            |          |          | detected in Changeset          | 'true' or 'false'. Note:       |
+						|                                     |            |          |          | &lt;CHANGESET&gt;.                   | Changesets without a           |
+						|                                     |            |          |          |                                | runInTransactions value are    |
+						|                                     |            |          |          |                                | not checked.                   |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ChangeTruncateTableWarn             | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when a |
+						|                                     |            |          |          |                                | table is being truncated so    |
+						|                                     |            |          |          |                                | that they can ensure that      |
+						|                                     |            |          |          |                                | truncating the table won't     |
+						|                                     |            |          |          |                                | lead to unintentional loss of  |
+						|                                     |            |          |          |                                | data.                          |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SqlGrantOptionWarn                  | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when   |
+						|                                     |            |          |          |                                | SQL contains 'GRANT'           |
+						|                                     |            |          |          |                                | statements that include the    |
+						|                                     |            |          |          |                                | 'WITH GRANT OPTION' clause so  |
+						|                                     |            |          |          |                                | that they can ensure that the  |
+						|                                     |            |          |          |                                | privilege being granted won't  |
+						|                                     |            |          |          |                                | lead to security issues        |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| OracleReservedKeywords              | changelog, | disabled | 0        | OBJECT_TYPES = null            | Disallow Oracle reserved       |
+						|                                     | database   |          |          | ALLOWED_LIST = null            | keywords from being used in    |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | database object names. See     |
+						|                                     |            |          |          |                                | https://docs.oracle.com/cd/B19 |
+						|                                     |            |          |          |                                | 306_01/em.102/b40103/app_oracl |
+						|                                     |            |          |          |                                | e_reserved_words.htm for       |
+						|                                     |            |          |          |                                | complete list of keywords.     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SQLServerReservedKeywords           | changelog, | disabled | 0        | OBJECT_TYPES = null            | Disallow SQL Server reserved   |
+						|                                     | database   |          |          | ALLOWED_LIST = null            | keywords from being used in    |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | database object names. See     |
+						|                                     |            |          |          |                                | https://docs.microsoft.com/en- |
+						|                                     |            |          |          |                                | us/sql/t-sql/language-elements |
+						|                                     |            |          |          |                                | /reserved-keywords-transact-sq |
+						|                                     |            |          |          |                                | l?view=sql-server-ver16 for    |
+						|                                     |            |          |          |                                | complete list of keywords.     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SQLServerFutureReservedKeywords     | changelog, | disabled | 0        | OBJECT_TYPES = null            | Disallow SQL Server's future   |
+						|                                     | database   |          |          | ALLOWED_LIST = null            | reserved keywords from being   |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | used in database object names. |
+						|                                     |            |          |          |                                | See
+						|
+						|                                     |            |          |          |                                | https://docs.microsoft.com/en- |
+						|                                     |            |          |          |                                | us/sql/t-sql/language-elements |
+						|                                     |            |          |          |                                | /reserved-keywords-transact-sq |
+						|                                     |            |          |          |                                | l?view=sql-server-ver16 for    |
+						|                                     |            |          |          |                                | complete list of keywords.     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| PostgresReservedKeywords            | changelog, | disabled | 0        | OBJECT_TYPES = null            | Disallow Postgres reserved     |
+						|                                     | database   |          |          | ALLOWED_LIST = null            | keywords from being used in    |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | database object names. See     |
+						|                                     |            |          |          |                                | https://www.postgresql.org/doc |
+						|                                     |            |          |          |                                | s/14/sql-keywords-appendix.htm |
+						|                                     |            |          |          |                                | l for complete list of         |
+						|                                     |            |          |          |                                | keywords.                      |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SQLServerODBCReservedKeywords       | changelog, | disabled | 0        | OBJECT_TYPES = null            | Disallow SQL Server's ODBC     |
+						|                                     | database   |          |          | ALLOWED_LIST = null            | reserved keywords from being   |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | used in database object names. |
+						|                                     |            |          |          |                                | See
+						|
+						|                                     |            |          |          |                                | https://docs.microsoft.com/en- |
+						|                                     |            |          |          |                                | us/sql/t-sql/language-elements |
+						|                                     |            |          |          |                                | /reserved-keywords-transact-sq |
+						|                                     |            |          |          |                                | l?view=sql-server-ver16 for    |
+						|                                     |            |          |          |                                | complete list of keywords.     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| PostgresNonReservedKeywords         | changelog, | disabled | 0        | OBJECT_TYPES = null            | Disallow Postgres non-reserved |
+						|                                     | database   |          |          | ALLOWED_LIST = null            | keywords from being used in    |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | database object names. See     |
+						|                                     |            |          |          |                                | https://www.postgresql.org/doc |
+						|                                     |            |          |          |                                | s/14/sql-keywords-appendix.htm |
+						|                                     |            |          |          |                                | l for complete list of         |
+						|                                     |            |          |          |                                | keywords.                      |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| SqlGrantAdminWarn                   | changelog  | enabled  | 0        | &lt;None&gt;                         | This check warns a user when   |
+						|                                     |            |          |          |                                | SQL contains 'GRANT'           |
+						|                                     |            |          |          |                                | statements that include the    |
+						|                                     |            |          |          |                                | 'WITH ADMIN OPTION' clause so  |
+						|                                     |            |          |          |                                | that they can ensure that the  |
+						|                                     |            |          |          |                                | privilege being granted won't  |
+						|                                     |            |          |          |                                | lead to security issues        |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| DetectChangeType                    | changelog  | enabled  | 0        | CHANGE_TYPE_LIST =             | This check warns a user when a |
+						|                                     |            |          |          | dropTable,dropColumn           | ChangeSet includes a           |
+						|                                     |            |          |          |                                | ChangeType listed by the user  |
+						|                                     |            |          |          |                                | as forbidden                   |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| RollbackRequired                    | changelog  | enabled  | 0        | &lt;None&gt;                         | This check triggers when a     |
+						|                                     |            |          |          |                                | changeset does not have a      |
+						|                                     |            |          |          |                                | rollback defined.              |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ChangesetLabelCheck                 | changelog  | enabled  | 0        | &lt;None&gt;                         | This check enforces the        |
+						|                                     |            |          |          |                                | Liquibase recommendation that  |
+						|                                     |            |          |          |                                | labels be assigned to each     |
+						|                                     |            |          |          |                                | changeset to provide better    |
+						|                                     |            |          |          |                                | deployment control and to      |
+						|                                     |            |          |          |                                | enhance traceability of        |
+						|                                     |            |          |          |                                | efforts across changesets.     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ChangesetContextCheck               | changelog  | enabled  | 0        | &lt;None&gt;                         | This check enforces the        |
+						|                                     |            |          |          |                                | Liquibase recommendation that  |
+						|                                     |            |          |          |                                | contexts be assigned to each   |
+						|                                     |            |          |          |                                | changeset to provide better    |
+						|                                     |            |          |          |                                | deployment control and to      |
+						|                                     |            |          |          |                                | enhance traceability of        |
+						|                                     |            |          |          |                                | efforts across changesets.     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ChangesetCommentCheck               | changelog  | enabled  | 0        | &lt;None&gt;                         | This check enforces the        |
+						|                                     |            |          |          |                                | Liquibase recommendation that  |
+						|                                     |            |          |          |                                | comments be added to each      |
+						|                                     |            |          |          |                                | changeset to document the      |
+						|                                     |            |          |          |                                | purpose of a changeset for     |
+						|                                     |            |          |          |                                | other/future consumers of this |
+						|                                     |            |          |          |                                | changelog                      |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| OneChangePerChangeset               | changelog  | enabled  | 0        | &lt;None&gt;                         | This check enforces the        |
+						|                                     |            |          |          |                                | Liquibase Best Practice of     |
+						|                                     |            |          |          |                                | keeping individual changesets  |
+						|                                     |            |          |          |                                | small by limiting them to one  |
+						|                                     |            |          |          |                                | statement or change.           |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| UserDefinedLabelCheck               | changelog  | disabled | 0        | OPERATOR = STARTS_WITH         | This check confirms that a     |
+						|                                     |            |          |          | SEARCH_STRING = null           | specific label or a label that |
+						|                                     |            |          |          |                                | matches a specific pattern is  |
+						|                                     |            |          |          |                                | present on all changesets.     |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| UserDefinedContextCheck             | changelog  | disabled | 0        | OPERATOR = STARTS_WITH         | This check confirms that a     |
+						|                                     |            |          |          | SEARCH_STRING = null           | specific context or a context  |
+						|                                     |            |          |          |                                | that matches a specific        |
+						|                                     |            |          |          |                                | pattern is present on all      |
+						|                                     |            |          |          |                                | changesets.                    |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| userDefinedContextCheckSN           | changelog  | enabled  | 1        | OPERATOR = CONTAINS            | This check confirms that a     |
+						|                                     |            |          |          | SEARCH_STRING = 123            | specific context or a context  |
+						|                                     |            |          |          |                                | that matches a specific        |
+						|                                     |            |          |          |                                | pattern is present on all      |
+						|                                     |            |          |          |                                | changesets.                    |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| PrimaryKeyOnCreateTable             | changelog  | enabled  | 0        | EXCEPTIONS_LIST =              | This check warns when a create |
+						|                                     |            |          |          | CASE_SENSITIVE = true          | table action doesn't also      |
+						|                                     |            |          |          |                                | include a primary key.         |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| CheckTablesForIndex                 | database   | enabled  | 0        | &lt;None&gt;                         | This check scans your target   |
+						|                                     |            |          |          |                                | URL database tables to find    |
+						|                                     |            |          |          |                                | tables which do not have an    |
+						|                                     |            |          |          |                                | associated index.              |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| TableCommentCheck                   | changelog, | disabled | 0        | &lt;None&gt;                         | With database-scope, this      |
+						|                                     | database   |          |          |                                | check flags any table which    |
+						|                                     |            |          |          |                                | does not have a comment. With  |
+						|                                     |            |          |          |                                | changelog-scope, this check    |
+						|                                     |            |          |          |                                | triggers on changesets with a  |
+						|                                     |            |          |          |                                | CREATE table changetype that   |
+						|                                     |            |          |          |                                | does not also add a comment    |
+						|                                     |            |          |          |                                | for the table in that same     |
+						|                                     |            |          |          |                                | changeset. (Note: This is not  |
+						|                                     |            |          |          |                                | a check for a Liquibase        |
+						|                                     |            |          |          |                                | changelog comment.)            |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| TableCommentPatternCheck            | changelog, | disabled | 0        | OPERATOR = CONTAINS            | This check triggers when       |
+						|                                     | database   |          |          | SEARCH_STRING = null           | specific user-supplied         |
+						|                                     |            |          |          | MESSAGE = A match for regular  | patterns are found in Table    |
+						|                                     |            |          |          | expression &lt;SEARCH_STRING&gt; was | Comments.                      |
+						|                                     |            |          |          | detected in &lt;IDENTIFIER&gt;.      |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ChainedChecksTemplate               | changelog, | disabled | 0        | LOGIC_CONDITIONAL = null       | This check triggers when the   |
+						|                                     | database   |          |          | MESSAGE = The conditions in    | logic conditional evaluates to |
+						|                                     |            |          |          | '&lt;chained checks shortname&gt;'   | true                           |
+						|                                     |            |          |          | were met for '&lt;logic           |
+						|
+						|                                     |            |          |          | conditional&gt;'.  The chained    |
+						|
+						|                                     |            |          |          | checks include &lt;checknames&gt;.   |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| ConstraintMustExist                 | database   | disabled | 0        | CONSTRAINT_OPERATOR =          | Check for and alert when       |
+						|                                     |            |          |          | STARTS_WITH                    | specified table does not       |
+						|                                     |            |          |          | TABLE_NAME = null              | contain the required           |
+						|                                     |            |          |          | COLUMN_NAME = null             | constraint(s).                 |
+						|                                     |            |          |          | CONSTRAINT = PRIMARYKEY        |
+						|
+						|                                     |            |          |          | CASE_SENSITIVE = true          |
+						|
+						|                                     |            |          |          | MESSAGE = The specified table  |
+						|
+						|                                     |            |          |          | '&lt;TABLE_NAME&gt;' does not        |
+						|
+						|                                     |            |          |          | contain the required           |
+						|
+						|                                     |            |          |          | '&lt;CONSTRAINT&gt;' constraint.     |
+						|
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						| RequireChangesetIDisUUID            | changelog  | disabled | 0        | &lt;None&gt;                         | Alerts when a changeset ID     |
+						|                                     |            |          |          |                                | does not follow the 8-4-4-4-12 |
+						|                                     |            |          |          |                                | pattern of UUID or GUID.       |
+						+-------------------------------------+------------+----------+----------+--------------------------------+--------------------------------+
+						Liquibase command 'checks enable' was executed successfully.
+
+						C:\Users\AmberWilliams\Projects\liquibase&gt;
+		</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
     </body>
