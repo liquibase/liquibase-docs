@@ -16,9 +16,9 @@
         <p>For example, if your security team stores their checks in one place, the checks package file that points to that security checks file will pick up the latest version. This allows your distinct teams to reproduce the same outcome even if files are located separately.</p>
         <h2>Rules</h2>
         <ul>
-            <li>Checks packages <b>only</b> work with the <code><MadCap:xref href="../subcommands/run.htm">run</MadCap:xref></code> and <code><MadCap:xref href="../subcommands/show.htm">show</MadCap:xref></code> subcommands</li>
+            <li>Checks packages <b>only</b> work with the <code><MadCap:xref href="../subcommands/run.htm">run</MadCap:xref></code> and <code><MadCap:xref href="../subcommands/show.htm">show</MadCap:xref></code> commands</li>
             <li>Checks package objects are a <b>collection of checks settings files</b>. This has the following implications:<br /><ul><li><MadCap:variable name="General.Liquibase" /> ensures that checks are not duplicated in a particular package. However, there can be two checks with the same name in a particular package if they appear in different checks settings files.</li><li>If you include the same checks settings file multiple times in a particular package, <MadCap:variable name="General.Liquibase" /> only runs it once.</li></ul></li>
-            <li>You <b>cannot</b> use <code><MadCap:xref href="../subcommands/bulk-set.htm">bulk-set</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/copy.htm">copy</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/create.htm">create</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/customize.htm">customize</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/delete.htm">delete</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/disable.htm">disable</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/enable.htm">enable</MadCap:xref></code>, or <code><MadCap:xref href="../subcommands/reset.htm">reset</MadCap:xref></code> subcommands with any checks settings file that is  part of a checks package file.</li>
+            <li>You <b>cannot</b> use <code><MadCap:xref href="../subcommands/bulk-set.htm">bulk-set</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/copy.htm">copy</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/create.htm">create</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/customize.htm">customize</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/delete.htm">delete</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/disable.htm">disable</MadCap:xref></code>, <code><MadCap:xref href="../subcommands/enable.htm">enable</MadCap:xref></code>, or <code><MadCap:xref href="../subcommands/reset.htm">reset</MadCap:xref></code> commands with any checks settings file that is  part of a checks package file.</li>
         </ul>
         <h2>Create a checks package file</h2>
         <ol>
@@ -32,7 +32,8 @@
                 <li>Use the shell <code class="language-text">cp</code> command (or <code class="language-text">copy</code> on Windows)&#160;to <b>copy</b> these settings from your template into a named checks settings file to be added to the package when ready:</li><pre xml:space="preserve"><code class="language-shell">cp liquibase.checks-settings.conf oracle-checks.yaml</code></pre>
             </ol>
             <li>Repeat Step 2 for as many checks settings files as you want to create, such as another checks settings file for <code class="language-text">postgres-checks.yaml</code> and <code class="language-text">sqlserver-checks.yaml</code>.</li>
-            <li><b>Run the <code><a href="../subcommands/create.htm">checks create</a></code> command</b> to create a new YAML checks package file. If you specify a file that does not exist, <MadCap:variable name="General.Liquibase" /> will create it. Under <code class="language-text">--package-contents</code>, specify all the settings files you just created. For example:</li><pre><code class="language-shell">liquibase checks create \
+            <li><b>Run the <code><a href="../subcommands/create.htm">checks create</a></code> command</b> to create a new YAML checks package file:<ul><li>For <code class="language-text">--package-file</code>, if you specify a file that does not exist, <MadCap:variable name="General.Liquibase" /> will create it.</li><li>For <code class="language-text">--package-name</code>, specify any descriptive name for a package object to be listed in the file.</li><li>For <code class="language-text">--package-contents</code>, specify all the settings files you just created. If the value is a directory, all files will be added to the <code class="language-text">--package-name</code> object, but not recursively.</li></ul></li>
+            <p>For example:</p><pre><code class="language-shell">liquibase checks create \
   --package-file=liquibase.security-checks.yaml \
   --package-name=platform-checks \
   --package-contents=oracle-checks.yaml,postgres-checks.yaml,sqlserver-checks.yaml</code></pre>
@@ -45,43 +46,13 @@
             <li>Repeat Steps 2–5 for as many settings files and packages you want to create.<ul><li>You can reuse checks settings files across multiple packages, or you can keep them all completely separate.</li><li>You can also add an additional settings file to an existing package by running <code class="language-text">checks create</code> again and specifying the settings file and package to add it to.</li></ul></li>
         </ol>
         <p>Now you have successfully created a checks package file!</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To remove checks settings files to an existing package object or to remove a package object altogether, you must open your YAML&#160;file and make the changes manually.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To remove checks settings files to an existing package object or to remove a package object altogether, you must open your YAML file and make the changes manually.</p>
         <h2>Use the checks package file</h2>
-        <p>Once you've created your file, you can use it with the <code>checks show</code> and <code>checks run</code> commands. Specify the name of your file with <code>--checks-settings-file</code> and the name of your package object(s) with <code>--package-name</code>:</p><pre><code class="language-shell">liquibase checks show --checks-settings-file=liquibase.security-checks.yaml --package-name=platform-checks</code></pre><pre><code class="language-shell">liquibase checks run --checks-settings-file=liquibase.security-checks.yaml --package-name=platform-checks</code></pre>
-        <p>You can specify multiple checks packages with a comma-separated list:</p><pre><code class="language-shell">liquibase checks run --checks-settings-file=liquibase.security-checks.yaml --package-name=platform-checks,qa-checks</code></pre>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the checks package file is named <code>liquibase.checks-settings.conf</code>, you do not need to specify the file name. If you use a custom name for your package file, you must specify it.</p>
+        <p>Once you've created your file, you can use it with the <a href="../subcommands/show.htm"><code>checks show</code></a> and <a href="../subcommands/show.htm"><code>checks run</code></a> commands. Specify the name of your file with <code class="language-text">--checks-settings-file</code> and the name of your package object(s) with <code class="language-text">--checks-packages</code>:</p><pre><code class="language-shell">liquibase checks show --checks-settings-file=liquibase.security-checks.yaml --checks-packages=platform-checks</code></pre><pre><code class="language-shell">liquibase checks run --checks-settings-file=liquibase.security-checks.yaml --checks-packages=platform-checks</code></pre>
+        <p>You can specify multiple checks packages with a comma-separated list:</p><pre><code class="language-shell">liquibase checks run --checks-settings-file=liquibase.security-checks.yaml --checks-packages=platform-checks,qa-checks</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the checks package file is named <code class="language-text">liquibase.checks-settings.conf</code>, you do not need to specify the file name. If you use a custom name for your package file, you must specify it.</p>
         <h3>Output information</h3>
         <p>There is a column in the <code class="language-text">checks show</code> table that displays the source checks settings file. There is also a line in the console output for <code class="language-text">checks run</code> that highlights the check settings file which holds the enabled checks and other <code>checks run</code> console output. For more information, see <MadCap:xref href="../workflows/use-checks-settings-config-file.htm">Use the Checks Settings Configuration File</MadCap:xref>.</p>
-        <h2>Parameters</h2>
-        <div class="js-tabs">
-            <ul class="js-tablist" data-existing-hx="h3">
-                <li class="js-tablist__item"><a href="#cli" id="label_cli" class="js-tablist__link">CLI</a>
-                </li>
-                <li class="js-tablist__item"><a href="#flow" id="label_flow" class="js-tablist__link">Flow</a>
-                </li>
-                <li class="js-tablist__item"><a href="#properties_file" id="label_properties_file" class="js-tablist__link"><code>liquibase.properties</code></a>
-                </li>
-                <li class="js-tablist__item"><a href="#java_opts" id="label_java_opts" class="js-tablist__link"><code>JAVA_OPTS</code></a>
-                </li>
-                <li class="js-tablist__item"><a href="#envar" id="label_envar" class="js-tablist__link">Environment variable</a>
-                </li>
-            </ul>
-            <div id="cli" class="js-tabcontent">
-                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/command-checks-create.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.cli]" />
-            </div>
-            <div id="flow" class="js-tabcontent">
-                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/command-checks-create.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.flow]" />
-            </div>
-            <div id="properties_file" class="js-tabcontent">
-                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/command-checks-create.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.properties-file]" />
-            </div>
-            <div id="java_opts" class="js-tabcontent">
-                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/command-checks-create.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.java-opts]" />
-            </div>
-            <div id="envar" class="js-tabcontent">
-                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/command-checks-create.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.envar]" />
-            </div>
-        </div>
         <h2>Checks Packages File Example</h2>
         <p>This is an example of a checks package file containing multiple packages for different purposes:</p><pre xml:space="preserve"><code class="language-yaml">checksPackages:
 
