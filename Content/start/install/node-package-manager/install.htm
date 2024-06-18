@@ -39,6 +39,7 @@
         <p>or</p><pre>npm i liquibase@pd</pre>
         <p>Depending on your implementation method of choice (TS, JS, or CLI), you will need to let <code>node-liquibase</code> know where it can find your <MadCap:variable name="General.Liquibase" /> executable. This should be an <b>absolute path</b> to the executable.</p>
         <p>Additionally, we removed the bundled drivers from the @pd release to further reduce the size of your node_modules. There is a chance you will need to update your configurations to provide an absolute path on the classpath property to the drivers you need.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To substitute your own user/pass for a given environment, make a copy of .env.example in root directory as .env and update accordingly.</p>
         <h3>Configuration Updates (TS or JS)</h3>
         <p>Using the liquibase property on your config object.</p>
         <h4>Before</h4>
@@ -80,11 +81,26 @@ inst.status();</MadCap:codeSnippetBody>
         <h4>After</h4><pre>yarn node-liquibase --liquibase="Users/me/absolute/path/to/executable/directory" --changeLogFile="changelog.xml" --url="jdbc:postgresql://localhost:5432/node_liquibase_testing" --username="yourusername" --password="yoursecurepassword" --classpath="/Users/me/path/to/my/db-drivers/postgresql-42.4.2.jar" status</pre>
         <h3>Sandbox: @pd</h3>
         <p>If you'd like to see a working setup of liquibase@pd be sure to check out the peer-dependency branch of the <a href="https://github.com/tabuckner/node-liquibase-sandbox/blob/peer-dependency/index.ts">Node Liquibase Sandbox</a>. You can see a diff of the two approaches (Bundled v. Peer) <a href="https://github.com/tabuckner/node-liquibase-sandbox/compare/master...peer-dependency">Here</a></p>
+        <h2>Optional:&#160;Continuous Integration: Generate Action</h2>
+        <p>There is a GitHub action executed on every Liquibase release. This GitHub Action automates the generation of Liquibase command list and protobuf files for a specified Liquibase version.</p>
+        <h3>Workflow Steps</h3>
+        <ol>
+            <li>Install Dependencies: Installs necessary dependencies including protobuf-compiler and npm packages.</li>
+            <li>Build Liquibase Protobuf Generator Docker Image: Builds a Docker image named liquibase-protobuf-generator specific to the provided Liquibase version.</li>
+            <li>Generate Liquibase Command List: Executes a Docker command to generate a JSON file containing a list of Liquibase commands supported by the specified version.</li>
+            <li>Iterate Over Commands and Generate Protobuf Files: Loops through the commands retrieved from the JSON file, executes Docker commands to generate protobuf files for each command, and then moves the generated TypeScript files to a directory named proto-commands.</li>
+            <li>Update Liquibase Binaries: Downloads and extracts the Liquibase binaries for the specified version, replacing the existing binaries.</li>
+            <li>Create Pull Request: It creates a pull request with the generated changes.</li>
+        </ol>
+        <p>This action streamlines the process of updating Liquibase-related files and creating pull requests for version updates.</p>
+        <p>After the PR is created you can see potential new/modified liquibase commands and proced to update this module following the steps shown at <a href="https://github.com/liquibase/node-liquibase?tab=readme-ov-file#extending-liquibase-node-package-step-by-step-guide">Extending Liquibase Node Package: Step-by-Step Guide</a></p>
         <h2>Related Links</h2>
         <ul>
             <li><a href="https://docs.chocolatey.org/en-us/">NPM&#160;Documentation</a>
             </li>
             <li><a href="https://www.npmjs.com/package/liquibase#installation">NodeJS and <MadCap:variable name="General.Liquibase" /></a>
+            </li>
+            <li><a href="https://github.com/liquibase/node-liquibase?tab=readme-ov-file#want-to-help">Learn how to contribute to this feature here</a>
             </li>
         </ul>
     </body>
