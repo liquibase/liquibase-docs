@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/using-liquibase-and-docker.html" />
         <meta name="description" content="This page explains how to use Liquibase and Docker." />
@@ -11,7 +11,7 @@
         <p>If you use a virtual machine, it requires a separate copy of the operating system, which needs space. Docker leverages the host system for the operating system to cut down on space. Additionally, Docker helps to start your application more quickly.</p>
         <h2><MadCap:variable name="General.Liquibase" /> Docker container image</h2>
         <p><MadCap:variable name="General.Liquibase" /> Docker container image includes the <MadCap:variable name="General.Liquibase" /> software, Java, JDBC drivers, and all other dependencies already preconfigured. The image is based on the <a href="https://hub.docker.com/_/eclipse-temurin/">Eclipse Temurin</a> image <code>eclipse-temurin:17-jre-focal</code>.</p>
-        <p>Also, there are libraries  represented by database driver and client packages that are preinstalled into the container image. The list of available database drivers:</p>
+        <p>Also, there are libraries  represented by database driver and client packages that are preinstalled into the container image:</p>
         <ul>
             <li>DB2</li>
             <li>Firebird</li>
@@ -22,7 +22,7 @@
             <li>SQLite</li>
             <li>Sybase</li>
         </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The database driver for MySQL is not preinstalled into the container image and requires additional steps to install. See <MadCap:xref href="#MySQL">MySQL driver</MadCap:xref>.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The database drivers for MongoDB&#160;Pro and MySQL are not preinstalled into the container image and require additional steps to install. See <MadCap:xref href="#MongoDB">MongoDB Pro driver</MadCap:xref> and <MadCap:xref href="#MySQL">MySQL driver</MadCap:xref>.</p>
         <p>See the <a href="https://github.com/liquibase/docker/blob/main/Dockerfile"><MadCap:variable name="General.Liquibase" /> Dockerfile</a> for more details. You can find the official repository for <MadCap:variable name="General.Liquibase" /> images on the <a href="https://download.liquibase.org/">download</a> page.</p>
         <p>Docker pull command:</p><pre><code class="language-text">docker pull liquibase/liquibase</code></pre>
         <h3>Example JDBC URLs</h3>
@@ -61,7 +61,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><a href="../../start/tutorials/postgresql.html">PostgreSQL</a>
+                    <td><a href="../../start/tutorials/postgresql/home.html">PostgreSQL</a>
                     </td>
                     <td><code>jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;</code>
                     </td>
@@ -121,6 +121,8 @@
         <h3>Example</h3>
         <p>If you have a local <code>c:\projects\my-project\lib\my-driver.jar</code> file, you run the following command:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v c:\projects\my-project\src\main\resources:/liquibase/changelog -v c:\projects\my-project\lib:/liquibase/classpath liquibase/liquibase
 --classpath=liquibase/changelog:liquibase/classpath/my-driver.jar update</code></pre>
+        <h3><a name="MongoDB"></a>MongoDB Pro driver</h3>
+        <p>You can install the <MadCap:variable name="General.Liquibase" /> MongoDB Pro JDBC driver in your container image using the <a href="https://github.com/liquibase/liquibase-package-manager"><MadCap:variable name="General.Liquibase" /> Package Manager</a> (LPM). In your command line, enter the following command:</p><pre><code class="language-text">lpm add liquibase-commercial-mongodb@<MadCap:variable name="software-versions.latest-liquibase-mongodb" /></code></pre>
         <h3 id="mysql"><a name="MySQL"></a>MySQL driver</h3>
         <p>The JDBC driver for MySQL has licensing restrictions that prevent it from being preinstalled into the container image. You must load the driver in one of the following ways:</p>
         <h4>Create a new container</h4>
@@ -167,10 +169,10 @@ RUN lpm add mssql --global</code></pre>
         <p>To produce a new <MadCap:variable name="General.Liquibase" /> Docker image, you must run a few Docker commands to inject the driver into the container. You can do this with any database. The following example is for a Microsoft SQL Server database running with the latest version of <MadCap:variable name="General.Liquibase" />:</p>
         <ol>
             <li>Download the latest <a href="https://learn.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver16">Microsoft SQL Server driver</a>, for example 12.2.0</li>
-            <li>Start a Docker container: <code>docker run -it liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" /> sh</code></li>
+            <li>Start a Docker container: <code>docker run -it liquibase/liquibase:<MadCap:variable name="software-versions.latest-liquibase-pro" /> sh</code></li>
             <li>Do not exit out of this container. In a new terminal window, obtain the Container ID: <code>docker ps</code></li>
             <li>Copy the Microsoft SQL Server 12.2.0 JAR file into the running container: <code>docker cp mssql-jdbc-12.2.0.jre11.jar &lt;CONTAINER ID&gt;:/liquibase/internal/lib</code></li>
-            <li>Create a new Docker image: <code>docker commit &lt;CONTAINER ID&gt; liquibase/liquibase:<MadCap:variable name="General.CurrentLiquibaseVersion" />_w_mssql_12.2.0</code></li>
+            <li>Create a new Docker image: <code>docker commit &lt;CONTAINER ID&gt; liquibase/liquibase:<MadCap:variable name="software-versions.latest-liquibase-pro" />_w_mssql_12.2.0</code></li>
             <li>Publish this custom Docker image internally.</li>
         </ol>
         <h2>Troubleshooting issues with <MadCap:variable name="General.Liquibase" /> and Docker</h2>
@@ -178,7 +180,7 @@ RUN lpm add mssql --global</code></pre>
         <h2>Related links</h2>
         <ul>
             <li>
-                <MadCap:xref href="../../commands/home.htm">Liquibase Commands</MadCap:xref>
+                <MadCap:xref href="../../commands/home.htm">[%=General.Liquibase%] Commands</MadCap:xref>
             </li>
             <li><a href="https://docs.docker.com/">Docker Documentation</a>
             </li>

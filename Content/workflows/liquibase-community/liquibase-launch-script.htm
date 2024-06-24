@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/liquibase-launch-script.html" />
+        <meta name="description" content="This page explains how the default Liquibase launch script works and how to run Liquibase without it." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1><MadCap:variable name="General.Liquibase" /> Launch Script</h1>
+        <p><MadCap:variable name="General.Liquibase" /> comes with a launch script called <code>liquibase</code> (<code>liquibase.bat</code> on Windows) at the top level of the <MadCap:variable name="General.Liquibase" /> installation folder. This script configures Java to run the <MadCap:variable name="General.Liquibase" /> launcher through your command line interface (CLI).</p>
+        <p>
+            <img src="../../Z_Resources/Images/Screenshots/workflows/liquibase-launch-scripts.png" />
+        </p>
+        <p>When run, the <code>liquibase</code> launch script does the following:</p>
+        <ol>
+            <li>Chooses the correct version of Java:<ol><li>If you already set  the <code>JAVA_HOME</code> environment variable, the launch script uses the Java version there</li><li>Otherwise, if you installed the CLI via an installer, the launch script uses the Java version bundled with the version of <MadCap:variable name="General.Liquibase" /> you installed</li><li>Otherwise, the launch script uses the Java version configured in the <code>PATH</code> environment variable</li></ol></li>
+            <li>Includes any additional Java arguments set in the <MadCap:xref href="../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref></li>
+        </ol>
+        <p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">This batch script is the default and recommended way to run <MadCap:variable name="General.Liquibase" /> via CLI. Please <b>do not customize</b> this launch script. Any changes you make will be <b>untested by <MadCap:variable name="General.Liquibase" /></b> and could result in unexpected launch script behavior.</p>
+        <h2>Passing <code>JAVA_OPTS</code> and classpath</h2>
+        <p>The default <MadCap:variable name="General.Liquibase" /> launch script can include Java system properties set in the <MadCap:xref href="../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>.</p>
+        <p>Here is an example of setting <code>JAVA_OPTS</code> prior to invoking the <code>liquibase</code> launch script with <code><MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref></code> command:</p><pre xml:space="preserve"><code class="language-shell">JAVA_OPTS="-Doracle.net.tns_admin=/opt/oracle/instantclient_12_1/network/admin -Djava.security.krb5.conf=/etc/krb5.conf -Doracle.net.kerberos5_cc_name=/etc/krb5cc -Dsun.security.krb5.debug=true -Doracle.net.kerberos5_mutual_authentication=true -Doracle.net.authentication_services=KERBEROS5 -Djava.security.auth.login.config=/etc/JDBCDriverLogin.conf"
+
+echo "JAVA_OPTS="$JAVA_OPTS" liquibase status --verbose"
+
+/opt/liquibase/liquibase status --verbose</code></pre>
+        <p>By default, the <code>liquibase</code> launch script includes the system classpath when resolving classes at runtime. You can modify this behavior with the <code>--<MadCap:xref href="../../parameters/include-system-classpath.htm">include-system-classpath</MadCap:xref></code> argument.</p>
+        <h2>Run <MadCap:variable name="General.Liquibase" /> without the launcher</h2>
+        <p><MadCap:variable name="General.Liquibase" /> recommends that users launch <MadCap:variable name="General.Liquibase" /> using the default launch script provided in each release. However, if you need to run <MadCap:variable name="General.Liquibase" /> directly from Java, you can use the <code>java -jar</code> command to directly run commands and automatically build a classpath:</p>
+        <ol>
+            <li>Set the <code>LIQUIBASE_HOME</code> environment variable to a directory containing a <code>lib</code> and an <code>internal/lib</code> directory, which contain the JAR files to add to the classpath</li>
+            <li>In your command line, run this command:</li><pre xml:space="preserve"><code class="language-shell">java -jar LIQUIBASE_HOME/internal/lib/liquibase-core.jar &lt;liquibase arguments&gt;</code></pre>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>&lt;liquibase arguments&gt;</code>&#160;does not contain a call to the <code>liquibase</code> BAT file. For example, <code>update --changelog-file=foobar.xml</code> instead of <code>liquibase update --changelog-file=foobar.xml</code>.</p>
+        <h2>Best practices</h2>
+        <p><MadCap:variable name="General.Liquibase" /> may alter the default launch script in future releases. <b>Modifying the default launch script is highly discouraged.</b> It is a best practice to use the default launch script. This avoids potential issues that may arise from changes to the <MadCap:variable name="General.Liquibase" /> codebase.</p>
+        <p>While changes impacting how <MadCap:variable name="General.Liquibase" /> is launched are uncommon and are always documented in <MadCap:xref href="../../start/release-notes/liquibase-release-notes/home.htm">[%=General.Liquibase%] Release Notes</MadCap:xref>, using the default launch script can prevent the need for changes to existing pipelines when these types of changes are made to <MadCap:variable name="General.Liquibase" />.</p>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="running.html">Running [%=General.Liquibase%]</MadCap:xref>
+            </li>
+            <li><a href="https://javadocs.liquibase.com/liquibase-core/liquibase/integration/commandline/LiquibaseLauncher.html">Javadocs:&#160;LiquibaseLauncher</a>
+            </li>
+            <li><a href="https://javadocs.liquibase.com/liquibase-core/liquibase/integration/commandline/LiquibaseCommandLine.html">Javadocs:&#160;LiquibaseCommandLine</a>
+            </li>
+        </ul>
+    </body>
+</html>

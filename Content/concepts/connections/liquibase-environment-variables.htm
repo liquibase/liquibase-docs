@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/concepts/connections/liquibase-environment-variables.html" />
         <meta name="description" content="Reference information for using Liquibase environment variables." />
@@ -7,65 +7,101 @@
     </head>
     <body>
         <h1><MadCap:variable name="General.Liquibase" /> Environment Variables</h1>
-        <p>The environment variable is a value that you can set once to pass configuration information to your application. It affects the behavior of running processes on a computer.</p>
-        <p><MadCap:variable name="General.Liquibase" /> 4.4 and later can process configuration values from multiple sources, such as the <MadCap:variable name="General.Liquibase" /> properties file, environment variables, and Java system properties. This capability means the following:</p>
+        <p><MadCap:variable name="General.Liquibase" /> 4.4.0 and later adds <b>environment variable</b> support as an additional way to specify configuration information for <MadCap:variable name="General.Liquibase" /> commands. You can use environment variables instead of using properties files, command line options, Maven parameters, and Java system properties. Between <MadCap:variable name="General.Liquibase" /> 4.4.0 and 4.17.1, environment variables are only included in <MadCap:variable name="General.LBPro" />. In 4.18.0, environment variables are included in <MadCap:variable name="General.LBCommunity" />.</p>
+        <p>An environment variable is a value that you can set to pass configuration information to your application. It affects the behavior of running processes on a computer and is associated with a process execution environment – either in a script or on the command line.</p>
+        <p>By using environment variables to specify <MadCap:variable name="General.Liquibase" /> configuration, you can:</p>
         <ul>
-            <li>You can use environment variables rather than storing hard-coded and plain-text values, such as usernames and passwords in documents and source control.</li>
-            <li>You can maintain better security and control specific configuration values more dynamically, especially when using build environments like Docker, AWS, Kubernetes, and others.</li>
-            <li>You can set both <MadCap:variable name="General.Liquibase" /> global and command parameters as environment variables instead of passing them at runtime in the CLI or via the defaults file.</li>
-            <li>You can easily run <MadCap:variable name="General.Liquibase" /> in partial or full automation with various build servers.</li>
+            <li>Improve security by not exposing sensitive configuration information like usernames, passwords, and command parameters on the command line or in <code><MadCap:variable name="General.liquiPropFile" /></code> files stored in source control.</li>
+            <li>More easily share configuration information with <MadCap:variable name="General.Liquibase" /> from DevOps platforms and tools (like Cloudbees, Docker, AWS, and Kubernetes).</li>
         </ul>
-        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">For a list of all environment variables, see <MadCap:xref href="../../parameters/home.htm">[%=General.Liquibase%] Parameters</MadCap:xref>.</p>
-        <h2>Syntax</h2>
-        <p>You can configure <MadCap:variable name="General.Liquibase" /> environment variables by following these syntax rules:</p>
-        <ul>
-            <li>Use underscores (<code>_</code>) for naming. If you use dots (<code>.</code>), convert them to underscores. Also, split the camel case values with an underscore.</li>
-        </ul>
-        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>liquibase.loglevel</code> is <code>LIQUIBASE_LOG_LEVEL</code>.</p>
-        <ul>
-            <li>Do not use spaces within values.</li>
-            <li>Use uppercase letters.</li>
-            <li>Use the prefix of <code>LIQUIBASE_ namespace</code>.</li>
-        </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For default files, use the prefix of <code>liquibase.</code>. However, when running arguments in the CLI, you can drop the <code>--liquibase-</code> prefix.</p>
-        <h2>Scope</h2>
+        <h2>What <MadCap:variable name="General.Liquibase" /> environment variables are available?</h2>
+        <p>For a list of available <MadCap:variable name="General.Liquibase" /> environment variables, see the <MadCap:xref href="../../parameters/home.htm">[%=General.Liquibase%] Parameters</MadCap:xref> page that documents all of the available <MadCap:variable name="General.Liquibase" /> configuration options and the different ways options can be specified.</p>
+        <h2><MadCap:variable name="General.Liquibase" /> Environment Variable Scopes</h2>
         <p>In <MadCap:variable name="General.Liquibase" />, there are two types of configuration options: global and command options.</p>
         <ul>
-            <li>Global options affect the overall usage of <MadCap:variable name="General.Liquibase" />, such as <code>logLevel</code> and <code>searchPath</code>.</li>
-            <li>Command options are specific to the command, such as <code>url</code> and <code>changelogFile</code>.</li>
+            <li><b>Global options</b> affect the overall usage of <MadCap:variable name="General.Liquibase" />.</li>
+            <li><b>Command options</b> are specific to a <MadCap:variable name="General.Liquibase" /> command.</li>
         </ul>
-        <p>Use global options to the left of the command and command options to the right of the command.</p>
-        <p>As environment variables, there are three measures of scope:</p>
+        <p>Different types of <MadCap:variable name="General.Liquibase" /> environment variables have different scopes.</p>
         <ul>
-            <li><code>LIQUIBASE_SEARCH_PATH</code> configures a global option.</li>
-            <li><code>LIQUIBASE_COMMAND_USERNAME</code> sets the username to use across all commands.</li>
-            <li><code>LIQUIBASE_COMMAND_UPDATE_USERNAME</code> sets the username just for the <code>update</code> command.</li>
+            <li>Global options</li>
+            <ul>
+                <li><code>LIQUIBASE_&lt;option-name&gt;</code> configures a global option available to <b>all commands</b>.</li>
+            </ul>
+            <li>Command options</li>
+            <ul>
+                <li><code>LIQUIBASE_COMMAND_&lt;option-name&gt;</code> sets the username to use across <b>all relevant commands</b>.</li>
+                <li><code>LIQUIBASE_COMMAND_&lt;command-name&gt;_&lt;option-name&gt;</code> sets the option <b>for a specific command</b>.</li>
+            </ul>
         </ul>
-        <h2>Setting environment variables</h2>
+        <h2>Environment variable format</h2>
+        <p>Environment variables have the format <code>&lt;key&gt;=&lt;value&gt;</code>.</p>
+        <p>The <code>key</code> (by convention) is a descriptive string in upper-case letters with words separated by underscores.</p>
+        <p>Example key: <code>LIQUIBASE_LOG_LEVEL</code></p>
+        <p>The <code>value</code> is a string of characters with no specific rules or conventions (other than what is expected by the related script or command).</p>
+        <p>Example value: <code>WARNING</code></p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Do not use spaces within values and use uppercase letters.</p>
+        <h2>How to use environment variables with <MadCap:variable name="General.Liquibase" /></h2>
         <p>To set the <MadCap:variable name="General.Liquibase" /> environment variables, choose your operating system:</p>
-        <h3>Windows</h3>
-        <ol>
-            <li>In your Windows search box, type <code>env</code> and select the <b>Edit the System Environment</b> option in the Control Panel.</li>
-            <li>In the <b>Advanced</b> tab, select <b>Environment Variables</b>.</li>
-            <li>In the <b>Edit environment variable</b> window, select <b>New</b>, and then add the variable name and value you need.</li>
-            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>LIQUIBASE_LICENSE_KEY</code>
-                <br /><code>yj4v59bfdgj389btc4wg</code>
-            </p>
-            <li>Select <b>OK</b> on all windows to close them.</li>
-        </ol>
-        <p>Alternatively, you can use the <code><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/set_1">set</a></code> command to set a temporary environment variable or the <code><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/setx">setx</a></code> command to set a permanent environment variable from your command line.</p>
-        <h3>macOS/Linux/Unix</h3>
-        <p>You can set a shell variable in your command line using the format <code>&lt;VARIABLE_NAME&gt;=&lt;VALUE&gt;</code>. However, this does not persist after you close your shell window. To turn a shell variable into an environment variable, use the <code>export variable_name="value"</code> command, which sets the variable and exports it to the global environment.</p>
-        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>export LIQUIBASE_LICENSE_KEY=yj4v59bfdgj389btc4wg</code>
-        </p>
-        <p>The <code>export variable_name=value</code> command does not permanently update your value after the termination of the session. To permanently update the value, edit your <code>~/.profile</code>, <code>~/.bash_profile</code>, or <code>~/.bashrc</code> file and write a line using the <code>export</code> command to define each variable, and then use the <code>source</code> command on the file you stored your environment variable(s) in.</p>
-        <p>To set permanent environment variables for all users, create a file <code>my_file.sh</code> in the directory <code>/etc/profile.d</code> and use the <code>export</code> command to define each variable.</p>
-        <p>To unset an environment variable, use the syntax <code>unset &lt;VARIABLE_NAME&gt;</code>.</p>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#macos_linux_unix_example" id="label_macos_linux_unix_example" class="js-tablist__link">macOS/Linux/Unix</a>
+                </li>
+                <li class="js-tablist__item"><a href="#windows_example" id="label_windows_example" class="js-tablist__link">Windows</a>
+                </li>
+            </ul>
+            <div id="macos_linux_unix_example" class="js-tabcontent">
+                <p>You can set a shell variable in your command line using the format <code>&lt;VARIABLE_NAME&gt;=&lt;VALUE&gt;</code>. However, this does not persist after you close your shell window. To turn a shell variable into an environment variable, use the <code>export variable_name="value"</code> command, which sets the variable and exports it to the global environment.</p>
+                <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>export LIQUIBASE_LICENSE_KEY=yj4v59bfdgj389btc4wg</code>
+                </p>
+                <h4>Format:</h4><pre xml:space="preserve"><code class="language-text">&lt;VARIABLE_NAME&gt;=&lt;VALUE&gt; liquibase &lt;command&gt;</code>
+        </pre>
+                <h4>Example:</h4><pre xml:space="preserve"><code class="language-text">&gt; LIQUIBASE_LOG_LEVEL=INFO liquibase update</code>
+        </pre>
+                <p>The <code>export variable_name=value</code> command does not permanently update your value after the termination of the session. To permanently update the value, edit your <code>~/.profile</code>, <code>~/.bash_profile</code>, or <code>~/.bashrc</code> file and write a line using the <code>export</code> command to define each variable, and then use the <code>source</code> command on the file you stored your environment variable(s) in.</p>
+                <p>To set permanent environment variables for all users, create a file <code>my_file.sh</code> in the directory <code>/etc/profile.d</code> and use the <code>export</code> command to define each variable.</p>
+                <p>To unset an environment variable, use the syntax <code>unset &lt;VARIABLE_NAME&gt;</code>.</p>
+            </div>
+            <div id="windows_example" class="js-tabcontent">
+                <h3>Windows</h3>
+                <p>To set an environment variable in the Windows GUI:</p>
+                <ol>
+                    <li>In your Windows search box, type <code>env</code> and select the <b>Edit the System Environment</b> option in the Control Panel.</li>
+                    <li>In the <b>Advanced</b> tab, select <b>Environment Variables</b>.</li>
+                    <li>In the <b>Edit environment variable</b> window, select <b>New</b>, and then add the variable name and value you need.</li>
+                    <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>LIQUIBASE_LICENSE_KEY</code>
+                        <br>
+                        </br><code>yj4v59bfdgj389btc4wg</code>
+                    </p>
+                    <li>Select <b>OK</b> on all windows to close them.</li>
+                </ol>
+                <p>Alternatively, you can use the <code><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/set_1">set</a></code> command to set a temporary environment variable or the <code><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/setx">setx</a></code> command to set a permanent environment variable from your command line:</p>
+                <h4>Format:</h4><pre xml:space="preserve"><code class="language-text">set &lt;VARIABLE_NAME&gt;=&lt;VALUE&gt;
+liquibase &lt;command&gt;</code></pre>
+                <h4>Example:</h4><pre xml:space="preserve"><code class="language-text">&gt; set LIQUIBASE_LOG_LEVEL=INFO
+&gt;&gt; liquibase update</code></pre>
+            </div>
+        </div>
+        <h2>Example: Use environment variables to control the amount of log information</h2>
+        <p>For example, it’s typical to want more detailed logging information in development and test environments. In production, the focus is on responding to error situations, so additional details might obscure error messages and increase the time it takes to troubleshoot a problem.</p>
+        <p>To address this, you can configure <MadCap:variable name="General.Liquibase" /> to vary the amount of logging information based on the target environment.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Environment variables do not override the CLI usage. In automation driven by crafting dynamic CLI strings to execute, you need to reconcile commands and their arguments with specific settings in your environment variables that are overridden by the CLI usage.</p>
+        <p>In this example,</p>
+        <ul>
+            <li>Non-production environments will have <code>LIQUIBASE_LOG_LEVEL=”INFO”</code></li>
+            <li>Poduction environments will have <code>LIQUIBASE_LOG_LEVEL=”SEVERE”</code></li>
+        </ul><pre xml:space="preserve"><code class="language-text">if ($EnvType = "Prod") then<br /> export LIQUIBASE_LOG_LEVEL="SEVERE"<br />else<br /> export LIQUIBASE_LOG_LEVEL="INFO"<br /><br />&lt;call <MadCap:variable name="General.Liquibase" /> update command here&gt;</code></pre>
+        <h2>Example: Use environment variables in Docker</h2>
+        <p>For example, while building a demo in AWS CodeCommit, CodeBuild, &amp; CodePipeline, imagine that your workflow requires you to pass in custom log data to build a friendlier dashboard in Grafana. Using the <code>LIQUIBASE_CUSTOM_LOG_DATA_FILE</code> environment variable will result in custom log data being omitted from the log, but passing  the file in using the <code>--<MadCap:xref href="../../parameters/custom-log-data-file.htm">custom-log-data-file</MadCap:xref></code> argument, the custom log data is present as expected.</p>
+        <p>To pass environment variables to the Docker image, you must either use the Docker argument <code class="language-text">-e var=value</code> or <code class="language-text">--env var=value</code>. For example:</p><pre>-e LIQUIBASE_CUSTOM_LOG_DATA_FILE="/liquibase/changelog/demo.yml"</pre><pre>--env LIQUIBASE_CUSTOM_LOG_DATA_FILE="/liquibase/changelog/demo.yml"</pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Be aware the syntax requires a single dash for <code>-e</code> and a double dash for <code>--env</code>.</p>
         <h2>Configuration hierarchy</h2>
         <p><MadCap:variable name="General.Liquibase" /> supports setting properties in multiple locations, with the final value determined in the chart in which the top locations take precedence over lower locations:</p>
         <p>
             <img src="../../Z_Resources/Images/Screenshots/concepts/environment-variables.png" style="width: 414px;height: 350px;" />
         </p>
+        <p>For example, a <b>command line argument’s</b> configuration value will be used even if the <b>environment variable</b> for the same configuration value was set. This is because the <b>command line argument</b> is higher in the precedence list than an <b>environment variable</b>.</p>
+        <p>The following chart explicitly defines this behavior:</p>
         <table style="width: 100%;margin-left: auto;margin-right: auto;">
             <thead>
                 <tr>
@@ -102,18 +138,14 @@
                 </tr>
             </tbody>
         </table>
-        <p>For example, if you want the <code>log-level=INFO</code> property set for the DEV environment and <code>log-level=SEVERE</code> set for the PROD environment, you should not specify these properties in the command line, but use environment variables instead.</p>
-        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>export LIQUIBASE_LOG_LEVEL="INFO" #what I set in my dev env<br></br>export LIQUIBASE_LOG_LEVEL="SEVERE" #what I set in my prod env</code>
-        </p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Environment variables do not override the CLI usage. In automation driven by crafting dynamic CLI strings to execute, you need to reconcile commands and their arguments with specific settings in your environment variables that are overridden by the CLI usage.</p>
         <h2>Naming conventions</h2>
         <p><MadCap:variable name="General.Liquibase" /> environment variables include:</p>
         <ul>
-            <li>All the <code>GlobalConfiguration</code> settings: <code>LIQUIBASE_DATABASE_CHANGELOG_TABLE_NAME</code>, <code>LIQUIBASE_SCHEMA_NAME</code>, and others.</li>
-            <li>All the <code>LiquibaseProConfiguration</code> properties: <code>LIQUIBASE_LICENSE_KEY</code>, <code>LIQUIBASE_PRO_MARK_UNUSED_NOT_DROPPED</code>, <code>LIQUIBASE_PRO_SYNONYMS_DROP_PUBLIC</code>, <code>LIQUIBASE_PRO_SQL_INLINE</code>.</li>
+            <li>All the <code>GlobalConfiguration</code> settings: <code><MadCap:variable name="General.Liquibase" />_DATABASE_CHANGELOG_TABLE_NAME</code>, <code><MadCap:variable name="General.Liquibase" />_SCHEMA_NAME</code>, and others. </li>
+            <li>All the <code><MadCap:variable name="General.Liquibase" />ProConfiguration</code> properties: <code><MadCap:variable name="General.Liquibase" />_LICENSE_KEY</code>, <code><MadCap:variable name="General.Liquibase" />_PRO_MARK_UNUSED_NOT_DROPPED</code>, <code><MadCap:variable name="General.Liquibase" />_PRO_SYNONYMS_DROP_PUBLIC</code>, <code><MadCap:variable name="General.Liquibase" />_PRO_SQL_INLINE</code>.</li>
         </ul>
         <h2>Security</h2>
-        <p>If you use <MadCap:variable name="General.Liquibase" /> environment variables, <MadCap:variable name="General.Liquibase" /> only reads values from environment variables without writing any of them.</p>
+        <p><MadCap:variable name="General.Liquibase" /> environment variables are READ ONLY. <MadCap:variable name="General.Liquibase" /> never changes the value of an environment variable.</p>
         <h2>Related links</h2>
         <ul>
             <li>
@@ -123,7 +155,7 @@
                 <MadCap:xref href="../../parameters/working-with-command-parameters.htm">Working with Command Parameters</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="../../commands/home.htm">[%=General.Liquibase%] Commands</MadCap:xref>
+                <MadCap:xref href="../../commands/home.htm">About [%=General.Liquibase%] Commands</MadCap:xref>
             </li>
         </ul>
     </body>
