@@ -1,23 +1,203 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/commands/flow/advanced-flow-file.html" />
         <meta name="description" content="Reference information and use cases for S3 with Liquibase. Liquibase integrates the use of Amazon S3 to store and retrieve data from anywhere." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1>Advanced Flow File</h1>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
-        <p>Advanced <MadCap:xref href="flow.htm">flow</MadCap:xref> files use <code>globalVariables</code>, <code>stageVariables</code>, property substitution, namespaced "included" files, an <code>endStage</code> which always runs, <MadCap:xref href="if-conditionals.htm">if conditionals</MadCap:xref> in <code>stage</code> or <code>actions</code>, decomposed/nested flow files, and bash <code>-c</code> "chained | commands".</p>
+        <h1>Advanced Flow File</h1>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-flow-version.flsnp" />
-        <h2>Structure</h2>
         <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Learn how to reference flow files in AWS S3: <MadCap:xref href="../../tools-integrations/extensions/remote-files/remote-file-path-rules.htm">Remote File Path Rules</MadCap:xref></p>
         <p>
-            <img src="../../Z_Resources/Images/Diagrams/flowfile.png" class="center" />
+            <img src="../../Z_Resources/Images/Diagrams/flowfile.png" alt="Structure of variable definitions, flow file stages, and nested actions that call on variables." style="width: 35%; float:right" />
         </p>
-        <p>The <b>Header</b> contains all <code>include</code> and <code>variables</code>. Read more: <MadCap:xref href="variables.htm">variables and include feature</MadCap:xref>.</p>
-        <p><b>endStage</b>: Once <code>actions</code> run, the <code>endStage</code> section runs. Common command arguments included here are <code>status</code> and <code>history</code>. If the Flow File contains errors, <code>endStage</code> still runs and tells you why it failed to run successfully.</p>
-        <h2>Related Videos:</h2>
+        <p>Advanced <a href="home.htm">flow files</a> use <code>globalVariables</code>, <code>stageVariables</code>, property substitution, namespaced "included" files, an <code>endStage</code> which always runs, <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref> in <code>stage</code> or <code>actions</code>, decomposed/nested flow files, and bash <code>-c</code> "chained | commands". For more information, see the following pages:</p>
+        <ul>
+            <li>
+                <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="variables.htm">Flow Variables</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="shell-commands.htm">Shell Commands</MadCap:xref>
+            </li>
+        </ul>
+        <h2>Structure</h2>
+        <p>The <b>header</b> contains all variable definitions and references to external files containing variable definitions.</p>
+        <p>The <b>stages</b> contain individual <b>actions</b> that run commands, such as <code><a href="../quality-checks/subcommands/run.htm">checks run</a></code> and <code><MadCap:xref href="../update/update.html">update</MadCap:xref></code>.</p>
+        <p><b>endStage</b>: Once <code>actions</code> run, the <code>endStage</code> section runs. Common commands included here are <code><MadCap:xref href="../change-tracking/status.htm">status</MadCap:xref></code> and <code><MadCap:xref href="../change-tracking/history.html">history</MadCap:xref></code>. If the flow file contains errors, <code>endStage</code> still runs and tells you why it failed to run successfully.</p>
+        <p>In any stage, you can specify variables, conditional behavior, and other properties of advanced flow files.</p>
+        <h2>Example Flow File</h2>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#flow_variables_example" id="label_flow_variables_example" class="js-tablist__link"><code>liquibase.flowvariables.yaml</code></a>
+                </li>
+                <li class="js-tablist__item"><a href="#advanced_flow_file_example" id="label_advanced_flow_file_example" class="js-tablist__link"><code>liquibase.advanced.flowfile.yaml</code></a>
+                </li>
+                <li class="js-tablist__item"><a href="#end_stage_example" id="label_end_stage_example" class="js-tablist__link"><code>liquibase.endstage.flow</code></a>
+                </li>
+            </ul>
+            <div id="flow_variables_example" class="js-tabcontent">
+                <p>Defines variables that you can use in other flow files.</p><pre xml:space="preserve"><code class="language-yaml">##########           LIQUIBASE FLOWFILE                ##########
+##########  learn more http://docs.liquibase.com/flow  ##########
+
+## NOTE: This example yaml file of key:value variables is injected into examples/liquibase.advanced.flow file
+## using the "include" ability. It will be given the namespace "DATES" but could be given any namespace.
+
+PROJNAME: "MyFlowProj"
+THISDATE: "2022-11-28T15-00-20"</code></pre>
+            </div>
+            <div id="advanced_flow_file_example" class="js-tabcontent">
+                <p>Includes command arguments, global arguments, and a referenced include file (YAML).</p><pre xml:space="preserve"><code class="language-yaml">##########           LIQUIBASE FLOW FILE               ##########
+##########  learn more http://docs.liquibase.com/flow  ##########
+
+## NOTE: This is an advanced example flowfile, compared to the other sample at examples/liquibase.flowfile.yaml
+#### HOW TO USE THIS FILE:
+#### example for CLI: liquibase flow --flow-file=liquibase.advanced.flowfile.yaml
+#### example for ENV Var: LIQUIBASE_FLOW_FLOW_FILE=liquibase.advanced.flowfile.yaml
+
+## Advanced options show in this file include:
+#### non-default name of 'liquibase.advanced.flowfile.yaml' (use by setting flowfile property to this name)
+#### use of 'include' to inject namespaced yaml files of key: val variables
+#### use of globalVariables and stageVariables
+#### use of globalArgs and cmdArgs
+#### use of property substitution
+#### use of a nested flowfile (in this case in the endStage, but could be elsewhere)
+#### use of if: conditional which allows a -type: shell or -type: liquibase command to run
+###### In the example below, we set an environment variable LIQUIBASE_CURRENT_TARGET, such as 'export LIQUIBASE_CURRENT_TARGET=dev'
+###### This could be determined dynamically, of course, from the build tools, bu tthis is simpler for this example "if:" conditional
+#### use of shell commands in a -type: shell block.
+######  command: bash -c "the shell command || and its chained commands &amp;&amp; go in the quotes"
+########
+#### POTENTIAL use of environment variables:
+######  DATETIME STAMP
+######## In this file, you could replace ${FLOWVARS.THISDATE} with an env var, such as ${LIQUIBASE_THISDATE} set via .bash_profile
+######## for example 'export LIQUIBASE_THISDATE=$( date +'%Y-%m-%dT%H-%M-%S' )'
+
+## Bring in and namespace an external file with yaml 'key: val' pairs for use in this file
+## The variables will be used as ${namespace.variablename}, seen in this example as ${FLOWVARS.PROJNAME}
+include:
+  FLOWVARS: liquibase.flowvariables.yaml
+
+## Set up some global variables for property substitution in ANY stage
+globalVariables:
+  DIRNAME: "./${FLOWVARS.PROJNAME}_${FLOWVARS.THISDATE}"
+  STATUSFILE: "status.txt"
+  UPDATELOG: "update.log"
+  HISTORYFILE: "history.txt"
+
+## Start of the stages.
+stages:
+
+  ## A prep stage. There can be more than one stage if desired.
+  stage-prep:
+
+    actions:
+      - type: shell
+        command: bash -c "mkdir -p ${DIRNAME}"
+
+  ## Another stage.
+  stage-dowork:
+
+    ## set up vars for property substitution in THIS stage only
+    stageVariables:
+
+      VERBOSESTATE: TRUE
+
+    actions:
+      # Do a validate command
+      - type: liquibase
+        command: validate
+
+      # Tell me what is pending a deployment
+      - type: shell
+        command: bash -c "liquibase --show-banner false --outputfile ./${DIRNAME}/${STATUSFILE} status --verbose ${VERBOSESTATE}"
+
+          # This is the structured way to setup a liquibase command, if you dont want to run it as one 'bash -c' command
+          #- type: liquibase
+          #  command: status
+          #  globalArgs:
+          #    outputfile: "${DIRNAME}/${STATUSFILE}"
+          #    showbanner: false
+          #  cmdArgs: {verbose: "${VERBOSESTATE}"}
+
+      # And then save a version in detail, if env var LIQUIBASE_FILE_OUTPUT == 1
+      - type: shell
+        command: bash -c "echo 'LIQUIBASE_ env vars ' &amp;&amp; env | grep 'LIQUIBASE_' "
+
+      - type: liquibase
+        ## if this var LIQUIBASE_CURRENT_TARGET is "dev", then the updatesql will run
+        if: "${LIQUIBASE_CURRENT_TARGET} == dev"
+        command: updatesql
+        globalArgs: {outputfile: "${DIRNAME}/${UPDATELOG}"}
+
+      - type: shell
+        ## if this var LIQUIBASE_CURRENT_TARGET is not "dev", then the message will be displayed
+        if: "${LIQUIBASE_CURRENT_TARGET} != dev"
+        command: echo "No output files created. Set env var LIQUIBASE_CURRENT_TARGET to dev to trigger file creation."
+
+      # Quality Checks for changelog
+      - type: liquibase
+        command: checks run
+        cmdArgs: {checks-scope: changelog}
+
+      # Run update
+      - type: liquibase
+        command: update
+
+      # Quality Checks for database
+      - type: liquibase
+        command: checks run
+        cmdArgs: {checks-scope: database}
+
+      # Create a history file
+      - type: liquibase
+        command: history
+        globalArgs: {outputfile: "${DIRNAME}/${HISTORYFILE}"}
+
+## The endStage ALWAYS RUNS.
+## So put actions here which you desire to perform whether previous stages' actions succeed or fail.
+## If you do not want any actions to ALWAYS RUN, simply delete the endStage from your flow file.
+
+endStage:
+  actions:
+    - type: liquibase
+      ## Notice this is a flow command in a flow file, and it called a 'nested' flowfile, which in this case lives in the same dir, but could be elsewhere
+      command: flow
+      cmdArgs: {flowfile: liquibase.endstage.flow}</code></pre>
+            </div>
+            <div id="end_stage_example" class="js-tabcontent">
+                <p>In this example, we run some final commands in an <code>endStage</code> file. The <code>endStage</code> always runs, so you can use it for processes that you want to run after every deployment. For example, see the following example of content in <code>liquibase.endstage.flow</code>:</p><pre xml:space="preserve"><code class="language-yaml">##########           LIQUIBASE FLOW FILE               ##########
+##########  learn more http://docs.liquibase.com/flow  ##########
+
+## NOTE: This example flowfile is called from the examples/liquibase.advanced.flowfile.yaml file
+## While it could be run on its own, this file is designed to show that flow-files can be decomposed
+## into separate files as makes sense for your use cases.
+
+stages:
+  cleanuptheDB:
+    actions:
+
+      # Clear out the database
+      - type: liquibase
+        command: dropAll
+
+      # Check that database is empty by seeing what is ready to be deployed
+      - type: liquibase
+        command: status
+        cmdArgs: {verbose: TRUE}
+
+## The endStage ALWAYS RUNS. 
+## So put actions here which you desire to perform whether previous stages' actions succeed or fail.
+## If you do not want any actions to ALWAYS RUN, simply delete the endStage from your flow file,
+## as it has been deleted here in this liquibase.endStage.flow file.</code></pre>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can also keep all your actions in a single flow file. However,  using a main flow file to call on other flow files is a modular approach that can keep you organized.</p>
+            </div>
+        </div>
+        <h2>Related Videos</h2>
         <h3>Learn more about Flow in <MadCap:variable name="General.LBPro" /></h3><iframe width="420" height="315" src="https://www.youtube.com/embed/QKV_yiRMHjw" class="center"></iframe>
         <h3>Learn how to use Flow files with s3</h3><iframe width="420" height="315" src="https://www.youtube.com/embed/nOv2YK8rfqI" class="center"></iframe>
         <h2>Related links</h2>
@@ -26,13 +206,13 @@
                 <MadCap:xref href="flow.htm">flow</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="if-conditionals.htm">if conditionals</MadCap:xref>
+                <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref>
             </li>
             <li>
                 <MadCap:xref href="shell-commands.htm">Shell Commands</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="variables.htm">variables and include feature</MadCap:xref>
+                <MadCap:xref href="variables.htm">Flow Variables</MadCap:xref>
             </li>
         </ul>
     </body>

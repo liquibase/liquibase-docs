@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/concepts/changelogs/attributes/labels.html" />
         <meta name="description" content="Reference information for using Labels in Liquibase. Labels are tags you can add to changesets to control which will be executed in any particular migration run." />
@@ -7,23 +7,20 @@
     </head>
     <body>
         <h1 id="labels">Labels</h1>
-        <p>Labels are tags that you can add to <MadCap:variable name="General.changeset" />s to control which <MadCap:variable name="General.changeset" /> will be executed in any migration run. Labels control whether a <MadCap:variable name="General.changeset" /> is executed depending on runtime settings. Any string can be used for the label name, and it is case-insensitive.</p>
-        <p>Labels allow you to choose a subset of <MadCap:variable name="General.changeset" />s to execute at runtime and represent a simple list on each <MadCap:variable name="General.changeset" /> and complex expressions that are supplied at runtime. This means that <MadCap:variable name="General.changeset" />s are tagged with a list of labels (not expressions), and during  runtime, you can pass a labelFilter expression to choose the <MadCap:variable name="General.changeset" />s which matches the expression.</p>
-        <p>Labels work best when the <MadCap:variable name="General.changeset" /> author can simply enumerate or describe what a <MadCap:variable name="General.changeset" /> is used for, such as a particular feature or version. There may be greater complexity at runtime to determine what label expression should be used to perform the deployment, but that control is left to the deployment manager or person executing the <MadCap:variable name="General.changeset" />s. Labels are best if you want to determine any complex filtering logic at runtime, rather than by the <MadCap:variable name="General.changeset" /> author.</p>
-        <p>In <MadCap:variable name="General.LBPro" /> 4.23.1+, you can easily set labels in bulk from your command line with the <MadCap:xref href="../../../commands/change-tracking/set-labels.htm">set-labels</MadCap:xref> command instead of specifying them manually in your <MadCap:variable name="General.changelog" />.</p>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/changelog-contexts-labels.flsnp" MadCap:conditionTagExpression="include[changelog-contexts-labels.labels]" />
         <h2>Uses</h2>
         <p>You can typically use labels to:</p>
         <ul>
             <li>Manage and track your deployments.</li>
-            <li>Apply complex logic to your deployments.</li>
+            <li>Apply complex logic to filter the <MadCap:variable name="General.changeset" />s eligible for deployment.</li>
             <li>Mark <MadCap:variable name="General.changeset" />s based on features and then selectively apply those features at the execution time instead of using version control branches.</li>
             <li>Use different languages for marking <MadCap:variable name="General.changeset" />s. For example, you can mark your <MadCap:variable name="General.changeset" />s both with Spanish and English.</li>
             <li>Assign ticket numbers to particular <MadCap:variable name="General.changeset" />s to track and identify their purpose, such as JIRA ticket numbers</li>
         </ul>
-        <h2>labelFilter runtime syntax</h2>
-        <p>In <MadCap:variable name="General.Liquibase" /> 4.23+, you can specify a label using <code>@</code> in addition to <code>AND</code>, <code>OR</code>, <code>!</code>, and parentheses in the changesets. The <code>@</code> is used for labels <b>only at run time</b> and forces any specific labeled <MadCap:variable name="General.changeset" /> to execute. </p>
-        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">If a <MadCap:variable name="General.changeset" /> is labeled as <code>label=test</code>, only this <MadCap:variable name="General.changeset" /> will be forced to execute if at runtime we specify<code> --labels=@test</code>.<br /></p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you have a changeset marked with a labelFilter that starts with <code>@</code> and you run Liquibase without specifying the <code>--labels</code> attribute, the changeset will not be executed. If label filters (<code>--labels=</code>) are specified as <code>@test</code> at runtime as described in the example above, no <MadCap:variable name="General.changeset" /> will be executed if there are not any labeled titled <code>test</code>.</p>
+        <h2>label-filter runtime syntax</h2>
+        <p>In <MadCap:variable name="General.Liquibase" /> 4.23.0+, you can specify a label using <code>@</code> in addition to <code>AND</code>, <code>OR</code>, <code>!</code>, and parentheses in the changesets. The <code>@</code> is used for labels <b>only at run time</b> and forces any specific labeled <MadCap:variable name="General.changeset" /> to execute. </p>
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">If a <MadCap:variable name="General.changeset" /> is labeled as <code>lables=test</code>, only this <MadCap:variable name="General.changeset" /> will be forced to execute if at runtime we specify <code>--label-filter=@test</code>.<br /></p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you have a <MadCap:variable name="General.changeset" /> marked with a label that starts with <code>@</code> and you run <MadCap:variable name="General.Liquibase" /> without specifying the <code>--label-filter</code> attribute, the changeset will not be executed. If label filters (<code>--label-filter=</code>) are specified as <code>@test</code> at runtime as described in the example above, no <MadCap:variable name="General.changeset" /> will be executed if there are not any labels titled <code>test</code>.</p>
         <p>Label filters can be specified using <code>@</code>, <code>AND</code>, <code>OR</code>, <code>!</code>, and <code>()</code> (parentheses that are used for grouping). For example:</p>
         <ul>
             <li><code>--labelFilter="@test"</code>
@@ -39,31 +36,37 @@
         </ul>
         <p>Using <code>","</code> to separate labels works like an <code>OR</code> operation (a comma is an alias for <code>OR</code>). For example:</p>
         <ul>
-            <li><code>--labelFilter="v.1.0, v.1.1"</code> is the same as <code>--labelFilter="v.1.0 OR v.1.1"</code></li>
-            <li><code>--labelFilter="v.0.1, v.1.0 and v.1.1"</code> is the same as <code>--labelFilter="(v.0.1) OR (v.1.0 and v.1.1)"</code></li>
+            <li><code>--label-filter="v.1.0, v.1.1"</code> is the same as <code>--label-filter="v.1.0 OR v.1.1"</code></li>
+            <li><code>--label-filter="v.0.1, v.1.0 and v.1.1"</code> is the same as <code>--label-filter="(v.0.1) OR (v.1.0 and v.1.1)"</code></li>
         </ul>
-        <p>You can run the <code>--labelFilter</code> <MadCap:variable name="General.Param/Attribute" /> to determine which <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" /> to evaluate based on its label. <a href="https://www.liquibase.com/blog/this-is-a-story-about-control-context-filter-label-filter">Learn more about the labelFilter logic at this blog post.</a></p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to <b>control the filter logic in your <MadCap:variable name="General.changeset" />s</b>, use <MadCap:xref href="contexts.html">Contexts</MadCap:xref> instead of labels.<br /></p>
+        <p>You can run the <code>--label-filter</code> <MadCap:variable name="General.Param/Attribute" /> to determine which <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" /> to evaluate based on its label. <a href="https://www.liquibase.com/blog/this-is-a-story-about-control-context-filter-label-filter">Learn more about the labelFilter logic at this blog post.</a></p>
         <ul>
             <li>In your <MadCap:variable name="General.changelog" />, you can specify only a simple list of labels to apply to the <MadCap:variable name="General.changeset" />. For example,  <code>labels="v.0.1, v.1.0"</code>.</li>
             <li>	At runtime, you can specify a complex expression with the labels that you want to execute. For example, <code>--labelFilter="!v.0.1"</code> or <code>--labelFilter="v.1.0 or (v.1.1 and v.1.2)"</code>.</li>
         </ul>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Prior to version 4.16.0, the CLI argument was <code>--labels</code> rather than <code>--labelFilter</code>. In 4.16.0 and beyond, <code>--labels</code> is a supported alias for <code>--labelFilter</code>.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Prior to version 4.16.0, the CLI argument was <code>--labels</code> rather than <code>--label-filter</code>. In 4.16.0 and beyond, <code>--labels</code> is a supported alias for <code>--label-filter</code>.</p>
         <h2>Usage</h2>
         <p>It is best practice to enumerate your <MadCap:variable name="General.changeset" />s or describe what a <MadCap:variable name="General.changeset" /> is used for. An example of labels indicating the version or a specific feature can be <code>"1.0"</code> or <code>"shopping_cart"</code>. In this case, labels will allow you to run changes with:</p>
         <ul>
-            <li><code>--labelFilter=1.0</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s or <code>--labelFilter=shopping_cart</code> to deploy the <MadCap:variable name="General.changeset" />s related to the shopping cart.</li>
-            <li><code>--labelFilter="1.0 or (1.1 and shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and only the 1.1 features related to the shopping cart.</li>
-            <li><code>--labelFilter="1.0 or (1.1 and !shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and the 1.1 features that are not related to the shopping cart.</li>
+            <li><code>--label-filter=1.0</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s or <code>--label-filter=shopping_cart</code> to deploy the <MadCap:variable name="General.changeset" />s related to the shopping cart.</li>
+            <li><code>--label-filter="1.0 or (1.1 and shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and only the 1.1 features related to the shopping cart.</li>
+            <li><code>--label-filter="1.0 or (1.1 and !shopping_cart)"</code> to deploy the 1.0 <MadCap:variable name="General.changeset" />s and the 1.1 features that are not related to the shopping cart.</li>
         </ul>
-        <p>You can see an example of running the <code>update</code> command with complex <code>labelFilter</code> statements:</p><pre><code class="language-text">liquibase --output-file=update.txt update --changelog-file=changelog.xml --labelFilter="1.0 or (1.1 and !shopping_cart)"</code></pre>
+        <p>You can see an example of running the <code>update</code> command with complex <code>--label-filter</code> statements:</p><pre><code class="language-text">liquibase --output-file=update.txt update --changelog-file=changelog.xml --label-filter="1.0 or (1.1 and !shopping_cart)"</code></pre>
         <p>If a <MadCap:variable name="General.changeset" /> doesn't have a label, it will always run. If you make a deployment without specifying any labels in the label filter, all <MadCap:variable name="General.changeset" />s will run.</p>
-        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">If you run the <code>liquibase update --labelFilter=1.0</code> command, it will deploy all <MadCap:variable name="General.changeset" />s with the label <code>1.0</code> and all <MadCap:variable name="General.changeset" />s without any label. If you run <code>liquibase update</code>, it will deploy all <MadCap:variable name="General.changeset" />s, whether they have labels or not.</p>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+        <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;">If you run the <code>liquibase update --label-filter=1.0</code> command, it will deploy all <MadCap:variable name="General.changeset" />s with the label <code>1.0</code> and all <MadCap:variable name="General.changeset" />s without any label. If you run <code>liquibase update</code>, it will deploy all <MadCap:variable name="General.changeset" />s, whether they have labels or not.</p>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#sql_example" id="label_sql_example" class="js-tablist__link">SQL example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                </li>
+            </ul>
+            <div id="sql_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
 
 --changeset your.name:1 labels:1.0,prod,shopping_cart
 CREATE TABLE person (firstname VARCHAR(255) NULL);
@@ -76,96 +79,8 @@ ALTER TABLE person ADD favorite_color VARCHAR(255) NULL;
 
 --changeset your.name:4
 CREATE TABLE no_label (no_label_col VARCHAR(255) NULL);</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
-<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
-
-    &lt;changeSet  author="your.name"  id="1"  labels="1.0,prod,shopping_cart"&gt;
-        &lt;createTable  tableName="person"&gt;
-            &lt;column  name="firstname"  type="VARCHAR(255)"/&gt;
-        &lt;/createTable&gt;
-    &lt;/changeSet&gt;
-
-    &lt;changeSet  author="your.name"  id="2"  labels="2.0,test"&gt;
-        &lt;addColumn  tableName="person"&gt;
-            &lt;column  name="address"  type="VARCHAR(255)"/&gt;
-        &lt;/addColumn&gt;
-    &lt;/changeSet&gt;
-
-    &lt;changeSet  author="your.name"  id="3"  labels="shopping_cart"&gt;
-        &lt;addColumn  tableName="person"&gt;
-            &lt;column  name="favorite_color"  type="VARCHAR(255)"/&gt;
-        &lt;/addColumn&gt;
-    &lt;/changeSet&gt;
-
-    &lt;changeSet  author="your.name"  id="4"&gt;
-        &lt;createTable  tableName="no_label"&gt;
-            &lt;column  name="no_label_col"  type="VARCHAR(255)"/&gt;
-        &lt;/createTable&gt;
-    &lt;/changeSet&gt;
-&lt;/databaseChangeLog&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
-  - changeSet:
-      id: '1'
-      author: your.name
-      labels: '1.0,prod,shopping_cart'
-      changes:
-        - createTable:
-            tableName: person
-            columns:
-              - column:
-                  name: firstname
-                  type: varchar(255)
-  - changeSet:
-      id: '2'
-      author: your.name
-      labels: '2.0,test'
-      changes:
-        - addColumn:
-            tableName: person
-            columns:
-              - column:
-                  name: address
-                  type: varchar(255)
-  - changeSet:
-      id: '3'
-      author: your.name
-      labels: 'shopping_cart'
-      changes:
-        - addColumn:
-            tableName: person
-            columns:
-              - column:
-                  name: favorite_color
-                  type: varchar(255)
-  - changeSet:
-      id: '4'
-      author: your.name
-      changes:
-        - createTable:
-            tableName: no_label
-            columns:
-              - column:
-                  name: no_label_col
-                  type: varchar(255)</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
+            </div>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
     {
       "changeSet": {
@@ -256,9 +171,83 @@ CREATE TABLE no_label (no_label_col VARCHAR(255) NULL);</code></pre>
     }
   ]
 }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+            </div>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: '1'
+      author: your.name
+      labels: '1.0,prod,shopping_cart'
+      changes:
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: firstname
+                  type: varchar(255)
+  - changeSet:
+      id: '2'
+      author: your.name
+      labels: '2.0,test'
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: address
+                  type: varchar(255)
+  - changeSet:
+      id: '3'
+      author: your.name
+      labels: 'shopping_cart'
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: favorite_color
+                  type: varchar(255)
+  - changeSet:
+      id: '4'
+      author: your.name
+      changes:
+        - createTable:
+            tableName: no_label
+            columns:
+              - column:
+                  name: no_label_col
+                  type: varchar(255)</code></pre>
+            </div>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+<MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+    &lt;changeSet  author="your.name"  id="1"  labels="1.0,prod,shopping_cart"&gt;
+        &lt;createTable  tableName="person"&gt;
+            &lt;column  name="firstname"  type="VARCHAR(255)"/&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet  author="your.name"  id="2"  labels="2.0,test"&gt;
+        &lt;addColumn  tableName="person"&gt;
+            &lt;column  name="address"  type="VARCHAR(255)"/&gt;
+        &lt;/addColumn&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet  author="your.name"  id="3"  labels="shopping_cart"&gt;
+        &lt;addColumn  tableName="person"&gt;
+            &lt;column  name="favorite_color"  type="VARCHAR(255)"/&gt;
+        &lt;/addColumn&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet  author="your.name"  id="4"&gt;
+        &lt;createTable  tableName="no_label"&gt;
+            &lt;column  name="no_label_col"  type="VARCHAR(255)"/&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+            </div>
+        </div>
         <h2><code>include</code> and <code>includeAll</code> labels</h2>
-        <p>You can specify the <code>labels</code> <MadCap:variable name="General.Param/Attribute" /> in <code class="highlighter-rouge">&lt;<MadCap:xref href="../../../change-types/include.html">include</MadCap:xref>&gt;</code> or <code class="highlighter-rouge">&lt;<MadCap:xref href="../../../change-types/includeall.html">includeAll</MadCap:xref>&gt;</code> tags. If specified, the given label is added to all <MadCap:variable name="General.changeset" />s in the included file(s).</p>
+        <p>You can specify the <code>labels</code> <MadCap:variable name="General.Param/Attribute" /> in <code class="highlighter-rouge"><MadCap:xref href="../../../change-types/include.html">include</MadCap:xref></code> and <code class="highlighter-rouge"><MadCap:xref href="../../../change-types/includeall.html">includeAll</MadCap:xref></code> tags. If specified, the given label is added to all <MadCap:variable name="General.changeset" />s in the included file(s).</p>
     </body>
 </html>
