@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <link rel="canonical" href="https://docs.liquibase.com/concepts/basic/databasechangelog-table.html" />
-		<meta name="description" content="Reference information for the DATABASECHANGELOG table. Liquibase uses the DATABASECHANGELOG table to track which changesets have been run." />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href="https://docs.liquibase.com/concepts/tracking-tables/databasechangelog-table.html" />
+        <meta name="description" content="Reference information for the DATABASECHANGELOG table. Liquibase uses the DATABASECHANGELOG table to track which changesets have been run." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <h1 id="databasechangelog-table"><MadCap:variable name="General.databasechangelog" /> table</h1>
-        <p><MadCap:variable name="General.Liquibase" /> uses the <MadCap:variable name="General.databasechangelog" /> table to track which <MadCap:variable name="General.changeset" />s have been run. If the table does not exist in the database, <MadCap:variable name="General.Liquibase" /> creates one automatically.</p>
+        <p><MadCap:variable name="General.Liquibase" /> uses the <MadCap:variable name="General.databasechangelog" /> (DBCL) table to track which <MadCap:variable name="General.changeset" />s have been run. If the table does not exist in the database, <MadCap:variable name="General.Liquibase" /> creates one automatically.</p>
         <h2>Columns</h2>
         <p>The table tracks each <MadCap:variable name="General.changeset" /> as a row, identified by a combination of the <code>id</code>, <code>author</code>, and <code>filename</code> columns. There is no primary key on the table. This is to avoid any database-specific restrictions on key lengths. The composite of <code>id</code>, <code>author</code>, and <code>filename</code> 
 is unique across all rows of the table.</p>
@@ -23,88 +23,127 @@ is unique across all rows of the table.</p>
                 <tr>
                     <td><code>ID</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Value from the <MadCap:variable name="General.changeset" /> <code>id</code> <MadCap:variable name="General.Param/Attribute" />.</td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/id.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>AUTHOR</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Value from the <MadCap:variable name="General.changeset" /> <code>author</code> <MadCap:variable name="General.Param/Attribute" />.</td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/author.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>FILENAME</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Path to the <MadCap:variable name="General.changelog" />. This may be an absolute path or a relative path depending on how the <MadCap:variable name="General.changelog" />
- was passed to <MadCap:variable name="General.Liquibase" />. For best results, it should be a relative path. The <MadCap:xref href="../changelogs/attributes/logicalfilepath.htm">logicalFilePath</MadCap:xref> <MadCap:variable name="General.Param/Attribute" /> can be used
- on the <MadCap:variable name="General.changelog" /> or on individual <MadCap:variable name="General.changeset" />s.</td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/filename.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>DATEEXECUTED</code>
                     </td>
-                    <td>DATETIME</td>
-                    <td>Date/time of when the <MadCap:variable name="General.changeset" /> was executed. Used with <code>ORDEREXECUTED</code> to determine rollback order.</td>
+                    <td><code>DATETIME</code>
+                    </td>
+                    <td>Date/time of when the <MadCap:variable name="General.changeset" /> was executed. Used with <code>ORDEREXECUTED</code> to determine rollback order. Alternatively, in <MadCap:variable name="General.LBPro" /> 4.27.0+, use the <MadCap:xref href="databasechangeloghistory-table.htm">[%=General.databasechangeloghistory%] table</MadCap:xref> to track all changes.</td>
                 </tr>
                 <tr>
                     <td><code>ORDEREXECUTED</code>
                     </td>
-                    <td>INT</td>
-                    <td>Order that the <MadCap:variable name="General.changeset" />s were executed. Used in addition to <code>DATEEXECUTED</code> to ensure order is correct even when the databases datetime supports poor resolution.<br /><br /><b>NOTE:</b> The values are only guaranteed to be increasing within an individual update run. There are times where they will restart at zero.</td>
+                    <td><code>INT</code>
+                    </td>
+                    <td>
+                        <p>Order that the <MadCap:variable name="General.changeset" />s were executed. Used in addition to <code>DATEEXECUTED</code> to ensure order is correct even when the databases datetime supports poor resolution.</p>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The values are only guaranteed to be increasing within an individual update run. There are times where they will restart at zero.</p>
+                    </td>
                 </tr>
                 <tr>
                     <td><code>EXECTYPE</code>
                     </td>
-                    <td>VARCHAR(10)</td>
-                    <td>Description of how the <MadCap:variable name="General.changeset" /> was executed. Possible values include <code>EXECUTED</code>, <code>FAILED</code>, <code>SKIPPED</code>, <code>RERAN</code>, and <code>MARK_RAN</code>.</td>
+                    <td><code>VARCHAR(10)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/exectype-outcome.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>MD5SUM</code>
                     </td>
-                    <td>VARCHAR(35)</td>
-                    <td>Checksum of the <MadCap:variable name="General.changeset" /> when it was executed. Used on each run to ensure there have been no unexpected changes to <MadCap:variable name="General.changeset" />s in the <MadCap:variable name="General.changelog" /> file. See <MadCap:xref href="../changelogs/changeset-checksums.htm">Changeset Checksums</MadCap:xref>.</td>
+                    <td><code>VARCHAR(35)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/md5sum.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>DESCRIPTION</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Short auto-generated human readable description of <MadCap:variable name="General.changeset" /></td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/description.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>COMMENTS</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Value from the <MadCap:variable name="General.changeset" /> <code>comment</code> <MadCap:variable name="General.Param/Attribute" />.</td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/comments.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>TAG</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Tracks which <MadCap:variable name="General.changeset" /> correspond to tag operations.</td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/tag.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>LIQUIBASE</code>
                     </td>
-                    <td>VARCHAR(20)</td>
-                    <td>Version of <MadCap:variable name="General.Liquibase" /> used to execute the <MadCap:variable name="General.changeset" />.</td>
+                    <td><code>VARCHAR(20)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/liquibase-liquibaseversion.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>CONTEXTS</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Context(s) used to execute the <MadCap:variable name="General.changeset" />.</td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/contexts.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>LABELS</code>
                     </td>
-                    <td>VARCHAR(255)</td>
-                    <td>Label(s) used to execute the <MadCap:variable name="General.changeset" />.</td>
+                    <td><code>VARCHAR(255)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/labels.flsnp" />
+                    </td>
                 </tr>
                 <tr>
                     <td><code>DEPLOYMENT_ID</code>
                     </td>
-                    <td>VARCHAR(10)</td>
-                    <td><MadCap:variable name="General.changeset" />s deployed together will have the same unique identifier.</td>
+                    <td><code>VARCHAR(10)</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/tracking-tables/deployment-id.flsnp" />
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -120,5 +159,6 @@ is unique across all rows of the table.</p>
                 <MadCap:xref href="../../parameters/liquibase-tablespace-name.htm">liquibase-tablespace-name</MadCap:xref>
             </li>
         </ul>
+        <h2>Related Videos</h2><iframe width="420px" height="315px" src="https://youtube.com/embed/CmIeOJ1DM5c" class="center"></iframe>
     </body>
 </html>

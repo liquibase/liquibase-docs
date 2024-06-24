@@ -21,7 +21,7 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
         <p>To use a non-ISO format for your dates:</p>
         <ol>
             <li>Ensure you are using <MadCap:variable name="General.Liquibase" /> 4.4.0 or later.</li>
-            <li>Add an <code>ALTER&#160;SESSION</code> command in SQL to your <MadCap:variable name="General.changeset" />.</li>
+            <li>Add an <code>ALTER SESSION</code> command in SQL to your <MadCap:variable name="General.changeset" />.</li>
             <li>Specify the <code>DATE</code> type in the affected columns of your <code>loadData</code>&#160;<MadCap:variable name="General.changeset" />.</li>
         </ol>
         <p>For example, in an Oracle database using <code>MM/DD/YYYY HH:MI:SS AM</code>:</p><pre xml:space="preserve"><code class="language-text">&lt;changeSet author="Liquibase" id="0"&gt;
@@ -41,8 +41,18 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
 0,john,doe
 1,eric,smith
 2,cat,jones</code></pre>
-        <p>In your <MadCap:variable name="General.changelog" />, create a <code>loadData</code>&#160;<MadCap:variable name="General.changeset" /> for the table <code>populated</code>:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="adrian" id="2::dataForTable" labels="data"&gt;
-    &lt;loadData file="names.csv" primaryKey="id" tableName="populated"/&gt;
+        <p>In your <MadCap:variable name="General.changelog" />, create a table called <code>populated</code>. Then create a <code>loadData</code>&#160;<MadCap:variable name="General.changeset" /> to insert data from the CSV into that table. For example:</p><pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="your.name" id="1::emptyTable"&gt;
+    &lt;createTable tableName="populated"&gt;
+        &lt;column name="id" type="int" autoIncrement="true"&gt;
+            &lt;constraints primaryKey="true" nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="first" type="varchar(50)"/&gt;
+        &lt;column name="last" type="varchar(50)"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+
+&lt;changeSet author="your.name" id="2::dataForTable" labels="data"&gt;
+    &lt;loadData file="names.csv" tableName="populated"/&gt;
 &lt;/changeSet&gt;</code></pre>
         <p>In your command line, deploy your change:</p><pre><code class="language-text">liquibase update</code></pre>
         <h4>Generating <code>loadData</code>&#160;<MadCap:variable name="General.changeset" />s and a CSV from your current database</h4>
@@ -61,10 +71,11 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
             &lt;column header="LAST" name="LAST" type="STRING"/&gt;
         &lt;/loadData&gt;
     &lt;/changeSet&gt;
+
 &lt;/databaseChangeLog&gt;</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
-        <p>If you don't use the <code>--dataOutputDirectory</code> flag while running the command, <MadCap:variable name="General.Liquibase" /> uses <MadCap:xref href="insert.html">insert</MadCap:xref> statements in your generated <MadCap:variable name="General.changelog" /> instead of columns in the <code>loadData</code> tag, and also formats your data as a CSV&#160;in the folder you specified for <code>dataOutputDirectory</code>:</p><pre><code class="language-text">liquibase --diffTypes=tables,columns,data --changelog-file=myChangelog.xml generate-changelog</code></pre>
+        <p>If you don't use the <code>--dataOutputDirectory</code> flag while running the command, <MadCap:variable name="General.Liquibase" /> uses <MadCap:xref href="insert.html">insert</MadCap:xref> statements in your generated <MadCap:variable name="General.changelog" /> instead of columns in the <code>loadData</code> tag, and also formats your data as a CSV in the folder you specified for <code>dataOutputDirectory</code>:</p><pre><code class="language-text">liquibase --diffTypes=tables,columns,data --changelog-file=myChangelog.xml generate-changelog</code></pre>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
                 <MadCap:dropDownHotspot style="font-size: 18pt">Example generated <MadCap:variable name="General.changelog" /> (without <code>dataOutputDirectory</code>)</MadCap:dropDownHotspot>
@@ -89,115 +100,115 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
             &lt;column name="LAST" value="jones"/&gt;
         &lt;/insert&gt;
     &lt;/changeSet&gt;
+
 &lt;/databaseChangeLog&gt;</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
         <MadCap:snippetBlock src="../Z_Resources/Snippets/text/change-type-load-data-nested.flsnp" MadCap:conditionTagExpression="include[change-type-load-data-attributes.loadData]" />
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">...
-&lt;changeSet author="liquibase-docs" id="loadData-example"&gt;
-    &lt;loadData catalogName="cat"
-            commentLineStartsWith="//"
-            encoding="UTF-8"
-            file="example/users.csv"
-            quotchar="'"
-            relativeToChangelogFile="true"
-            schemaName="public"
-            separator=";"
-            tableName="person"
-            usePreparedStatements="true"&gt;
-      &lt;column header="header1"
+        <h2>Examples</h2>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                </li>
+            </ul>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+    &lt;changeSet author="liquibase-docs" id="loadData-example"&gt;
+        &lt;loadData catalogName="cat"
+              commentLineStartsWith="//"
+              encoding="UTF-8"
+              file="example/users.csv"
+              quotchar="'"
+              relativeToChangelogFile="true"
+              schemaName="public"
+              separator=";"
+              tableName="person"
+              usePreparedStatements="true"&gt;
+            &lt;column header="header1"
                  name="id"
                  type="NUMERIC"/&gt;
-      &lt;column index="3"  
+            &lt;column index="3"  
                  name="name"
                  type="BOOLEAN"/&gt;
-    &lt;/loadData&gt;
-&lt;/changeSet&gt;
-...</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">...
+        &lt;/loadData&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+            </div>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
 -  changeSet:
-     id: loadData-example    
-     author: liquibase-docs    
-     changes:    
-     -  loadData:    
-         catalogName:  cat    
-         columns:    
-         -  column:    
-             header:  header1    
-             name:  id    
-             type:  NUMERIC    
-         -  column:    
-             index:  3    
-             name:  name    
-             type:  BOOLEAN    
-         commentLineStartsWith:  //    
-         encoding:  UTF-8    
-         file:  example/users.csv    
-         quotchar:  ''''    
-         relativeToChangelogFile:  true    
-         schemaName:  public    
-         separator:  ;    
-         tableName:  person    
-         usePreparedStatements:  true
-...</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">...
-{
-    "changeSet": {
-      "id": "loadData-example",
-      "author": "liquibase-docs",
-      "changes": [
+     id: loadData-example
+     author: liquibase-docs
+     changes:
+     -  loadData:
+         catalogName:  cat
+         columns:
+         -  column:
+             header:  header1
+             name:  id
+             type:  NUMERIC
+         -  column:
+             index:  3
+             name:  name
+             type:  BOOLEAN
+         commentLineStartsWith:  //
+         encoding:  UTF-8
+         file:  example/users.csv
+         quotchar:  ''''
+         relativeToChangelogFile:  true
+         schemaName:  public
+         separator:  ;
+         tableName:  person
+         usePreparedStatements:  true</code></pre>
+            </div>
+			<div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+    "databaseChangeLog": [
         {
-          "loadData": {
-            "catalogName": "cat",
-            "columns": [
-              {
-                "column": {
-                  "header": "header1",
-                  "name": "id",
-                  "type": "NUMERIC"
-                }
-              },
-              {
-                "column": {
-                  "index": 3,
-                  "name": "name",
-                  "type": "BOOLEAN"
-                }
-              }
-            ],
-            "commentLineStartsWith": "//",
-            "encoding": "UTF-8",
-            "file": "example/users.csv",
-            "quotchar": "'",
-            "relativeToChangelogFile": true,
-            "schemaName": "public",
-            "separator": ";",
-            "tableName": "person",
-            "usePreparedStatements": true
+            "changeSet": {
+                "id": "loadData-example",
+                "author": "liquibase-docs",
+                "changes": [
+                    {
+                        "loadData": {
+                            "catalogName": "cat",
+                            "columns": [
+                                {
+                                    "column": {
+                                        "header": "header1",
+                                        "name": "id",
+                                        "type": "NUMERIC"
+                                    }
+                                },
+                                {
+                                    "column": {
+                                        "index": 3,
+                                        "name": "name",
+                                        "type": "BOOLEAN"
+                                    }
+                                }
+                            ],
+                            "commentLineStartsWith": "//",
+                            "encoding": "UTF-8",
+                            "file": "example/users.csv",
+                            "quotchar": "'",
+                            "relativeToChangelogFile": true,
+                            "schemaName": "public",
+                            "separator": ";",
+                            "tableName": "person",
+                            "usePreparedStatements": true
+                        }
+                    }
+                ]
+            }
         }
-      }
     ]
-  }
-}
-...</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
+}</code></pre>
+            </div>
+        </div>
         <h2 id="database-support">Database support</h2>
         <table style="border: 1;margin-left: auto;margin-right: auto;width: 100%;">
             <thead>

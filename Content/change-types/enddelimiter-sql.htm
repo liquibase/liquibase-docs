@@ -7,24 +7,96 @@
     </head>
     <body>
         <h1><code>endDelimiter</code> SQL <MadCap:variable name="General.Param/Attribute" /></h1>
-        <p>The <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /> can be set in a <code>sql</code> or <code>sqlFile</code> <MadCap:variable name="General.changetypes" /> to override the default value of <code>;</code>.  It is only used with the <MadCap:xref href="../commands/update/execute-sql.htm">execute-sql</MadCap:xref> command. <code>endDelimiter</code> can be set to <code>''</code> or to a character other than <code>;</code> to indicate the end of the SQL statement. This is generally used to prevent incomplete SQL statements from being processed when the SQL files contain statements referencing a <code>;</code> which <MadCap:variable name="General.Liquibase" /> treats as the default end delimiter.</p>
-        <p>A corresponding <code>rollbackEndDelimiter</code> applies specifically to rollback for <code>sql</code> and <code>sqlFile</code> <MadCap:variable name="General.changetypes" />s. The <code>rollbackEndDelimiter</code>&#160;<MadCap:variable name="General.Param/Attribute" /> is only valid in formatted SQL <MadCap:variable name="General.changelog" />s.</p>
-        <MadCap:snippetBlock src="../Z_Resources/Snippets/note/changeset-attribute-camel.flsnp" />
+        <p><code>endDelimiter</code> is an <MadCap:variable name="General.Param/Attribute" /> that lets you specify a delimiter to separate raw SQL statements in your <MadCap:variable name="General.changeset" />s. When you run commands  like <code><MadCap:xref href="../commands/update/update.html">update</MadCap:xref></code> or <code><MadCap:xref href="../commands/rollback/rollback-by-tag.htm">rollback</MadCap:xref></code>, <MadCap:variable name="General.Liquibase" /> first parses any raw SQL you want to execute. <MadCap:variable name="General.Liquibase" /> looks for the <code>endDelimiter</code> string in each <MadCap:variable name="General.changeset" /> and splits the SQL  on the <code>endDelimter</code> boundary. This ensures that your database receives only one SQL&#160;statement at a time, even if your raw SQL&#160;contains many statements.</p>
+        <p>You can use <code>endDelimiter</code> in a individual <MadCap:variable name="General.changeset" /> containing the <code><MadCap:xref href="sql.html">sql</MadCap:xref></code> or <code><MadCap:xref href="sql-file.html">sqlFile</MadCap:xref></code>&#160;<MadCap:variable name="General.changetypes" />s. <code>endDelimiter</code> is valid in Formatted SQL, XML, YAML, and JSON <MadCap:variable name="General.changelog" />s. <b>The default value is <code>;</code></b> (semicolon). Your custom delimiter can be a combination of one or more letters, symbols, and/or numbers, or the empty string.</p>
+        <p>If your SQL only contains one semicolon at the end of every statement (or only one statement with no semicolon), you don't have to specify a custom delimiter. However, if your SQL&#160;embeds stored logic containing one or more semicolons, <MadCap:variable name="General.Liquibase" /> incorrectly parses your SQL&#160;as multiple statements, causing an error. You can set a different delimiter to prevent <MadCap:variable name="General.Liquibase" /> from processing incomplete SQL statements.</p>
+        <MadCap:snippetBlock src="../Z_Resources/Snippets/note/changeset-attribute-end-delimiter-native-executor.flsnp" />
+        <h2>Delimiter settings</h2>
+        <p>This page describes setting <code>endDelimiter</code> on <MadCap:variable name="General.changeset" />s. However, there are several ways to set delimiters:</p>
+        <ol>
+            <li><code>endDelimiter</code> set on a specific <MadCap:variable name="General.changeset" />&#160;<b>(highest precedence)</b></li>
+            <li><code>endDelimiter</code> set in a <MadCap:variable name="General.changelog" /> called by <code><MadCap:xref href="include.html">include</MadCap:xref></code> or <code><MadCap:xref href="includeall.html">includeAll</MadCap:xref></code> in <code><MadCap:xref href="modifychangesets.htm">modifyChangeSets</MadCap:xref></code> (4.25.1+)</li>
+            <li><code>--<MadCap:xref href="../parameters/pro-global-end-delimiter.htm">pro-global-end-delimiter</MadCap:xref></code> set globally <b>(lowest precedence)</b> (4.25.1+)</li>
+            <li>endDelimiter set in a modifyChangeset tag</li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can give <code>--pro-global-end-delimiter</code> the highest precedence of all delimiter settings by also using the <code>--<MadCap:xref href="../parameters/pro-global-end-delimiter-prioritized.htm">pro-global-end-delimiter-prioritized</MadCap:xref></code> parameter.</p>
+        <p>Also, when running SQL with the <code><MadCap:xref href="../commands/utility/execute-sql.htm">execute-sql</MadCap:xref></code> command, you can specify a delimiter with the <code>--delimiter</code> argument.</p>
+        <p>You can also use the <code>rollbackEndDelimiter</code>&#160;<MadCap:variable name="General.Param/Attribute" /> on <code>sql</code> and <code>sqlFile</code> <MadCap:variable name="General.changetypes" />s in your <MadCap:variable name="General.changelog" />. This lets you specify a delimiter for rollback SQL. It is only valid in Formatted SQL <MadCap:variable name="General.changelog" />s.</p>
         <h2>Uses</h2>
         <p>The following examples demonstrate use of the <code>endDelimiters</code> SQL attribute:</p>
         <h3>Use <code>endDelimiter</code> in SQL for <code>PROCEDURE</code> and <code>FUNCTION</code></h3>
         <p>An <code>endDelimiter</code> can be used when the <MadCap:variable name="General.changeset" /> contains SQL to create a stored procedure or function that contains the default <code>';'</code> end delimiter.  To avoid incomplete statements being sent to the database, the <MadCap:variable name="General.changeset" /> must be marked to have a different <code>endDelimiter</code>.</p>
         <h3>Use <code>endDelimiter</code> for some DBMS systems to run multiple statements</h3>
         <p>The <code>endDelimiter</code> must be specified for some dbms systems to run multiple statements.</p>
-        <h2>Setting the <code>endDelimiter</code> <MadCap:variable name="General.Param/Attribute" /></h2>
+        <h2>Syntax</h2>
+        <MadCap:snippetBlock src="../Z_Resources/Snippets/note/changeset-attribute-camel.flsnp" />
         <h3>Escaping an <code>endDelimiter</code></h3>
         <p>When setting an <code>endDelimiter</code>, note that certain DBMS and operating systems require delimiter values to be escaped.  For example, a <code>$$</code> <code>endDelimiter</code> with <code>mysql</code> requires escaping as: <code>endDelimiter="\$\$"</code>. A <MadCap:variable name="General.Liquibase" /> migration error indicates the delimiter that needs to be escaped would be:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: Migration failed for change set &lt;changelog&gt;::&lt;id&gt;::&lt;author&gt;:
  Reason: liquibase.exception.DatabaseException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '$$$</code></pre>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>SQL example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h4">
+                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#sql_example" id="label_sql_example" class="js-tablist__link">SQL example</a>
+                </li>
+            </ul>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+  &lt;changeSet author="your.name" id="sql-example"&gt;
+    &lt;sql dbms="mysql" splitStatements="true" endDelimiter="/" stripComments="true"&gt;
+      DROP FUNCTION IF EXISTS calcProfit;
+      /
+      CREATE FUNCTION calcProfit(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2)
+      DETERMINISTIC
+      BEGIN
+        DECLARE profit DECIMAL(9,2);
+        SET profit = price-cost;
+        RETURN profit;
+      END
+      /
+    &lt;/sql&gt;
+  &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+            </div>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+-  changeSet:
+     id:  1001
+     author:  your.name
+     changes:
+     -  sql:
+         endDelimiter: "@@"
+         splitStatements: true
+         sql: DROP FUNCTION IF EXISTS calcProfit9; @@ CREATE FUNCTION calcProfit9(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2) DETERMINISTIC BEGIN DECLARE profit DECIMAL(9,2); SET profit = price-cost; RETURN profit; END @@
+         stripComments: true</code></pre>
+            </div>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+    "databaseChangeLog": [
+        {
+            "changeSet": {
+                "id": "1001",
+                "author": "your.name",
+                "changes": [
+                    {
+                        "sql": {
+                            "endDelimiter": "@@",
+                            "dbms": "mysql",
+                            "splitStatements": true,
+                            "sql": "DROP FUNCTION IF EXISTS calcProfit;\n@@\nCREATE FUNCTION calcProfit(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2)\nDETERMINISTIC\nBEGIN\nDECLARE profit DECIMAL(9,2);\nSET profit = price-cost;\nRETURN profit;\nEND\n@@",
+                            "stripComments": true
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}</code></pre>
+            </div>
+            <div id="sql_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
 
 --changeset your.name:101 endDelimiter:/
 CREATE FUNCTION calcProfit2(cost FLOAT, price FLOAT) 
@@ -45,78 +117,18 @@ SET profit = price-cost;
 RETURN profit;
 END
 /</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>XML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-<MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
-  &lt;changeSet author="your.name" id="sql-example"&gt;
-    &lt;sql dbms="mysql" splitStatements="true" endDelimiter="/" stripComments="true"&gt;
-      DROP FUNCTION IF EXISTS calcProfit;
-      /
-      CREATE FUNCTION calcProfit(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2)
-      DETERMINISTIC
-      BEGIN
-        DECLARE profit DECIMAL(9,2);
-        SET profit = price-cost;
-        RETURN profit;
-      END
-      /
-    &lt;/sql&gt;
-  &lt;/changeSet&gt;
-&lt;/databaseChangeLog&gt;</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>YAML example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
- -  changeSet:
-     id:  1001
-     author:  your.name
-     changes:
-     -  sql:
-         endDelimiter: "@@"
-         splitStatements: true
-         sql: DROP FUNCTION IF EXISTS calcProfit9; @@ CREATE FUNCTION calcProfit9(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2) DETERMINISTIC BEGIN DECLARE profit DECIMAL(9,2); SET profit = price-cost; RETURN profit; END @@
-         stripComments: true</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <MadCap:dropDown>
-            <MadCap:dropDownHead>
-                <MadCap:dropDownHotspot>JSON example</MadCap:dropDownHotspot>
-            </MadCap:dropDownHead>
-            <MadCap:dropDownBody><pre xml:space="preserve"><code class="language-json">{
-   "databaseChangeLog":[
-      {
-        "changeSet":{
-            "id":"1001",
-            "author":"your.name",
-            "changes":[
-               {
-                  "sql":{
-                    "endDelimiter":"@@",
-                    "dbms":"mysql",
-                    "splitStatements":true,
-                    "sql":"DROP FUNCTION IF EXISTS calcProfit;\n@@\nCREATE FUNCTION calcProfit(cost FLOAT, price FLOAT) RETURNS DECIMAL(9,2)\nDETERMINISTIC\nBEGIN\nDECLARE profit DECIMAL(9,2);\nSET profit = price-cost;\nRETURN profit;\nEND\n@@",
-  "stripComments":true
-             }
-           }
-         ] 
-       }
-     }
-   ]
- }</code></pre>
-            </MadCap:dropDownBody>
-        </MadCap:dropDown>
-        <h2 MadCap:conditions="exclude.future">Related links</h2>
-        <ul MadCap:conditions="exclude.future">
+            </div>
+        </div>
+        <h2>Related links</h2>
+        <ul>
             <li>
                 <MadCap:xref href="../parameters/pro-global-end-delimiter.htm">pro-global-end-delimiter</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../parameters/pro-global-end-delimiter-prioritized.htm">pro-global-end-delimiter-prioritized</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="modifychangesets.htm">modifyChangeSets</MadCap:xref>
             </li>
         </ul>
     </body>

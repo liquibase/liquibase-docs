@@ -6,103 +6,56 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1>Drift Report</h1>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Drift Report</h1>
         <p>
-            <img src="../../Z_Resources/Images/drift-report.png" title="Drift report graphical output" alt="Liquibase displays a drift report of a user's source and target database." style="width: 35%; float:right" />
+            <img src="../../Z_Resources/Images/Screenshots/operation-reports-drift-report.png" title="Drift report graphical output" alt="Liquibase displays a drift report of a user's source and target database." style="width: 35%; float:right" />
         </p>
         <p>The drift report is a <MadCap:variable name="General.Liquibase" /> <a href="operation-reports.htm">operation report</a> that informs you of database drift.</p>
         <p>Database drift occurs when changes to one database are not made to others – often when manual changes are made outside of automation. These inconsistencies are challenging to detect. Once detected, tracking down the problem is manual, frustrating, and takes time.</p>
         <p>If you're working in an environment that experiences database drift, <MadCap:variable name="General.Liquibase" /> drift reports can alert you of the drift and show you the changes that need to be addressed. This simplifies the process and minimizes the amount of time databases are out of sync.</p>
         <p>In <MadCap:variable name="General.Liquibase" /> 4.25.0 and later, you can automatically generate a database drift report using the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command. The drift report shows the differences between two live databases or between a database and a snapshot from a previous point in time. Adding this check to your CI/CD pipeline gives you ongoing visibility into database drift while maintaining the speed and reliability of CI/CD automation.</p>
+        <p>In 4.25.1 and later, you can also generate a drift report with the <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code> command.</p>
         <p>It is a best practice to explicitly set a drift severity level to match your team's expectation of allowable drift.</p>
         <h2>Uses</h2>
-        <p>Using <MadCap:variable name="General.Liquibase" /> drift detection can help you improve the following metrics for your database:</p>
+        <p>Using <MadCap:variable name="General.Liquibase" /> drift detection can help developers, DBAs, DevOps engineers, and managers in the following ways:</p>
         <ul>
-            <li><b>Predictability:</b>&#160;Validate that your CI/CD pipelines apply database changes correctly without any unintended side effects.</li>
-            <li><b>Consistency:</b> Compare schema changes across development, staging, and production environments.</li>
-            <li><b>Security:</b> Identify unauthorized changes before they go to production, minimizing security vulnerabilities.</li>
-            <li><b>Compliance:</b> Adhere to industry standards and government regulations on data management and privacy.</li>
-            <li><b>Redundancy:</b> Ensure that backup databases match source databases and that your failover procedures are effective.</li>
+            <li><b>Easily scan and understand</b> differences with summary of differences section</li>
+            <li><b>Quickly identify and remediate differences</b> with highlighted object differences</li>
+            <li><b>Collaborate with your team</b> to troubleshoot differences with new shareable report</li>
         </ul>
-        <h2>Drift reports in automation</h2>
-        <p>To automatically use <MadCap:variable name="General.Liquibase" /> drift reports in your CI/CD pipeline, follow these steps in your CI/CD&#160;tool:</p>
-        <ol>
-            <li>Create a <b>LiquibaseDatabaseSnapshot</b> job that runs the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../commands/inspection/snapshot.html">snapshot</MadCap:xref></code> command. This stores the current state of your database. It is a best practice to store your database snapshot in an artifact repository like Amazon S3, Azure Blob Storage, or a database-specific artifact repository.</li>
-            <li>Configure your snapshot job to run at your desired frequency, such as once per release.</li>
-            <li>Repeat Steps 1–2 for every database whose state you want to track with <MadCap:variable name="General.Liquibase" /> drift reports.</li>
-            <li>Create a <b>LiquibaseDriftReport</b> job that compares the snapshot to the current database state or another snapshot. This job must:<ol><li>Enable the drift report with <code>--reports-enabled</code> (global scope)&#160;or <code>--report-enbled</code> (command scope).</li><li>Run the <MadCap:variable name="General.Liquibase" /> <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command against your desired databases.</li><li>(Optional) Specify the <code>--drift-severity-*</code> arguments whether <MadCap:variable name="General.Liquibase" /> should respond differently to changed, missing, or unexpected content.</li></ol></li>
-            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">For more information, see the <MadCap:xref href="#Examples">Examples</MadCap:xref> section of this page.</p>
-            <li>Configure your drift report job to run at your desired frequency, such as once per day.</li>
-        </ol>
-        <h2>Enable operation reports</h2>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-enable-all.flsnp" />
-        <h2><a name="Examples"></a>Examples</h2>
-        <h3>Setting arguments</h3>
-        <p>You can modify the drift report output with the arguments listed in the tables on this page. In the CLI, global arguments go to the left of the command and command arguments go to the right of the command.  For readability, this page shows them on new lines.</p><pre xml:space="preserve"><code class="language-text">liquibase
-    --reports-enabled=true
-    --reports-path=reports
-    --reports-name=06.diff_report.html
-  diff
-    --drift-severity=4
-    --reference-url="offline:sqlserver?snapshot=mySnapshot.json"</code></pre>
-        <p>You can also set arguments in your <a href="../../concepts/connections/creating-config-properties.html"><code><MadCap:variable name="General.liquiPropFile" /></code> file</a>, as <a href="../../concepts/connections/liquibase-environment-variables.htm">environment variables</a>, or in a <a href="../../commands/flow/flow.htm">flow</a> file. For a list of arguments and their syntax in each format, see the <MadCap:xref href="#Global">Global [%=General.Param/Attribute%]s</MadCap:xref> and <MadCap:xref href="#Command">Command [%=General.Param/Attribute%]s</MadCap:xref> sections of this page.</p>
-        <h3>Disable reports by default; enable only the drift report</h3>
-        <p>If you want to keep reports disabled by default and <b>enable only the drift report when running <code>diff</code></b>, you can use the command argument <code>--report-enabled</code> (singular) on <code>diff</code>. For example:</p><pre xml:space="preserve"><code class="language-text">liquibase diff
-    --report-enabled=true
-    --report-name=my_drift_report.html</code></pre>
-        <h3>Halt deployment if any drift is detected</h3><pre xml:space="preserve"><code class="language-text">liquibase
-    --reports-enabled=true
-  diff
-    --drift-severity=4</code></pre>
-        <h3>Log missing or unexpected objects, but ignore changed objects</h3><pre xml:space="preserve"><code class="language-text">liquibase
-    --reports-enabled=true
-  diff
-    --drift-severity-changed=0
-    --drift-severity-missing=2
-    --drift-severity-unexpected=2</code></pre>
-        <p>Another way to specify this is to explicitly set <code>--drift-severity-missing</code> and <code>--drift-severity-unexpected</code> to <code>2</code> and not specify a value for <code>--drift-severity-changed</code>, so it remains at its default value of <code>0</code>.</p><pre xml:space="preserve"><code class="language-text">liquibase
-    --reports-enabled=true
-  diff
-    --drift-severity-missing=2
-    --drift-severity-unexpected=2</code></pre>
-        <p>A third way to specify this is by setting <code>--drift-severity</code> to <code>2</code> as a default for all drift and then overriding it only for changed objects:</p><pre xml:space="preserve"><code class="language-text">liquibase
-    --reports-enabled=true
-  diff
-    --drift-severity=2
-    --drift-severity-changed=0</code></pre>
-        <h3>Flow file</h3>
-        <p>This is an example <MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref> file running a drift report:</p><pre xml:space="preserve"><code class="language-yaml">stages:
-  Drift_Detection:
-    actions:
-      - type: liquibase
-        command: diff
-        cmdArgs: { referenceUrl: "offline:sqlserver?snapshot=mySnapshot.json",
-                        drift-severity: 1,
-                        drift-severity-missing: 2,
-                        drift-severity-unexpected: 3,
-                        drift-severity-changed: 4}
-        globalArgs: { mirror-console-messages-to-log: "true",
-                        reports-enabled: "true",
-                        reports-path: "reports",
-                        reports-name: "drift-report.html"}</code></pre>
-        <h2><a name="Global"></a>Global <MadCap:variable name="General.Param/Attribute" />s</h2>
-        <p>Use these arguments to control the behavior of all operation reports.</p>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/parameter-syntax.flsnp" />
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-global-arguments.flsnp" />
-        <h2><a name="Command"></a>Command <MadCap:variable name="General.Param/Attribute" />s</h2>
-        <p>Use these command arguments if you want to specify operation report behavior for a specific command.</p>
-        <p>When <MadCap:variable name="General.Liquibase" /> detects database drift, it records that in your drift report. Use the <code>--drift-severity</code> argument to specify a severity return code (severity level) for all kinds of drift: changed, missing, or unexpected content. The severity return code you set tells <MadCap:variable name="General.Liquibase" /> how to react when it detects drift. You can use the severity return code as an alert for the rest of your CI/CD&#160;pipeline.</p>
-        <ul>
-            <li><code>BLOCKER</code> (<code>4</code>):&#160;drift is a blocker (most severe)</li>
-            <li><code>CRITICAL</code> (<code>3</code>):&#160;drift is a critical error</li>
-            <li><code>MAJOR</code> (<code>2</code>):&#160;drift is a major failure</li>
-            <li><code>MINOR</code> (<code>1</code>):&#160;drift is a minor failure</li>
-            <li><code>INFO</code> (<code>0</code>): drift is treated as an informational message (least severe)</li>
-        </ul>
-        <p>If you want <MadCap:variable name="General.Liquibase" /> to react to changed, missing, or unexpected content in different ways, you can set the individual <code>--drift-severity-*</code> arguments to specify a severity return code for each particular kind of drift. These arguments take priority over <code>--drift-severity</code>.</p>
-        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports-drift-report-command-arguments.flsnp" />
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/operation-reports.flsnp" MadCap:conditionTagExpression="include[operation-reports.drift]" />
+        <h2>Parameters</h2>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-existing-hx="h3">
+                <li class="js-tablist__item"><a href="#cli" id="label_cli" class="js-tablist__link">CLI</a>
+                </li>
+                <li class="js-tablist__item"><a href="#flow" id="label_flow" class="js-tablist__link">Flow</a>
+                </li>
+                <li class="js-tablist__item"><a href="#properties_file" id="label_properties_file" class="js-tablist__link"><code>liquibase.properties</code></a>
+                </li>
+                <li class="js-tablist__item"><a href="#java_opts" id="label_java_opts" class="js-tablist__link"><code>JAVA_OPTS</code></a>
+                </li>
+                <li class="js-tablist__item"><a href="#envar" id="label_envar" class="js-tablist__link">Environment variable</a>
+                </li>
+            </ul>
+            <div id="cli" class="js-tabcontent">
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/operation-reports-drift.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.cli]" />
+            </div>
+            <div id="flow" class="js-tabcontent">
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/operation-reports-drift.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.flow]" />
+            </div>
+            <div id="properties_file" class="js-tabcontent">
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/operation-reports-drift.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.properties-file]" />
+            </div>
+            <div id="java_opts" class="js-tabcontent">
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/operation-reports-drift.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.java-opts]" />
+            </div>
+            <div id="envar" class="js-tabcontent">
+                <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/command-parameters-global-cmd/param-lists/operation-reports-drift.flsnp" MadCap:conditionTagExpression="include[command-parameters-format.envar]" />
+            </div>
+        </div>
         <h2>Troubleshooting</h2>
-        <p>If you experience performance issues while generating drift reports, such as an <code>OutOfMemoryError</code> exception, see the solutions described on <MadCap:xref href="../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
+        <p>If you experience performance issues while generating drift reports, such as an <code class="language-text">OutOfMemoryError</code> exception, see the solutions described on <MadCap:xref href="../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
     </body>
 </html>
