@@ -2,10 +2,6 @@
 
 Documentation for the liquibase website.
 
-The files in the `scripts\redirect_creation` directory comprise the Terraform configuration called by our GitHub Actions workflows for the publishing of 301 redirects to documentation websites, both staging and production.
-
-The publishing of site redirects is part of the overall content publishing workflow used by the Liquibase Documentation Team.
-
 ***Please send us pull requests if you see something that needs to be updated!***
 
 How to make docs changes
@@ -25,6 +21,10 @@ If you're editing content in snippets, conditions, or variables, we might take l
 
 Internal documentation team process
 ====================================================================
+
+The files in the `scripts\redirect_creation` directory comprise the Terraform configuration called by our GitHub Actions workflows for the publishing of 301 redirects to documentation websites, both staging and production.
+
+The publishing of site redirects is part of the overall content publishing workflow used by the Liquibase Documentation Team.
 
 1. Liquibase Documentation Team members publish updated content to a staging site directly from their content management system (MadCap Flare).
 2. They then create a Pull Request (PR) from a new branch to the `master` branch or sometimes make commits directly to `master` branch that adds or updates 301 redirects in the `/scripts/redirect_creation/variables.tf` file.
