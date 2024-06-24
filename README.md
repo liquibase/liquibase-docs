@@ -17,10 +17,11 @@ Please see [CONTRIBUTING.md](https://github.com/liquibase/liquibase-docs/blob/ma
 
 We welcome any and all pull requests. Documentation pages are written in HTML/XML. However, you may see some unfamiliar markup. For example:
 
+* Traditional HTML `a href` hyperlinks are present alongside `MadCap:xref` "cross-references." Use an `xref` if you want to display the exact title of the page being linked to. Use an `href` if you want the link to display different text than the page title. Please use relative paths in all links to Liquibase documentation pages.
 * Some content you may want to edit is within a `.flsnp` ("MadCap Flare snippet") file. This is a mechanism to single-source content in order to allow reuse but minimize duplication. You can edit snippet files, but please be mindful that content in them may appear in several distinct contexts. Please search the repository for uses of the snippet (`MadCap:snippetBlock src="filename.html"` and `MadCap:snippetText src="filename.html"`) to verify that your change fits into the surrounding text!
 * Some content is marked up with tags like `MadCap:conditions` and `MadCap:snippetVariables`. These tags help us generate dynamic and context-specific content in otherwise static, reusable snippets. You can edit content that is tagged with a condition or variable, but please be mindful of context.
 
-If you're editing content in snippets, conditions, or variables, we might take longer to review your PR.
+If you're editing content in snippets, conditions, or variables, we might take longer to review your PR. Alternatively, we may close your PR and make your intended change through MadCap Flare.
 
 Internal documentation team process
 ====================================================================
