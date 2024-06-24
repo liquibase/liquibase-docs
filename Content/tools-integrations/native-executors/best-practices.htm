@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/tools-integrations/native-executors/best-practices.html" />
+        <meta name="description" content="Reference information for best practices for native executors." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Native Executor Best Practices</h1>
+        <p>There are several best practices when using native executors with Liquibase.</p>
+        <h2>endDelimiter and splitStatements</h2>
+        <p>When executing with JDBC it may be necessary to specify <b>endDelimiter</b> to indicate where a SQL command ends. This is important for JDBC to know because there could be non-standard end delimiters, especially when authoring changesets containing stored logic objects such as procedures, triggers, and views.</p>
+        <p>Also with JDBC, there may be a need to use <b>splitStatements="true"</b> to allow Liquibase to split SQL statements on semicolons (";") and "GO" commands.</p>
+        <p>Using native executors <b>eliminates</b> the need to use these properties and has the built-in capability to handle scripts consisting of more than one  SQL command.</p>
+        <h2>Prevent Timeouts</h2>
+        <p>There are instances when SQL commands will take a long time to execute or just hang due to bad syntax. To avoid this, use <b>timeout settings</b> that can be configured for each executor.</p>
+        <h3>SQLPlus</h3>
+        <p>Timeout for SQLPlus can be configured with Liquibase in several ways:</p>
+        <p>Create the following property in a config file called <b>liquibase.sqlplus.conf</b>:</p>
+        <ul>
+            <li>liquibase.sqlplus.timeout=nn where <b>nn is the time in seconds</b> to wait before stopping the process.</li>
+        </ul>
+        <p>As an environment variable:</p>
+        <ul>
+            <li>LIQUIBASE_SQLPLUS_TIMEOUT=nn where <b>nn is the time in seconds</b> to wait before stopping the process.</li>
+        </ul>
+        <h3>SQLCMD</h3>
+        <p>Timeout for SQLCMD can be configured with Liquibase in several ways:</p>
+        <p>Create the following property in a config file called liquibase.sqlcmd.conf:</p>
+        <ul>
+            <li>liquibase.sqlcmd.timeout=nn where <b>nn is the time in seconds</b> to wait before stopping the process.</li>
+        </ul>
+        <p>As an environment variable:</p>
+        <ul>
+            <li>LIQUIBASE_SQLCMD_TIMEOUT=nn where <b>nn is the time in seconds</b> to wait before stopping the process.</li>
+        </ul>
+        <h3>PSQL</h3>
+        <p>Timeout for PSQL can be configured with Liquibase in several ways:</p>
+        <p>Create the following property in a config file called <b>liquibase.psql.conf</b>:</p>
+        <ul>
+            <li>liquibase.psql.timeout=nn where nn is the time in seconds to wait before stopping the process.</li>
+        </ul>
+        <p>As an environment variable:</p>
+        <ul>
+            <li>LIQUIBASE_PSQL_TIMEOUT=nn where <b>nn is the time in seconds</b> to wait before stopping the process.</li>
+        </ul>
+        <h2>Prevent User Prompts</h2>
+        <p>SQL developers may write scripts that pause mid-execution and prompts the user for input. If prompts are left in SQL scripts, automation will appear to hang with no way for the user to provide input. User prompts need to be <b>removed</b> from SQL scripts.</p>
+        <p>For example, a user may be accustomed to writing scripts using PROMPT and ACCEPT commands in Oracle:</p><pre>-- Begin script
+PROMPT Altering to PP_DEV container
+ALTER SESSION SET CONTAINER=PP_DEV;
+
+PROMPT Provide table name ...
+ACCEPT table_name CHAR PROMPT '&gt; '
+CREATE TABLE DATICAL_USER.&amp;table_name (ID int);
+-- End script</pre>
+        <p>Executing this type of script will pause and wait for a typed user input followed by pressing the <b>RETURN</b> key to resume execution. These prompts are <b>not automation friendly</b> and need to be eliminated.</p>
+        <h2>Temp Files</h2>
+        <p>Liquibase Pro creates temporary files during a native executor run. The <b>*.keep.temp.name</b> property saves the wrapper script that Liquibase uses to execute <MadCap:xref href="../../concepts/changelogs/attributes/runwith.htm">runWith</MadCap:xref> changesets. Liquibase Pro allows for this by using the following properties:</p>
+        <p>In the liquibase.sqlplus.conf config files, the properties are:</p>
+        <ul>
+            <li>liquibase.sqlplus.keep.temp=true (default: false)</li>
+            <li>liquibase.sqlplus.keep.temp.name=&lt;temp file name&gt;</li>
+            <li>liquibase.sqlplus.keep.temp.path=&lt;path to directory&gt;</li>
+        </ul>
+        <p>In the liquibase.sqlmd.conf config file, the properties are:</p>
+        <ul>
+            <li>liquibase.sqlcmd.keep.temp=true (default: false)</li>
+            <li>liquibase.sqlcmd.keep.temp.name=&lt;temp file name&gt;</li>
+            <li>liquibase.sqlcmd.keep.temp.path=&lt;path to directory&gt;</li>
+        </ul>
+        <p>When configured to save the temp file without specifying the keep.temp.path, Liquibase will save temp files in the temp folder such as  /tmp on Linux.</p>
+        <p>Corresponding Environment Variables for SQLPlus are:</p>
+        <ul>
+            <li>LIQUIBASE_SQLPLUS_KEEP_TEMP=true (or false)</li>
+            <li>LIQUIBASE_SQLPLUS_KEEP_TEMP_NAME=&lt;temp file name&gt;</li>
+            <li>LIQUIBASE_SQLPLUS_KEEP_TEMP_PATH=&lt;path to directory)</li>
+        </ul>
+        <p>Corresponding Environment Variables for SQLCMD are:</p>
+        <ul>
+            <li>LIQUIBASE_SQLCMD_KEEP_TEMP=true (or false)</li>
+            <li>LIQUIBASE_SQLCMD_KEEP_TEMP_NAME=&lt;temp file name&gt;</li>
+            <li>LIQUIBASE_SQLPLUS_KEEP_TEMP_PATH=&lt;path to directory&gt;</li>
+        </ul>
+        <h2>Related Links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../../concepts/changelogs/attributes/runwith.htm">runWith</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../concepts/changelogs/attributes/run-with-spool-file.htm">runWithSpoolFile</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../change-types/modifychangesets.htm">modifyChangeSets</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>

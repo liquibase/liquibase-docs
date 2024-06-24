@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/start/tutorials/postgresql/postgresql-azure-database.html" />
@@ -22,6 +22,7 @@ Single Server:</p>
         <h2>Prerequisites</h2>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/database-prerequisites.flsnp" />
         <h2>Install drivers</h2>
+        <h3>CLI users</h3>
         <p>To use <MadCap:variable name="General.Liquibase" /> and PostgreSQL, you need the <a href="https://jdbc.postgresql.org/download/">JDBC driver JAR file</a> (<a href="https://mvnrepository.com/artifact/org.postgresql/postgresql/42.4.0">Maven download</a>).</p>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/database-driver.flsnp" MadCap:conditionTagExpression="include[database-driver.driver-pre-installed or database-driver.maven-jar-public]" /><pre xml:space="preserve"><code class="language-text">&lt;dependency&gt;
     &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
@@ -29,14 +30,39 @@ Single Server:</p>
     &lt;version&gt;42.6.0&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
         <p>Also, you can use the <a href="https://github.com/liquibase/liquibase-postgresql"><MadCap:variable name="General.Liquibase" /> PostgreSQL Extension</a> JAR file, which is the vacuum extension that adds an additional <MadCap:variable name="General.changelog" /> tag or command to support vacuuming.</p>
-        <h2>Test your connection</h2>
+        <h2>Configure connection</h2>
         <ol>
-            <li>Ensure your PostgreSQL&#160;database is configured. Check the status by running the <code>pg_isready</code> command. For more information about the options you can specify when running the command, see the <a href="https://www.postgresql.org/docs/13/app-pg-isready.html">pg_isready</a> webpage.</li>
+            <li>Ensure your PostgreSQL database is configured. Check the status by running the <code>pg_isready</code> command. For more information about the options you can specify when running the command, see the <a href="https://www.postgresql.org/docs/13/app-pg-isready.html">pg_isready</a> webpage.</li>
             <li>
                 <MadCap:snippetText src="../../../Z_Resources/Snippets/text/database-tutorials/database-properties-url.flsnp" />
             </li><pre xml:space="preserve"><code class="lang-text">url: jdbc:postgresql://${AZ_DATABASE_SERVER_NAME}.postgres.database.azure.com</code></pre>
             <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/database-license-key.flsnp" />
         </ol>
+        <h3>Flexible Server via Service Principal Name</h3>
+        <p>If you use Azure Flexible Server for PostgreSQL&#160;and want to authenticate using Service Principal Name (SPN) in your automation pipeline, follow these steps to connect to <MadCap:variable name="General.Liquibase" />:</p>
+        <ol>
+            <li>Create an automation script that requests these parameters from the user:</li>
+            <ul>
+                <li><code class="language-text">CLIENT_ID</code> (username, example: <code class="language-text">7ca151a7-cb01-4580-be03-0408df979c8f</code>)</li>
+                <li><code class="language-text">CLIENT_SECRET</code> (password)</li>
+                <li><code class="language-text">AZURE_TENANT_ID</code> (the Active Directory tenant GUID to authenticate; a constant in your environment)</li>
+            </ul>
+            <li>Run the following commands in automation:</li><pre xml:space="preserve"><code class="language-shell">az login -u "$CLIENT_ID" -p "$CLIENT_SECRET" -t "$AZURE_TENANT_ID" --service-principal
+az account show
+SPN=$(az ad sp show --id "$CLIENT_ID" | jq -r '.appDisplayName')
+AAD_ACCESS_TOKEN=$(az account get-access-token --resource https://ossrdbms-aad.database.windows.net | jq -r '.accessToken')</code></pre>
+            <li>Specify the following <a href="../../../parameters/home.htm"><MadCap:variable name="General.Liquibase" /> parameters</a> as <a href="../../../concepts/connections/liquibase-environment-variables.htm">environment variables</a>:</li><pre xml:space="preserve"><code class="language-shell">export LIQUIBASE_COMMAND_URL="jdbc:postgresql://&lt;database_server_name&gt;.postgres.database.azure.com/postgres?sslmode=require"</code></pre><pre xml:space="preserve"><code class="language-shell">export LIQUIBASE_COMMAND_USERNAME=$SPN</code></pre><pre xml:space="preserve"><code class="language-shell">export LIQUIBASE_COMMAND_PASSWORD=$AAD_ACCESS_TOKEN</code></pre>
+        </ol>
+        <p>For more information, see the following guides:</p>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/azure/service-connector/how-to-integrate-postgres?tabs=dotnet">Integrate Azure Database for PostgreSQL with Service Connector</a>
+            </li>
+            <li><a href="https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-connect-server-vnet">Connect Azure Database for PostgreSQL - Flexible Server with the private access connectivity method</a>
+            </li>
+            <li><a href="https://learn.microsoft.com/en-us/azure/postgresql/single-server/connect-java?tabs=passwordless">Quickstart: Use Java and JDBC with Azure Database for PostgreSQL</a>
+            </li>
+        </ul>
+        <h2>Test connection</h2>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/database-changelog-test-connection.flsnp" MadCap:conditionTagExpression="include[database.default]" />
         <h2>Related links</h2>
         <ul>
