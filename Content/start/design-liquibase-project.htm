@@ -34,30 +34,31 @@
         <p>However, using multiple schemas means you may have to duplicate some of your data, which can make consistency more difficult. Depending on your automation tooling and workflow, you may also need to call <MadCap:variable name="General.Liquibase" /> multiple times to send your code to production, which requires extra maintenance from your DevOps team.</p>
         <h2>Choose a <MadCap:variable name="General.changelog" /> structure</h2>
         <p>It is a best practice to create a simple root <MadCap:variable name="General.changelog" /> that you don't modify directly. Instead, define nested <MadCap:variable name="General.changelog" />s with the <code><MadCap:xref href="../change-types/include.html">include</MadCap:xref></code> and <code><MadCap:xref href="../change-types/includeall.html">includeAll</MadCap:xref></code> tags and make changes to them. You can modify and deploy the nested <MadCap:variable name="General.changelog" />s independently or deploy all changes in a single <code><MadCap:xref href="../commands/update/update.html">update</MadCap:xref></code> from the root <MadCap:variable name="General.changelog" />.</p>
+        <MadCap:snippetBlock src="../Z_Resources/Snippets/note/changelog-include-includeall-root.flsnp" />
         <p>There are two common <MadCap:variable name="General.changelog" /> design patterns, <b>object-oriented</b> and <b>release-oriented</b>. The design you choose should correspond to the structure of your existing code repository and workflow.</p>
         <h3>Object-oriented</h3>
         <p>In an object-oriented <MadCap:variable name="General.changelog" /> structure, you create one <MadCap:variable name="General.changelog" /> per object or object type. For example:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
   example
     db
       changelog
-        changelog-root.xml
-        changelog-index.xml
-        changelog-procedure.xml
-        changelog-table.xml
-        changelog-view.xml</code></pre>
-        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.xml</code> which contains <code>include</code> tags referencing <code>changelog-index.xml</code>, <code>changelog-procedure.xml</code>, <code>changelog-table.xml</code>, and <code>changelog-view.xml</code>.</p>
+        changelog-root.yaml
+        changelog-index.sql
+        changelog-procedure.sql
+        changelog-table.sql
+        changelog-view.sql</code></pre>
+        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.yaml</code> which contains <code>include</code> tags referencing <code>changelog-index.sql</code>, <code>changelog-procedure.sql</code>, <code>changelog-table.sql</code>, and <code>changelog-view.sql</code>.</p>
         <p>Alternatively, you&#160;can create directories for each type of object, each containing one or more <MadCap:variable name="General.changelog" />s per particular database object:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
   example
     db
       changelog
-        changelog-root.xml
+        changelog-root.yaml
         changelog-indexes
-          my-favorite-index.xml
-          that-other-index.xml
+          my-favorite-index.sql
+          that-other-index.sql
         changelog-tables
-          employees.xml
-          customers.xml</code></pre>
-        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.xml</code> which contains <code>includeAll</code> tags referencing the directories <code>/changelog-indexes</code> and <code>/changelog-tables</code>. The <MadCap:variable name="General.changelog" />s you modify regularly are contained in the nested directories rather than in the overarching <code>/changelog</code> directory.</p>
+          employees.sql
+          customers.sql</code></pre>
+        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.yaml</code> which contains <code>includeAll</code> tags referencing the directories <code>/changelog-indexes</code> and <code>/changelog-tables</code>. The <MadCap:variable name="General.changelog" />s you modify regularly are contained in the nested directories rather than in the overarching <code>/changelog</code> directory.</p>
         <p>An object-oriented <MadCap:variable name="General.changelog" /> format allows you to easily see changes made over time to specific objects (like a particular table) or groups of objects (like all tables in your database). It also makes it easier to roll back changes to particular objects without worrying about unrelated changes in the <MadCap:variable name="General.changelog" />.</p>
         <p>If all your developers work in the same <MadCap:variable name="General.changelog" />, they may experience frequent source control merge conflicts. However, if developers work in different <MadCap:variable name="General.changelog" />s for each object, they may be less likely to overwrite each other's code.</p>
         <h3>Release-oriented</h3>
@@ -65,24 +66,24 @@
   example
     db
       changelog
-        changelog-root.xml
-        changelog-1.0.xml
-        changelog-1.1.xml
-        changelog-2.0.xml</code></pre>
-        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.xml</code> which contains <code>include</code> tags referencing <code>changelog-1.0.xml</code>, <code>changelog-1.1.xml</code>, and <code>changelog-2.0.xml</code>.</p>
+        changelog-root.yaml
+        changelog-1.0.sql
+        changelog-1.1.sql
+        changelog-2.0.sql</code></pre>
+        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.yaml</code> which contains <code>include</code> tags referencing <code>changelog-1.0.sql</code>, <code>changelog-1.1.sql</code>, and <code>changelog-2.0.sql</code>.</p>
         <p>Alternatively, you can create directories for each major release (or other release group), each containing one or more <MadCap:variable name="General.changelog" />s per minor release:</p><pre xml:space="preserve"><code class="language-text" data-lang="text">com
   example
     db
       changelog
-        changelog-root.xml
-        changelog-1.x
-          changelog-1.0.xml
-          changelog-1.1.xml
-        changelog-2.x
-          changelog-2.0.xml</code></pre>
-        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.xml</code> which contains <code>includeAll</code> tags referencing the directories <code>/changelog-1.x</code> and <code>/changelog-2.x</code>. The <MadCap:variable name="General.changelog" />s you modify for a particular release are contained in the nested directories rather than in the overarching <code>/changelog</code> directory.</p>
+        changelog-root.yaml
+        changelog-1.X
+          changelog-1.0.sql
+          changelog-1.1.sql
+        changelog-2.X
+          changelog-2.0.sql</code></pre>
+        <p>In this example, we have a root <MadCap:variable name="General.changelog" /> called <code>changelog-root.yaml</code> which contains <code>includeAll</code> tags referencing the directories <code>/changelog-1.X</code> and <code>/changelog-2.X</code>. The <MadCap:variable name="General.changelog" />s you modify for a particular release are contained in the nested directories rather than in the overarching <code>/changelog</code> directory.</p>
         <p>A release-oriented <MadCap:variable name="General.changelog" /> structure lets you bundle all content associated with a release in one place. However, this design can be difficult to maintain. If you want to see changes made to a particular object over time, the release-oriented structure requires you to look in multiple locations for that information.</p>
-        <p>Additionally, having a single <MadCap:variable name="General.changelog" /> per release (even minor release) may lead to more frequent source control merge conflicts. You can solve this by creating multiple <MadCap:variable name="General.changelog" />s within each release directory, such as <code>/changelog-1.0/indexes.xml</code> and <code>/changelog-1.0/tables.xml</code>. However, this structure may be more complicated to navigate and maintain than a pure object-oriented <MadCap:variable name="General.changelog" /> design.</p>
+        <p>Additionally, having a single <MadCap:variable name="General.changelog" /> per release (even minor release) may lead to more frequent source control merge conflicts. You can solve this by creating multiple <MadCap:variable name="General.changelog" />s within each release directory, such as <code>/changelog-1.0/indexes.sql</code> and <code>/changelog-1.0/tables.sql</code>. However, this structure may be more complicated to navigate and maintain than a pure object-oriented <MadCap:variable name="General.changelog" /> design.</p>
         <h2>Prepare for deployment</h2>
         <ul>
             <li>When you use the <code>includeAll</code> tag in your root <MadCap:variable name="General.changelog" />, you must ensure your file naming convention is consistent. <MadCap:variable name="General.Liquibase" /> sorts pending scripts in alphanumeric order and then deploys them in that order.</li>
