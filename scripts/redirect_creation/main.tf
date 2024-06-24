@@ -1,13 +1,9 @@
-
-terraform {
-  backend "remote" {}
-}
-
 # use Terraform Remote State Data stanza to read state from environment-based workspace
 data "terraform_remote_state" "state" {
   backend = "remote"
   config = {
     organization = "liquibase"
+    hostname     = "spacelift.io"
     workspaces = {
       name = "liquibase-${var.env}"
     }
@@ -16,7 +12,7 @@ data "terraform_remote_state" "state" {
 
 # Need legacy Datical account since s3 buckets for docs are there
 provider "aws" {
-  alias = "datical"
+  region = "us-east-1"
 }
 
 # 0 byte objects used for redirects

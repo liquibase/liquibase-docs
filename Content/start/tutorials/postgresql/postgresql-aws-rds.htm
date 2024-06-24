@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/start/tutorials/postgresql/postgresql-aws-rds.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with PostgreSQL on AWS RDS." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>Use <MadCap:variable name="General.Liquibase" /> with PostgreSQL&#160;on AWS&#160;RDS</h1>
+        <p>PostgreSQL&#160;on AWS&#160;RDS allows users to deploy, manage, and scale your PostgreSQL database within the cloud. Learn how to set up <MadCap:variable name="General.Liquibase" /> with PostgreSQL&#160;on AWS&#160;RDS below.<br /></p>
+        <h2>Verified Versions<br /></h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/verified-versions/postgresql.flsnp" />
+        <h2>Deprecated Versions</h2>
+        <ul>
+            <li>
+                <p>Amazon AWS RDS for PostgreSQL 11 is deprecated as of November 9, 2023. </p>
+                <ul>
+                    <li><MadCap:variable name="General.Liquibase" /> support for this version ends on February 7, 2024. </li>
+                    <li>Other versions remain supported.</li>
+                </ul>
+            </li>
+        </ul>
+        <h2>Verification level</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/database-verification-levels.flsnp" />
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/database-verification-level-advanced.flsnp" />
+        <h2>Prerequisites</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/database-prerequisites.flsnp" />
+        <h2>Install drivers</h2>
+        <h3>CLI users</h3>
+        <p>To use <MadCap:variable name="General.Liquibase" /> and PostgreSQL, you need the <a href="https://jdbc.postgresql.org/download/">JDBC driver JAR file</a> (<a href="https://mvnrepository.com/artifact/org.postgresql/postgresql/42.4.0">Maven download</a>).</p>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/database-driver.flsnp" MadCap:conditionTagExpression="include[database-driver.driver-pre-installed or database-driver.maven-jar-public]" /><pre><code class="language-text">&lt;dependency&gt;
+    &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+    &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+    &lt;version&gt;42.6.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <p>Also, you can use the <a href="https://github.com/liquibase/liquibase-postgresql"><MadCap:variable name="General.Liquibase" /> PostgreSQL Extension</a> JAR file, which is the vacuum extension that adds an additional <MadCap:variable name="General.changelog" /> tag or command to support vacuuming.</p>
+        <h2>Configure connection</h2>
+        <h3><a name="PostgreS2"></a>PostgreSQL on AWS RDS</h3>
+        <ol>
+            <li>Ensure your PostgreSQL&#160;database is configured. <ol><li><p>Check the connection by using any standard SQL client application, including the <code>psql</code> command line utility that is part of a PostgreSQL installation, and running the following:</p><ul><li><h4>Linux, macOS, or Unix</h4></li><pre><code class="language-xml">psql \
+--host=&lt;DB instance endpoint&gt; \
+--port=&lt;port&gt; \
+--username=&lt;master username&gt; \
+--password \
+--dbname=&lt;database name&gt;</code></pre><li><h4>Windows</h4></li><pre><code class="language-xml">psql ^
+--host=&lt;DB instance endpoint&gt; ^
+--port=&lt;port&gt; ^
+--username=&lt;master username&gt; ^
+--password ^
+--dbname=&lt;database name&gt;</code></pre></ul></li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If this is the first time you are connecting to your DB instance, you can try using the default database name <code>postgres</code> for the <code>--dbname</code> option.</p><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">The alternative way is to connect with <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToPostgreSQLInstance.html#USER_ConnectToPostgreSQLInstance.pgAdmin">pgAdmin</a>, which is an open-source administration and development tool for PostgreSQL.</p><li><p>You can find the connection information in the AWS Management Console:</p><ol><li>Sign in to the AWS Management Console and open the <a href="https://console.aws.amazon.com/rds/">Amazon RDS console</a>.</li><li>In the upper-right corner of the console, choose the AWS Region of your DB instance.</li><li>	Find the host and port for your DB Instance:<ul><li>Select <b>Databases</b> and choose the needed PostgreSQL DB instance to display the instance details.</li><li>Select <b>Connectivity &amp; security</b>. You will see all information under <b>Endpoint &amp; Port</b>.</li></ul></li></ol></li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To find the connection information using the AWS CLI, call the <a href="https://docs.aws.amazon.com/cli/latest/reference/rds/describe-db-instances.html">describe-db-instances</a> command: <code>aws rds describe-db-instances</code>. Alternatively, you can use the Amazon RDS API <a href="https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_DescribeDBInstances.html">DescribeDBInstances</a> operation.</p></ol></li>
+            <li>
+                <MadCap:snippetText src="../../../Z_Resources/Snippets/text/database-tutorials/database-properties-url.flsnp" />
+            </li><pre xml:space="preserve"><code class="language-xml">url: jdbc:postgresql://&lt;instance_host&gt;:&lt;instance_port&gt;/&lt;database_name&gt;?user=userName&amp;password=password</code></pre>
+            <p class="example" MadCap:autonum="&lt;b&gt;Example: &lt;/b&gt;"><code>url: jdbc:postgresql://myinstance.123456789012.us-east-1.rds.amazonaws.com:5432/postgresql?user=user&amp;password=password</code>
+            </p>
+            <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/database-license-key.flsnp" />
+        </ol>
+        <h2>Test connection</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/database-changelog-test-connection.flsnp" MadCap:conditionTagExpression="include[database.default]" />
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://www.postgresql.org/docs/">PostgreSQL Documentation</a>
+            </li>
+            <li><a href="https://www.liquibase.org/blog/using-liquibase-azure-postgres">Getting Started: Using <MadCap:variable name="General.Liquibase" /> with Azure Postgres</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../../workflows/liquibase-community/using-liquibase-and-aws-rds.htm">Using [%=General.Liquibase%] and AWS RDS </MadCap:xref>
+            </li>
+            <li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToPostgreSQLInstance.html">Connecting to a DB instance running the PostgreSQL database engine</a>
+            </li>
+            <li>
+                <MadCap:xref href="../../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../concepts/home.htm">Concepts</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../commands/home.htm">About [%=General.Liquibase%] Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../workflows/home.htm">Workflows</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../tools-integrations/native-executors/postgresql-psql.htm">Use Native Executors with PostgreSQL</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>

@@ -6,17 +6,17 @@ on:
 jobs:
   content:
     runs-on: ubuntu-20.04
+    permissions: write-all
     defaults:
       run:
         working-directory: scripts/redirect_creation
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ADMIN_GITHUB_OIDC_ROLE_ARN_DOCS }}
           aws-region: us-east-1
 
       - name: Promote Staging Content to Production
@@ -25,13 +25,17 @@ jobs:
               
   redirects:
     runs-on: ubuntu-20.04
+    permissions: write-all
     env:
       TF_VAR_env: "prod"
+      SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
+      SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+      SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
     defaults:
       run:
         working-directory: scripts/redirect_creation
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -39,16 +43,13 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ADMIN_GITHUB_OIDC_ROLE_ARN_DOCS }}
           aws-region: us-east-1
 
-      - name: Terraform Init
-        id: init
-        run: terraform init -backend-config=$TF_VAR_env.remote.tfbackend 
-
-      - name: Terraform Apply
-        run: terraform apply -target=aws_s3_object.enterprise_redirects -auto-approve
+      - name: Deploy infrastructure
+        run: |
+          spacectl stack set-current-commit --id liquibase-docs-prod --sha ${{ github.sha }}
+          spacectl stack deploy --id liquibase-docs-prod --auto-confirm 
      
