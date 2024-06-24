@@ -15,8 +15,12 @@ on:
 jobs:
   publish-docs-staging-redirects:
     runs-on: ubuntu-20.04
+    permissions: write-all
     env:
       TF_VAR_env: "staging"
+      SPACELIFT_API_KEY_ENDPOINT: ${{ secrets.SPACELIFT_API_KEY_ENDPOINT }}
+      SPACELIFT_API_KEY_ID: ${{ secrets.SPACELIFT_API_KEY_ID }}
+      SPACELIFT_API_KEY_SECRET: ${{ secrets.SPACELIFT_API_KEY_SECRET }}
     defaults:
       run:
         working-directory: scripts/redirect_creation
@@ -26,16 +30,15 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Install spacectl
+        uses: spacelift-io/setup-spacectl@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.DOCS_AWS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DOCS_AWS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ADMIN_GITHUB_OIDC_ROLE_ARN_DOCS }}
           aws-region: us-east-1
 
       - name: Terraform Format
@@ -45,23 +48,21 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config=$TF_VAR_env.remote.tfbackend 
+        run: terraform init
 
       - name: Terraform Validate
         if: ${{ github.event_name == 'pull_request' }}
         id: validate
         run: terraform validate -no-color
 
-      - name: Terraform Plan
-        if: ${{ github.event_name == 'pull_request' }}
-        id: plan
+      - name: Preview infrastructure
         run: |
-          terraform plan -out=plan.tmp
-          terraform show -no-color plan.tmp >${GITHUB_WORKSPACE}/plan.out
-        continue-on-error: false
+          spacectl stack local-preview --id liquibase-docs-staging > ${GITHUB_WORKSPACE}/plan.out
+          cat ${GITHUB_WORKSPACE}/plan.out
 
       - name: Terraform Show Plan in PR
         uses: actions/github-script@v6
+        continue-on-error: true        
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -103,6 +104,8 @@ jobs:
               body: output
             })
 
-      - name: Terraform Apply
+      - name: Deploy infrastructure
         if: ${{ github.event_name == 'push' }}
-        run: terraform apply -auto-approve
+        run: |
+          spacectl stack set-current-commit --id liquibase-docs-staging --sha ${{ github.sha }}
+          spacectl stack deploy --id liquibase-docs-staging --auto-confirm 
