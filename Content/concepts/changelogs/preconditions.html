@@ -18,48 +18,34 @@
         </ul>
         <p>You can use all <MadCap:variable name="General.Liquibase" /> preconditions in XML, YAML, and JSON&#160;<MadCap:variable name="General.changelog" />s. Only some preconditions are supported in SQL <MadCap:variable name="General.changelog" />s. For a list of preconditions, see <MadCap:xref href="#available-preconditions">Available preconditions</MadCap:xref>.</p>
         <h2>Syntax</h2>
-        <p>You can use one <b>local</b>&#160;<code>&lt;preConditions&gt;</code> tag per <MadCap:variable name="General.changeset" /> and one <b>global</b>&#160;<code>&lt;preConditions&gt;</code> tag in the <MadCap:variable name="General.changelog" /> (outside any <MadCap:variable name="General.changeset" />). In XML, YAML, and JSON <MadCap:variable name="General.changelog" />s, you can use conditional logic to add multiple preconditions within a single <code>&lt;preConditions&gt;</code> tag.</p>
+        <p>You can use one <b>local</b>&#160;<code>preConditions</code> tag per <MadCap:variable name="General.changeset" /> and one <b>global</b>&#160;<code>preConditions</code> tag in the <MadCap:variable name="General.changelog" /> (outside any <MadCap:variable name="General.changeset" />). In XML, YAML, and JSON <MadCap:variable name="General.changelog" />s, you can use conditional logic to add multiple preconditions within a single <code>preConditions</code> tag.</p>
         <p>Preconditions at the <MadCap:variable name="General.changelog" /> level are applied to all <MadCap:variable name="General.changeset" />s, not just those listed in the current <MadCap:variable name="General.changelog" /> or its child <MadCap:variable name="General.changelog" />s.</p>
         <p>The following example XML, YAML, and JSON <MadCap:variable name="General.changelog" />s will only be run if the database executed against is Oracle and the database user executing the script is <code>SYSTEM</code>. Also, they will run the <MadCap:variable name="General.changeset" /> with the <code>sqlCheck</code> precondition and <MadCap:xref href="../../change-types/create-table.html">createTable</MadCap:xref>. The example SQL <MadCap:variable name="General.changelog" /> only runs the <code>sqlCheck</code> precondition and <code>createTable</code>.</p>
         <p>If the preconditions check fails, you will receive a warning and it will continue executing the <MadCap:variable name="General.changeset" /> as normal because of the <code>onFail="WARN"</code> precondition. To prevent the execution of the <MadCap:variable name="General.changeset" /> when the precondition fails, you can set <code>HALT</code> or <code>CONTINUE</code> values. For more information, see <MadCap:xref href="#onFail/onError">onFail/onError values</MadCap:xref>.</p>
         <h2>Example <MadCap:variable name="General.changelog" />s with preconditions</h2>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
-                <li class="js-tablist__item"><a href="#xml_example_main" id="label_xml_example_main" class="js-tablist__link">XML example</a>
+                <li class="js-tablist__item"><a href="#sql_example_main" id="label_sql_example_main" class="js-tablist__link">SQL example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#yaml_example_main" id="label_yaml_example_main" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_main" id="label_json_example_main" class="js-tablist__link">JSON example</a>
                 </li>
-                <li class="js-tablist__item"><a href="#sql_example_main" id="label_sql_example_main" class="js-tablist__link">SQL example</a>
+                <li class="js-tablist__item"><a href="#xml_example_main" id="label_xml_example_main" class="js-tablist__link">XML example</a>
                 </li>
             </ul>
-            <div id="xml_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
-<MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
-
-    &lt;preConditions&gt;
-        &lt;dbms  type="oracle"  /&gt;
-        &lt;runningAs  username="SYSTEM"  /&gt;
-    &lt;/preConditions&gt;
-
-    &lt;changeSet  id="1"  author="Liquibase User"&gt;
-        &lt;preConditions  onFail="WARN"&gt;
-            &lt;sqlCheck  expectedResult="0"&gt;SELECT COUNT(*) FROM example_table&lt;/sqlCheck&gt;
-        &lt;/preConditions&gt;
-        &lt;comment&gt;Comments should go after the precondition. Otherwise, Liquibase returns an error.&lt;/comment&gt;
-
-        &lt;createTable  tableName="example_table"&gt;
-            &lt;column name="id" type="int" autoIncrement="true"&gt;
-                &lt;constraints primaryKey="true" nullable="false"&gt;
-            &lt;/column&gt;
-            &lt;column name="firstname" type="varchar(50)"&gt;
-            &lt;column name="lastname" type="varchar(50)"&gt;
-                &lt;constraints nullable="false"&gt;
-            &lt;/column&gt;
-            &lt;column name="state" type="char(2)"&gt;
-        &lt;/createTable&gt;
-    &lt;/changeSet&gt;
-&lt;/databaseChangeLog&gt;</code></pre>
+            <div id="sql_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+			
+--changeset Liquibase User:1
+--preconditions onFail:WARN 
+--precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM example_table
+--comment: /* Comments should go after the precondition. Otherwise, Liquibase returns an error. */
+create table example_table (  
+	id int primary key,
+	firstname varchar(50),
+	lastname varchar(50) not null,
+	state char(2)
+)</code></pre>
             </div>
             <div id="yaml_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
  - preConditions:
@@ -175,72 +161,178 @@
   ]
 }</code></pre>
             </div>
-            <div id="sql_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
-			
---changeset Liquibase User:1
---preconditions onFail:WARN 
---precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM example_table
---comment: /* Comments should go after the precondition. Otherwise, Liquibase returns an error. */
-create table example_table (  
-	id int primary key,
-	firstname varchar(50),
-	lastname varchar(50) not null,
-	state char(2)
-)</code></pre>
+            <div id="xml_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
+<MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+
+    &lt;preConditions&gt;
+        &lt;dbms  type="oracle"  /&gt;
+        &lt;runningAs  username="SYSTEM"  /&gt;
+    &lt;/preConditions&gt;
+
+    &lt;changeSet  id="1"  author="Liquibase User"&gt;
+        &lt;preConditions  onFail="WARN"&gt;
+            &lt;sqlCheck  expectedResult="0"&gt;SELECT COUNT(*) FROM example_table&lt;/sqlCheck&gt;
+        &lt;/preConditions&gt;
+        &lt;comment&gt;Comments should go after the precondition. Otherwise, Liquibase returns an error.&lt;/comment&gt;
+
+        &lt;createTable  tableName="example_table"&gt;
+            &lt;column name="id" type="int" autoIncrement="true"&gt;
+                &lt;constraints primaryKey="true" nullable="false"&gt;
+            &lt;/column&gt;
+            &lt;column name="firstname" type="varchar(50)"&gt;
+            &lt;column name="lastname" type="varchar(50)"&gt;
+                &lt;constraints nullable="false"&gt;
+            &lt;/column&gt;
+            &lt;column name="state" type="char(2)"&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
             </div>
         </div>
         <h3>Multiple preconditions</h3>
-        <p> In XML, JSON, and YAML <MadCap:variable name="General.changelog" />s, you can set multiple preconditions in one <code>&lt;preConditions&gt;</code> tag by using nestable <code>AND</code>, <code>OR</code>, and <code>NOT</code> conditional logic tags. If no conditional tags are specified, the default value is <code>AND</code>.</p>
+        <p>In XML, JSON, and YAML <MadCap:variable name="General.changelog" />s, you can set multiple preconditions in one <code>preConditions</code> tag by using nestable <code>AND</code>, <code>OR</code>, and <code>NOT</code> conditional logic tags. If no conditional tags are specified, the default value is <code>AND</code>.</p>
         <p><MadCap:variable name="General.Liquibase" /> uses lazy evaluation (call-by-need) when running preconditions. For example, if the first condition of an <code>AND</code> expression fails, <MadCap:variable name="General.Liquibase" /> does not evaluate the second condition. If the first condition of an <code>OR</code> expression succeeds, <MadCap:variable name="General.Liquibase" /> does not evaluate the second condition.</p>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
-                <li class="js-tablist__item"><a href="#xml_example_multiple" id="label_xml_example_multiple" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_multiple" id="label_yaml_example_multiple" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_multiple" id="label_json_example_multiple" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_multiple" id="label_xml_example_multiple" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_multiple" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
-    &lt;or&gt;
-        &lt;CONDITION_1&gt;
-        &lt;CONDITION_2&gt;
-    &lt;/or&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
-            <div id="yaml_example_multiple" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+            <div id="yaml_example_multiple" class="js-tabcontent">
+                <p>Syntax for multiple preconditions:</p><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - or:
-        - CONDITION_1
-        - CONDITION_2</code></pre>
+        - CONDITION_1: VALUE
+        - CONDITION_2:
+           SUB_CONDITION: SUB_VALUE</code></pre>
+                <p>For example, the following syntax example checks that the update is running on Oracle and with the <code>SYSTEM</code> user but will only generate a warning message if the precondition fails:</p><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+    - onFail: WARN
+    - dbms:
+       type: oracle
+    - runningAs:
+       username: SYSTEM</code></pre>
+                <p>The following requires the <MadCap:variable name="General.changelog" /> to run on Oracle or MySQL:</p><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+    - or:
+       - dbms:
+          type: oracle
+       - dbms:
+          type: mysql</code></pre>
+                <p>You can also see the precondition running as <code>SYSTEM</code> if executing against an Oracle database or running as <code>SA</code> if executing against a Microsoft SQL Server database:</p><pre xml:space="preserve"><code class="language-yaml">- preConditions:
+    - or:
+       - and:
+          - dbms:
+             type: oracle  
+             runningAs:
+              username: SYSTEM
+       - and:
+          - dbms:
+             type: mssql
+             runningAs:
+              username: sa</code></pre>
             </div>
-            <div id="json_example_multiple" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+            <div id="json_example_multiple" class="js-tabcontent">
+                <p>Syntax for multiple preconditions:</p><pre xml:space="preserve"><code class="language-json">{
   "preConditions": [
     {
       "or": [
         {
-          {CONDITION_1}
+          "CONDITION_1": "VALUE"
         },
         {
-          {CONDITION_2}
+          "CONDITION_2": {
+            "SUB_CONDITION": "SUB_VALUE"
+          }
+        }
+      ]
+    }
+  ]
+}</code></pre>
+                <p>For example, the following syntax example checks that the update is running on Oracle and with the <code>SYSTEM</code> user but will only generate a warning message if the precondition fails:</p><pre xml:space="preserve"><code class="language-json">{
+  "preConditions": [
+    {
+      "dmbs": {
+        "type": "oracle"
+      }
+    },
+    {
+      "runningAs": {
+        "username": "SYSTEM"
+      }
+    }
+  ]
+}</code></pre>
+                <p>The following requires the <MadCap:variable name="General.changelog" /> to run on Oracle or MySQL:</p><pre xml:space="preserve"><code class="language-json">{
+  "preConditions": [
+    {
+      "or": [
+        {
+          "dbms": "oracle"
+        },
+        {
+          "dbms": "mysql"
+        }
+      ]
+    }
+  ]
+}</code></pre>
+                <p>You can also see the precondition running as <code>SYSTEM</code> if executing against an Oracle database or running as <code>SA</code> if executing against a Microsoft SQL Server database:</p><pre xml:space="preserve"><code class="language-json">{
+  "preConditions": [
+    {
+      "or": [
+        {
+          "and": [
+            {
+              "dbms": {
+                "type": "oracle"
+              }
+            },
+            {
+              "runningAs": {
+                "username": "SYSTEM"
+              }
+            }
+          ]
+        },
+        {
+          "and": [
+            {
+              "dbms": {
+                "type": "mssql"
+              }
+            },
+            {
+              "runningAs": {
+                "username": "sa"
+              }
+            }
+          ]
         }
       ]
     }
   ]
 }</code></pre>
             </div>
-        </div>
-        <h3>Examples</h3>
-        <p>The following syntax example will check that the update is running on Oracle and with the <code>SYSTEM</code> user but will only generate a warning message if the precondition fails:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
+            <div id="xml_example_multiple" class="js-tabcontent">
+                <p>Syntax for multiple preconditions:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
+    &lt;or&gt;
+        &lt;CONDITION_1  SUB_CONDITION_1="SUB_VALUE_1"&gt;
+        &lt;CONDITION_2  SUB_CONDITION_2="SUB_VALUE_2"&gt;
+    &lt;/or&gt;
+&lt;/preConditions&gt;</code></pre>
+                <p>For example, the following syntax example checks that the update is running on Oracle and with the <code>SYSTEM</code> user but will only generate a warning message if the precondition fails:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
     &lt;dbms  type="oracle"  /&gt;
     &lt;runningAs  username="SYSTEM"  /&gt;
 &lt;/preConditions&gt;</code></pre>
-        <p>The following will require running the <MadCap:variable name="General.changelog" /> on Oracle or MySQL:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
+                <p>The following requires the <MadCap:variable name="General.changelog" /> to run on Oracle or MySQL:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
    &lt;or&gt;
       &lt;dbms  type="oracle"  /&gt;
       &lt;dbms  type="mysql"  /&gt;
    &lt;/or&gt;
 &lt;/preConditions&gt;</code></pre>
-        <p>You can also see the precondition running as <code>SYSTEM</code> if executing against an Oracle database or running as SA if executing against a MS SQL database.</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
+                <p>You can also see the precondition running as <code>SYSTEM</code> if executing against an Oracle database or running as <code>SA</code> if executing against a Microsoft SQL Server database:</p><pre xml:space="preserve"><code class="language-xml">&lt;preConditions&gt;
     &lt;or&gt;
        &lt;and&gt;
           &lt;dbms  type="oracle"  /&gt;  
@@ -252,13 +344,15 @@ create table example_table (
        &lt;/and&gt;
      &lt;/or&gt;
 &lt;/preConditions&gt;</code></pre>
+            </div>
+        </div>
         <h2 id="handling-failures-and-errors">Handling failures and errors</h2>
         <p><MadCap:variable name="General.Liquibase" /> defines two types of preconditions:</p>
         <ul>
             <li>Precondition <b>failures</b> which represent that the check failed</li>
             <li>Precondition <b>errors</b> that are the exceptions thrown in the execution of a check</li>
         </ul>
-        <p>The process of both can be controlled through the <code>onFail</code> and <code>onError</code> <MadCap:variable name="General.Param/Attribute" />s on the <code>&lt;preConditions&gt;</code> tag.</p>
+        <p>The process of both can be controlled through the <code>onFail</code> and <code>onError</code> <MadCap:variable name="General.Param/Attribute" />s on the <code>preConditions</code> tag.</p>
         <h3 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h3>
         <table style="margin-left: auto;margin-right: auto;width: 100%;">
             <thead>
@@ -351,18 +445,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_changeLogPropertyDefined" id="label_xml_example_changeLogPropertyDefined" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_changeLogPropertyDefined" id="label_yaml_example_changeLogPropertyDefined" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_changeLogPropertyDefined" id="label_json_example_changeLogPropertyDefined" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_changeLogPropertyDefined" id="label_xml_example_changeLogPropertyDefined" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_changeLogPropertyDefined" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;changeLogPropertyDefined property="myproperty"
-                              value="requiredvalue"/&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_changeLogPropertyDefined" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - changeLogPropertyDefined:
@@ -382,6 +471,11 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_changeLogPropertyDefined" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;changeLogPropertyDefined property="myproperty"
+                              value="requiredvalue"/&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>changeSetExecuted</code>
@@ -422,19 +516,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_changeSetExecuted" id="label_xml_example_changeSetExecuted" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_changeSetExecuted" id="label_yaml_example_changeSetExecuted" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_changeSetExecuted" id="label_json_example_changeSetExecuted" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_changeSetExecuted" id="label_xml_example_changeSetExecuted" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_changeSetExecuted" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
-    &lt;changeSetExecuted id="1"
-                          author="liquibase"
-                          changeLogFile="changelog.xml" /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_changeSetExecuted" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: HALT
     - changeSetExecuted:
@@ -456,6 +544,12 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_changeSetExecuted" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+    &lt;changeSetExecuted id="1"
+                          author="liquibase"
+                          changeLogFile="changelog.xml" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>columnExists</code>
@@ -495,18 +589,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_columnExists" id="label_xml_example_columnExists" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_columnExists" id="label_yaml_example_columnExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_columnExists" id="label_json_example_columnExists" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_columnExists" id="label_xml_example_columnExists" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_columnExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;columnExists tableName="table1"
-                  columnName="column1" /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_columnExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - columnExists:
@@ -526,6 +615,11 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_columnExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;columnExists tableName="table1"
+                  columnName="column1" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>dbms</code>
@@ -554,20 +648,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_dbms" id="label_xml_example_dbms" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_dbms" id="label_yaml_example_dbms" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_dbms" id="label_json_example_dbms" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_dbms" id="label_xml_example_dbms" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_dbms" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-  &lt;or&gt;
-    &lt;dbms  type="oracle"  /&gt;
-    &lt;dbms  type="mysql"  /&gt;
-  &lt;/or&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_dbms" class="js-tabcontent"><pre style="white-space:pre-wrap;"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - or:
@@ -598,6 +685,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
   ]
 }</code></pre>
             </div>
+            <div id="xml_example_dbms" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+  &lt;or&gt;
+    &lt;dbms  type="oracle"  /&gt;
+    &lt;dbms  type="mysql"  /&gt;
+  &lt;/or&gt;
+&lt;/preConditions&gt;</code></pre>
+            </div>
         </div>
         <h3><code>expectedQuotingStrategy</code>
         </h3>
@@ -623,17 +717,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_expectedQuotingStrategy" id="label_xml_example_expectedQuotingStrategy" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_expectedQuotingStrategy" id="label_yaml_example_expectedQuotingStrategy" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_expectedQuotingStrategy" id="label_json_example_expectedQuotingStrategy" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_expectedQuotingStrategy" id="label_xml_example_expectedQuotingStrategy" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_expectedQuotingStrategy" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;expectedQuotingStrategy strategy="LEGACY" /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_expectedQuotingStrategy" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - expectedQuotingStrategy:
@@ -651,6 +741,10 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_expectedQuotingStrategy" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;expectedQuotingStrategy strategy="LEGACY" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>foreignKeyConstraintExists</code>
@@ -689,18 +783,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_foreignKeyConstraintExists" id="label_xml_example_foreignKeyConstraintExists" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_foreignKeyConstraintExists" id="label_yaml_example_foreignKeyConstraintExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_foreignKeyConstraintExists" id="label_json_example_foreignKeyConstraintExists" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_foreignKeyConstraintExists" id="label_xml_example_foreignKeyConstraintExists" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_foreignKeyConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;foreignKeyConstraintExists foreignKeyName="PK_2354"
-                                foreignKeyTableName="myTable" /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_foreignKeyConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - foreignKeyConstraintExists:
@@ -720,6 +809,11 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_foreignKeyConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;foreignKeyConstraintExists foreignKeyName="PK_2354"
+                                foreignKeyTableName="myTable" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>indexExists</code>
@@ -764,23 +858,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_indexExists" id="label_xml_example_indexExists" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_indexExists" id="label_yaml_example_indexExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_indexExists" id="label_json_example_indexExists" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_indexExists" id="label_xml_example_indexExists" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_indexExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;indexExists indexName="originindex"/&gt;
-&lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;indexExists tableName="MY_NEW_TABLE"
-                 columnNames="ID"/&gt;
-&lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;indexExists indexName="originindex"
-                 tableName="MY_NEW_TABLE"/&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_indexExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - indexExists:
@@ -831,6 +915,16 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
   ]
 }</code></pre>
             </div>
+            <div id="xml_example_indexExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;indexExists indexName="originindex"/&gt;
+&lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;indexExists tableName="MY_NEW_TABLE"
+                 columnNames="ID"/&gt;
+&lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;indexExists indexName="originindex"
+                 tableName="MY_NEW_TABLE"/&gt;
+&lt;/preConditions&gt;</code></pre>
+            </div>
         </div>
         <h3><code>primaryKeyExists</code>
         </h3>
@@ -867,18 +961,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_primaryKeyExists" id="label_xml_example_primaryKeyExists" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_primaryKeyExists" id="label_yaml_example_primaryKeyExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_primaryKeyExists" id="label_json_example_primaryKeyExists" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_primaryKeyExists" id="label_xml_example_primaryKeyExists" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_primaryKeyExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
-    &lt;primaryKeyExists primaryKeyName="ID_2354"
-                      tableName="table1" /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_primaryKeyExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: HALT
     - primaryKeyExists:
@@ -898,6 +987,11 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_primaryKeyExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+    &lt;primaryKeyExists primaryKeyName="ID_2354"
+                      tableName="table1" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>rowCount</code>
@@ -931,18 +1025,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_rowCount" id="label_xml_example_rowCount" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_rowCount" id="label_yaml_example_rowCount" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_rowCount" id="label_json_example_rowCount" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_rowCount" id="label_xml_example_rowCount" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_rowCount" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;rowCount expectedRows="5"
-              tableName="person"/&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_rowCount" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - rowCount:
@@ -962,6 +1051,11 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_rowCount" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;rowCount expectedRows="5"
+              tableName="person"/&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>runningAs</code>
@@ -988,18 +1082,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_runningAs" id="label_xml_example_runningAs" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_runningAs" id="label_yaml_example_runningAs" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_runningAs" id="label_json_example_runningAs" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_runningAs" id="label_xml_example_runningAs" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_runningAs" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
-    &lt;dbms  type="oracle"  /&gt;
-    &lt;runningAs  username="SYSTEM"  /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_runningAs" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - dbms:
@@ -1024,6 +1113,11 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_runningAs" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions  onFail="WARN"&gt;
+    &lt;dbms  type="oracle"  /&gt;
+    &lt;runningAs  username="SYSTEM"  /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>sequenceExists</code>
@@ -1056,17 +1150,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_sequenceExists" id="label_xml_example_sequenceExists" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_sequenceExists" id="label_yaml_example_sequenceExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_sequenceExists" id="label_json_example_sequenceExists" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_sequenceExists" id="label_xml_example_sequenceExists" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_sequenceExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;sequenceExists sequenceName="idnumber" /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_sequenceExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - sequenceExists:
@@ -1084,6 +1174,10 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_sequenceExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;sequenceExists sequenceName="idnumber" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>sqlCheck</code>
@@ -1121,22 +1215,24 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_sqlCheck" id="label_xml_example_sqlCheck" class="js-tablist__link">XML example</a>
+                <li class="js-tablist__item"><a href="#sql_example_sqlCheck" id="label_sql_example_sqlCheck" class="js-tablist__link">SQL example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#yaml_example_sqlCheck" id="label_yaml_example_sqlCheck" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_sqlCheck" id="label_json_example_sqlCheck" class="js-tablist__link">JSON example</a>
                 </li>
-                <li class="js-tablist__item"><a href="#sql_example_sqlCheck" id="label_sql_example_sqlCheck" class="js-tablist__link">SQL example</a>
+                <li class="js-tablist__item"><a href="#xml_example_sqlCheck" id="label_xml_example_sqlCheck" class="js-tablist__link">XML example</a>
                 </li>
             </ul>
-            <div id="xml_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;sqlCheck expectedResult="1"&gt;
-        SELECT COUNT(1)
-        FROM pg_tables
-        WHERE TABLENAME = 'myRequiredTable'
-    &lt;/sqlCheck&gt;
-&lt;/preConditions&gt;</code></pre>
+            <div id="sql_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--changeset your.name:1
+--preconditions onFail:WARN
+--precondition-sql-check expectedResult:1 SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'
+create table example_table (
+	id int primary key,
+	firstname varchar(50),
+	lastname varchar(50) not null,
+	state char(2)
+)</code></pre>
             </div>
             <div id="yaml_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
@@ -1158,15 +1254,13 @@ myChangelog.xml : Column public.customer.name_new does not exist</code></pre>
   ]
 }</code></pre>
             </div>
-            <div id="sql_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--changeset your.name:1
---preconditions onFail:WARN
---precondition-sql-check expectedResult:1 SELECT COUNT(1) FROM pg_tables WHERE TABLENAME = 'myRequiredTable'
-create table example_table (
-	id int primary key,
-	firstname varchar(50),
-	lastname varchar(50) not null,
-	state char(2)
-)</code></pre>
+            <div id="xml_example_sqlCheck" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;sqlCheck expectedResult="1"&gt;
+        SELECT COUNT(1)
+        FROM pg_tables
+        WHERE TABLENAME = 'myRequiredTable'
+    &lt;/sqlCheck&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>tableExists</code>
@@ -1199,31 +1293,22 @@ create table example_table (
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_tableExists" id="label_xml_example_tableExists" class="js-tablist__link">XML example</a>
+                <li class="js-tablist__item"><a href="#sql_example_tableExists" id="label_sql_example_tableExists" class="js-tablist__link">SQL example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#yaml_example_tableExists" id="label_yaml_example_tableExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_tableExists" id="label_json_example_tableExists" class="js-tablist__link">JSON example</a>
                 </li>
-                <li class="js-tablist__item"><a href="#sql_example_tableExists" id="label_sql_example_tableExists" class="js-tablist__link">SQL example</a>
+                <li class="js-tablist__item"><a href="#xml_example_tableExists" id="label_xml_example_tableExists" class="js-tablist__link">XML example</a>
                 </li>
             </ul>
-            <div id="xml_example_tableExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="author" id="1"&gt;
-   &lt;preConditions onFail="MARK_RAN"&gt;
-       &lt;not&gt;
-           &lt;tableExists tableName="MY_NEW_TABLE"/&gt;
-       &lt;/not&gt; 
-   &lt;/preConditions&gt;
-
-   &lt;createTable tableName="MY_NEW_TABLE"&gt;
-       &lt;column name="IDX"
-               type="${integer.type}"&gt;
-           &lt;constraints nullable="false"/&gt; 
-       &lt;/column&gt;
-       &lt;column name="INTVAL"
-               type="${integer.type}"/&gt;
-   &lt;/createTable&gt;
-&lt;/changeSet&gt;</code></pre>
+            <div id="sql_example_tableExists" class="js-tabcontent">
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code class="language-text">tableExists</code> is supported for SQL <MadCap:variable name="General.changelog" />s in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later.</p><pre xml:space="preserve"><code class="language-sql">--changeset your.name:1
+--preconditions onFail:MARK_RAN
+--precondition-table-exists table:table1 schema:12345
+create table table2 (
+    id int primary key
+);</code></pre>
             </div>
             <div id="yaml_example_tableExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- changeSet:
     preConditions:
@@ -1278,13 +1363,22 @@ create table example_table (
   }
 }</code></pre>
             </div>
-            <div id="sql_example_tableExists" class="js-tabcontent">
-                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code class="language-text">tableExists</code> is supported for SQL <MadCap:variable name="General.changelog" />s in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later.</p><pre xml:space="preserve"><code class="language-sql">--changeset your.name:1
---preconditions onFail:MARK_RAN
---precondition-table-exists table:table1 schema:12345
-create table table2 (
-    id int primary key
-);</code></pre>
+            <div id="xml_example_tableExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;changeSet author="author" id="1"&gt;
+   &lt;preConditions onFail="MARK_RAN"&gt;
+       &lt;not&gt;
+           &lt;tableExists tableName="MY_NEW_TABLE"/&gt;
+       &lt;/not&gt; 
+   &lt;/preConditions&gt;
+
+   &lt;createTable tableName="MY_NEW_TABLE"&gt;
+       &lt;column name="IDX"
+               type="${integer.type}"&gt;
+           &lt;constraints nullable="false"/&gt; 
+       &lt;/column&gt;
+       &lt;column name="INTVAL"
+               type="${integer.type}"/&gt;
+   &lt;/createTable&gt;
+&lt;/changeSet&gt;</code></pre>
             </div>
         </div>
         <h3><code>tableIsEmpty</code>
@@ -1323,19 +1417,13 @@ create table table2 (
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_tableIsEmpty" id="label_xml_example_tableIsEmpty" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_tableIsEmpty" id="label_yaml_example_tableIsEmpty" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_tableIsEmpty" id="label_json_example_tableIsEmpty" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_tableIsEmpty" id="label_xml_example_tableIsEmpty" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_tableIsEmpty" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;tableIsEmpty tableName="myTable"
-                  catalogName="myCatalog"
-                  schemaName="mySchema" /&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_tableIsEmpty" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - tableIsEmpty:
@@ -1357,6 +1445,12 @@ create table table2 (
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_tableIsEmpty" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;tableIsEmpty tableName="myTable"
+                  catalogName="myCatalog"
+                  schemaName="mySchema" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>uniqueConstraintExists</code>
@@ -1395,21 +1489,13 @@ create table table2 (
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_uniqueConstraintExists" id="label_xml_example_uniqueConstraintExists" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_uniqueConstraintExists" id="label_yaml_example_uniqueConstraintExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_uniqueConstraintExists" id="label_json_example_uniqueConstraintExists" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_uniqueConstraintExists" id="label_xml_example_uniqueConstraintExists" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_uniqueConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;uniqueConstraintExists constraintName="uq_constraint_name"
-                            tableName="test_table"/&gt;
-&lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
-    &lt;uniqueConstraintExists tableName="test_table"
-                            columnNames="first_name, last_name"/&gt;
-&lt;/preConditions&gt;</code></pre>
-            </div>
             <div id="yaml_example_uniqueConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: WARN
     - uniqueConstraintExists:
@@ -1446,6 +1532,14 @@ create table table2 (
   ]
 }</code></pre>
             </div>
+            <div id="xml_example_uniqueConstraintExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;uniqueConstraintExists constraintName="uq_constraint_name"
+                            tableName="test_table"/&gt;
+&lt;/preConditions&gt;</code></pre><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="WARN"&gt;
+    &lt;uniqueConstraintExists tableName="test_table"
+                            columnNames="first_name, last_name"/&gt;
+&lt;/preConditions&gt;</code></pre>
+            </div>
         </div>
         <h3><code>viewExists</code>
         </h3>
@@ -1477,18 +1571,22 @@ create table table2 (
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_viewExists" id="label_xml_example_viewExists" class="js-tablist__link">XML example</a>
+                <li class="js-tablist__item"><a href="#sql_example_viewExists" id="label_sql_example_viewExists" class="js-tablist__link">SQL example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#yaml_example_viewExists" id="label_yaml_example_viewExists" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_viewExists" id="label_json_example_viewExists" class="js-tablist__link">JSON example</a>
                 </li>
-                <li class="js-tablist__item"><a href="#sql_example_viewExists" id="label_sql_example_viewExists" class="js-tablist__link">SQL example</a>
+                <li class="js-tablist__item"><a href="#xml_example_viewExists" id="label_xml_example_viewExists" class="js-tablist__link">XML example</a>
                 </li>
             </ul>
-            <div id="xml_example_viewExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
-    &lt;viewExists viewName="liquibase" /&gt;
-&lt;/preConditions&gt;</code></pre>
+            <div id="sql_example_viewExists" class="js-tabcontent">
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code class="language-text">viewExists</code> is supported for SQL <MadCap:variable name="General.changelog" />s in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later.</p><pre xml:space="preserve"><code class="language-json">--changeset your.name:1
+--preconditions onFail:MARK_RAN
+--precondition-view-exists view:view1 schema:12345
+create table table1 (
+    id int primary key
+);</code></pre>
             </div>
             <div id="yaml_example_viewExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- preConditions:
     - onFail: HALT
@@ -1508,13 +1606,9 @@ create table table2 (
   ]
 }</code></pre>
             </div>
-            <div id="sql_example_viewExists" class="js-tabcontent">
-                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code class="language-text">viewExists</code> is supported for SQL <MadCap:variable name="General.changelog" />s in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later.</p><pre xml:space="preserve"><code class="language-json">--changeset your.name:1
---preconditions onFail:MARK_RAN
---precondition-view-exists view:view1 schema:12345
-create table table1 (
-    id int primary key
-);</code></pre>
+            <div id="xml_example_viewExists" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;preConditions onFail="HALT"&gt;
+    &lt;viewExists viewName="liquibase" /&gt;
+&lt;/preConditions&gt;</code></pre>
             </div>
         </div>
         <h3><code>customPrecondition</code>
@@ -1569,20 +1663,13 @@ create table table1 (
         </table>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
-                <li class="js-tablist__item"><a href="#xml_example_customPrecondition" id="label_xml_example_customPrecondition" class="js-tablist__link">XML example</a>
-                </li>
                 <li class="js-tablist__item"><a href="#yaml_example_customPrecondition" id="label_yaml_example_customPrecondition" class="js-tablist__link">YAML example</a>
                 </li>
                 <li class="js-tablist__item"><a href="#json_example_customPrecondition" id="label_json_example_customPrecondition" class="js-tablist__link">JSON example</a>
                 </li>
+                <li class="js-tablist__item"><a href="#xml_example_customPrecondition" id="label_xml_example_customPrecondition" class="js-tablist__link">XML example</a>
+                </li>
             </ul>
-            <div id="xml_example_customPrecondition" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;customPrecondition className="com.example.CustomTableCheck"&gt;
-     &lt;param name="tableName"
-            value="our_table"/&gt;
-     &lt;param name="count"
-            value="42"/&gt;
-&lt;/customPrecondition&gt;</code></pre>
-            </div>
             <div id="yaml_example_customPrecondition" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">- customPrecondition:
     - className: com.example.CustomTableCheck
     - param:
@@ -1611,6 +1698,13 @@ create table table1 (
     }
   ]
 }</code></pre>
+            </div>
+            <div id="xml_example_customPrecondition" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;customPrecondition className="com.example.CustomTableCheck"&gt;
+     &lt;param name="tableName"
+            value="our_table"/&gt;
+     &lt;param name="count"
+            value="42"/&gt;
+&lt;/customPrecondition&gt;</code></pre>
             </div>
         </div>
     </body>
