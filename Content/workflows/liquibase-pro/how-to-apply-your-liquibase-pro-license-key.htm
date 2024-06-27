@@ -54,6 +54,8 @@
                 </li>
                 <li class="js-tablist__item"><a href="#azure" id="label_azure" class="js-tablist__link">Azure DevOps</a>
                 </li>
+                <li class="js-tablist__item"><a href="#custom_java" id="label_custom_java" class="js-tablist__link">Custom Java Application</a>
+                </li>
             </ul>
             <div id="properties_file" class="js-tabcontent">
                 <p>Include the <MadCap:variable name="General.LBPro" /> license key in the <a href="../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.Liquibase" /> properties file</a> and save it. For example:</p><pre><code class="language-text" data-lang="text">liquibase.licenseKey: aei76ou32thp785463214</code></pre>
@@ -94,6 +96,27 @@ displayName: 'Run Quality Checks'
 env:
     LIQUIBASE_LICENSE_KEY: $(LiquibaseKey)</code></pre>
                 <p>In this example, <code>LiquibaseKey</code> is the name of the Azure DevOps project variable whose value is the license key.</p>
+            </div>
+            <div id="custom_java" class="js-tabcontent">
+                <p>You can directly embed your <MadCap:variable name="General.LBPro" /> license key (<code class="language-text">myProLicenseKey</code>) in a custom Java application by following these steps:</p>
+                <ol>
+                    <li>In your Maven <code class="language-text">pom.xml</code> file, point to <code class="language-text">liquibase-commercial.jar</code> as a dependency:</li><pre xml:space="preserve"><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+    &lt;artifactId&gt;liquibase-commercial&lt;/artifactId&gt;
+    &lt;version&gt;<MadCap:variable name="software-versions.latest-liquibase-pro" />&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+                    <li>In your custom Java file, import the following:</li><pre xml:space="preserve"><code class="language-java">import com.datical.liquibase.ext.config.LiquibaseLabsConfiguration;</code></pre>
+                    <li>In your custom Java file, call on the <code class="language-text">LiquibaseLabsConfiguration</code> class. For example, to specify your license key so that you can run the <MadCap:variable name="General.LBPro" />&#160;<code><MadCap:xref href="../../commands/update/update-one-changeset.htm">update-one-changeset</MadCap:xref></code> command:</li><pre xml:space="preserve"><code class="language-java">Scope.child(LiquibaseLabsConfiguration.LICENSE_KEY.getKey(), "myProLicenseKey", () -&gt;
+    new CommandScope(UpdateOneChangeSetSqlCommandStep.COMMAND_NAME)
+        .addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, liquibase.getDatabase())
+        .addArgumentValue(DatabaseChangelogCommandStep.CHANGELOG_FILE_ARG, "/db_schema/changelog.xml")
+        .addArgumentValue(UpdateOneChangeSetCommandStep.CHANGESET_AUTHOR_ARG, "fl")
+        .addArgumentValue(UpdateOneChangeSetCommandStep.CHANGESET_ID_ARG, "1")
+        .addArgumentValue(UpdateOneChangeSetCommandStep.CHANGESET_PATH_ARG, "/db_schema/changelog.xml")
+        .execute()
+);</code></pre>
+                </ol>
+                <p>For information on running <MadCap:variable name="General.Liquibase" /> commands in Java files, see <a href="https://contribute.liquibase.com/code/api/command-commandscope/"><code class="language-text">liquibase.command.CommandScope</code></a>.</p>
             </div>
         </div>
         <p>To verify that your <MadCap:variable name="General.LBPro" /> license key works as expected and  to check its expiration date, you can run the <MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref> command.</p>

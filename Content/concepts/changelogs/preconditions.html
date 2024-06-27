@@ -50,17 +50,17 @@ create table example_table (
             <div id="yaml_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
  - preConditions:
      - dbms:
-        type: oracle
+        type: h2
      - runningAs:
-        username: SYSTEM
+        username: dbuser
  - changeSet:
      id:  1
      author: Liquibase User
      preConditions:
        - onFail: WARN
-       - sqlCheck:
-          expectedResult: 0
-          sql: SELECT COUNT(*) FROM example_table
+       - not:
+          - tableExists:
+              tableName: example_table
      comment: Comments should go after the precondition. Otherwise, Liquibase returns an error.
      changes:
      - createTable:
@@ -75,7 +75,7 @@ create table example_table (
               nullable: false
           - column:
              name:  firstname
-	         type:  varchar(50)
+             type:  varchar(50)
           - column:
              name:  lastname
              type:  varchar(50)
@@ -83,108 +83,148 @@ create table example_table (
               nullable:  false
           - column:
              name:  state
-             type:  char(2)</code></pre>
+             type:  char(2)
+ - changeSet:
+     id:  2
+     author: Liquibase User
+     preConditions:
+       - onFail: WARN
+       - sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM example_table
+     comment: Comments should go after the precondition. Otherwise, Liquibase returns an error.
+     changes:
+     - insert:
+        tableName:  example_table
+        columns:
+        -  column:
+            name:  firstname
+            value:  John
+        -  column:
+            name:  lastname
+            value:  Doe
+        -  column:
+            name:  state
+            value:  TX</code></pre>
             </div>
             <div id="json_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
     {
       "preConditions": [
         {
-          "dmbs": {
-            "type": "oracle"
+          "dbms": {
+            "type": "h2"
           }
         },
         {
           "runningAs": {
-            "username": "SYSTEM"
+            "username": "dbuser"
           }
         }
       ],
-      "changeSet": {
-        "id": "1",
-        "author": "Liquibase User",
-        "preConditions": [
-          {
-            "onFail": "WARN"
-          },
-          {
-            "sqlCheck": {
-              "expectedResult": 0,
-              "sql": "SELECT COUNT(*) FROM example_table"
-            }
-          }
-        ],
-        "comment": "Comments should go after the precondition. Otherwise, Liquibase returns an error.",
-        "changes": [
-          {
-            "createTable": {
-              "tableName": "example_table",
-              "columns": [
+      "changeSet": [
+        {
+          "id": "1",
+          "author": "Liquibase User",
+          "preConditions": [
+            {
+              "onFail": "WARN"
+            },
+            {
+              "not": [
                 {
-                  "column": {
-                    "name": "id",
-                    "type": "int",
-                    "autoIncrement": true,
-                    "constraints": {
-                      "primaryKey": true,
-                      "nullable": false
-                    }
-                  }
-                },
-                {
-                  "column": {
-                    "name": "firstname",
-                    "type": "varchar(50)"
-                  }
-                },
-                {
-                  "column": {
-                    "name": "lastname",
-                    "type": "varchar(50)",
-                    "constraints": {
-                      "nullable": false
-                    }
-                  }
-                },
-                {
-                  "column": {
-                    "name": "state",
-                    "type": "char(2)"
+                  "tableExists": {
+                    "tableName": "example_table"
                   }
                 }
               ]
             }
-          }
-        ]
-      }
+          ],
+          "comment": "Comments should go after the precondition. Otherwise, Liquibase returns an error.",
+          "changes": [
+            {
+              "createTable": {
+                "tableName": "example_table",
+                "columns": [
+                  {
+                    "column": {
+                      "name": "id",
+                      "type": "int",
+                      "autoIncrement": true,
+                      "constraints": {
+                        "primaryKey": true,
+                        "nullable": false
+                      }
+                    }
+                  },
+                  {
+                    "column": {
+                      "name": "firstname",
+                      "type": "varchar(50)"
+                    }
+                  },
+                  {
+                    "column": {
+                      "name": "lastname",
+                      "type": "varchar(50)",
+                      "constraints": {
+                        "nullable": false
+                      }
+                    }
+                  },
+                  {
+                    "column": {
+                      "name": "state",
+                      "type": "char(2)"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }</code></pre>
             </div>
             <div id="xml_example_main" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.1" encoding="UTF-8" standalone="no"?&gt;
-<MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
+&lt;MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" /&gt;
 
     &lt;preConditions&gt;
-        &lt;dbms  type="oracle"  /&gt;
-        &lt;runningAs  username="SYSTEM"  /&gt;
+        &lt;dbms  type="h2"  /&gt;
+        &lt;runningAs  username="dbuser"  /&gt;
     &lt;/preConditions&gt;
 
     &lt;changeSet  id="1"  author="Liquibase User"&gt;
         &lt;preConditions  onFail="WARN"&gt;
-            &lt;sqlCheck  expectedResult="0"&gt;SELECT COUNT(*) FROM example_table&lt;/sqlCheck&gt;
+            &lt;not&gt;
+                &lt;tableExists tableName="example_table" /&gt;
+            &lt;/not&gt;
         &lt;/preConditions&gt;
         &lt;comment&gt;Comments should go after the precondition. Otherwise, Liquibase returns an error.&lt;/comment&gt;
 
         &lt;createTable  tableName="example_table"&gt;
             &lt;column name="id" type="int" autoIncrement="true"&gt;
-                &lt;constraints primaryKey="true" nullable="false"&gt;
+                &lt;constraints primaryKey="true" nullable="false"/&gt;
             &lt;/column&gt;
-            &lt;column name="firstname" type="varchar(50)"&gt;
+            &lt;column name="firstname" type="varchar(50)"/&gt;
             &lt;column name="lastname" type="varchar(50)"&gt;
-                &lt;constraints nullable="false"&gt;
+                &lt;constraints nullable="false"/&gt;
             &lt;/column&gt;
-            &lt;column name="state" type="char(2)"&gt;
+            &lt;column name="state" type="char(2)"/&gt;
         &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+
+    &lt;changeSet id="2" author="Liquibase User"&gt;
+        &lt;preConditions&gt;
+            &lt;sqlCheck expectedResult="0"&gt;SELECT COUNT(*) FROM example_table&lt;/sqlCheck&gt;
+        &lt;/preConditions&gt;
+        &lt;insert tableName="example_table"&gt;
+            &lt;column name="firstname" value="John"/&gt;
+            &lt;column name="lastname" value="Doe"/&gt;
+            &lt;column name="state" value="TX"/&gt;
+        &lt;/insert&gt;
     &lt;/changeSet&gt;
 
 &lt;/databaseChangeLog&gt;</code></pre>
@@ -269,10 +309,14 @@ create table example_table (
     {
       "or": [
         {
-          "dbms": "oracle"
+          "dbms": {
+            "type": "oracle"
+          }
         },
         {
-          "dbms": "mysql"
+          "dbms": {
+            "type": "mysql"
+          }
         }
       ]
     }
