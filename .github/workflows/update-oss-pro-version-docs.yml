@@ -1,0 +1,21 @@
+name: Update OSS Pro Version in Docs
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [oss-released-version]
+
+jobs:
+    update-oss-pro-version-docs:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Update docs
+              run: |
+                LATEST_VERSION="${{ github.event.client_payload.latest_version }}"
+                PREVIOUS_VERSION="${{ github.event.client_payload.previous_version }}"
+                echo "Updating docs with OSS version: ${{ github.event.client_payload.latest_version }}"
+                sed "s/${PREVIOUS_VERSION}/${LATEST_VERSION}/g" ${{ github.workspace }}/Content/Z_Resources/Snippets/text/start-download-files.flsnp
+                sed "s/${PREVIOUS_VERSION}/${LATEST_VERSION}/g" ${{ github.workspace }}/Project/VariableSets/software-versions.flvar
