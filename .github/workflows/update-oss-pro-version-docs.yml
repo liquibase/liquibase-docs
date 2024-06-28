@@ -2,6 +2,13 @@ name: Update OSS Pro Version in Docs
 
 on:
   workflow_dispatch:
+    inputs:
+      latest_version:
+        description: 'Latest version'
+        required: true
+      previous_version:
+        description: 'Previous version'
+        required: true
   repository_dispatch:
     types: [oss-released-version]
 
@@ -17,5 +24,25 @@ jobs:
                 LATEST_VERSION="${{ github.event.client_payload.latest_version }}"
                 PREVIOUS_VERSION="${{ github.event.client_payload.previous_version }}"
                 echo "Updating docs with OSS version: ${{ github.event.client_payload.latest_version }}"
-                sed "s/${PREVIOUS_VERSION}/${LATEST_VERSION}/g" ${{ github.workspace }}/Content/Z_Resources/Snippets/text/start-download-files.flsnp
-                sed "s/${PREVIOUS_VERSION}/${LATEST_VERSION}/g" ${{ github.workspace }}/Project/VariableSets/software-versions.flvar
+                sed -i "s/${PREVIOUS_VERSION}/${LATEST_VERSION}/g" ${{ github.workspace }}/Content/Z_Resources/Snippets/text/start-download-files.flsnp
+                sed -i "s/${PREVIOUS_VERSION}/${LATEST_VERSION}/g" ${{ github.workspace }}/Project/VariableSets/software-versions.flvar
+
+            - name: Commit changes
+              run: |
+                git config --global user.email "liquibot@github.com"
+                git config --global user.name "liquibot"
+                git add .
+                git commit -m "Replace OSS and PRO ${{ github.event.client_payload.previous_version }} version with ${{ github.event.client_payload.latest_version }}"
+                git push    
+            
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v6
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+                commit-message: "Update docs: replace OSS and PRO version $PREVIOUS_VERSION with $LATEST_VERSION"
+                title: ":wrench Update OSS/Pro Version in Files"
+                body: |
+                    This PR updates the OSS and PRO versions in the documentation.
+                branch: update-oss-pro-version-docs-${{ github.event.client_payload.latest_version }}
+                base: master
+                labels: "skipReleaseNotes"    
