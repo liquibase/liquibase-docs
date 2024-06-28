@@ -1,16 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head>
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/commands/quality-checks/custom-policy-checks.html" />
+        <meta name="description" content="Custom Policy Checks enable the creation of any kind of check that matches your needs via python scripts. This feature expands the Liquibase checks horizon and allows all Pro users who write Python scripts to create any check for the workflow at hand." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <h1>Custom Policy Checks</h1>
-        <p>Custom Policy Checks enable the creation of any kind of check  that matches your needs via python scripts. This feature expands the <MadCap:variable name="General.Liquibase" /> checks horizon and allows all <MadCap:variable name="General.LBPro" /> users who write Python scripts to create any check for the workflow at hand. You are empowered to create checks tailored to your procedures so you don't have to wait for your specific check to be created. Virtual Environments can even be used to craft your Python scripts.</p>
+        <p>Custom Policy Checks allow you to define and adhere to code standards to ensure compliance and data quality with the creation of any kind of check via python scripts. This feature expands the <MadCap:xref href="home.htm">Quality Checks</MadCap:xref> horizon and allows all <MadCap:variable name="General.LBPro" /> users who write Python scripts to create any check for the workflow at hand. You are able to create checks tailored to your procedures so you don't have to wait for your specific check to be created.</p>
         <h2>Uses</h2>
-        <p>If our library of <MadCap:xref href="checks/home.htm">Quality Checks</MadCap:xref>, including the regex checks, do not allow you to parse the information you need from your <MadCap:variable name="General.changelog" />s and/or databases, you will want to create your own custom Policy Check. For example, you are performing an insert, update, or merge you can ensure that numbers are not being put into var char columns by placing a flag with a custom policy check. This feature will parse out the insert and update statements and then it determines if those statements are placed into a specific column.</p>
+        <p>Although <MadCap:variable name="General.Liquibase" /> provides a library of <MadCap:xref href="checks/home.htm">Quality Checks</MadCap:xref> , you may find that they don't quite pull the information you need to evaluate. Custom policy checks give you the flexibility to parse any information you need from your <MadCap:variable name="General.changelog" />s and databases.</p>
         <h2>Create a Custom Policy Check</h2>
         <h3>Prerequisites</h3>
         <ul>
-            <li>Before creating a custom policy check we recommend being familiar with:<ul><li> Python</li><li><MadCap:variable name="General.Liquibase" /> concepts such as <MadCap:xref href="../inspection/snapshot.html">snapshot</MadCap:xref></li><li>In certain scenarios you will&#160;also need to be familiar with SQL&#160;parsing and REGEX</li><li><b>Insert Helper Commands here (This will need to be a separate doc page.)</b></li></ul></li>
+            <li>Before creating a custom policy check we recommend being familiar with:<ul><li> Python</li><li><MadCap:variable name="General.Liquibase" /> concepts such as <MadCap:xref href="../inspection/snapshot.html">snapshot</MadCap:xref><ul><li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Requiring a snapshot calls for a database connection and impacts performance. It can take time to process if your database has hundreds or thousands of objects.</p></li></ul></li><li>In certain scenarios you will&#160;also need to be familiar with SQL&#160;parsing and REGEX</li><li><b>Insert Helper Commands here (This will need to be a separate doc page.)</b></li></ul></li>
             <li>It is important to note that database checks look at JSON&#160;objects and Changelog checks look at sql patterns.</li>
         </ul>
         <h3>Step-by-step Guide</h3>
@@ -20,54 +23,51 @@
             <li>
                 <p>Run this command in the CLI: <pre>liquibase checks customize --check-name=CustomCheckTemplate</pre></p>
             </li>
-            <li>You will see that this check cannot be customized directly because one or more fields does not have a default value. <MadCap:variable name="General.Liquibase" /> will then create a copy of this check and initiate the customization workflow. Your next step will be to give your check a short name for easier identification. In this example we will name the check <code>NoDeleteWithoutWhere</code>.<br />The new check <code>NoDeleteWithoutWhere</code> is created from <code>CustomCheckTemplate</code> successfully.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The new check short name <code>NoDeleteWithoutWhere</code> and all of it's associated information comes from the Python script you created. Your company may have their own coding standards that these scripts must adhere to.</p></li>
-            <li>Set the Severity to return a code of 0-4 when triggered. In this example we will set the severity to <code>1</code>.<br />Options:</li>
+            <li>In the CLI a message will say that this check cannot be customized directly because one or more fields does not have a default value. <MadCap:variable name="General.Liquibase" /> will then create a copy of this check and initiate the customization workflow. Your next step will be to give your check a short name for easier identification. In this example we will name the check <code>IdentifiersWithoutQuotes</code>.<br />The new check <code>IdentifiersWithoutQuotes</code> is created from <code>CustomCheckTemplate</code> successfully.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The new check short name <code>IdentifiersWithoutQuotes</code> and all of it's associated information comes from the Python script you created. Your company may have their own coding standards that these scripts must adhere to.</p></li>
+            <li>In the CLI set the severity to return a code of 0-4 when triggered. In this example we will set the severity to <code>1</code>.<br />Options:</li>
             <MadCap:snippetBlock src="../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-severity-customization.flsnp" />
-            <li>Set the script description for the custom check. In this example we will set the description to <code>NoDeleteWithoutWhere</code>.<br /></li>
-            <li>Set the script scope for the custom check. In this example we will set it to <code><MadCap:variable name="General.changelog" /></code>.<br />Optional scope:<br></br></li>
+            <li>In the CLI set the script description for the custom check. In this example we will set the description to <code>IdentifiersWithoutQuotes</code>.<br /></li>
+            <li>In the CLI set the script scope for the custom check. In this example we will set it to <code><MadCap:variable name="General.changelog" /></code>.<br />Options for scope:<br /></li>
             <ul>
-                <li><code class="language-text">changelog</code>
-                    <li><code class="language-text">database</code>
-                    </li>
-                </li>
+                <li><code class="language-text">changelog</code>:&#160;This scope indicates the check  reviews all current <MadCap:variable name="General.changeset" />s.<li><code class="language-text">database</code>:&#160;This scope indicates the check runs once for each database object.</li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">We recommend creating customized checks that are single-scoped for <code><MadCap:variable name="General.changelog" /></code> <b>or </b><code>database</code>, but not both.</p></li>
             </ul>
-            <li>Set the script message. This message will deisplay when the check is triggered. In this example we will set the message to:<br />All <code>DELETE</code>&#160;statements must have a <code>WHERE</code>&#160;clause.</li>
-            <li>Set the script type.<b>?</b></li>
-            <li>Set the script path. <br />We </li>
+            <li>In the CLI set the script message. This message will display when the check is triggered. In this example we will set the message to:<br /><code>Identifier __ID_NAME__&#160;should not include quotes.</code></li>
+            <li>
+                <p><b>Optional:</b>&#160;You can create a script message with a replaceable string that is identified by your Python script. If you have a line in your Python script that says:<br /><code>status_message = "Hello World!"<br />status_message = str(script_helper.git_gitscript_message()).replace(__ID_NAME__", identifier)</code><br /><MadCap:variable name="General.Liquibase" /> will pull the <code>Identifier __ID_NAME__&#160;should not include quotes.</code> script message and replace your <code>__ID_NAME__</code> variable with <code>"Hello World!"</code> from your Python script.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">We recommend you review <a href="https://github.com/liquibase/UAT_CustomQCs/tree/main/Scripts">this set of Python script examples</a> to set up full messages or messages with replaceable strings.</p>
+            </li>
+            <li>In the CLI set the script type. In <MadCap:variable name="General.LBPro" /> 4.29.0 Python is the only available script type. We plan to include other script options in future releases.</li>
+            <li>Set the script path. This is the relative path where your script is stored whether it is stored locally or in a repository.<br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">We recommend you store all of your scripts in the same folder for easy access.</p><br />In this example we will set the path to <code>Scripts/delete_without_where.py</code></li>
+            <li>Set the script argument. This is a way for you to pass dynamic information into the custom policy check without modifying the python code.  This step allows you to modify definitions specified within your scripts with a variable rather than modify the python script directly. The script arguments allow your python scripts remain re-usable with different variables.</li>
+            <li>Set whether the check requires a <MadCap:xref href="../inspection/snapshot.html">snapshot</MadCap:xref>.<br /><code>REQUIRES_SNAPSHOT (options:&#160;true, false) [false]:</code><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Requiring a snapshot calls for a database connection and impacts performance. It can take time to process if your database has hundreds or thousands of objects.</p></li>
         </ol>
-        <p>Same experience as other checks, just new fields, such as SCRIPT_PATH to specify a path to a user-provided script, which performs the actual check.</p>
-        <p>Essentially, the python script at SCRIPT_PATH is called by the custom check, and it returns either TRUE or FALSE (or status.fired=TRUE, status.fired=FALSE) to liquibase to indicate the check has triggered or not. The check is just like a traditional check in that there is a name, description, severity/return code, and message.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Technical requirements: Users must have JDK 17+, and the graalpy jar, etc.</p>
+        <p>You have successfully created and customized a policy check!</p>
         <h3>Security settings</h3>
-        <p>Customizing policy checks is optional and OFF by default</p>
-        <p>master switch: <code>--checks-scripts-enabled</code></p>
-        <p>or <code>LIQUIBASE_COMMAND_CHECKS_RUN_CUSTOM_CHECKS_ENABLED=true|false</code>, etc</p>
-        <p>Customized policy checks only apply to <code>checks run</code> so that you can set up checks etc before you use them.</p>
-        <p>restrict scripts to a certain path: <code>--checks-scripts-paths</code></p>
+        <ul>
+            <li>Customizing policy checks is optional and OFF by default</li>
+            <li>master switch: <code>--checks-scripts-enabled</code></li>
+            <li>or <code>LIQUIBASE_COMMAND_CHECKS_RUN_CUSTOM_CHECKS_ENABLED=true|false</code>, etc</li>
+            <li>Customized policy checks only apply to <code>checks run</code> so that you can set up checks etc before you use them.</li>
+            <li>Testrict scripts to a certain path: <code>--checks-scripts-paths</code></li>
+        </ul>
         <h3>System Requirements and Provided Framework</h3>
         <ul>
-            <li>
-                <p>JDK 17+</p>
+            <li>JDK 17+
             </li>
-            <li>
-                <p>Open JDK</p>
+            <li>Open JDK
             </li>
-            <li>
-                <p>Oracle JDK</p>
+            <li>Oracle JDK
             </li>
-            <li>
-                <p>Linux, Mac, or Windows</p>
+            <li>Linux, Mac, or Windows
             </li>
-            <li>
-                <p>Liquibase 4.29.0 (TBD)</p>
+            <li>Liquibase 4.29.0 (TBD)
             </li>
-            <li>
-                <p>Oracle GraalPy framework is included, you will not need to install it manually</p>
+            <li>Oracle GraalPy framework is included, you will not need to install it manually
             </li>
         </ul>
         <h3>Virtual Environment Options</h3>
         <p>You  can use the provided VENV that is part of the <MadCap:variable name="General.LBPro" /> release or your own python VENV. If you need to utilize your own VENV you will need to download and use the GraalPy CLI&#160;tool. This VENV&#160;is stored in a drectory on your local file system.<br /></p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This is only reccommended to users who are familar with building and deploying Python virtual environments.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This is only recommended to users who are familiar with building and deploying Python virtual environments.</p>
         <ul>
             <li>Python scripts can be stored anywhere text files are stored including:&#160;CWD, local paths, S3, or the GitHub extension, etc. </li>
         </ul>
