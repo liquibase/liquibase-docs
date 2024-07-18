@@ -8,8 +8,8 @@
     <body>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <h1>Custom Policy Check Helper Scripts</h1>
-        <p>Helper Scripts are Python scripts that provide an API&#160;that allows you to access objects or <MadCap:variable name="General.Liquibase" /> functionality to perform additional functionality with <MadCap:xref href="home.htm">Custom Policy Checks</MadCap:xref>. When helper scripts are enabled within a custom policy check,  the check goes through all the <MadCap:variable name="General.changeset" />s that have not deployed and looks for the specific content set in the custom policy check. <MadCap:variable name="General.Liquibase" /> will then decide if the check fires or not depending on what is specified with the helper script. Without these helper scripts you would have to write your own code to retrieve the specific content they pull from your <MadCap:variable name="General.changeset" />s and databases. They significantly reduce the time it will take to find the information you are looking for.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These helper scripts are included in the liquibase-checks extension.</p>
+        <p>Helper Scripts are Python scripts that provide an API&#160;that allows you to access objects or <MadCap:variable name="General.Liquibase" /> functionality with <MadCap:xref href="home.htm">Custom Policy Checks</MadCap:xref>. When helper scripts are enabled within a custom policy check,  the check goes through all the <MadCap:variable name="General.changeset" />s or database objects that have not deployed and looks for the specific content set in the custom policy check. <MadCap:variable name="General.Liquibase" /> will then decide if the check fires or not depending on what is specified with the helper script. <MadCap:variable name="General.Liquibase" /> also provides a python package <code>liquibase-checks-python</code> to assist with in-IDE documentation and auto complete. These helper scripts and Python package significantly reduce the time it will take to find the information you are looking for.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The Checks  extension, which includes all Custom Policy Check functionality, is available to <MadCap:variable name="General.Liquibase" /> Pro 4.29+  users.</p>
         <table style="width: 100%; margin-left: auto; margin-right: auto;">
             <caption style="font-weight: bold;">Compatible Versions</caption>
             <col />
@@ -26,20 +26,70 @@
             </tbody>
         </table>
         <h2>Install the Python installer package (PIP)</h2>
-        <p>If you want in-IDE documentation and auto complete with your helper script, install the PIP by following the below instructions</p>
+        <p><MadCap:variable name="General.Liquibase" /> provides a Python package called <code>liquibase-checks-python</code> to assist with in-IDE documentation and auto complete with your helper scripts. Install our Python package by following these instructions.</p>
         <h3>Step-by-step</h3>
         <ol>
             <li>Create a virtual environment in your directory that contains the custom policy check script by running the following in the CLI:<p><code>python -m venv &lt;path to your venv&gt;</code></p></li>
-            <li>Install the PIP by running <code>pip install liquibase-checks-python</code> in the CLI.</li>
-            <li>Navigate to the location where you import <code>liquibase_utilities</code> and replace <code>import liquibase_utilities</code> with <code>from liquibase_checks_python import liquibase_utilities</code> in your Python script.<br />You have successfully activated the PIP. Next you will need to activate the helper scripts to run them.<br /></li>
+            <li>Install the Python package by running <code>pip install liquibase-checks-python</code> in the CLI.</li>
+            <li>In your custom policy check file, replace <code>import liquibase_utilities</code> with <code>from liquibase_checks_python import liquibase_utilities</code> in your Python script.<br /></li>
+            <li>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">from liquibase_checks_python import liquibase_utilities as lb # this is where we are importing our liquibase_utilities helper script provided by the liquibase-checks-python package
+import sys # useful for indicating a check has been triggered
+
+obj = lb.get_database_object() # this gets the database object the liquibase policy check is examining
+status = lb.get_status() # this gets the status object of the liquibase check, used for reporting status and messages from the custom policy check
+
+if lb.is_table(obj): # function provided from liquibase utilities
+	status.fired = True # indicates the custom check has been triggered
+	status.message = "No tables allowed!" # set the message of the custom check, which liquibase will return
+	sys.exit(1) # exit from the check</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <li>
+                <br />You have successfully activated the Python package. Next you will need to activate the helper scripts to run them.<br /></li>
         </ol>
-        <h2>Activate and run helper scripts</h2>
-        <h3>Step-by-step</h3>
-        <p>If&#160;you want the custom policy check helper scripts with  in-IDE documentation and auto complete you must complete the <b>Install the Python installer package (PIP)</b> steps above first. If you want the custom policy check helper scripts without those features, skip that section and follow the <b>Activate and run helper script</b> steps.</p>
+        <h2>Virtual Environment Options</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">A virtual environment and using the GraalPy CLI&#160;tool are optional steps and are not required to use Custom Policy Checks.</p>
+        <p>You  can use the provided <a href="https://docs.python.org/3/library/venv.html">virtual environment</a> that is part of the <MadCap:variable name="General.LBPro" /> release or your own Python virtual environment. If you need to utilize your own virtual environment you will need to have Python 3.10 installed on your system. This virtual environment is stored in a directory on your local file system.</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> custom policy checks use GraalPy to execute your custom checks. We recommend <a href="https://www.graalvm.org/latest/reference-manual/python/Python-Runtime/#installing-graalpy">downloading and using the GraalPy python runtime</a> if you are working in a virtual environment. The <code>pip</code> package installer is available when using a virtual environment. The GraalPy implementation of <code>pip</code> may choose package versions other than the latest when it ships patches to improve performance.</p>
+        <p><MadCap:variable name="General.Liquibase" /> bundles and utilizes GraalPy to execute Python scripts via Java. GraalPy also provides patches to certain packages that facilitates a smooth workflow with Java when installing those packages. Python scripts can be stored anywhere text files are stored including:&#160;CWD, local paths, S3, or the GitHub extension, etc. </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This is only recommended to users who are familiar with building and deploying Python virtual environments.</p>
+        <h3>Step-by-step instructions</h3>
         <ol>
-            <li>Run <code>import liquibase_utilities</code> in the CLI.<br />Now the Python package that includes the helper scripts is activated.<br /></li>
+            <li>Run <code>python -m venv .your/path/to/venv</code> to create a <code>.your/path/to/venv</code> directory which contains (many) Python executables.</li>
+            <li>Run <code>source .your/path/to/venv/activate</code> to activate the virtual environment.</li>
+            <li>Once the environment is active, install packages using <code>pip install &lt;some package&gt;</code>.</li>
+            <li> Provide a path to the Python executable that is based on your virtual environment so <MadCap:variable name="General.Liquibase" /> can recognize the environment.<br /><code>liquibase --script-python-executable-path ./your/path/to/venv/bin/python checks run --check-name MySweetPythonCheck --checks-scripts-enabled --checks-scope database</code></li>
+        </ol>
+        <ol>
+            <li>Create a virtual environment in your directory that contains the custom policy check script by running the following in the CLI:<p><code>python -m venv &lt;path to your venv&gt;</code></p></li>
+            <li>Install the PIP by running <code>pip install liquibase-checks-python</code> in the CLI.</li>
+            <li>Navigate to the location where you import <code>liquibase_utilities</code> and replace <code>import liquibase_utilities</code> with <code>from liquibase_checks_python import liquibase_utilities</code> in your Python script.<br />Now the Python package that includes the helper scripts is activated.<br /></li>
             <li>Next you will call on a specific helper script.<br />In this example we will run <code>logger = liquibase_utilities.get_logger</code></li>
             <li>When the check runs it will retrieve any content it finds based on the criteria you asked for and display it in the CLI.</li>
+        </ol>
+        <h2>Import and access helper scripts</h2>
+        <h3>Step-by-step</h3>
+        <p>If&#160;you want the custom policy check helper scripts with  in-IDE documentation and auto-complete you must complete the <b>Install the Python installer package (PIP)</b> steps first. If you want the custom policy check helper scripts without those features, skip that section and follow the <b>Import and access helper script</b> steps.</p>
+        <ol>
+            <li>Navigate to your Custom Policy Check Python script that you want to implement helper scripts in.</li>
+            <li>Import the <MadCap:variable name="General.Liquibase" /> utilities helper scripts by placing <code>import liquibase_utilities</code> within the Python script.<br />Now the <code>liquibase_utilities</code> Python package that includes the helper scripts are accessible to <MadCap:variable name="General.Liquibase" />. <br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">import sys
+import liquibase_utilities
+</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
+            <li>Next you will include a specific helper script function in your Custom Policy Check Python script.<br />In this example we will include <code>logger = liquibase_utilities.get_logger</code> to pull the <MadCap:variable name="General.Liquibase" /> log.</li>
+            <li>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">
+###
+### Retrieve log handler
+### Ex. liquibase_logger.info(message)
+###
+liquibase_logger = liquibase_utilities.get_logger()
+</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>Run this command to enable your custom policy check in the CLI.<br /><code>liquibase checks run --check-name &lt;custom_policy_check_example&gt; --checks-scripts-enabled</code><br />When the custom check runs with these specifications it will retrieve any content it finds based on the packages and the helper script functions you chose to include and will display it in the CLI or in a report.<br />In this example, <MadCap:variable name="General.Liquibase" /> will produce the log information when you call on this Custom Policy Check because it includes <code>logger = liquibase_utilities.get_logger</code>.</li>
         </ol>
         <h2>Changeset attributes</h2>
         <p>Methods to return <MadCap:variable name="General.Liquibase" /> <MadCap:variable name="General.changeset" /> attributes</p>
