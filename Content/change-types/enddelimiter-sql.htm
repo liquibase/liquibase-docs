@@ -30,9 +30,6 @@
         <p>The <code>endDelimiter</code> must be specified for some dbms systems to run multiple statements.</p>
         <h2>Syntax</h2>
         <MadCap:snippetBlock src="../Z_Resources/Snippets/note/changeset-attribute-camel.flsnp" />
-        <h3>Escaping an <code>endDelimiter</code></h3>
-        <p>When setting an <code>endDelimiter</code>, note that certain DBMS and operating systems require delimiter values to be escaped.  For example, a <code>$$</code> <code>endDelimiter</code> with <code>mysql</code> requires escaping as: <code>endDelimiter="\$\$"</code>. A <MadCap:variable name="General.Liquibase" /> migration error indicates the delimiter that needs to be escaped would be:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: Migration failed for change set &lt;changelog&gt;::&lt;id&gt;::&lt;author&gt;:
- Reason: liquibase.exception.DatabaseException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '$$$</code></pre>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h4">
                 <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
@@ -118,6 +115,15 @@ RETURN profit;
 END
 /</code></pre>
             </div>
+            <h2>Troubleshooting</h2>
+            <h3>Escaping an end delimiter</h3>
+            <p>When setting an <code>endDelimiter</code>, note that certain DBMS and operating systems require delimiter values to be escaped.  For example, a <code>$$</code><code>endDelimiter</code> with <code>mysql</code> requires escaping as: <code>endDelimiter="\$\$"</code>. A <MadCap:variable name="General.Liquibase" /> migration error indicates the delimiter that needs to be escaped would be:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: Migration failed for change set &lt;changelog&gt;::&lt;id&gt;::&lt;author&gt;:
+ Reason: liquibase.exception.DatabaseException: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '$$$</code></pre>
+            <h3>Newline behavior with a <code>/</code> end delimiter</h3>
+            <p>In <MadCap:variable name="General.Liquibase" /> 4.8.0 to 4.14.0, using the delimiter <code>/</code> (forward slash) in a PL/SQL&#160;block, for example as a division operator, causes <MadCap:variable name="General.Liquibase" /> to fail on Oracle databases:</p><pre xml:space="preserve"><code class="language-text">Caused by: liquibase.exception.LiquibaseException: liquibase.exception.MigrationFailedException: Migration failed for change set filepath/example-changeset.sql::example-id::example-author:
+     Reason: liquibase.exception.DatabaseException: ORA-00900: invalid SQL statement</code></pre>
+            <p>In <MadCap:variable name="General.Liquibase" /> 4.15.0 to 4.28.0, <MadCap:variable name="General.Liquibase" /> fixes this by requiring a newline <b>before</b> the <code>/</code> to treat it as a delimiter. Otherwise, the <code>/</code> is treated as a regular character. However, using a newline in the wrong place can lead to the error message "<code>ORA-00922: missing or invalid option</code>" on Oracle databases.</p>
+            <p>In <MadCap:variable name="General.Liquibase" /> 4.29.0, <MadCap:variable name="General.Liquibase" /> fixes this by requiring a newline <b>after</b> the <code>/</code> to treat it as a delimiter, not before. Otherwise, the <code>/</code> is treated as a regular character.</p>
         </div>
         <h2>Related links</h2>
         <ul>
