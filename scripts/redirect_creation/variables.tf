@@ -330,6 +330,7 @@ variable "redirects" {
     { key = "/commands/quality-checks/workflows/getting-started-with-the-checks-command.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
     { key = "/commands/quality-checks/workflows/using-the-checks-settings-configuration-file.html", website_redirect = "/commands/quality-checks/workflows/use-checks-settings-config-file.html" },
     { key = "/commands/quality-checks/working-with-quality-checks.html", website_redirect = "/commands/quality-checks/workflows/home.html" },
+    { key = "/custom-policy-checks.html", website_redirect = "/commands/quality-checks/custom-policy-checks/home.html" },
     { key = "/commands/registerchangelog.html", website_redirect = "/tools-integrations/observability/structured-logging.html" },
     { key = "/commands/releaselocks.html", website_redirect = "/commands/utility/release-locks.html" },
     { key = "/commands/rollbackbytag.html", website_redirect = "/commands/rollback/rollback-by-tag.html" },
