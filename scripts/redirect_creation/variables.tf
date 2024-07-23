@@ -504,6 +504,8 @@ variable "redirects" {
     { key = "/concepts/sql-format.html", website_redirect = "/concepts/changelogs/sql-format.html" },
     { key = "/concepts/xml-format.html", website_redirect = "/concepts/changelogs/xml-format.html" },
     { key = "/concepts/yaml-format.html", website_redirect = "/concepts/changelogs/yaml-format.html" },
+    { key = "/custom-policy-checks", website_redirect = "/commands/quality-checks/custom-policy-checks/home.html" },
+    { key = "/custom-policy-checks.html", website_redirect = "/commands/quality-checks/custom-policy-checks/home.html" },
     { key = "/database-reports", website_redirect = "/tools-integrations/observability/operation-reports.html" },
     { key = "/database-reports.html", website_redirect = "/tools-integrations/observability/operation-reports.html" },
     { key = "/DATABASECHANGELOGHISTORY", website_redirect = "/concepts/tracking-tables/databasechangeloghistory-table.html" },
