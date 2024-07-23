@@ -623,6 +623,8 @@ variable "redirects" {
     { key = "/parameters/on-missing-include.html", website_redirect = "/parameters/on-missing-include-changelog.html" },
     { key = "/parameters/parameters.html", website_redirect = "/parameters/home.html" },
     { key = "/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/pro-extensions", website_redirect = "/workflows/liquibase-pro/extensions-list.html" },
+    { key = "/pro-extensions.html", website_redirect = "/workflows/liquibase-pro/extensions-list.html" },
     { key = "/quality-checks", website_redirect = "/commands/quality-checks/home.html" },
     { key = "/quality-checks.html", website_redirect = "/commands/quality-checks/home.html" },
     { key = "/release-notes/home.html", website_redirect = "/start/release-notes/home.html" },
