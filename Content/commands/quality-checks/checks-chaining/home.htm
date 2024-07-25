@@ -11,8 +11,7 @@
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/liquibase-pro-feature.flsnp" />
         <p>Check Chains allow users to link multiple checks together and act as one <a href="https://docs.liquibase.com/commands/quality-checks/home.html">Quality Check</a>. Check Chains help  ensure policies are followed and allow a job to be stopped if compliance is not met.  When you have multiple checks that need to occur together, you can run all of them with one chain instead of running each check individually. This promotes flexibility and succinct development in your environment. </p>
         <p>Check Chains is a feature that<b> is available in <MadCap:variable name="General.Liquibase" /> 4.27.0 and later.</b> It is only available to <MadCap:variable name="General.LBPro" /> users. </p>
-        <h2>Implement Check Chains</h2>
-        <p>The Check Chains template is essential to implement the Check Chains feature. The template's purpose is to be copied. Once copied, the user customizes the copy to create a chain of quality checks.</p>
+        <h2>Create a Check Chain</h2>
         <table>
             <col style="width: auto;" />
             <col style="width: auto;" />
@@ -50,12 +49,11 @@
                 </tr>
             </tbody>
         </table>
-        <p>To begin using the Check Chains feature, you must first copy the chained check template.  </p>
+        <p>To chain checks together with conditional logic, you must clone and modify the <code>ChainedChecksTemplate</code> check:</p>
         <ol>
-            <li>First run:<pre><code class="language-text">liquibase checks copy --check-name=ChainedChecksTemplate</code></pre></li>
-            <li>Then  customize your check chain copy by giving it a short name.<br /></li>
-            <li>&#160;In this example we will call it <code class="language-text">TableLabelChain</code></li>
-            <li>Set the severity of the check chain. <ol><li>This can be 0, 1, 2, 3, or 4. Learn more here:&#160;<MadCap:xref href="../workflows/use-quality-checks-auto-severity-exit-code.htm">Use Quality Checks in Automation: Severity and Exit Code</MadCap:xref></li></ol></li>
+            <li>Copy the chained check template:<pre><code class="language-text">liquibase checks copy --check-name=ChainedChecksTemplate</code></pre></li>
+            <li>Then  customize your check chain copy by giving it a short name. In this example we will call it <code class="language-text">TableLabelChain</code></li>
+            <li>Set the <a href="../workflows/use-quality-checks-auto-severity-exit-code.htm">severity</a> of the check chain. Enter <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, or <code>4</code>.</li>
             <li>Specify the specific checks to link in this chained check, the logic conditionals, and optional groupings between these checks.<ol><li><b>Example 1:</b>&#160;If you want two checks to both trigger for <code class="language-text">TableLableChain</code> to trigger, link them as <code class="language-text">checkname1 &amp;&amp; checkname2</code>.</li><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If a user types any operator incorrectly, a message appears that states:
             <pre>Invalid value: 'checkname1 &amp; checkname2': The supplied value is not valid. Enter the shortname, logic conditional (using &amp;&amp;, ||, !), and optional (groupings) for your checks. Example: "(shortname1 &amp;&amp; shortname2) || shortname3":</pre><p>If you see this error message, ensure that your operators are either <code class="language-text">&amp;&amp;</code>, <code class="language-text">||</code>, or <code class="language-text">!</code>.</p></p><li><p><b>Example 2:</b> If you need EITHER two checks to trigger, or one separate check for <code class="language-text">TableLabelChain</code> to trigger, you would link them as “<code class="language-text">(checkname1 &amp;&amp; checkname2) || checkname3</code>”</p></li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Set the logic condition using <code>!</code>, <code>&amp;&amp;</code>, or <code>||</code> operators. The order of operations from highest to lowest precedence is NOT → AND → OR respectively. Grouping with parenthesis allows for enhanced trigger conditions for Check Chains.</p></ol></li>
             <li>In this <code class="language-text">TableLabelChain</code> example, the goal is for both checks to trigger for TableLabelChain. For this to occur, set <code class="language-text">TableColumnLimit3 &amp;&amp; ChangesetLabelCheck</code> as the logical conditional.</li>
@@ -101,6 +99,9 @@
                     </tr>
                 </tbody>
             </table>
+        </ol>
+        <h2>Use Your Check Chain</h2>
+        <ol>
             <li>To run the chained check:<br /><pre><code class="language-text">liquibase checks run --check-name=TableLabelChain --checks-scope=changelog --changelogfile=&lt;your_changelog_file.xml&gt;</code></pre></li>
             <li>When run successfully, this message appears:<pre><code class="language-text">The conditions in 'TableLabelChain' were met for 'TableColumnLimit3 &amp;&amp; 'ChangesetLabelCheck'. The Check Chains include 'TableColumnLimit3::triggered', 'ChangesetLabelCheck::triggered'.</code></pre></li>
         </ol>
