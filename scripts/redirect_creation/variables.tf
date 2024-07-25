@@ -14,6 +14,8 @@ variable "redirects" {
     { key = "/2014/11/faq.html", website_redirect = "/faq.html" },
     { key = "/2014/11/home.html", website_redirect = "/home.html" },
     { key = "/2014/11/popular-topics.html", website_redirect = "/home.html" },
+    { key = "/bigquery", website_redirect = "/start/tutorials/google-bigquery/home.html" },
+    { key = "/bigquery.html", website_redirect = "/start/tutorials/google-bigquery/home.html" },
     { key = "/change-tracking/maintenance/tag.html", website_redirect = "/commands/utility/tag.html" },
     { key = "/change-types", website_redirect = "/change-types/home.html" },
     { key = "/change-types/column.html", website_redirect = "/change-types/nested-tags/column.html" },
