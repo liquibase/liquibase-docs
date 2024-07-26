@@ -54,8 +54,7 @@
             <li>Copy the chained check template:<pre><code class="language-text">liquibase checks copy --check-name=ChainedChecksTemplate</code></pre></li>
             <li>Then  customize your check chain copy by giving it a short name. In this example we will call it <code class="language-text">TableLabelChain</code></li>
             <li>Set the <a href="../workflows/use-quality-checks-auto-severity-exit-code.htm">severity</a> of the check chain. Enter <code>0</code>, <code>1</code>, <code>2</code>, <code>3</code>, or <code>4</code>.</li>
-            <li>Specify the specific checks to link in this chained check, the logic conditionals, and optional groupings between these checks.<ol><li><b>Example 1:</b>&#160;If you want two checks to both trigger for <code class="language-text">TableLableChain</code> to trigger, link them as <code class="language-text">checkname1 &amp;&amp; checkname2</code>.</li><p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If a user types any operator incorrectly, a message appears that states:
-            <pre>Invalid value: 'checkname1 &amp; checkname2': The supplied value is not valid. Enter the shortname, logic conditional (using &amp;&amp;, ||, !), and optional (groupings) for your checks. Example: "(shortname1 &amp;&amp; shortname2) || shortname3":</pre><p>If you see this error message, ensure that your operators are either <code class="language-text">&amp;&amp;</code>, <code class="language-text">||</code>, or <code class="language-text">!</code>.</p></p><li><p><b>Example 2:</b> If you need EITHER two checks to trigger, or one separate check for <code class="language-text">TableLabelChain</code> to trigger, you would link them as “<code class="language-text">(checkname1 &amp;&amp; checkname2) || checkname3</code>”</p></li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Set the logic condition using <code>!</code>, <code>&amp;&amp;</code>, or <code>||</code> operators. The order of operations from highest to lowest precedence is NOT → AND → OR respectively. Grouping with parenthesis allows for enhanced trigger conditions for Check Chains.</p></ol></li>
+            <li>Specify the specific checks to link in this chained check, the logic conditionals, and optional groupings between these checks.<ol><li><b>Example 1:</b>&#160;If you want two checks to both trigger for <code class="language-text">TableLableChain</code> to trigger, link them as <code class="language-text">checkname1 &amp;&amp; checkname2</code>.</li><li><b>Example 2:</b> If you need EITHER two checks to trigger, or one separate check for <code class="language-text">TableLabelChain</code> to trigger, you would link them as “<code class="language-text">(checkname1 &amp;&amp; checkname2) || checkname3</code>”</li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Set the logic condition using <code>!</code>, <code>&amp;&amp;</code>, or <code>||</code> operators. The order of operations from highest to lowest precedence is NOT → AND → OR respectively. Grouping with parenthesis allows for enhanced trigger conditions for Check Chains.</p></ol></li>
             <li>In this <code class="language-text">TableLabelChain</code> example, the goal is for both checks to trigger for TableLabelChain. For this to occur, set <code class="language-text">TableColumnLimit3 &amp;&amp; ChangesetLabelCheck</code> as the logical conditional.</li>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">When a check chain is created the linked checks are automatically enabled if they are disabled, and the chain is ready to run. A singular check within the chain can be disabled and when the chain is run, a message will alert the user to this.<br /><br />The Check Chains severity setting overrides any individual checks' severity setting. If <code class="language-text">ChangesetLabelCheck</code> is set to severity 2, but a chained check that includes <code class="language-text">ChangesetLabelCheck</code> is set to severity 4, then the severity will be set to 4 when the chained check runs.<br /></p>
             <li> If you would like to <b>keep the default CLI success message</b>, simply press the Enter key to finish customizing your check chain.<ul><li>The default message is:</li><pre><code class="language-text">The conditions in '&lt;Check Chains shortname&gt;' were met for '&lt;logic conditional&gt;'. The Check Chains include &lt;checknames&gt;.</code></pre></ul></li>
@@ -106,19 +105,23 @@
             <li>When run successfully, this message appears:<pre><code class="language-text">The conditions in 'TableLabelChain' were met for 'TableColumnLimit3 &amp;&amp; 'ChangesetLabelCheck'. The Check Chains include 'TableColumnLimit3::triggered', 'ChangesetLabelCheck::triggered'.</code></pre></li>
         </ol>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Checks trigger on matched conditions. You want your content to match the checks so you can confirm the Check Chains are triggered.</p>
-        <h2>Troubleshooting<br /></h2>
-        <p>This list covers messages that guide the user back to their desired path while implementing Check Chains in their workflow. </p>
-        <ul>
-            <li>
-                <p>If you add a check to a chain that is not enabled and you run the chain, you will receive a message that states:</p><pre><code class="language-text">This chain is broken! Check '&lt;TableCommentPatternCheck&gt;' is disabled or deleted. Enable check(s) and try again with 'liquibase checks run --checkname='ChainedChecksTemplate1'</code></pre>
-                <p>Ensure your checks are enabled to avoid this message.</p>
-            </li>
-            <li>A check within a check chain will <b>not</b> execute separately outside the chain as a standalone check or show on its own in the console output.
+        <h2>Troubleshooting</h2>
+        <h3>Disabled or deleted check<br /></h3>
+        <p>If you add a check to a chain that is not enabled and you run the chain, you will receive a message that states:</p><pre><code class="language-text">This chain is broken! Check '&lt;TableCommentPatternCheck&gt;' is disabled or deleted. Enable check(s) and try again with 'liquibase checks run --checkname='ChainedChecksTemplate1'</code></pre>
+        <p>Ensure your checks are enabled to avoid this message.</p>
+        <h3>Check execution</h3>
+        <p>A check within a check chain will <b>not</b> execute separately outside the chain as a standalone check or show on its own in the console output.
  
-			You can only trigger a check separately that is within a chain by specifying the check in <code>liquibase checks run --check-name=mycheck</code> .</li>
-            <li>
-                <p>Some checks are only applicable to the <MadCap:variable name="General.changelog" /> or the database. It is best practice to separate each check chain by <MadCap:variable name="General.changelog" /> or database checks. Otherwise you will receive a message that states:<br /><ul><pre>Database checks skipped due to non-applicable object(s) for this check:<br />Chained check template (Short names: ExampleCheck) skipped for:<br />amount:column,<br />uc_name:uniqueConstraint,<br />supplier_name:column<br />(See 12 more objects by setting command argument --verbose)</pre></ul></p>
-            </li>
-        </ul>
+			You can only trigger a check separately that is within a chain by specifying the check in <code>liquibase checks run --check-name=mycheck</code> .</p>
+        <h3>Check scope</h3>
+        <p>Some checks are only applicable to the <MadCap:variable name="General.changelog" /> or the database. It is best practice to separate each check chain by <MadCap:variable name="General.changelog" /> or database checks. Otherwise you will receive a message that states:</p><pre xml:space="preserve"><code class="language-text">Database checks skipped due to non-applicable object(s) for this check:
+Chained check template (Short names: ExampleCheck) skipped for:
+amount:column,
+uc_name:uniqueConstraint,
+supplier_name:column
+(See 12 more objects by setting command argument --verbose)</code></pre>
+        <h3>Syntax errors</h3>
+        <p>If you types any operator incorrectly while setting the logic of your check chain, <MadCap:variable name="General.Liquibase" /> displays the following error message:       </p><pre>Invalid value: 'checkname1 &amp; checkname2': The supplied value is not valid. Enter the shortname, logic conditional (using &amp;&amp;, ||, !), and optional (groupings) for your checks. Example: "(shortname1 &amp;&amp; shortname2) || shortname3":</pre>
+        <p>If you see this error message, ensure that your operators are either <code class="language-text">&amp;&amp;</code>, <code class="language-text">||</code>, or <code class="language-text">!</code>.</p>
     </body>
 </html>
