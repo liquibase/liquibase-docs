@@ -1005,6 +1005,14 @@ variable "redirects" {
     { key = "/workflows/liquibase-community/using-the-liquibase-percona-toolkit-extension.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/percona/percona-toolkit/" },
     { key = "/workflows/liquibase-community/using-the-jenkins-pipeline-stage-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-jenkins-pipeline-stage/" },
     { key = "/workflows/liquibase-community/using-the-run-job-pipeline-stage-with-spinnaker.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/Spinnaker/spinnaker-runjob-pipeline-stage/" },
+    { key = "/workflows/liquibase-pro/extensions-list.html", website_redirect = "/liquibase-pro/extensions-list.html" },
+    { key = "/workflows/liquibase-pro/generateviewsql.html", website_redirect = "/liquibase-pro/stored-logic/generateviewsql.html" },
+    { key = "/workflows/liquibase-pro/home.html", website_redirect = "/liquibase-pro/home.html" },
+    { key = "/workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.html", website_redirect = "/liquibase-pro/license-key.html" },
+    { key = "/workflows/liquibase-pro/mariadbgrants.html", website_redirect = "/liquibase-pro/stored-logic/mariadbgrants.html" },
+    { key = "/workflows/liquibase-pro/mysqlgrants.html", website_redirect = "/liquibase-pro/stored-logic/mysqlgrants.html" },
+    { key = "/workflows/liquibase-pro/mysqlsecuritycontext.html", website_redirect = "/liquibase-pro/stored-logic/mysqlsecuritycontext.html" },
+    { key = "/workflows/liquibase-pro/stored-logic.html", website_redirect = "/liquibase-pro/stored-logic/home.html" },
     { key = "/xml/ns/dbchangelog/", website_redirect = "https://www.liquibase.org/xml/ns/dbchangelog/" }
   ]
 }
