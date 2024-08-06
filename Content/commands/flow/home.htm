@@ -2,127 +2,46 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/commands/flow/home.html" />
-        <meta name="description" content="Overview of the flow file." />
+        <meta name="description" content="List and description of flow commands. The purpose of the flow commands is to run flow files, which are portable, platform-independent ways to run a series of Liquibase commands in one or more stages." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
-        <h1><MadCap:variable name="General.Liquibase" /> Flow Files</h1>
-        <p><MadCap:variable name="General.Liquibase" /> Flow Files let you create portable, platform-independent <MadCap:variable name="General.Liquibase" /> workflows that can run anywhere without modification. This includes Jenkins, GitHub actions, a developers desktop, or any other CI/CD support tool. Flow Files are available in <b><MadCap:variable name="General.Liquibase" /> 4.15.0 and later</b>.</p>
-        <p>You can use a Flow File to <b>group together multiple commands</b> so they can all run sequentially by typing a single command into the CLI.  The <code><MadCap:xref href="flow.htm">flow</MadCap:xref></code> command  provides the convenience of performing all of the steps in one place. This leads to better repeatability and standardization of the steps in a DevOps pipeline.</p>
-        <p>You can modify the Flow File  to update the <MadCap:variable name="General.Liquibase" /> steps specified in each Stage. You only have to update them in the Flow File to bring all jobs up to date. It is necessary to store Flow Files in remote locations or share across teams to enable this flexible behavior.</p>
-        <p>You can also use the flow file to run <MadCap:xref href="../quality-checks/home.htm">Quality Checks</MadCap:xref> on your <MadCap:variable name="General.changelog" /> or database. In <MadCap:variable name="General.Liquibase" /> 4.24.0+, flow files running quality checks exit with a <a href="../quality-checks/workflows/use-quality-checks-auto-severity-exit-code.htm">return code</a> matching the highest return code triggered by any check.</p>
-        <h2>Create a Flow File</h2>
-        <p>There are two ways to create a Flow File:</p>
-        <ol>
-            <li>The Default Flow File method, which runs on H2 by default</li>
-            <li><a href="advanced-flow-file.htm">The Existing Project method – advanced</a>
-            </li>
-        </ol>
-        <h3>Default Flow File method</h3>
-        <p>This method is for creating an entirely new project.</p>
-        <ol>
-            <li>Run the <code>liquibase flow</code> command.</li>
-            <li>Select option <code>3</code>: Generate a flow file and exit.<br /></li>
-            <li>Open the newly created file and review the sections and comments.</li>
-        </ol>
-        <h3>Validation</h3>
-        <p>Once the Flow File is written, you can verify that it works by using the <code><MadCap:xref href="flow-validate.htm">flow validate</MadCap:xref></code> command. This ensures that the <MadCap:variable name="General.Liquibase" /> commands have all of the parameters necessary to run successfully and the YAML formatting is correct. See the <a href="#Syntax">Syntax</a> section for more information. In the CLI, run this command:</p><pre><code class="language-text">flow validate --flow-file=update-status-diff.flow</code></pre>
-        <p>If the file fails the validation check, <MadCap:variable name="General.Liquibase" /> will state what command argument(s) were not resolved. You can then review and correct your Flow File and then run the <code>flow validate</code> command again to ensure it is working as expected.</p>
-        <p>Outside the CLI, you can use the <code>LIQUIBASE_COMMAND_FLOW_FILE</code> environment variable or the <code>liquibase.command.flowFile</code> property.</p>
-        <h2>Organization</h2>
-        <p>The Flow File contains one or more Stages and Actions. Below are definitions of these and a visual aid.</p>
-        <p class="center">
-            <img src="../../Z_Resources/Images/Diagrams/flowfile-basic.png" />
-        </p>
-        <p><b>Stages</b> are bundles of related <code>actions</code> in the Flow File. You can add a single action or multiple actions per Stage.</p>
-        <p><b>Actions</b> are individual <a href="../home.htm"><MadCap:variable name="General.Liquibase" /> Commands</a> or <MadCap:xref href="shell-commands.htm">Shell Commands</MadCap:xref> that execute within <code>stages</code> or <a href="advanced-flow-file.htm"><code>endStage</code></a> as part of the Flow File. Any <MadCap:variable name="General.Liquibase" /> command arguments (abbreviated as <code>cmdArgs</code> in the Flow File) can be placed in any <code>action</code> section, with the exception of the global arguments shown in: <MadCap:xref href="#Incompat">Incompatible commands and global arguments</MadCap:xref>.</p>
-        <h2><a name="Syntax"></a>Syntax</h2>
-        <p>The <MadCap:variable name="General.Liquibase" /> Flow File is written in YAML. To run <MadCap:variable name="General.Liquibase" /> commands in actions, set the <code>type</code> argument for that action to <code>liquibase</code>. To run shell commands in actions, set the <code>type</code> argument for that action to <code>shell</code>.</p>
-        <p>Command arguments use the following format:</p><pre xml:space="preserve"><code class="language-text">cmdArgs: {argument: value, snapshot-format: JSON}</code></pre>
-        <p>This example Flow File is the simplest scenario in which only <code>cmdArgs</code> are specified in the actions:</p><pre xml:space="preserve"><code class="language-yaml">## Note: Any command which fails in any stage below result in the command stopping, and endStage being run.
-## A flow file can have one or more stages, each with multiple "actions", 
-## or your flow file can have multiple stages with fewer actions in each stage.
-
-stages:
-
-  ## The first stage of actions. 
-  Default:
-        
-    actions:
-      # Quality Checks for changelog
-      - type: liquibase
-        command: checks run
-        cmdArgs: {checks-scope: changelog}
-        
-      # Run the update
-      - type: liquibase
-        command: update
-          
-      # Quality Checks for database
-      - type: liquibase
-        command: checks run
-        cmdArgs: {checks-scope: database}
-
-## The endStage ALWAYS RUNS. 
-## So put actions here which you desire to perform whether previous stages' actions succeed or fail.
-## If you do not want any actions to ALWAYS RUN, simply delete the endStage from your flow file.
-
-endStage:
-  actions:
-    - type: liquibase
-      command: history</code></pre>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">For this example to run, a <MadCap:variable name="General.changelog" /> file and a <code><MadCap:variable name="General.liquiPropFile" /></code> file with <code>url</code>, <code>username</code>, and <code>password</code> must be available. The <code><MadCap:variable name="General.liquiPropFile" /></code> file should be in the same directory as the flow file.</p>
-        <h3><a name="Incompat"></a>Incompatible commands and global arguments</h3>
-        <p>You must use the following commands and global arguments <b>in the CLI</b> instead of the Flow File:</p>
-        <h4>Incompatible commands</h4>
+        <img src="../../Z_Resources/Images/Icons/command-icons/command-icon-flow.png" alt="Simplified icon of a gear encircled by an arrow starting from the left and pointing to the right" />
+        <h1>Flow Commands</h1>
+        <p> The purpose of the flow commands is to run flow files, which are modular, platform-independent ways to run a series of <MadCap:variable name="General.Liquibase" /> commands in one or more stages. Flows allow you to run commands in a particular sequence according to conditional statements you specify.</p>
+        <p>For information about flow files, see <MadCap:xref href="../../liquibase-pro/flow/home.htm">[%=General.Liquibase%] Flow Files</MadCap:xref>.</p>
+        <h2>Flow Category</h2>
+        <p>These commands are available in <b>all</b>&#160;<MadCap:variable name="General.Liquibase" /> editions.</p>
         <ul>
-            <li><code>init start-h2</code> – This command locks the console</li>
+            <li><code><MadCap:xref href="flow.htm">flow</MadCap:xref></code>: lets you run a series of commands contained in one or more stages within a <MadCap:variable name="General.Liquibase" />&#160;<a href="../../liquibase-pro/flow/home.htm">flow file</a>.</li>
+            <li><code><MadCap:xref href="flow-validate.htm">flow validate</MadCap:xref></code>: lets you validate a series of commands contained in one or more stages within a <MadCap:variable name="General.Liquibase" /><a href="../../liquibase-pro/flow/home.htm">flow file</a>.</li>
         </ul>
-        <h4>Incompatible global arguments</h4>
+        <p>Each <b>individual flow command page</b> specifies the criteria for using the command successfully, including a list of required and optional command-specific arguments.</p>
+        <h2>Flow Command Requirements</h2>
         <ul>
-            <li><code>ARGUMENT_CONVERTER</code>
-            </li>
-            <li><code>CLASSPATH</code>
-            </li>
-            <li><code>DEFAULTS_FILE</code>
-            </li>
-            <li><code>INCLUDE_SYSTEM_CLASSPATH</code>
-            </li>
-            <li><code>LOG_CHANNELS</code>
-            </li>
-            <li><code>LOG_FILE</code>
-            </li>
-            <li><code>LOG_LEVEL</code>
-            </li>
-            <li><code>MONITOR_PERFORMANCE</code>
-            </li>
-            <li><code>PROMPT_FOR_NON_LOCAL_DATABASE</code>
-            </li>
-            <li><code>SEARCHPATH</code>
-            </li>
-            <li><code>SHOULD_RUN</code>
-            </li>
-            <li><code>SHOW_BANNER</code>
+            <li>The <code class="language-text">flow</code> and <code class="language-text">flow validate</code> commands require the <code class="language-text">liquibase-commercial.jar</code> file to be located in the <code class="language-text">/liquibase/internal/lib</code> folder  to work.</li>
+            <li>Using the flow commands requires <b><MadCap:variable name="General.Liquibase" /> version 4.15.0 or later</b>.</li>
+        </ul>
+        <h2>Troubleshooting</h2>
+        <ul>
+            <li>Visit the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../start/install/liquibase-installation-troubleshooting.htm">Installation Troubleshooting</MadCap:xref> documentation page for troubleshooting steps.</li>
+            <li>
+                <p>If <MadCap:variable name="General.Liquibase" /> returns an error when you run a flow command, use the <b><MadCap:variable name="General.Liquibase" />&#160;<code class="language-text">--help</code> parameter</b> to check the correct syntax of the command and the command-specific parameters you can use with it.</p>
+                <p><b>For example, in the CLI:</b>
+                </p><pre><code class="language-shell">liquibase &lt;command&gt; --help</code></pre>
             </li>
         </ul>
-        <h2>Related videos</h2>
-        <h3>Learn more about Flow in <MadCap:variable name="General.LBPro"></MadCap:variable></h3><iframe width="420px" height="315px" src="https://www.youtube.com/embed/QKV_yiRMHjw" class="center"></iframe><iframe width="420px" height="315px" src="https://youtube.com/embed/WhwwMwD759Y" class="center"></iframe>
-        <h3>Learn how to use Flow files with S3</h3><iframe width="420" height="315" src="https://www.youtube.com/embed/nOv2YK8rfqI" class="center"></iframe>
-        <h2>Related links</h2>
+        <h2><MadCap:variable name="General.Liquibase" /> Resources</h2>
+        <h3><MadCap:variable name="General.Liquibase" /> Help</h3>
+        <p>Visit the <MadCap:variable name="General.Liquibase" />&#160;<a href="https://forum.liquibase.org/">Forum</a> channel to ask questions, find answers from other <MadCap:variable name="General.Liquibase" /> users, and learn about new <MadCap:variable name="General.Liquibase" /> version releases.</p>
+        <h3>Tutorials</h3>
         <ul>
-            <li>
-                <MadCap:xref href="advanced-flow-file.htm">Advanced Flow File</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="variables.htm">Flow Variables</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="shell-commands.htm">Shell Commands</MadCap:xref>
-            </li>
+            <li>Visit the <MadCap:xref href="../../liquibase-pro/flow/home.htm">[%=General.Liquibase%] Flow Files</MadCap:xref> page to learn how to configure and use flow files.</li>
+            <li>Visit the  <MadCap:xref href="../../liquibase-pro/flow/conditionals.htm">Flow Conditionals</MadCap:xref> page to learn how to specify conditional expressions within flows.</li>
+            <li>Visit the <MadCap:xref href="../../liquibase-pro/flow/variables.htm">Flow Variables</MadCap:xref> page to learn how to specify dynamic variables within flows.</li>
+            <li>Visit the <MadCap:xref href="../../liquibase-pro/flow/shell-commands.htm">Shell Commands</MadCap:xref> page to learn how to access your command line shell from a <MadCap:variable name="General.Liquibase" /> flow file.</li>
+            <li>Visit the  <MadCap:xref href="../../liquibase-pro/flow/advanced-flow-file.htm">Advanced Flow File</MadCap:xref> page to see examples of flow files with many features used simultaneously.</li>
         </ul>
     </body>
 </html>
