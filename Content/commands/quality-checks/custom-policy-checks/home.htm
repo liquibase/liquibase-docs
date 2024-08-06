@@ -104,11 +104,13 @@ if lb.is_table(obj): # function provided from liquibase utilities
             <li>In the CLI, set the <b>severity</b> to return a code of 0-4 when triggered. In this example, we will set the severity to <code class="language-text">1</code>. Options:</li>
             <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-severity-customization.flsnp" />
             <li>In the CLI, set the <b>script description</b> for the custom check. In this example we will set the description to:</li><pre><code class="language-text">This script looks to see if any tables exist and notifies you if one is detected.</code></pre>
-            <li>In the CLI, set the <b>script scope</b> for the custom check. In this example we will set it to <code class="language-text">database</code>. Options for scope:</li>
+            <li>In the CLI, set the <b>script scope</b> for the custom check to <code class="language-text">database</code>. The Python sample provided in this tutorial requires it.</li>
+            <p>In general, you should set the scope to <code class="language-text">changelog</code> or <code class="language-text">database</code> depending on what your custom script does:</p>
             <ul>
-                <li><code class="language-text">changelog</code>: This scope indicates the check reviews all current <MadCap:variable name="General.changeset" />s. Set the <code class="language-text">checks-scope</code> to <code class="language-text">changelog</code> when your check will inspect and trigger based on conditions or actions determined in a <MadCap:variable name="General.changeset" />.
-				<li><code class="language-text">database</code>: This scope indicates the check runs once for each database object. Set the <code class="language-text">checks-scope</code> to <code class="language-text">database</code> when your check will inspect and trigger based on the existing state of a database schema. This can mean you're looking for the presence of keys, indexes, or table name patterns.</li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">We recommend creating customized checks that are single-scoped for <code class="language-text">changelog</code>&#160;<b>or</b>&#160;<code class="language-text">database</code>, but not both.</p></li>
+                <li><code class="language-text">changelog</code>: This scope indicates the check reviews all current <MadCap:variable name="General.changeset" />s. Set the scope to <code class="language-text">changelog</code> when your check will inspect and trigger based on conditions or actions determined in a <MadCap:variable name="General.changeset" />.</li>
+                <li><code class="language-text">database</code>: This scope indicates the check runs once for each database object. Set the the scope to <code class="language-text">database</code> when your check will inspect and trigger based on the existing state of a database schema. This can mean you're looking for the presence of keys, indexes, or table name patterns.</li>
             </ul>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is a best practice for your custom checks to have <b>only one scope</b>, not both scopes.</p>
             <li>
                 <p>In the CLI, set the <b>script message</b>. This message will display when the check is triggered. In this example we will leave this blank, as we are handling the message in the script.</p>
                 <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><b>Option for advanced users:</b> You can create <MadCap:xref href="status-message-variable.htm">Script Message Variables for Custom Policy Checks</MadCap:xref> which are identified in your Python script.</p>
@@ -123,5 +125,8 @@ if lb.is_table(obj): # function provided from liquibase utilities
             <li><b>Enable</b> your configured custom check by running this in the CLI:</li><pre xml:space="preserve"><code class="language-text">liquibase checks run --check-name=CustomCheckNoTables --checks-scope=database --checks-scripts-enabled=true</code></pre>
         </ol>
         <p>You have successfully created and customized a policy check!</p>
+        <h2>Troubleshooting</h2>
+        <p>If the scope you specify in the CLI while creating your check is mismatched with what your Python code actually does, you may receive an error like this:</p><pre><code class="language-text">Error while executing script 'custom-check-no-tables.py': AttributeError: 'NoneType' object has no attribute 'getObjectTypeName' line: 7</code></pre>
+        <p>The Python code provided in this tutorial calls on database objects. This means you necessarily have to set the scope to <code class="language-text">database</code> while you create the check. Conversely, if you are creating a check that calls on <MadCap:variable name="General.changelog" /> objects, you necessarily have to set the scope to <code class="language-text">changelog</code>.</p>
     </body>
 </html>
