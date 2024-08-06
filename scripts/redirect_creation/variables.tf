@@ -401,7 +401,7 @@ variable "redirects" {
     { key = "/commands/quality-checks/workflows/use-checks-settings-config-file.html", website_redirect = "/liquibase-pro/quality-checks/workflows/checks-settings-file.html" },
     { key = "/commands/quality-checks/workflows/use-quality-checks-auto-severity-exit-code.html", website_redirect = "/liquibase-pro/quality-checks/workflows/automation-severity-exit-code" },
     { key = "/commands/quality-checks/workflows/using-the-checks-settings-configuration-file.html", website_redirect = "/liquibase-pro/quality-checks/workflows/checks-settings-file.html" },
-    { key = "/commands/quality-checks/working-with-quality-checks.html", website_redirect = "/liquibase-pro/quality-checks/workflows/home.html" 
+    { key = "/commands/quality-checks/working-with-quality-checks.html", website_redirect = "/liquibase-pro/quality-checks/workflows/home.html" },
     { key = "/commands/registerchangelog.html", website_redirect = "/liquibase-pro/observability/structured-logging.html" },
     { key = "/commands/releaselocks.html", website_redirect = "/commands/utility/release-locks.html" },
     { key = "/commands/rollbackbytag.html", website_redirect = "/commands/rollback/rollback-by-tag.html" },
