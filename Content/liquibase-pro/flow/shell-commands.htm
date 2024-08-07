@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/flow/shell-commands.html" />
+        <meta name="description" content="Reference information and use cases for shell commands in the Flow File." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Shell Commands</h1>
+        <p>Using Shell Commands in a <a href="home.htm">flow file</a> allows you to access your shell from a <MadCap:variable name="General.Liquibase" /> operation. You can join multiple commands in sequence, or redirect output to files for later processing which can be done via cat, grep, or other methods.</p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/command-flow-version.flsnp" />
+        <h2>Syntax</h2>
+        <p>To use shell commands in your Flow file, you must set the <code>type</code> argument to <code>shell</code> rather than <code>liquibase</code>:</p><pre xml:space="preserve"><code class="language-text">- type: shell
+  command: foobar</code></pre>
+        <p>You can use a single command here or chain multiple commands together with <code>&amp;&amp;</code>. For example, to print the environment variables that begin with <code>'LIQUIBASE_'</code>:</p><pre xml:space="preserve"><code class="language-text">echo 'Printing LIQUIBASE_* env vars' &amp;&amp; env | grep 'LIQUIBASE_'</code></pre>
+        <p>Alternatively, you can put <code>bash -c</code> in front of a double-quoted command, which  runs a completely new shell. (You can use a similar method to invoke cmd, gitbash, or similar.) If you need to quote something inside of the command, use single quotes to distinguish the inside from the outside of the shell command in double quotes:</p><pre xml:space="preserve"><code class="language-text">bash -c "echo 'Printing LIQUIBASE_* env vars' &amp;&amp; env | grep 'LIQUIBASE_'"</code></pre>
+        <h3>Chained Command Example in Flow file</h3><pre xml:space="preserve"><code class="language-yaml">stages:
+  chainedCommandExample:
+    actions:
+    - type: shell
+      #command: bash -c "echo 'Printing Liquibase_* env vars' &amp;&amp; env | grep 'LIQUIBASE_'"
+      command: echo 'Printing LIQUIBASE_* env vars' &amp;&amp; env | grep 'LIQUIBASE_'</code></pre>
+        <p>After you set up your Flow file, run the <code><MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref></code> command:</p><pre xml:space="preserve"><code class="language-text">liquibase flow --flow-file=flows/&lt;path/to/your/flowfile&gt;.yaml</code></pre>
+        <p>The shell bash commits successfully and all environment variables display as intended.</p>
+        <h2>Shell command options</h2>
+        <ul>
+            <li>Shell commands that utilize an equals sign (<code>=</code>) can be applied in flow files.</li>
+            <p>One of the many ways to use this feature is by exporting environment variables from within a flow command to use later. For example:</p><pre xml:space="preserve"><code class="language-text">- type: shell
+  command: bash -c "UNDEPLOYED=$(grep -c 'have not been applied './${PROJNAME}/${STATUSFILE}') &amp;&amp; echo $UNDEPLOYED"</code></pre>
+            <li>You can specify the shell interpreter to execute the shell command. This can include but is not limited to bash, cmd, powershell, etc. For example:</li><pre xml:space="preserve"><code class="language-text">- type: shell
+  command: bash -c "UNDEPLOYED=$(grep -c 'have not been applied' './${PROJNAME}/${STATUSFILE}') &amp;&amp; echo $UNDEPLOYED"</code></pre>
+            <li>Multi-line shell commands can be applied in flow files. This can be applied by using the vertical line character (<code>|</code>) to begin the command. For example:</li><pre xml:space="preserve"><code class="language-yaml">- type: shell
+  command: |
+    UNDEPLOYED=$(grep -c 'have been applied' '/tmp/status.txt')
+    echo $UNDEPLOYED</code></pre>
+        </ul>
+        <h2>Related links</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="advanced-flow-file.htm">Advanced Flow File</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="variables.htm">Flow Variables</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
