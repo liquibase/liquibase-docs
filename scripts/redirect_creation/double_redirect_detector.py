@@ -1,7 +1,7 @@
 """
 File: double_redirect_detector.py
 Author: ChatGPT via Adrian Velonis
-Description:
+Description: Detects double redirects in the list of redirects in "variables.tf". Prints the list to the console.
 Usage notes: The script expects you to copy+paste the literal list of keys and values in "variables.tf" into "redirect_list.txt"
              Don't copy+paste the other parts of "variables.tf". Also it handles whitespace.
              For now this just tells you what the double redirects are. It doesn't fix them for you.
