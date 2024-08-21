@@ -1103,8 +1103,7 @@ variable "redirects" {
     { key = "/workflows/liquibase-pro/mysqlgrants.html", website_redirect = "/liquibase-pro/stored-logic/mysqlgrants.html" },
     { key = "/workflows/liquibase-pro/mysqlsecuritycontext.html", website_redirect = "/liquibase-pro/stored-logic/mysqlsecuritycontext.html" },
     { key = "/workflows/liquibase-pro/stored-logic.html", website_redirect = "/liquibase-pro/stored-logic/home.html" },
-    { key = "/xml/ns/dbchangelog/", website_redirect = "https://www.liquibase.org/xml/ns/dbchangelog/" },
-    { key = "/xml/ns/dbchangelogtest/", website_redirect = "https://www.liquibase.org/xml/ns/dbchangelogtest/" }
+    { key = "/xml/ns/dbchangelog/", website_redirect = "https://www.liquibase.org/xml/ns/dbchangelog/" }
   ]
 }
 
