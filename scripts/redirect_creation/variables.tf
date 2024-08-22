@@ -791,6 +791,7 @@ variable "redirects" {
     { key = "/start/install/tutorials/voltdb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/" },
     { key = "/start/install/tutorials/yugabytedb.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/yugabytedb/" },
     { key = "/start/release-notes/4.24.0.html", website_redirect = "/start/release-notes/liquibase-release-notes/liquibase-4.24.0.html" },
+    { key = "/start/release-notes/amazon-dynamodb/amazon-dynamodb-1.0.1.html", website_redirect = "/start/release-notes/amazon-dynamodb/amazon-dynamodb-1.1.0.html" },
     { key = "/start/release-notes/liquibase-4.4.2.html", website_redirect = "/start/release-notes/liquibase-release-notes/liquibase-4.4.2.html" },
     { key = "/start/release-notes/liquibase-4.4.3.html", website_redirect = "/start/release-notes/liquibase-release-notes/liquibase-4.4.3.html" },
     { key = "/start/release-notes/liquibase-4.5.0.html", website_redirect = "/start/release-notes/liquibase-release-notes/liquibase-4.5.0.html" },
