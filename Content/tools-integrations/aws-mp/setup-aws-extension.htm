@@ -3,26 +3,51 @@
     <head>
     </head>
     <body>
-        <h1>Setup the AWS&#160;Extension</h1>
+        <h1><MadCap:variable name="General.Liquibase" /> on AWS&#160;with AWS&#160;Secrets Manager</h1>
+        <p>You can use AWS&#160;Secrets Manager within&#160;<MadCap:variable name="General.Liquibase" /> on AWS. This allows you to confidently utilize your AWS&#160;Secrets credentials in a secure way. There are two methods, one is the classpath method and the other is the LPM&#160;Method.</p>
         <h3>Prerequisites</h3>
-        <p>First, purchase a <MadCap:variable name="General.Liquibase" /> license on AWS&#160;by following our <MadCap:xref href="purchase-liquibase-aws.htm">Use [%=General.Liquibase%] on AWS</MadCap:xref> guide.</p>
-        <p>Step-by-step</p>
+        <ul>
+            <li>First, purchase a <MadCap:variable name="General.Liquibase" /> license on AWS&#160;by following our <MadCap:xref href="purchase-liquibase-aws.htm">Use [%=General.Liquibase%] on AWS</MadCap:xref> guide.</li>
+            <li>
+                <MadCap:xref href="../../liquibase-pro/secrets-management/aws-secrets-mgr.htm">AWS Secrets Manager Extension</MadCap:xref>
+            </li>
+        </ul>
+        <h2>Step-by-step</h2>
+        <p>Follow these steps until you get to step 10. Then you will choose between the classpath method and the LPM&#160;method.</p>
         <ol>
             <li>Open your Amazon S3 account.</li>
-            <li>Navigate to the AWS-marketplace-listing-files bucket.</li>
-            <li>Download the liquibase.docker.properties file that contains your url, username, password, and changelogFile. This is the s</li>
-            <li>Navigate to AWS&#160;and then to Elastic Container Service.</li>
+            <li>Navigate to the AWS bucket that you want to associate with this extension.</li>
+            <li>Save these files to your lib folder so <MadCap:variable name="General.Liquibase" /> can locate the content easily.</li>
+            <li>Save these files to this bucket so AWS&#160;can find them easily:<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Both <code>liquibasesecrets.docker.properties</code> and <code>liquibase-aws-secrets-manager</code> must be in the same S3 bucket.</p><ol><li><code>liquibasesecrets.docker.properties</code> file</li><li> <code>liquibase-aws-secrets-manager</code> file <br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can set your credentials up with the <MadCap:xref href="../../liquibase-pro/secrets-management/aws-secrets-mgr.htm">AWS Secrets Manager Extension</MadCap:xref>.</p></li><br /></ol></li>
+            <li>Navigate to Amazon Elastic Container Service on Amazon Marketplace.</li>
             <li>Open the <b>Task definitions</b> section from the left navigation menu.</li>
-            <li>Open any task definition and notice in the <code>command</code> section, the <code>liquibase.docker.propertie</code>s file.
-This shows how the <MadCap:variable name="General.changelog" /> task definition can fetch the credentials specified in the <code>liquibase.docker.properties</code> file. <MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Java;">"command": [
+            <li>Open a task definition. In this example, we will open the <code><MadCap:variable name="General.changelog" />-sync</code> command.</li>
+            <li>Select one of the revisions to open it's details.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">In AWS you create revisions of each task definition which include any change made to the definition. You can open any revision and edit it. </p></li>
+            <li>Click on the JSON&#160;tab to open the task definition revision's code.</li>
+            <li>Click the Create new revision with JSON&#160;button.</li>
+        </ol>
+        <h2>Default  classpath method</h2>
+        <ol>
+            <li>Replace the <code>liquibase.docker.properties</code> file with the <code>liquibasesecrets.docker.properties</code> file in the code. This provides <MadCap:variable name="General.Liquibase" /> a path to locate the user's credentials that enable them to use the AWS&#160;Secrets Manager.<p><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Java;">"command": [
                 "--search-path=/common",
                 "--defaults-file=/common/liquibasesecrets.docker.properties",
                 "changelog-sync",
-                "--changelog-file=example-changelog.xml",
-                "classpath: /common/liquibase-aws-secrets-manager-1.0.7.jar
-]</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
-            <li>The liquibase.docker.properties file lives in the Liquibase owned aws-marketplace-listing-files bucket. From that file you will find the classpath specified in liquibase.docker.properties file. </li>
+                "--changelog-file=example-changelog.xml",                
+]</MadCap:codeSnippetBody></MadCap:codeSnippet></p></li>
+            <li>Add <code>"classpath: /common/liquibase-aws-secrets-manager-1.0.7.jar"</code> at the bottom of the command brackets. This provides <MadCap:variable name="General.Liquibase" /> a path to locate the user's credentials that enable them to use the AWS&#160;Secrets Manager.<br /><p><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Java;">"command": [
+	                "--search-path=/common",
+	                "--defaults-file=/common/liquibasesecrets.docker.properties",
+	                "changelog-sync",
+	                "--changelog-file=example-changelog.xml",
+	                "classpath: /common/liquibase-aws-secrets-manager-1.0.7.jar
+	]</MadCap:codeSnippetBody></MadCap:codeSnippet></p></li>
+            <li>Click the Create button to create the task definition revision.</li>
+            <li>AWS&#160;will bring you to the cluster that contains the task in progress.</li>
+            <li>Click on the Tasks tab to view the task running.<br />The task will display this message when successful</li>
+            <li>If your task is unsuccessful you can view the task logs to see more details about what did not work as expected.<br /></li>
+            <li>Find the task logs by navigating to Clusters, then to the cluster specific to the AWS secrets, and then the task that was unsuccessful.<br />View the details of the task definition to troubleshoot why the task was unsuccessful.</li>
         </ol>
+        <h2>LPM Method</h2>
         <p>&#160;</p>
     </body>
 </html>
