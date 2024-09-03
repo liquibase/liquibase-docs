@@ -6,17 +6,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1><MadCap:variable name="General.Liquibase" /> on AWS&#160;with AWS&#160;Secrets Manager</h1>
-        <p>You can use AWS&#160;Secrets Manager within&#160;<MadCap:variable name="General.Liquibase" /> on AWS. This allows you to confidently utilize your AWS&#160;Secrets credentials in a secure way. <br />There are two methods, one is the <b>Classpath method</b> and the other is the <b>LPM&#160;method</b>. Find instructions for both of these methods below.</p>
+        <h1>Store Configuration Files for <MadCap:variable name="General.Liquibase" /> on AWS</h1>
+        <p>You can store your <MadCap:variable name="General.Liquibase" /> configuration files on AWS to confidently keep your credentials in a secure place that is accessible to AWS. You can do this by using <MadCap:variable name="General.Liquibase" /> Package manager alongside AWS&#160;Secrets Manager, AWS&#160;System Manager, or S3. This guide covers how to store these files with AWS&#160;Secrets Manager. </p>
         <h3>Prerequisites</h3>
         <ul>
             <li>First, purchase a <MadCap:variable name="General.Liquibase" /> license on AWS&#160;by following our <MadCap:xref href="get-started-aws.htm">Use [%=General.Liquibase%] on AWS</MadCap:xref> guide.</li>
             <li>
                 <MadCap:xref href="../../liquibase-pro/secrets-management/aws-secrets-mgr.htm">AWS Secrets Manager Extension</MadCap:xref>
             </li>
+            <li><a href="https://github.com/liquibase/liquibase-package-manager">Set up <MadCap:variable name="General.Liquibase" /> Package Manager (LPM)</a> before moving forward. Learn more about the <a href="https://www.liquibase.com/blog/new-package-manager-utility">LPM&#160;utility here</a></li>
         </ul>
         <h2>Step-by-step</h2>
-        <p>Follow these steps until you get to step 10. Then you will choose between the Classpath method and the LPM&#160;method.</p>
         <ol>
             <li>Open your Amazon S3 account.</li>
             <li>Navigate to the S3 bucket that you want to associate with this extension and open it.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/aws-bucket.png" class="thumbnail" /></li>
@@ -27,33 +27,7 @@
             <li>Select one of the revisions to open it's details.<p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">In AWS you create revisions of each task definition which include any change made to the definition. You can open any revision and edit it. </p></li>
             <li>Click on the JSON&#160;tab to open the task definition revision's code.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/json-tab.png" class="thumbnail" /></li>
             <li>Click the Create new revision with JSON&#160;button.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/new-rev-json.png" class="thumbnail" /></li>
-        </ol>
-        <h3>Default  classpath method</h3>
-        <p>The classpath method does not require any prerequisites.</p>
-        <ol>
-            <li>Replace the <code>liquibase.docker.properties</code> file with the <code>liquibasesecrets.docker.properties</code> file in the JSON code. This provides <MadCap:variable name="General.Liquibase" /> a path to locate the user's credentials that enable them to use the AWS&#160;Secrets Manager.<p><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Java;">"command": [
-                "--search-path=/common",
-                "--defaults-file=/common/liquibasesecrets.docker.properties",
-                "changelog-sync",
-                "--changelog-file=example-changelog.xml",                
-]</MadCap:codeSnippetBody></MadCap:codeSnippet></p></li>
-            <li>Add <code>"classpath: /common/liquibase-aws-secrets-manager-1.0.7.jar"</code> at the bottom of the command brackets. This provides <MadCap:variable name="General.Liquibase" /> a path to locate the your credentials that enable you to use the AWS&#160;Secrets Manager.<br /><p><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Java;">"command": [
-	                "--search-path=/common",
-	                "--defaults-file=/common/liquibasesecrets.docker.properties",
-	                "changelog-sync",
-	                "--changelog-file=example-changelog.xml",
-	                "classpath: /common/liquibase-aws-secrets-manager-1.0.7.jar
-	]</MadCap:codeSnippetBody></MadCap:codeSnippet></p></li>
-            <li>Click the <b>Create</b> button to create the task definition revision.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/create-button.png" class="thumbnail" /></li>
-            <li>Click the <b>Deploy</b> drop-down menu and then click the <b>Run task</b> button.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/deploy-run-task.png" class="thumbnail" /><br /></li>
-            <li>Select the desired <b>Compute options</b>. In this example we will select <b>Launch Type</b>.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/launch-type.png" class="thumbnail" /></li>
-            <li>Click the <b>Create button</b> again to finalize the task definition creation.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/create-button.png" class="thumbnail" /><br />AWS&#160;will bring you to the cluster that contains the task in progress.</li>
-            <li>Click on the <b>Tasks</b> tab to view the task running.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/task-running.png" class="thumbnail" /><br />The task will display a <i>Tasks Launched</i> message when successful.<br />If your task is unsuccessful you can view the task logs to see more details about what did not work as expected.<br /></li>
-            <li>Find the task logs by navigating to Clusters, then to the cluster specific to the AWS secrets manager, and then the task that was unsuccessful.<br /><br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/task-log.png" class="thumbnail" /><br />View the details of the task definition to troubleshoot why the task was unsuccessful.</li>
-        </ol>
-        <h3>LPM method</h3>
-        <p>The LPM method is designed to simplify the CI/CD process. You must first <a href="https://github.com/liquibase/liquibase-package-manager">set up LPM</a> before moving forward with this method.</p>
-        <ol>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You must first <a href="https://github.com/liquibase/liquibase-package-manager">set up LPM</a> before continuing to the next step.</p>
             <li>Replace the JSON&#160;command section of code with this:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Java;">"command": [
 				"sh",
                 "-c",
