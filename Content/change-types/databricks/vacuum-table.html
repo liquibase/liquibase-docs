@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <link rel="canonical" href="https://docs.liquibase.com/change-types/databricks/optimize-table.html" />
-        <meta name="description" content="Reference information for the optimizeTable changetype. optimizeTable is a changetype in the Liquibase Databricks OSS extension that optimizes a table." />
+        <link rel="canonical" href="https://docs.liquibase.com/change-types/databricks/vacuum-table.html" />
+        <meta name="description" content="Reference information for the vacuumTable changetype. vacuumTable is a changetype in the Liquibase Databricks OSS extension that vacuums a table." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1 id="optimize-table"><code>optimizeTable</code>
+        <h1 id="vacuum-table"><code>vacuumTable</code>
         </h1>
-        <p><code class="language-text">optimizeTable</code> is a <MadCap:variable name="General.changetypes" /> in the <a href="../../start/tutorials/databricks/home.htm"><MadCap:variable name="General.Liquibase" /> Databricks OSS extension</a> that optimizes a table.</p>
+        <p><code class="language-text">vacuumTable</code> is a <MadCap:variable name="General.changetypes" /> in the <a href="../../start/tutorials/databricks/home.htm"><MadCap:variable name="General.Liquibase" /> Databricks OSS extension</a> that vacuums a table.</p>
         <h2>Uses</h2>
         <p>&#160;</p>
-        <h2>Run <code>optimizeTable</code></h2>
+        <h2>Run <code>vacuumTable</code></h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/change-type-run-syntax.flsnp" />
         <h2 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/note/database-required-attributes.flsnp" />
@@ -39,17 +39,17 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><code class="language-text">zOrderColumns</code>
+                    <td><code class="language-text">retentionhours</code>
                     </td>
-                    <td>String</td>
+                    <td>Integer</td>
                     <td>&#160;</td>
                     <td>Optional</td>
                 </tr>
             </tbody>
         </table>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code class="language-text">WHERE</code> SQL clause is not supported for the&#160;<code class="language-text">optimizeTable</code>&#160;<MadCap:variable name="General.changetypes" />.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code class="language-text">DRY&#160;RUN</code> SQL clause is not supported for the <code class="language-text">vacuumTable</code>&#160;<MadCap:variable name="General.changetypes" />.</p>
         <h2 id="examples">Examples</h2>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Rollback is not supported for <code>optimizeTable</code> because dynamic <code><a href="https://docs.databricks.com/en/sql/language-manual/delta-restore.html">RESTORE</a></code> statements can negatively impact the database.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">&lt;note about rollback?&gt;</p>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
                 <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
@@ -64,9 +64,13 @@
       id: 2
       author: your.name
       changes:
-        - optimizeTable:
-            tableName: test_optimize_table
-            zOrderColumns: test_value</code></pre>
+        - vacuumTable:
+            tableName: test_vacuum_table
+            retentionHours: 48
+      rollback:
+        - vacuumTable:
+            tableName: test_vacuum_table
+            retentionHours: 78</code></pre>
             </div>
             <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
@@ -76,9 +80,17 @@
         "author": "your.name",
         "changes": [
           {
-            "optimizeTable": {
-              "tableName": "test_optimize_table",
-              "zOrderColumns": "test_value"
+            "vacuumTable": {
+              "tableName": "test_vacuum_table",
+              "retentionHours": "48"
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "vacuumTable": {
+              "tableName": "test_vacuum_table",
+              "retentionHours": "72"
             }
           }
         ]
@@ -90,7 +102,11 @@
             <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
 
     &lt;changeSet id="2" author="your.name"&gt;
-        &lt;ext:optimizeTable tableName="test_optimize_table" zOrderColumns="test_value"/&gt;
+        &lt;ext:vacuumTable tableName="test_vacuum_table" retentionHours="48"/&gt;
+
+        &lt;rollback&gt;
+            &lt;ext:vacuumTable tableName="test_vacuum_table" retentionHours="72"/&gt;
+        &lt;/rollback&gt;
     &lt;/changeSet&gt;
 
 &lt;/databaseChangeLog&gt;</code></pre>
@@ -99,7 +115,9 @@
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/change-type-databricks-database-support.flsnp" />
         <h2>Related links</h2>
         <ul>
-            <li><a href="https://docs.databricks.com/en/sql/language-manual/delta-optimize.html">Databricks SQL&#160;Reference:&#160;OPTIMIZE</a>
+            <li><a href="https://docs.databricks.com/en/delta/vacuum.html">Databricks Delta Lake Documentation:&#160;Remove unused data files with vacuum</a>
+            </li>
+            <li><a href="https://docs.databricks.com/en/sql/language-manual/delta-vacuum.html">Databricks&#160;SQL&#160;Reference:&#160;VACUUM</a>
             </li>
         </ul>
     </body>
