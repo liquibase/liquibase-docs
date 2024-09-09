@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/checks/changelog-checks/patterna-followed-bypatternb.html" />
+        <meta name="description" content="This check is a pre-written regular expression policy check that allows Liquibase to look for a positive pattern based on two user-provided inputs." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>PatternAFollowedByPatternB</h1>
+        <p>The <code>PatternAFollowedByPatternB</code> Quality Check triggers on <MadCap:variable name="General.changeset" />s in which user-supplied regular expression pattern A is followed by the user-supplied regular expression pattern B. This check is pre-configured, so users only need to supply the patterns and do not have to manually write regular expressions to look ahead in their <MadCap:variable name="General.changelog" />.</p>
+        <h2>Uses</h2>
+        <p>The <code>PatternAFollowedByPatternB</code> check can be used to confirm conditions within the <MadCap:variable name="General.changelog" />. This check allows you to check for specific patterns in your <MadCap:variable name="General.changelog" /> and then produce a logged record of changeset structure when  certain conditions are met. When it is executed successfully the checks message is logged to the console and logs as proof that changesets conform to specific standards.</p>
+        <table>
+            <col style="width: auto;" />
+            <col style="width: auto;" />
+            <col style="width: auto;" />
+            <col style="width: auto;" />
+            <col style="width: auto;" />
+            <col style="width: auto;" />
+            <thead>
+                <tr>
+                    <th>Short Name</th>
+                    <th>Scope</th>
+                    <th>Enabled</th>
+                    <th>Severity</th>
+                    <th>Customization</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code class="language-text">PatternAFollowedByPatternB</code>
+                    </td>
+                    <td><MadCap:variable name="General.changelog" />
+                    </td>
+                    <td>
+                        <p>false</p>
+                    </td>
+                    <td>
+                        <p>Default value: 0</p>
+                        <MadCap:snippetBlock src="../../../../Z_Resources/Snippets/def/attributes/cli/quality-checks/cli-checks-severity-customization.flsnp" />
+                    </td>
+                    <td>
+                        <p>&lt;None&gt;</p>
+                    </td>
+                    <td>
+                        <p>This check is pre-configured, so users only need to supply the patterns and do not have to manually write regular expressions to look ahead in their <MadCap:variable name="General.changelog"></MadCap:variable>.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Run the PatternAFollowedByPatternB check</h2>
+        <p>To run the <code>PatternAFollowedByPatternB</code> check, ensure you have a Liquibase Pro license and the <code>checks-scope</code> property includes <code>changelog</code>. The <MadCap:xref href="../../../../commands/policy-checks/command-parameters/checks-scope.htm">checks-scope</MadCap:xref> parameter is set in the default properties file, environment variable, or any standard method.<br /></p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><code>PatternAFollowedByPatternB</code> logic: If regular expression pattern X exists then Pattern A <b>must exist after</b> pattern X.</p>
+        <p>In this example, you are ensuring that all snapshot tables go into a dataset called IDW_BackUP. When this check runs successfully, a log will be created that displays all snapshot tables that are contained in the IDW_BACKUP dataset. First, ensure you have a <MadCap:variable name="General.LBPro" /> license, a valid URL property</p>
+        <ol>
+            <li>
+                <p>Enable the <code class="language-text">PatternAFollowedByPatternB</code> check by running the following command in the CLI:</p><pre>liquibase checks enable --check-name=PatternAFollowedByPatternB</pre>
+            </li>
+            <li>Give your check a short name for easy identification such as <code>RegexLookAheadCheck</code>. The new <code>RegexLookAheadCheck</code> check is created from the <code class="language-text">PatternAFollowedByPatternB</code>.<br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You can use up to 64 alpha-numeric characters in any short name.<br /></p></li>
+            <li>
+                <p>In the CLI, set the Severity to return a code of 0-4 when the check is triggered. Set the severity to 0.<br />Your options are: </p><pre>'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4)</pre>
+            </li>
+            <li>
+                <p>Set the <code>'PRIMARY_SEARCH_STRING'</code> to a string or a valid regular expression. <br />Set it to a regular expression <code>(ALTER|DROP)\s*TABLE</code>.</p>
+            </li>
+            <li>
+                <p>Set the <code>'LOOKAHEAD_SEARCH_STRING'</code> to a string or a valid regular expression. <br />Set it to a regular expression <code>CREATE\s*SNAPSHOT\s*TABLE</code>.</p>
+            </li>
+            <li>
+                <p>Set the case sensitivity to true or false.<br />Set it to <code>'CASE_SENSITIVE' false</code>.</p>
+            </li>
+            <li>
+                <p>Set the 'LOOKAHEAD_MESSAGE'.<br />Set it to <code>'&lt;LOOKAHEAD_SEARCH_STRING&gt;'</code> must follow <code>'&lt;PRIMARY_SEARCH_STRING&gt;'</code></p>
+            </li>
+            <li>
+                <p>Set the 'STRIP_COMMENTS' to <code>true</code> or <code>false</code>.<br />Set it to <code>true</code>.</p>
+                <p>Once successfully run, either of the two resulting reports appear:</p><pre xml:space="preserve"><code class="language-text">CHANGELOG CHECKS
+					----------------
+					Checks completed validation of the changelog and found the following issues:
+
+					Check Name:         Pattern a followed by pattern b (RegexLookAheadCheck)
+					Changeset ID:       createFunction
+					Changeset Filepath: changelog.sql
+					Check Severity:     MINOR (Return code: 1)
+				Message:            A match for regular expression 'PRIMARY_SEARCH_STRING' must be followed by 'LOOKAHEAD_SEARCH_STRING' was not detected in Changeset 'createFunction'.</code></pre>
+            </li>
+        </ol>
+    </body>
+</html>
