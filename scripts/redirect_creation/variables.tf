@@ -728,7 +728,7 @@ variable "redirects" {
     { key = "/liquibase-pro/quality-checks/checks/changelog-database-checks/table-column-limit.html", website_redirect = "/liquibase-pro/policy-checks/checks/changelog-database-checks/table-column-limit.html" },
     { key = "/liquibase-pro/quality-checks/checks/changelog-database-checks/table-comment-check.html", website_redirect = "/liquibase-pro/policy-checks/checks/changelog-database-checks/table-comment-check.html" },
     { key = "/liquibase-pro/quality-checks/checks/changelog-database-checks/table-comment-pattern-check.html", website_redirect = "/liquibase-pro/quality-checks/checks/changelog-database-checks/table-comment-pattern-check.html" },
-    { key = "/liquibase-pro/quality-checks/checks/database-checks/check-tables-for-index.html, website_redirect = "/liquibase-pro/policy-checks/checks/database-checks/check-tables-for-index.html" },
+    { key = "/liquibase-pro/quality-checks/checks/database-checks/check-tables-for-index.html", website_redirect = "/liquibase-pro/policy-checks/checks/database-checks/check-tables-for-index.html" },
     { key = "/liquibase-pro/quality-checks/checks/database-checks/constraint-must-exist.html", website_redirect = "/liquibase-pro/policy-checks/checks/database-checks/constraint-must-exist.html" },
     { key = "/liquibase-pro/quality-checks/checks/database-checks/home.html", website_redirect = "/liquibase-pro/policy-checks/checks/database-checks/home.html" },
     { key = "/liquibase-pro/quality-checks/checks/home.html", website_redirect = "/liquibase-pro/policy-checks/checks/home.html" },
