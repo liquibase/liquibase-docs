@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/start/tutorials/google-bigquery/google-bigquery-oss.html" />
+        <meta name="description" content="This page guides you through the process of creating a new Liquibase project with Google BigQuery in Liquibase Open Source." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>Using <MadCap:variable name="General.Liquibase" /> with Databricks Data Lakehouses</h1>
+        <p>A data lakehouse is a new, open data management architecture that combines the flexibility, cost-efficiency, and scale of data lakes with the data management and ACID transactions of data warehouses, enabling business intelligence (BI) and machine learning (ML) on all data.</p>
+        <p>The lakehouse architecture and <a href="https://docs.databricks.com/en/sql/index.html">Databricks SQL</a> bring cloud data warehousing capabilities to your data lakes. Using familiar data structures, relations, and management tools, you can model a highly-performant, cost-effective data warehouse that runs directly on your data lake.</p>
+        <p>For more information on Databricks, see the <a href="https://www.databricks.com/">Databricks</a> website.</p>
+        <h2>Prerequisites</h2>
+        <h3>Set up <MadCap:variable name="General.Liquibase" /></h3>
+        <ol>
+            <li>Dive into <MadCap:variable name="General.Liquibase" /> concepts with an <MadCap:xref href="../../../concepts/introduction-to-liquibase.htm">Introduction to [%=General.Liquibase%]</MadCap:xref>.</li>
+            <li><a href="../../install/home.htm">Download and install <MadCap:variable name="General.Liquibase" /></a> on your machine.</li>
+            <li>(Pro users only)&#160;<a href="../../../liquibase-pro/license-key.htm">Enable <MadCap:variable name="General.LBPro" /> capabilities</a>. To apply a <a href="https://www.liquibase.com/trial"><MadCap:variable name="General.LBPro" /> key</a> to your project, add the following property to the <a href="../../../concepts/connections/creating-config-properties.html"><MadCap:variable name="General.Liquibase" /> properties file</a>:</li><pre><code class="language-text">liquibase.licenseKey: &lt;paste key here&gt;</code></pre>
+        </ol>
+        <h3>Set up Databricks</h3>
+        <ol>
+            <li><b>Create a Databricks account and workspace.</b> If you don't already have a Databricks account and workspace, follow the <a href="https://docs.databricks.com/en/getting-started/index.html">Databricks Getting Started</a> instructions.</li>
+            <li>Navigate to your <b>Workspaces</b> tab and click the <b>Open Workspace</b> button in the upper right of the page.</li>
+            <li><b>Create a SQL Warehouse.</b> If you don't have a SQL Warehouse set up, follow the Databricks instructions on <a href="https://docs.databricks.com/en/compute/sql-warehouse/create-sql-warehouse.html">Creating a SQL Warehouse</a>.</li>
+            <li><b>Create a catalog.</b> If you don't already have a catalog setup, follow the Databricks instructions on <a href="https://docs.databricks.com/en/data-governance/unity-catalog/create-catalogs.html">Create and Manage Catalogs</a>.</li>
+            <li>Click the <b>SQL Editor</b> option in the left navigation, enter your SQL to create your database (also called a schema), and click the <b>Run</b> button:</li><pre><code class="language-sql">CREATE DATABASE IF NOT EXISTS &lt;catalog_name&gt;.&lt;database_name&gt;;</code></pre>
+        </ol>
+        <p>Your database is configured and ready to use.</p>
+        <h2>Install Drivers</h2>
+        <h3>All Users</h3>
+        <p>To use Databricks with <MadCap:variable name="General.Liquibase" />, you need to install two additional JAR files.</p>
+        <ol>
+            <li>Download the JAR files<ul><li>Download the <a href="https://www.databricks.com/spark/jdbc-drivers-download">Databricks JDBC driver</a> (<code>DatabricksJDBC42-&lt;version&gt;.zip</code>) from driver download site and unzip the folder to locate the <code>DatabricksJDBC42.jar</code> file.</li><li>Download the <a href="https://github.com/liquibase/liquibase-databricks"><MadCap:variable name="General.Liquibase" /> Databricks extension</a> (<code>liquibase-databricks-&lt;version&gt;.jar</code>) from the GitHub "Assets" listed at the end of the release notes.</li></ul></li>
+            <li><a href="https://docs.liquibase.com/workflows/liquibase-community/adding-and-updating-liquibase-drivers.html">Place your JAR files</a> in the <code>&lt;liquibase_install_dir&gt;/lib</code> directory.<ul><li><code>DatabricksJDBC42.jar</code></li><li><code>liquibase-databricks-&lt;version&gt;.jar</code></li></ul></li>
+        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you are running your project on MacOS or Linux, you might need to run the following command in your terminal (you can add it to your Bash profile as well) to allow the dependencies to work properly: <code>export JAVA_OPTS=--add-opens=java.base/java.nio=ALL-UNNAMED</code></p>
+        <h3>Maven Users</h3>
+        <p>If you use Maven, note that this database does not provide its driver JAR on a public Maven repository, so you must install a local copy and <a href="../../../tools-integrations/maven/maven-pom-file.htm">add it as a dependency</a> to your <code class="language-text">pom.xml</code> file:</p><pre xml:space="preserve"><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;com.databricks&lt;/groupId&gt;
+    &lt;artifactId&gt;databricks-jdbc&lt;/artifactId&gt;
+    &lt;version&gt;[2.6.36,)&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+    &lt;artifactId&gt;liquibase-databricks&lt;/artifactId&gt;
+    &lt;version&gt;[1.1.3,)&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+        <h3>Verify Installation</h3>
+        <p>Run the following command to confirm you have successfully installed everything:</p><pre><code class="language-text">liquibase --version</code></pre>
+        <p>Review the libaries listing output for the two newly installed jar files: <code class="language-text">DatabricksJDBC42-&lt;version&gt;.zip</code> and <code class="language-text">liquibase-databricks-&lt;version&gt;.jar</code>.</p>
+        <h2>Database Connection</h2>
+        <h3>Configure Connection</h3>
+        <ol>
+            <li>
+                <p>Specify the database JDBC URL in the <code><a href="../../../concepts/connections/creating-config-properties.html">liquibase.properties</a></code> file (defaults file), along with other properties you want to set a default value for. <MadCap:variable name="General.Liquibase" /> does not parse the URL.</p><pre><code class="language-text">liquibase.command.url: jdbc:databricks://&lt;your_workspace_host_name&gt;:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/&lt;your_warehouse_id&gt;;ConnCatalog=&lt;your_catalog&gt;;ConnSchema=&lt;your_schema&gt;;</code></pre>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Your base JDBC connection string can be found on the <b>SQL Warehouses</b> -&gt; <i style="font-weight: bold;">your_warehouse</i> -&gt; <b>Connection</b> details tab.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Additional information on specifying the Databricks JDBC connection can be found in the <a href="https://docs.databricks.com/en/integrations/jdbc/index.html">Databricks JDBC Driver</a> documentation.</p>
+            </li>
+            <li>Specify your username and password in the <code>liquibase.properties</code> file (defaults file):<ol><li>The username, in our case is just "token" for the User or Service Principal you want to manage Liquibase.</li><pre><code class="language-text"># Enter the username for your Target database.
+liquibase.command.username: token</code></pre><li>This is the token for the User or Service Principal we want to authenticate. This is usually passed in dynamically using frameworks like GitActions + Secrets.</li><pre><code class="language-text"># Enter the password for your Target database.
+liquibase.command.password: &lt;your_token_here&gt;</code></pre></ol></li>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">To find or set up your Databricks user token:<br />a. <b>Log into your Databricks workspace.</b><br />b. <b>Access the User Settings.</b> Click on your profile at the bottom left corner of the workspace, then select "User Settings" from the menu.<br />c. <b>Navigate to the Access Tokens tab.</b> In the User Settings window, you will find a tab for "Access Tokens."<br />d. <b>Generate a New Token.</b> If you haven't already created a token, you can generate a new one by clicking on the "Generate New Token" button. You'll be asked to provide a description for the token and, optionally, set an expiration time for it.<br />e. <b>Copy the Token.</b> Once the token is generated, make sure to copy and save it securely. This token will not be shown again, and you'll need it to establish connections to your Databricks SQL Warehouse.</p>
+        </ol>
+        <h3>Test Connection</h3>
+        <ol>
+            <li>
+                <p>Create a text file called <a href="../../../concepts/changelogs/home.html">changelog</a> (<code class="language-text">.xml</code>, <code class="language-text">.sql</code>, <code class="language-text">.json</code>, or <code class="language-text">.yaml</code>) in your project directory and add a <a href="../../../concepts/changelogs/changeset.html">changeset</a>.</p>
+                <p>If you already created a <MadCap:variable name="General.changelog" /> using the <code><MadCap:xref href="../../../commands/init/project.htm">init project</MadCap:xref></code> command, you can use that instead of creating a new file. When adding onto an existing <MadCap:variable name="General.changelog" />, be sure to only add the <MadCap:variable name="General.changeset" /> and to not duplicate the <MadCap:variable name="General.changelog" /> header.</p>
+            </li>
+            <li>
+                <p>&lt;INSERT&#160;TABBER&#160;HERE&gt;</p>
+            </li>
+            <li>
+                <p>Navigate to your project folder in the CLI and run the Liquibase <code>status</code> command to see whether the connection is successful:</p>
+            </li><pre><code class="language-text">liquibase status --changelog-file=&lt;changelog.xml&gt;</code></pre>
+            <p>If your connection is successful, you'll see a message like this:</p><pre xml:space="preserve"><code class="language-text">1 changeset has not been applied to &lt;your_jdbc_url&gt;
+Liquibase command 'status' was executed successfully.</code></pre>
+            <li>&lt;INSERT&#160;TIP&#160;ABOUT&#160;TROUBLESHOOTING&#160;HERE?&#160;OR&#160;MOVE?&gt;</li>
+            <li>Inspect the deployment SQL with the <code><MadCap:xref href="../../../commands/update/update-sql.htm">update-sql</MadCap:xref></code> command:</li><pre xml:space="preserve"><code class="language-text">liquibase update-sql --changelog-file=&lt;changelog.xml&gt;</code></pre>
+            <p>If the SQL that <MadCap:variable name="General.Liquibase" /> generates isn't what you expect, you should review your <MadCap:variable name="General.changelog" /> file and make any necessary adjustments.</p>
+            <li>Then execute these changes to your database with the <code><MadCap:xref href="../../../commands/update/update.html">update</MadCap:xref></code> command:</li><pre xml:space="preserve"><code class="language-text">liquibase update --changelog-file=&lt;changelog.xml&gt;</code></pre>
+            <li>If your <code class="language-text">update</code> is successful, <MadCap:variable name="General.Liquibase" /> runs each <MadCap:variable name="General.changeset" /> and displays a summary message ending with:</li><pre xml:space="preserve"><code class="language-text">Liquibase: Update has been successful.
+Liquibase command 'update' was executed successfully.</code></pre>
+            <li>
+                <p>From a database UI tool, ensure that your database contains the test_table you added along with the <MadCap:xref href="../../../concepts/tracking-tables/databasechangelog-table.html">[%=General.databasechangelog%] table</MadCap:xref> and <MadCap:xref href="../../../concepts/tracking-tables/databasechangeloglock-table.html">[%=General.databasechangeloglock%] table</MadCap:xref>.</p>
+            </li>
+        </ol>
+        <p>Now you're ready to start making deployments with Liquibase!</p>
+        <h2>Troubleshooting</h2>
+        <p>If you use v1.1.3 of the <MadCap:variable name="General.Liquibase" /> Databricks extension, you may receive this error running <MadCap:variable name="General.Liquibase" />:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: 
+Error executing SQL SELECT MD5SUM FROM main.default.DATABASECHANGELOG WHERE MD5SUM IS NOT NULL: [Databricks][JDBCDriver](500540) Error caught in BackgroundFetcher. Foreground thread ID: 1. Background thread ID: 20. 
+Error caught: Could not initialize class com.databricks.client.jdbc42.internal.apache.arrow.memory.util.MemoryUtil.</code></pre>
+        <p>To resolve this, append <code>;UserAgentEntry=Liquibase;EnableArrow=0;</code> to your JDBC URL. For example:</p><pre><code class="language-text">jdbc:databricks://&lt;host&gt;:&lt;port&gt;/&lt;schema&gt;;transportMode=http;ssl=1;AuthMech=3;httpPath=/sql/1.0/warehouses/&lt;warehouse&gt;;ConnCatalog=&lt;catalog&gt;;UserAgentEntry=Liquibase;EnableArrow=0;</code></pre>
+        <h2>Related links</h2>
+        <ul>
+            <li>&lt;Databricks overview&gt;</li>
+            <li>Other databricks links</li>
+            <li>
+                <MadCap:xref href="../../../change-types/home.html">[%=General.changetypes%]s</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../commands/home.htm">About [%=General.Liquibase%] Commands</MadCap:xref>
+            </li>
+            <li>
+                <MadCap:xref href="../../../workflows/home.htm">Workflows</MadCap:xref>
+            </li>
+        </ul>
+    </body>
+</html>
