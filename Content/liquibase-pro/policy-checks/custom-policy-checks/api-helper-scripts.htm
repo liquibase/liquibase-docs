@@ -10,7 +10,7 @@
         <h1>Checks Python API Helper Scripts</h1>
         <p><MadCap:variable name="General.Liquibase" /> provides an API that contains helper scripts to enable users to write Python custom policy checks. You can implement any of the helper scripts listed below into your custom policy check to narrow down the content you are searching for. Learn more about how to use these functions by reading our <MadCap:xref href="home.htm">Custom Policy Checks</MadCap:xref> documentation.</p>
         <h2>Changeset attributes</h2>
-        <p>These attributes are methods available to you after importing the <code>liquibase_changesets</code> file that allow you to pull this content from the given <MadCap:variable name="General.changeset" /> path. The <MadCap:variable name="General.changeset" /> is always the input parameter for these attributes.</p>
+        <p>These attributes are functions available to you after importing the <code>liquibase_changesets</code> file that allow you to pull this content from the given <MadCap:variable name="General.changeset" /> path. The <MadCap:variable name="General.changeset" /> is always the input parameter for these attributes.</p>
         <table style="width: 100%;margin-left: auto;margin-right: auto;caption-side: top;">
             <col />
             <col />
@@ -59,7 +59,7 @@
             </tbody>
         </table>
         <h2>Database attributes</h2>
-        <p>Methods to access, or return, database attributes. The database is always the input parameter for these attributes.</p>
+        <p>These are functions available to you after importing <code>liquibase_database</code> file and they are functions to access, or return, database attributes. The database is always the input parameter for these attributes.</p>
         <table style="width: 100%;margin-left: auto;margin-right: auto;caption-side: top;">
             <col />
             <col />
@@ -92,8 +92,8 @@
                 </tr>
             </tbody>
         </table>
-        <h2>JSON snapshot and return Dict objects</h2>
-        <p>Methods to parse a JSON&#160;<MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref> and access, or return, Dict objects</p>
+        <h2>JSON utilities</h2>
+        <p>These are functions available to you after importing the <code>liquibase_json</code> file and they are functions to access, or return, JSON attributes. These are functions to parse a JSON&#160;<MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref> and access, or return, Dict objects.</p>
         <table style="width: 100%;margin-left: auto;margin-right: auto;caption-side: top;">
             <col />
             <col />
@@ -131,7 +131,10 @@
                 <tr>
                     <td class="left"><code>get_columns</code>(snapshot, table_name)
                     </td>
-                    <td class="left">Provides a list of Column Dict objects for a table</td>
+                    <td class="left">
+                        <p>Provides a list of Column Dict objects for a table such as a JSON serialized representation of the <MadCap:variable name="General.Liquibase" /> internal DatabaseObject class.</p>
+                        <p>Example output:</p><pre>{'column': {'name': 'name', 'nullable': True, 'order': '1!{java.lang.Integer}', 'relation': 'liquibase.structure.core.Table#0eab104', 'snapshotId': '0eab105', 'type': {'characterOctetLength': '20!{java.lang.Integer}', 'columnSize': '20!{java.lang.Integer}', 'columnSizeUnit': 'BYTE!{liquibase.structure.core.DataType$ColumnSizeUnit}', 'dataTypeId': '1!{java.lang.Integer}', 'radix': '10!{java.lang.Integer}', 'typeName': 'bpchar'}}}</pre>
+                    </td>
                     <td class="left">
                         <p><code>snapshot</code>:   the snapshot to parse</p>
                         <p><code>table_name</code>: the name of the table to search for</p>
@@ -190,7 +193,13 @@
             <tbody>
                 <tr>
                     <td class="left"><code>generate_sql</code>(change)</td>
-                    <td class="left">Generate the SQL for this change and database</td>
+                    <td class="left">
+                        <p>Generates a specific SQL&#160;<MadCap:variable name="General.changetypes" /> change and database</p>
+                        <p>Example:</p><pre>changes = liquibase_utilities.get_changes() # get the changes we're looking at</pre><pre>sql = liquibase_utilities.generate_sql(change[0]) # get the first change in the list</pre><pre>if "something bad" in sql:</pre><pre> status.fired = True</pre><pre>sys.exit(1) # exit from the check</pre>
+                        <p>
+                            <br />
+                        </p>
+                    </td>
                     <td class="left">
                         <p><b>change:</b> the change to generate SQL from</p>
                         <p><b>return:</b> the SQL of the change</p>
@@ -210,7 +219,9 @@
                 </tr>
                 <tr>
                     <td class="left"><code>get_cache</code>(key, default_value)</td>
-                    <td class="left">Return the results cache Dict object from the bindings.<br />If there is no current value, then put the default value.</td>
+                    <td class="left">
+                        <p>Returns the stored key/value pairs held by a dict object that are available between script executions.  For example, you can count the number of times a check triggers by adding a counter that updates for each feature.<br />If there is no current value, then put the default value. </p>
+                    </td>
                     <td class="left"><b>key:</b>            the look up key
 <br /><b>default_value:</b>  the value to put for the key if no value present
 <br /><b><br />return:</b>              the current value or the default</td>
@@ -218,7 +229,9 @@
                 <tr>
                     <td class="left"><code>get_changes</code>()
                     </td>
-                    <td class="left">Return a list of Liquibase Change objects</td>
+                    <td class="left">
+                        <p>Returns the set of changes that the check is actively examining</p>
+                    </td>
                     <td class="left">
                         <p><b>return:</b> the liquibase change objects</p>
                     </td>
@@ -226,12 +239,14 @@
                 <tr>
                     <td class="left"><code>get_changeset</code>()
                     </td>
-                    <td class="left">Return the Liquibase Change Set object</td>
+                    <td class="left">
+                        <p>Returns the <MadCap:variable name="General.changeset" /> object <MadCap:variable name="General.CompanyName" /> is actively examining</p>
+                    </td>
                     <td class="left"><b>return:</b> the liquibase change set object</td>
                 </tr>
                 <tr>
                     <td class="left"><code>get_column_type</code>(database_object)</td>
-                    <td class="left">Get the type of the column of a database object</td>
+                    <td class="left">Get the data type of the column of a database object.<br />examples include:&#160;varchar, integer, etc.</td>
                     <td class="left"><b>database_object:</b> the database object
 <br /><b><br />return:</b> the type of the column, or None if the database object is not a column</td>
                 </tr>
@@ -426,7 +441,7 @@
                 </tr>
                 <tr>
                     <td class="left"><code>put_cache</code>(key, value)</td>
-                    <td class="left">Put the value in the cache</td>
+                    <td class="left">Places the stored key/value pairs held by a dict object that are available between script executions.  </td>
                     <td class="left"><b> key</b>            The key to use
 <br /><b> value</b>          The value to put in the cache</td>
                 </tr>
