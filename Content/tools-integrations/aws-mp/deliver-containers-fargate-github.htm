@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/tools-integrations/aws-mp/deliver-containers-fargate-github.html" />
+        <meta name="description" content="This page teaches you how to deploy contained applications to AWS Fargate from your GitHub repository." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>Deliver Applications to  AWS&#160;Fargate with GitHub Actions</h1>
+        <p>This guide covers how to quickly, dependably deploy containerized applications to AWS&#160;Fargate from your GitHub repository. Developers set up a continuous delivery pipeline by deploying container workloads with the Amazon Elastic Container Service (ECS)&#160;and Elastic Container Registry (ECR)&#160;GitHub actions. Before getting started, you should be familiar with: <br /></p>
+        <ul>
+            <li><a href="https://github.com/about">GitHub</a>
+            </li>
+            <li><a href="https://github.com/features/actions">GitHub Actions</a>
+            </li>
+            <li><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html">AWS&#160;ECS</a>
+            </li>
+            <li><a href="https://aws.amazon.com/ecr/">Amazon ECR</a>
+            </li>
+            <li><a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#:~:text=AWS Fargate is a technology,virtual machines to run containers.">AWS&#160;Fargate</a>
+            </li>
+        </ul>
+        <p>GitHub allows developers to implement version control, host, and oversee their code repositories. GitHub Actions are tools you can implement on GitHub that allow you to set up continuous delivery pipelines. The two GitHub actions that we want to focus on are Amazon ECS&#160;and AWS Fargate. Amazon ECS is a container orchestrator that oversees a cluster of multiple EC2 instances, enabling you to start, configure, scale, network, and secure multiple containers while also handling the administrative tasks of managing resource utilization for the cluster. If you prefer a streamlined experience that does not manage resource utilization, you can use AWS&#160;Fargate which allows you to start, configure, scale, network, and secure containers in the same way. All of these tools allow you to dependably deploy containerized applications from your GitHub repository. Follow the steps below to set up your workflow.<br /></p>
+        <h2>Step-by-step</h2>
+        <ol>
+            <li> Set up and configure the AWS CLI by follow these instructions: <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">Installing or updating to the latest version of the AWS&#160;CLI</a></li>
+            <li>Configure Amazon ECR<ol><li>Create an ECR repository with a command like the one below. Replace <code>my-ecr-repo</code> with the name of your repo  and the region is <code>us-west-2</code>:</li></ol></li>
+            <p><code>aws ecr create-repository --repository-name my-ecr-repo --region us-west-2</code>
+            </p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Follow the <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_GetStarted.html">Getting started with ECR guide</a> for more options.</p>
+            <ol start="3">
+                <li>Create your task definition file<ol start="1"><li>Create a directory for your project:<br /><code>mkdir FargateActionDemo &amp;&amp; cd./FargateActionDemo</code></li><li>Create the task definition file<code> task-def.json</code>:<br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption>Sample Liquibase Task Definition</MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:804611071420:task-definition/update-command:20",
+    "containerDefinitions": [
+        {
+            "name": "Liquibase-Pro",
+            "image": "709825985650.dkr.ecr.us-east-1.amazonaws.com/liquibase/liquibase/liquibase-pro:4.29.1",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "command": [
+                "--search-path=/common",
+                "--defaults-file=/common/liquibase.docker.properties",
+                "update-sql",
+                "--changelog-file=changelog.xml",
+                "--log-level=FINE"
+            ],
+            "environment": [
+                {
+                    "name": "INSTALL_MYSQL",
+                    "value": "true"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "value": "us-east-1"
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "common_volume",
+                    "containerPath": "/common",
+                    "readOnly": false
+                }
+            ],
+            "volumesFrom": [],
+            "dependsOn": [
+                {
+                    "containerName": "changelog-download",
+                    "condition": "SUCCESS"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/update-sql-command",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        },
+        {
+            "name": "changelog-download",
+            "image": "amazon/aws-cli",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": false,
+            "command": [
+                "s3",
+                "cp",
+                "--recursive",
+                "s3://aws-marketplace-listing-files/",
+                "/common/"
+            ],
+            "environment": [
+                {
+                    "name": "AWS_DEFAULT_REGION",
+                    "value": "us-east-1"
+                },
+                {
+                    "name": "AWS_ACCESS_KEY_ID",
+                    "value": ""
+                },
+                {
+                    "name": "AWS_SECRET_ACCESS_KEY",
+                    "value": ""
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "common_volume",
+                    "containerPath": "/common",
+                    "readOnly": false
+                }
+            ],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/update-sql-command",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "update-command",
+    "taskRoleArn": "arn:aws:iam::xxxxxxxxxx:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::xxxxxxxx:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 20,
+    "volumes": [
+        {
+            "name": "common_volume",
+            "host": {}
+        }
+    ],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.container-ordering"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "runtimePlatform": {
+        "cpuArchitecture": "ARM64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2024-08-30T20:52:31.444Z",
+    "registeredBy": "arn:aws:sts::xxxxxxx:assumed-role/AWSReservedSSO_MarketplaceLimitedPermissions_xxxxxxx/xxxxx",
+    "tags": []
+}</MadCap:codeSnippetBody></MadCap:codeSnippet></li></ol></li>
+                <li>
+                    <p>Set up a Fargate service</p>
+                    <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Ensure that your AWS user has the required permissions before setting up a Fargate service. <br /><ul><li>Follow the permissions specified in the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security_iam_id-based-policy-examples.html#first-run-permissions">Amazon ECS First Run Wizard Permissions</a> IAM policy example.</li><li>Then, ensure that you have an <code>ecsTaskExecutionRole </code>IAM role in your account. Follow the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html">Amazon ECS Task Execution IAM Role</a> guide to create the role.</li><li>Finally, ensure that you have a VPC and security group created. Follow the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/get-set-up-for-amazon-ecs.html#create-a-vpc">Create  a virtual private cloud</a> tutorial.</li></ul></p>
+                </li>
+                <li>Register the task definition:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>Task definition registration</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs register-task-definition --region us-west-2 --cli-input-json file://$HOME/FargateActionDemo/task-def.json
+</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
+                <li>Create an ECS&#160;cluster:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>ECS cluster</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs create-cluster --region us-west-2 --cluster-name default
+</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
+                <li>Create a Fargate Service:<br /></li>
+                <li>
+                    <MadCap:codeSnippet>
+                        <MadCap:codeSnippetCopyButton />
+                        <MadCap:codeSnippetCaption>
+                            <p>Fargate service</p>
+                        </MadCap:codeSnippetCaption>
+                        <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs create-service --region us-west-2 --service-name fargate-service --task-definition sample-fargate:1 --desired-count 2 --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[subnet-abcd1234],securityGroups=[sg-abcd1234]}"
+</MadCap:codeSnippetBody>
+                    </MadCap:codeSnippet>
+                </li>
+            </ol>
+            <li>
+                <p>Configure your GitHub repository<br />Create the repo from your browser; in this example we name the repository FargateActionDemo.</p>
+                <p>
+                    <img src="../../Z_Resources/Images/Screenshots/aws-mp/create-repo.png" />
+                </p>
+            </li>
+            <li>
+                <p>Then commit and push the task definition into the repository:</p>
+                <ul>
+                    <li><pre>git init</pre>
+                    </li>
+                    <li><pre>git add taskdef.json</pre>
+                    </li>
+                    <li><pre>git commit -m "first commit"</pre>
+                    </li>
+                    <li><pre>git remote add origin git@github.com:saptak/FargateActionDemo.git</pre>
+                    </li>
+                    <li><pre>git push -u origin master</pre>
+                    </li>
+                </ul>
+            </li>
+            <li>Configure secrets
+
+				<br />In Secrets in the Settings section of the repository, configure the two Secrets below with the credentials for an IAM user (which you can obtain from the AWS console):<pre>AWS_ACCESS_KEY_ID</pre><pre>AWS_SECRET_ACCESS_KEY</pre><pre><img src="../../Z_Resources/Images/Screenshots/aws-mp/secrets.png" /></pre></li>
+            <li>
+                <p>Add GitHub Actions workflow on push to deploy<br />Go to the <b>Actions</b> tab of your repository to find the starter workflow. Select Set up this workflow to add it to your repository. This workflow file is now added to the.github/workflows folder of your repository.</p>
+                <p>
+                    <img src="../../Z_Resources/Images/Screenshots/aws-mp/github-actions.png" />
+                </p>
+            </li>
+            <li>
+                <p>Configure the workflows file</p>
+                <ol>
+                    <li>
+                        <p>Replace the value of aws-region in the workflow with your repository’s region. In Step 2 above we specified us-west-2 as our region.</p><pre>aws-region: us-west-2</pre>
+                    </li>
+                    <li>
+                        <p>Replace the value of ECR_REPOSITORY in the workflow with your repository’s name. In Step2 above we had named the repo my-ecr-repo.</p><pre>ECR_REPOSITORY: my-ecr-repo</pre>
+                    </li>
+                    <li>
+                        <p>Next, replace the value task-definition in the workflow with the filename of your task definition. In Step 4, we committed and pushed task-def.jsonas our task definition file.</p><pre>task-definition: task-def.json</pre>
+                    </li>
+                    <li>
+                        <p>Now replace the value of the container name in the workflow with the container name that you specified in the containerDefinition section of the task definition in Step 4. We had named our container fargate-app.</p><pre>container-name: fargate-app</pre>
+                    </li>
+                    <li>
+                        <p>Replace the value of the service in the workflow with the service name assigned in Step 4.</p><pre>service: fargate-service</pre>
+                    </li>
+                    <li>
+                        <p>Finally, replace the value of the cluster in the workflow with the cluster name assigned in Step 4. We named our cluster default.</p><pre>cluster: default</pre>
+                    </li>
+                    <li>
+                        <p>Commit and push all the changes to your GitHub repository.</p>
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Once you have your simple workflow going, you can edit this workflow file to customize the workflow to meet your needs.</p>
+                    </li>
+                    <li>
+                        <p>Step 9: Test the deploy workflow</p>
+                    </li>
+                    <li>
+                        <p>To test it, make a minor change in the task-def.json file. Commit and push the changes. Then switch to the Actions tab on your repository and you should see the workflow running:</p>
+                        <p>
+                            <img src="../../Z_Resources/Images/Screenshots/aws-mp/deploy.png" />
+                        </p>
+                    </li>
+                </ol>
+            </li>
+        </ol>
+    </body>
+</html>
