@@ -24,26 +24,21 @@
         <h2>Step-by-step</h2>
         <ol>
             <li> Set up and configure the AWS CLI by follow these instructions: <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">Installing or updating to the latest version of the AWS&#160;CLI</a></li>
-            <li>Configure Amazon ECR<ol><li>Create an ECR repository with a command like the one below. Replace <code>my-ecr-repo</code> with the name of your repo  and the region is <code>us-west-2</code>:</li></ol></li>
-            <p><code>aws ecr create-repository --repository-name my-ecr-repo --region us-west-2</code>
-            </p>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Follow the <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_GetStarted.html">Getting started with ECR guide</a> for more options.</p>
-            <ol start="3">
-                <li>Create your task definition file<ol start="1"><li>Create a directory for your project:<br /><code>mkdir FargateActionDemo &amp;&amp; cd./FargateActionDemo</code></li><li>Create the task definition file<code> task-def.json</code>:<br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption>Sample Liquibase Task Definition</MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">{
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:804611071420:task-definition/update-command:20",
+            <li>Configure Amazon ECR<ol><li>Create an ECR repository with a command like the one below. Replace <code>my-ecr-repo</code> with the name of your repo  and the region is <code>us-west-2</code>:
+					<p><code>aws ecr create-repository --repository-name my-ecr-repo --region us-west-2</code></p><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Follow the <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_GetStarted.html">Getting started with ECR guide</a> for more options.</p></li><li>Create your task definition file<ol start="1"><li>Create a directory for your project:<br /><code>mkdir FargateActionDemo &amp;&amp; cd./FargateActionDemo</code></li><li>Create the task definition file<code> task-def.json</code>:<br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption>Sample Liquibase Task Definition</MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">{
     "containerDefinitions": [
         {
             "name": "Liquibase-Pro",
-            "image": "709825985650.dkr.ecr.us-east-1.amazonaws.com/liquibase/liquibase/liquibase-pro:4.29.1",
+            "image": "709825985650.dkr.ecr.us-east-1.amazonaws.com/liquibase/liquibase/liquibasepro:4.29.2",
             "cpu": 0,
             "portMappings": [],
             "essential": true,
             "command": [
-                "--search-path=/common",
-                "--defaults-file=/common/liquibase.docker.properties",
+                "--search-path=s3://",
+                "--defaults-file=/common/liquibase.properties",
                 "update-sql",
                 "--changelog-file=changelog.xml",
-                "--log-level=FINE"
+                "--log-level=INFO"
             ],
             "environment": [
                 {
@@ -72,7 +67,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/update-sql-command",
+                    "awslogs-group": "/ecs/updatesql-command",
                     "awslogs-create-group": "true",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
@@ -91,7 +86,7 @@
                 "s3",
                 "cp",
                 "--recursive",
-                "s3://aws-marketplace-listing-files/",
+                "s3://aws-mps-files/",
                 "/common/"
             ],
             "environment": [
@@ -101,11 +96,11 @@
                 },
                 {
                     "name": "AWS_ACCESS_KEY_ID",
-                    "value": ""
+                    "value": "xxx..."
                 },
                 {
                     "name": "AWS_SECRET_ACCESS_KEY",
-                    "value": ""
+                    "value": "xxx..."
                 }
             ],
             "mountPoints": [
@@ -119,7 +114,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/update-sql-command",
+                    "awslogs-group": "/ecs/updatesql-command",
                     "awslogs-create-group": "true",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
@@ -129,55 +124,17 @@
             "systemControls": []
         }
     ],
-    "family": "update-command",
+    "family": "updatesql-command",
     "taskRoleArn": "arn:aws:iam::xxxxxxxxxx:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::xxxxxxxx:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::xxxxxxxxxx:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 20,
     "volumes": [
         {
             "name": "common_volume",
             "host": {}
         }
     ],
-    "status": "ACTIVE",
-    "requiresAttributes": [
-        {
-            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-        },
-        {
-            "name": "ecs.capability.execution-role-awslogs"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.ecr-auth"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.task-iam-role"
-        },
-        {
-            "name": "ecs.capability.container-ordering"
-        },
-        {
-            "name": "ecs.capability.execution-role-ecr-pull"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-        },
-        {
-            "name": "ecs.capability.task-eni"
-        },
-        {
-            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
-        }
-    ],
     "placementConstraints": [],
-    "compatibilities": [
-        "EC2",
-        "FARGATE"
-    ],
     "requiresCompatibilities": [
         "FARGATE"
     ],
@@ -186,31 +143,27 @@
     "runtimePlatform": {
         "cpuArchitecture": "ARM64",
         "operatingSystemFamily": "LINUX"
-    },
-    "registeredAt": "2024-08-30T20:52:31.444Z",
-    "registeredBy": "arn:aws:sts::xxxxxxx:assumed-role/AWSReservedSSO_MarketplaceLimitedPermissions_xxxxxxx/xxxxx",
-    "tags": []
-}</MadCap:codeSnippetBody></MadCap:codeSnippet></li></ol></li>
-                <li>
-                    <p>Set up a Fargate service</p>
-                    <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Ensure that your AWS user has the required permissions before setting up a Fargate service. <br /><ul><li>Follow the permissions specified in the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security_iam_id-based-policy-examples.html#first-run-permissions">Amazon ECS First Run Wizard Permissions</a> IAM policy example.</li><li>Then, ensure that you have an <code>ecsTaskExecutionRole </code>IAM role in your account. Follow the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html">Amazon ECS Task Execution IAM Role</a> guide to create the role.</li><li>Finally, ensure that you have a VPC and security group created. Follow the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/get-set-up-for-amazon-ecs.html#create-a-vpc">Create  a virtual private cloud</a> tutorial.</li></ul></p>
-                </li>
-                <li>Register the task definition:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>Task definition registration</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs register-task-definition --region us-west-2 --cli-input-json file://$HOME/FargateActionDemo/task-def.json
+    }
+}</MadCap:codeSnippetBody></MadCap:codeSnippet></li></ol></li></ol></li>
+            <li>
+                <p>Set up a Fargate service</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Ensure that your AWS user has the required permissions before setting up a Fargate service. <br /><ul><li>Follow the permissions specified in the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/security_iam_id-based-policy-examples.html#first-run-permissions">Amazon ECS First Run Wizard Permissions</a> IAM policy example.</li><li>Then, ensure that you have an <code>ecsTaskExecutionRole </code>IAM role in your account. Follow the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html">Amazon ECS Task Execution IAM Role</a> guide to create the role.</li><li>Finally, ensure that you have a VPC and security group created. Follow the <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/get-set-up-for-amazon-ecs.html#create-a-vpc">Create  a virtual private cloud</a> tutorial.</li></ul></p>
+            </li>
+            <li>Register the task definition:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>Task definition registration</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs register-task-definition --region us-west-2 --cli-input-json file://$HOME/FargateActionDemo/task-def.json
 </MadCap:codeSnippetBody></MadCap:codeSnippet></li>
-                <li>Create an ECS&#160;cluster:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>ECS cluster</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs create-cluster --region us-west-2 --cluster-name default
+            <li>Create an ECS&#160;cluster:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>ECS cluster</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs create-cluster --region us-west-2 --cluster-name default
 </MadCap:codeSnippetBody></MadCap:codeSnippet></li>
-                <li>Create a Fargate Service:<br /></li>
-                <li>
-                    <MadCap:codeSnippet>
-                        <MadCap:codeSnippetCopyButton />
-                        <MadCap:codeSnippetCaption>
-                            <p>Fargate service</p>
-                        </MadCap:codeSnippetCaption>
-                        <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs create-service --region us-west-2 --service-name fargate-service --task-definition sample-fargate:1 --desired-count 2 --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[subnet-abcd1234],securityGroups=[sg-abcd1234]}"
+            <li>Create a Fargate Service:<br /></li>
+            <li>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetCaption>
+                        <p>Fargate service</p>
+                    </MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">aws ecs create-service --region us-west-2 --service-name fargate-service --task-definition sample-fargate:1 --desired-count 2 --launch-type "FARGATE" --network-configuration "awsvpcConfiguration={subnets=[subnet-abcd1234],securityGroups=[sg-abcd1234]}"
 </MadCap:codeSnippetBody>
-                    </MadCap:codeSnippet>
-                </li>
-            </ol>
+                </MadCap:codeSnippet>
+            </li>
             <li>
                 <p>Configure your GitHub repository<br />Create the repo from your browser; in this example we name the repository FargateActionDemo.</p>
                 <p>
