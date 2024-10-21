@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/tools-integrations/aws-mp/run-commands-aws.html" />
+        <meta name="description" content="This page teaches you how to run Liquibase commands on AWS Marketplace." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>Create an AWS&#160;Task Definition to Run <MadCap:variable name="General.Liquibase" /> Commands</h1>
+        <p>To run <MadCap:variable name="General.Liquibase" /> commands on AWS you need task definitions.</p>
+        <h2>Prerequistes</h2>
+        <ul>
+            <li>Be familiar with AWS&#160;Task Definitions. Learn more about AWS from this guide: <a href="https://docs.aws.amazon.com/AmazonECS/latest/developerguide/create-task-definition.html">Creating an Amazon ECS task definition using the console</a></li>
+            <li>Create an S3 bucket or a GitHub repository to store configuration files<ul><li>It is important to know the <MadCap:variable name="General.changelog" />, <MadCap:variable name="General.liquiPropFile" /> file, JDBC&#160;drivers, and any file associated with your AWS&#160;project can be placed in the S3 bucket or GitHub repository.</li></ul></li>
+            <li>If you are using S3, create an IAM&#160;user which has access to the S3 bucket.<ul><li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html">Generate the security credentials for the same user</a></li></ul></li>
+            <li><b>Required additional AWS&#160;Resources:</b>
+                <ul>
+                    <li>MySQL RDS&#160;Instance - If you are using MySQL DB</li>
+                    <li>AWS&#160;Fargate ECS&#160;cluster </li>
+                    <li>IAM&#160;role to access the CloudWatch Logs, create Task Definitions, etc.</li>
+                </ul>
+            </li>
+        </ul>
+        <h2>Step-by-step</h2>
+        <h3>Creatie a  task definition for <MadCap:variable name="General.Liquibase" /> commands in AWS Fargate</h3>
+        <ol>
+            <li>Navigate to your Amazon Elastic Container Service console. <br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/a-ecs.png" /></li>
+            <li>Select Task definitions from the left side navigation.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/task-def.png" /></li>
+            <li>Click the <b>Create a new task definition</b> button.&#160;<br /><ol><li><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>Task Definition Example</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:804611071420:task-definition/connect-command:11",
+    "containerDefinitions": [
+        {
+            "name": "Liquibase-Pro",
+            "image": "709825985650.dkr.ecr.us-east-1.amazonaws.com/liquibase/liquibase/liquibasepro:4.29.2-test2",
+            "cpu": 0,
+            "portMappings": [],
+            "essential": true,
+            "command": [
+                "--defaults-file=s3://aws-marketplace-listing-files/liquibase.docker.properties",
+                "connect"
+            ],
+            "environment": [
+                {
+                    "name": "INSTALL_MYSQL",
+                    "value": "true"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/connect-command",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "connect-command",
+    "taskRoleArn": "arn:aws:iam::804611071420:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::804611071420:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 11,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "runtimePlatform": {
+        "cpuArchitecture": "ARM64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2024-10-21T19:43:21.777Z",
+    "registeredBy": "arn:aws:sts::804611071420:assumed-role/AWSReservedSSO_MarketplaceLimitedPermissions_1c0e25eeb793d12a/rberezenskyi",
+    "tags": []
+}</MadCap:codeSnippetBody></MadCap:codeSnippet></li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">In this example, task definitions are arranged as individual <MadCap:variable name="General.Liquibase" /> commands. You can create batch task definitions that contain multiple <MadCap:variable name="General.Liquibase" /> commands by following AWS best practices.</p></ol></li>
+            <li>Ensure that the <b>Launch type</b> selected is <b>AWS&#160;Fargate</b>.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/fargate-launch-type.png" /></li>
+            <li>Set both the Task role and execution role to ecsTaskExecutionRole. This role is created by default when we create a ECS Fargate cluster.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/task-role.png" /></li>
+            <li>This is the container you may want to extend the Docker container to use SQL, mySQL, NoSQL, or any other type of extension.<br />Ensure that <b>Container</b> has this Image URI: <code>709825985650.dkr.ecr.us-east-1.amazonaws.com/liquibase/liquibase/liquibase-pro:&lt;insert_image_tag&gt;<br /></code></li>
+            <li>Ensure that the Keys are <code>AWS_REGION</code>&#160;with user's AWS&#160;region, such as <code>us-east-1.</code></li>
+            <li>If you work with MySQL&#160;DB, add <code>INSTALL_MYSQL</code> with a value of <code>true</code>.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/keys.png" /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>INSTALL_MYSQL</code>&#160;is our <a href="https://github.com/liquibase/docker/blob/main/docker-entrypoint.sh">required Docker entrypoint</a>.</p></li>
+            <li>Click the <b>Create</b> button at the bottom of the page to complete mounting the files in Fargate.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/create-task-button.png" /><br /></li>
+        </ol>
+        <h3>Run <MadCap:variable name="General.Liquibase" /> commands</h3>
+        <p>Once the task definition is configured, you can begin running <MadCap:variable name="General.Liquibase" /> commands as task definitions.</p>
+        <ol>
+            <li>Navigate to the&#160;<b>Task definitions</b> section on the left side navigation. Here you can define the Task definitions for the <MadCap:variable name="General.Liquibase" /> commands you wish to run.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/task-def.png" /><ol><li><b>Optional:&#160;Place the full image URL in a task definition to extend the Docker image</b><br />You may want to extend your Docker image if you have several services that reuse a common set of configuration options or you use external tools like SQL Plus or SQLCMD. To extend our docker image and add other databases  for a specific task definition, you must use the image URL that displays the ECS&#160;repository. <br /><br />Here is the repository URL that can be extended: <code>709825985650.dkr.ecr.us-east-1.amazonaws.com/liquibase/liquibase/liquibase-pro:<MadCap:variable name="software-versions.latest-liquibase-pro" /></code><br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">You must use the ECS image URL displayed in the task definition to extend our docker image.</p></li><li><p>Check the box next to the specific definition you want to revise.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/revise-task.png" /></p></li><li><p>Click the <b>Create new revision</b> drop down menu and select <b>Create new revision with JSON</b>.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/create-revision.png" /></p></li><li><p>From the Create new revision page you will see the line that starts with image; place the URL here to extend the docker image.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/task-def-img.png" /></p></li></ol></li>
+            <li>Run a task definition by selecting the radio button next to the desired definition. In this example we will use <code>connect-command</code>.<br /></li>
+            <li>Select the <b>Deploy button</b> at the top of the screen.</li>
+            <li>From the drop-down menu, select <b>run task</b>.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/run-task.png" /></li>
+            <li>Select the <b>Compute</b> options that you desire. In this example we will toggle Launch type on.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/compute-opts.png" /></li>
+            <li>Click the <b>Create</b> button.</li>
+            <li>AWS will bring you to the tasks in your cluster. You will be able to see the task that is running in the Tasks tab below the Cluster Overview.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/running-task.png" /></li>
+            <li>Click on the <b>task</b> that is running in the Tasks tab.</li>
+            <li>Click on the <b>Logs tab</b> to see all log events on any container you have specified in the Task Definition.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/logs-tab.png" /><br />This message will display if you <b>have</b> a license: <MadCap:variable name="General.Liquibase" /> Pro <MadCap:variable name="software-versions.latest-liquibase-pro" /> (license through AWS License Manager)<br />This message will display if you <b>do not have</b> a license:&#160;<MadCap:variable name="General.Liquibase" /> Version: <MadCap:variable name="software-versions.latest-liquibase-pro" /> <br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/license.png" /></li>
+        </ol>
+        <p>You have successfully ran and viewed the logs of a <MadCap:variable name="General.Liquibase" /> command on AWS.</p>
+        <h2>Next Steps</h2>
+        <p>Now that you've purchased <MadCap:variable name="General.Liquibase" /> on AWS&#160;Marketplace and run commands you may want to add  AWS&#160;Secrets Manager to your AWS workflow. Find instructions for these steps here: <MadCap:xref href="setup-aws-extension.htm">[%=General.Liquibase%] on AWS&#160;with AWS&#160;Secrets Manager</MadCap:xref></p>
+    </body>
+</html>
