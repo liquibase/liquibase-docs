@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:searchable="False" MadCap:conditions="exclude.future">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/workflows/liquibase-community/drift-detection.html" />
+        <meta name="description" content="This page explains how to use Liquibase drift detection to detect drift between your databases." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>How to Use <MadCap:variable name="General.Liquibase" /> Drift Detection</h1>
+        <p>Drift detection is useful in determining what is different when deploying to a single database or determining what is different between two target databases to ensure that they are in sync.</p>
+        <p><MadCap:variable name="General.Liquibase" /> has the ability to generate the missing <MadCap:variable name="General.changeset" />s that can either be applied to a database or marked as run to ensure that the <MadCap:variable name="General.Liquibase" /> project is also in sync with the database.</p>
+        <p>There are two general scenarios where drift detection is used:</p>
+        <ul>
+            <li>Comparing a single database's current state against a previous state</li>
+            <li>Comparing the current state of two target databases</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This document applies to <MadCap:variable name="General.Liquibase" /> 4.23.0 and earlier.</p>
+        <h2>Comparing a single database's current state against a previous state</h2>
+        <p>If the database can be accessed outside of the Liquibase process either via a hotfix pipeline or DBAs/developers have access to the database, it is possible for the Liquibase project to become out of sync with the target database. This option can also determine if code has been deployed to the database outside of the Liquibase process.</p>
+        <p>In order to compare a database to itself, you must utilize the snapshot command.</p>
+        <ul>
+            <li>The general flow of this process is:</li>
+            <li>Perform a Liquibase update</li>
+            <li>Run the snapshot command to capture the current state of the database<ul><li>Run a diff-changelog to compare the snapshot to the target database.</li></ul></li>
+        </ul>
+        <p>This can either be run in a separate automation job, or it should be in the same job before the update command (and determine if the job should fail because of this).</p>
+        <h3>Important information</h3>
+        <ul>
+            <li>The general solution provided below highlights the main commands to perform this workflow. You will still need a username, password, etc., set in order to connect to the database.</li>
+            <li>If these commands are all run at once, the changelog_file_name.sql file will not have any changesets. This file will only have changesets if there are changes in the database, not in the snapshot.</li>
+        </ul>
+        <h3>How-to guide</h3>
+        <ol>
+            <li>Run the update command on the target database</li><pre><code class="language-text">liquibase --url=$targetURL update</code></pre>
+            <li>Run the snapshot command on the target database</li><pre><code class="language-text">liquibase --url=$targetURL --output-file=.json snapshot --snapshot-format=json</code></pre>
+            <li>There are two commands that can be used to determine the differences diff (option a) and diff-changelog (option b).</li>
+            <ul>
+                <li>Run the diff command format=json to get a quick glance at what is different:</li><pre><code class="language-text">liquibase --url="offline:?snapshot=..." --reference-url=$targetURL diff --format=JSON</code></pre>
+                <li>Run the diff-changelog command on the target database while using the snapshot from step 2 as the URL.</li><pre><code class="language-text">liquibase --url="offline:?snapshot=..." --reference-url=$targetURL diff-changelog --changelog-file=.sql</code></pre>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If this is being used inside of an automation pipeline, this diff-changelog command should be run either in a separate job than the Liquibase update, or it should be run before the update in step 1 to determine if changes have occurred in the database.</p>
+            </ul>
+        </ol>
+        <h3>Variable descriptions for the example commands listed above</h3>
+        <ul>
+            <li><code>$targetURL</code>: This is the normal JDBC URL used to connect to the database.</li>
+            <li><code>&lt;db_type&gt;</code>: This value needs to be set to the type of database (Postgres, Oracle, etc.).<ul><li>This value is referred to as the DBMS or "shortname," which can be found for all <a href="../../start/tutorials/home.html">supported databases</a>.</li></ul></li>
+            <li><code>&lt;snapshot_file_name&gt;</code>: the snapshot file containing the current state of the database in a JSON format.</li>
+            <li><code>&lt;changelog_file_name&gt;</code>: the generated changelog (set to SQL) containing changesets that are not in the database.</li>
+        </ul>
+        <h2>Comparing the current state of two target databases</h2>
+        <p>When there are multiple databases in the pipeline, such as a PROD database and a UAT database, database drift can occur when certain changes were deployed as a hotfix to PROD that didn't get deployed to the UAT database. This is all achieved via the diff-changelog command.</p>
+        <h3>How-to guide</h3>
+        <ol>
+            <li>Follow the steps outlined in Liquibase's documentation on diff-changelog.</li><pre><code class="language-text">liquibase diff-changelog --changelog-file=&lt;changelog_file_name&gt;.xml
+--url="jdbc:oracle:thin:@&lt;IP OR HOSTNAME&gt;:&lt;PORT&gt;:&lt;SERVICE NAME OR SID&gt;"
+--username=&lt;USERNAME&gt;
+--password=&lt;PASSWORD&gt;
+--referenceUrl="jdbc:oracle:thin:@&lt;IP OR HOSTNAME&gt;:&lt;PORT&gt;:&lt;SERVICE NAME OR SID&gt;"
+--referenceUsername=&lt;USERNAME&gt;
+--referencePassword=&lt;PASSWORD&gt;</code></pre>
+        </ol>
+        <h3>Variable descriptions for the example command listed above</h3>
+        <ul>
+            <li><code>&lt;changelog_file_name&gt;.xml</code>: A changelog that will have the changesets needed to get the target database to match the reference database.</li>
+        </ul>
+        <h2>What's Next: How to Use the Generated Changelog</h2>
+        <p>In both scenarios outlined in this article, a changelog will be generated with changesets that are not in the current Liquibase project. The user who owns the changelog management process should determine how to incorporate these changelogs into the project.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"> All generated SQL using Liquibase should be carefully reviewed before applying to any database.</p>
+    </body>
+</html>
