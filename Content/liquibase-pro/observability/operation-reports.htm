@@ -164,17 +164,32 @@
         <h2>Troubleshooting</h2>
         <p>If operation reports fail to generate, <MadCap:variable name="General.Liquibase" /> displays error messages but does not halt execution.</p>
         <h3>Read/write permissions</h3>
-        <p><b><MadCap:variable name="General.Liquibase" /> with Docker</b>
-        </p>
-        <p>If you use <MadCap:variable name="General.Liquibase" /> alongside Docker, reports do not write directly to your local machine by default, they write to an output stream. When you write a report, <MadCap:variable name="General.Liquibase" /> says a file was created, but it is not accessible from within the container. To gain access to this file, you can write reports to a directory within the Docker container or to a mounted volume.</p>
-        <p><b>Docker Container option:</b>
-            <br />You can specify <code>--report-path=/</code> to indicate the container's root directory which writes a report to a directory within the docker container.</p>
-        <p><b>Mounted volume option:</b>&#160;<br />Write reports to a mounted volume by ensuring the Docker container user has the appropriate permissions to access and write to the mounted volume.</p>
         <p>If you lack the necessary read/write permissions to generate a report, you may receive this error message:</p><pre xml:space="preserve"><code class="language-text">INFO: For users with appropriate permissions and access, operation reports are available by setting 
 'LIQUIBASE_REPORT_PATH' to a dir with read/write capability. Suppress this message and disable report 
 generation by setting the 'LIQUIBASE_REPORT_ENABLED' to false. 
 Learn more at https://docs.liquibase.com/observability</code></pre>
-        <p>To resolve this, set a value of <code class="language-text">--report-path</code> that your system can read/write to:</p>
+        <p>To resolve this, set a value of <code class="language-text">--report-path</code> that your system can read/write to.</p>
+        <p><b><MadCap:variable name="General.Liquibase" /> with Docker</b>
+        </p>
+        <p>If you use <MadCap:variable name="General.Liquibase" /> alongside Docker, reports do not write directly to your local machine by default, they write to an output stream. When you write a report, <MadCap:variable name="General.Liquibase" /> says a file was created, but it is not accessible from within the container. To gain access to this file, you can write reports to a directory within the Docker container or to a mounted volume.</p>
+        <p><b>Docker Container option:</b>
+            <br />You can specify <code>--report-path=./</code> to indicate the container's <b>current working directory</b> which writes a report to a directory within the docker container. </p>
+        <p><b>Mounted volume option:</b>&#160;<br />Write reports to a mounted volume by ensuring the Docker container user has the appropriate permissions to access and write to the mounted volume.</p>
+        <p>Assign write permissions to a mounted volume author by following these steps:</p>
+        <ol>
+            <li>Use this key value:<MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">Key Addition:
+--user root
+By using the --user root flag, you ensure that the container operates with elevated privileges, which may help avoid permission issues with files in the mounted directory. Use this with caution to avoid unintended changes, as the root user has unrestricted access inside the container.
+Run this command:
+sudo docker run --network=host --rm -v /home/path/to/changelog:/liquibase/changelog --user root liquibase-image --reports-path=/liquibase/changelog --changelog-file=changelog/changelog.xml update --url=jdbc:h2:tcp://localhost:9090/mem:dev --password=letmein --username=dbuser</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
+            <li>Run this command:</li>
+            <li>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">sudo docker run --network=host --rm -v /home/path/to/changelog:/liquibase/changelog --user $(id -u):$(id -g) liquibase-image --reports-path=/liquibase/changelog --changelog-file=changelog/changelog.xml update --url=jdbc:h2:tcp://localhost:9090/mem:dev --password=letmein --username=dbuser</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+        </ol>
         <h3>Reports are not enabled</h3>
         <p>If you have the appropriate read/write permissions and your environment is not headless, but you have disabled operation reports, you may receive this error message:</p><pre xml:space="preserve"><code class="language-text">A Pro Update Report was not created!
 ** To generate a Update report add command arg 'liquibase update --report-enabled=true'
