@@ -27,104 +27,27 @@
             <li>Navigate to your Amazon Elastic Container Service console. <br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/a-ecs.png" /></li>
             <li>Select Task definitions from the left side navigation.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/task-def.png" /></li>
             <li>Click the <b>Create a new task definition</b> button.&#160;<br /><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Use this example task definition below to build a new task by replacing the placeholder values of<code> &lt;PRO&#160;CONTAINER&#160;IMAGE&#160;LINK&gt;</code>, <code>&lt;AWS_REGION&gt;</code>, and <code>&lt;S3&#160;BUCKET&#160;NAME&gt;</code> with your values.</p><br /><ul><li><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>Task Definition Example</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:{account_number}:task-definition/connect-command",
     "containerDefinitions": [
         {
-            "name": "liquibase-pro",
+            "name": "Liquibase-Pro",
             "image": "&lt;PRO CONTAINER IMAGE LINK&gt;",
             "cpu": 0,
-            "portMappings": [
-                {
-                    "name": "liquibase-pro-80-tcp",
-                    "containerPort": 80,
-                    "hostPort": 80,
-                    "protocol": "tcp",
-                    "appProtocol": "http"
-                }
-            ],
+            "portMappings": [],
             "essential": true,
             "command": [
-                "--defaults-file",
-                "/common/liquibase.properties",
-                "--search-path",
-                "/common/",
+                "--defaults-file=s3://&lt;s3 BUCKET NAME&gt;/liquibase.properties",
                 "connect"
             ],
-            "environment": [
-                {
-                    "name": "INSTALL_MYSQL",
-                    "value": "true"
-                },
-                {
-                    "name": "AWS_REGION",
-                    "value": "&lt;AWS_REGION&gt;"
-                }
-            ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "common_volume",
-                    "containerPath": "/common",
-                    "readOnly": false
-                }
-            ],
-            "volumesFrom": [],
-            "dependsOn": [
-                {
-                    "containerName": "changelog-download",
-                    "condition": "SUCCESS"
-                }
-            ],
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/connect-command",
-                    "awslogs-create-group": "true",
-                    "awslogs-region": "us-east-2",
-                    "awslogs-stream-prefix": "ecs"
-                }
-            },
-            "systemControls": []
-        },
-        {
-            "name": "changelog-download",
-            "image": "amazon/aws-cli",
-            "cpu": 0,
-            "portMappings": [],
-            "essential": false,
-            "command": [
-                "s3",
-                "cp",
-                "--recursive",
-                "s3://&lt;s3 BUCKET NAME&gt;/",
-                "/common/"
-            ],
-            "environment": [
-                {
-                    "name": "AWS_DEFAULT_REGION",
-                    "value": "&lt;AWS REGION&gt;"
-                },
-                {
-                    "name": "AWS_ACCESS_KEY_ID",
-                    "value": "xxxx"
-                },
-                {
-                    "name": "AWS_SECRET_ACCESS_KEY",
-                    "value": "xxxx"
-                }
-            ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "common_volume",
-                    "containerPath": "/common",
-                    "readOnly": false
-                }
-            ],
+            "environment": [],
+            "mountPoints": [],
             "volumesFrom": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-group": "/ecs/connect-command",
                     "awslogs-create-group": "true",
-                    "awslogs-region": "&lt;AWS_REGION&gt;",
+                    "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
                 }
             },
@@ -132,16 +55,46 @@
         }
     ],
     "family": "connect-command",
-    "taskRoleArn": "arn:aws:iam::&lt;AWS ACCOUNT KEY&gt;:role/ecsTaskExecutionRole",
-    "executionRoleArn": "arn:aws:iam::&lt;AWS ACCOUNT KEY&gt;:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::{account_number}:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::{account_number}:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "volumes": [
+    "revision": 1,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
         {
-            "name": "common_volume",
-            "host": {}
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
         }
     ],
     "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
     "requiresCompatibilities": [
         "FARGATE"
     ],
@@ -151,6 +104,9 @@
         "cpuArchitecture": "ARM64",
         "operatingSystemFamily": "LINUX"
     },
+    "registeredAt": "2024-10-29T15:37:24.193Z",
+    "registeredBy": "arn:aws:sts::{account_number}:assumed-role/AWSReservedSSO_MarketplaceLimitedPermissions_1c0e25eeb793d12a/{username}",
+    "enableFaultInjection": false,
     "tags": []
 }</MadCap:codeSnippetBody></MadCap:codeSnippet></li><p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">In this example, task definitions are arranged as individual <MadCap:variable name="General.Liquibase" /> commands. You can create batch task definitions that contain multiple <MadCap:variable name="General.Liquibase" /> commands by following AWS best practices.</p></ul></li>
             <li>Ensure that the <b>Launch type</b> selected is <b>AWS&#160;Fargate</b>.<br /><img src="../../Z_Resources/Images/Assets/Screenshots/aws-mp/fargate-launch-type.png" /></li>
