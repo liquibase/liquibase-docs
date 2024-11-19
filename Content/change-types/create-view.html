@@ -9,9 +9,12 @@
         <h1>createView</h1>
         <p>Creates a new database view.</p>
         <MadCap:snippetBlock src="../Z_Resources/Snippets/note/change-type-materialized-views.flsnp" />
+        <h2>Uses</h2>
+        <p>You can use the <code>createView</code>&#160;<MadCap:variable name="General.changetypes" /> to create a view on a table. A view is a virtual table that stores the result of a particular <code>SELECT</code> SQL statement for easy access (without altering the table). For example, joining multiple tables into a single, easy-to-query object.</p>
+        <MadCap:snippetBlock src="../Z_Resources/Snippets/note/change-type-databricks.flsnp" />
         <h2>Run <code>createView</code></h2>
         <MadCap:snippetBlock src="../Z_Resources/Snippets/text/change-type-run-syntax.flsnp" />
-        <h2>Available <MadCap:variable name="General.Param/Attribute" />s</h2>
+        <h2><a name="Availabl"></a>Available <MadCap:variable name="General.Param/Attribute" />s</h2>
         <table>
             <thead>
                 <tr>
@@ -52,7 +55,9 @@
                 <tr>
                     <td><code>path</code>
                     </td>
-                    <td>Path to file containing view definition. Using the <code>path</code> <MadCap:variable name="General.Param/Attribute" /> is an alternative to <code>selectQuery</code>.</td>
+                    <td>
+                        <MadCap:snippetBlock src="../Z_Resources/Snippets/def/attributes/change-types/change-type-path-create-view.flsnp" />
+                    </td>
                     <td> </td>
                     <td>all</td>
                 </tr>
@@ -78,11 +83,12 @@
                     <td><code>replaceIfExists</code>
                     </td>
                     <td>
-                        <p>Use <code>CREATE&#160;OR&#160;REPLACE</code> syntax</p>
-                        <p>Available in <MadCap:variable name="General.Liquibase" /> 1.5 and later</p>
+                        <MadCap:snippetBlock src="../Z_Resources/Snippets/def/attributes/change-types/change-type-replace-if-exists-create-view.flsnp" />
+                        <p>Available in <MadCap:variable name="General.Liquibase" /> 1.5+.</p>
                     </td>
                     <td> </td>
-                    <td>db2, firebird, h2, hsqldb, ingres, mariadb, mssql, mysql, oracle, postgresql, sqlite, sybase</td>
+                    <td>
+                        <MadCap:conditionalText MadCap:conditions="exclude.future-databricks">databricks, </MadCap:conditionalText>db2, firebird, h2, hsqldb, ingres, mariadb, mssql, mysql, oracle, postgresql, sqlite, sybase</td>
                 </tr>
                 <tr>
                     <td><code>schemaName</code>
@@ -101,6 +107,16 @@
                     </td>
                     <td>informix</td>
                     <td>all</td>
+                </tr>
+                <tr MadCap:conditions="exclude.future-databricks">
+                    <td><code>tblProperties</code>
+                    </td>
+                    <td>
+                        <MadCap:snippetBlock src="../Z_Resources/Snippets/def/attributes/change-types/databricks/change-type-tbl-properties.flsnp" />
+                        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This <MadCap:variable name="General.Param/Attribute" /> is only available with the <a href="../start/tutorials/databricks/home.htm"><MadCap:variable name="General.Liquibase" /> extension for Databricks</a>. It is not available for SQL&#160;<MadCap:variable name="General.changelog" />s. For more information, see <a href="https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-view.html">Databricks SQL&#160;Reference:&#160;CREATE VIEW</a>.</p>
+                    </td>
+                    <td>&#160;</td>
+                    <td>databricks</td>
                 </tr>
                 <tr>
                     <td><code>viewName</code>
@@ -153,6 +169,18 @@ CREATE  VIEW  cat.v_person  AS(select  id,
         schemaName:  public
         selectQuery:  select id, name from person where id &gt; 10
         viewName:  v_person</code></pre>
+                <p MadCap:conditions="exclude.future-databricks">Databricks example:</p><pre xml:space="preserve" MadCap:conditions="exclude.future-databricks"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: your.name
+      changes:
+        - createView:
+            selectQuery: SELECT id, first_name, last_name, email FROM authors
+            viewName: test_view
+            tblProperties: 'this.is.my.key'=12,'this.is.my.key2'=true
+      rollback:
+        - dropView:
+            viewName: test_view</code></pre>
             </div>
             <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json" data-lang="json">{
     "databaseChangeLog": [
@@ -180,6 +208,32 @@ CREATE  VIEW  cat.v_person  AS(select  id,
         }
     ]
 }</code></pre>
+                <p MadCap:conditions="exclude.future-databricks">Databricks example:</p><pre xml:space="preserve" MadCap:conditions="exclude.future-databricks"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "your.name",
+        "changes": [
+          {
+            "createView": {
+              "selectQuery": "SELECT id, first_name, last_name, email FROM authors",
+              "viewName": "test_view",
+              "tblProperties": "'this.is.my.key'=12,'this.is.my.key2'=true"
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "dropView": {
+              "viewName": "test_view"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
             </div>
             <div id="xml_example" class="js-tabcontent">
                 <p>To apply the <code>selectQuery</code> value in XML, set it as a body of the tag: </p><pre xml:space="preserve"><code class="language-xml" data-lang="xml"><MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
@@ -206,6 +260,19 @@ CREATE  VIEW  cat.v_person  AS(select  id,
 	        replaceIfExists="false"
 	        schemaName="public"
 	        viewName="v_person"&gt;&lt;/createView&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+                <p MadCap:conditions="exclude.future-databricks">Databricks example:</p><pre xml:space="preserve" MadCap:conditions="exclude.future-databricks"><code class="language-xml"><MadCap:snippetText src="../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-databricks.flsnp" />
+
+    &lt;changeSet id="2" author="your.name"&gt;
+        &lt;databricks:createView viewName="test_view" tblProperties="'external.location'='s3://mybucket/myview','this.is.my.key'=12,'this.is.my.key2'=true"&gt;
+            SELECT id, first_name, last_name, email FROM authors
+        &lt;/databricks:createView&gt;
+
+        &lt;rollback&gt;
+            &lt;dropView viewName="test_view" /&gt;
+        &lt;/rollback&gt;
     &lt;/changeSet&gt;
 
 &lt;/databaseChangeLog&gt;</code></pre>

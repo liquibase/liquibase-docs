@@ -10,7 +10,9 @@
         </h1>
         <p><code class="language-text">vacuumTable</code> is a <MadCap:variable name="General.changetypes" /> in the <a href="../../start/tutorials/databricks/home.htm"><MadCap:variable name="General.LBCommunity" /> Databricks extension</a> that vacuums a table.</p>
         <h2>Uses</h2>
-        <p>&#160;</p>
+        <p>Every table in databricks has a physical storage location containing files associated with the table (data and metadata). You can use this <MadCap:variable name="General.changetypes" /> to recursively remove (vacuum) unused files from a table directory. Unused files are defined as files not referenced by the table. <MadCap:variable name="General.Liquibase" /> lets you specify the number of hours back to keep (retain)&#160;files, even if they aren't referenced. <b>It is a best practice to set a retention threshold of at least seven days (168 hours).</b></p>
+        <p>Vacuuming can significantly reduce storage use and therefore cloud storage costs. It also guarantees that outdated files (data or metadata that has since been changed) are permanently removed from your storage system.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code class="language-text">vacuumTable</code> deletes files from physical storage. You <b>cannot</b> run a <MadCap:variable name="General.Liquibase" /> rollback to restore those files  because they are not stored in the <MadCap:variable name="General.databasechangelog" /> table and cannot be retrieved. However, you <b>can</b> roll back any schema changes you made, such as the value of <code class="language-text">retentionHours</code>.</p>
         <h2>Run <code>vacuumTable</code></h2>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/text/change-type-run-syntax.flsnp" />
         <h2 id="available-attributes">Available <MadCap:variable name="General.Param/Attribute" />s</h2>
@@ -34,22 +36,21 @@
                     </td>
                     <td>String</td>
                     <td>
-                        <MadCap:snippetText src="../../Z_Resources/Snippets/def/attributes/change-types/change-type-table-name.flsnp" /> to optimize</td>
+                        <MadCap:snippetText src="../../Z_Resources/Snippets/def/attributes/change-types/change-type-table-name.flsnp" /> to vacuum.</td>
                     <td><b>Required</b>
                     </td>
                 </tr>
                 <tr>
-                    <td><code class="language-text">retentionhours</code>
+                    <td><code class="language-text">retentionHours</code>
                     </td>
                     <td>Integer</td>
-                    <td>&#160;</td>
+                    <td>Number of hours into the past to retain files from. Any files created within the retention threshold are retained; any older files are deleted. <b>Default: <code class="language-text">168</code></b>.<p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">Databricks recommends setting a retention threshold of at least seven days (168 hours). Otherwise, you risk deleting files still in use by concurrent processes.</p></td>
                     <td>Optional</td>
                 </tr>
             </tbody>
         </table>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code class="language-text">DRY&#160;RUN</code> SQL clause is not supported for the <code class="language-text">vacuumTable</code>&#160;<MadCap:variable name="General.changetypes" />.</p>
         <h2 id="examples">Examples</h2>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">&lt;note about rollback?&gt;</p>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
                 <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
@@ -66,11 +67,11 @@
       changes:
         - vacuumTable:
             tableName: test_vacuum_table
-            retentionHours: 48
+            retentionHours: 192
       rollback:
         - vacuumTable:
             tableName: test_vacuum_table
-            retentionHours: 78</code></pre>
+            retentionHours: 168</code></pre>
             </div>
             <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
@@ -82,7 +83,7 @@
           {
             "vacuumTable": {
               "tableName": "test_vacuum_table",
-              "retentionHours": "48"
+              "retentionHours": "192"
             }
           }
         ],
@@ -90,7 +91,7 @@
           {
             "vacuumTable": {
               "tableName": "test_vacuum_table",
-              "retentionHours": "72"
+              "retentionHours": "168"
             }
           }
         ]
@@ -102,10 +103,10 @@
             <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-databricks.flsnp" />
 
     &lt;changeSet id="2" author="your.name"&gt;
-        &lt;databricks:vacuumTable tableName="test_vacuum_table" retentionHours="48"/&gt;
+        &lt;databricks:vacuumTable tableName="test_vacuum_table" retentionHours="192"/&gt;
 
         &lt;rollback&gt;
-            &lt;databricks:vacuumTable tableName="test_vacuum_table" retentionHours="72"/&gt;
+            &lt;databricks:vacuumTable tableName="test_vacuum_table" retentionHours="168"/&gt;
         &lt;/rollback&gt;
     &lt;/changeSet&gt;
 
