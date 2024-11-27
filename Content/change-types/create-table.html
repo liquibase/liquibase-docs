@@ -145,17 +145,9 @@
                     <td>yes</td>
                 </tr>
                 <tr MadCap:conditions="">
-                    <td><code><MadCap:xref href="databricks/nested-tags/cluster-columns.html">clusterColumns</MadCap:xref></code>
-                    </td>
-                    <td>Creates a clustered table.</td>
-                    <td>&#160;</td>
-                    <td>databricks</td>
-                    <td>no</td>
-                </tr>
-                <tr MadCap:conditions="">
                     <td><code><MadCap:xref href="databricks/nested-tags/extended-table-properties.html">extendedTableProperties</MadCap:xref></code>
                     </td>
-                    <td>Specifies additional properties on a table you're creating.</td>
+                    <td>Specifies additional properties on a table you're creating, such as whether to create clustered or partitioned columns.</td>
                     <td>&#160;</td>
                     <td>databricks</td>
                     <td>no</td>
@@ -202,6 +194,7 @@ ALTER  TABLE  department.person  COMMENT  =  'A String';</code></pre>
     author: your.name
     changes:
     - createTable:
+        tableName: test_table_complex_types
         columns:
         - column:
             name: my_arrs
@@ -215,7 +208,11 @@ ALTER  TABLE  department.person  COMMENT  =  'A String';</code></pre>
         - column:
             name: my_struct
             type: 'STRUCT&lt;FIELD1: STRING NOT NULL, FIELD2: INT&gt;'
-        tableName: test_table_complex_types</code></pre>
+        extendedTableProperties:
+          clusterColumns: my_arrs, my_arrbi
+          tableFormat: delta
+          tableLocation: s3://databricks-external-folder/test_table_properties
+          tblProperties: 'this.is.my.key'=12,'this.is.my.key2'=true</code></pre>
             </div>
             <div id="json_example" class="js-tabcontent">
                 <p>General example:</p><pre xml:space="preserve"><code class="language-json" data-lang="json">{
@@ -256,6 +253,7 @@ ALTER  TABLE  department.person  COMMENT  =  'A String';</code></pre>
         "changes": [
           {
             "createTable": {
+              "tableName": "test_table_complex_types",
               "columns": [
                 {
                   "column": {
@@ -282,7 +280,12 @@ ALTER  TABLE  department.person  COMMENT  =  'A String';</code></pre>
                   }
                 }
               ],
-              "tableName": "test_table_complex_types"
+              "extendedTableProperties": {
+                "clusterColumns": "my_arrs, my_arrbi",
+                "tableFormat": "delta",
+                "tableLocation": "s3://databricks-external-folder/test_table_properties",
+                "tblProperties": "'this.is.my.key'=12,'this.is.my.key2'=true"
+              }
             }
           }
         ]
@@ -313,6 +316,11 @@ ALTER  TABLE  department.person  COMMENT  =  'A String';</code></pre>
             &lt;column name="my_arrbi" type="ARRAY&amp;lt;BIGINT&amp;gt;" /&gt;
             &lt;column name="my_map" type="MAP&amp;lt;STRING, BIGINT&amp;gt;" /&gt;
             &lt;column name="my_struct" type="STRUCT&amp;lt;FIELD1: STRING NOT NULL, FIELD2: INT&amp;gt;" /&gt;
+
+            &lt;databricks:extendedTableProperties clusterColumns="my_arrs, my_arrbi"
+                                                tableFormat="delta"
+                                                tableLocation="s3://databricks-external-folder/test_table_properties"
+                                                tblProperties="'this.is.my.key'=12,'this.is.my.key2'=true"/&gt;
         &lt;/createTable&gt;
     &lt;/changeSet&gt;
 					
