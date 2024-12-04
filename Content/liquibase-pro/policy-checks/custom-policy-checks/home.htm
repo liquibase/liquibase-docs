@@ -44,7 +44,8 @@
                 </li>
             </ul>
         </ul>
-        <p><b>Python is not required to create custom checks</b> in <MadCap:variable name="General.Liquibase"></MadCap:variable>, but it may be useful to test them. It is a best practice to test custom checks with Python 3.10.14+.</p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you're new to Python, it is a best practice to read the <a href="https://docs.python.org/3/library/distribution.html">official Python tutorials</a> before making custom checks.</p>
+        <p><b>Downloading Python itself is not required to create custom checks</b> in <MadCap:variable name="General.Liquibase" />, but it may be useful to test them. It is a best practice to test custom checks with Python 3.10.14+.</p>
         <table style="width: 50%;border-top-left-radius: 5px;border-top-right-radius: 5px;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;border-left-style: solid;border-left-width: 1px;border-left-color: #d3d3d3;border-right-style: solid;border-right-width: 1px;border-right-color: #d3d3d3;border-top-style: solid;border-top-width: 1px;border-top-color: #d3d3d3;border-bottom-style: solid;border-bottom-width: 1px;border-bottom-color: #d3d3d3;margin-left: 0;margin-right: auto;">
             <caption style="font-weight: bold;">Compatible Versions</caption>
             <col />
@@ -70,34 +71,35 @@
         <ol>
             <li>Run <code>liquibase checks customize --check-name=CustomCheckTemplate</code> to create a checks settings file.<br />A prompt appears that allows you to create the configuration file.</li>
             <li>Confirm the file creation in the prompt.</li>
-            <li>Run <code>liquibase checks customize --check-name=CustomCheckTemplate</code> again to begin the customization process.</li>
         </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The entire list of checks are available in the CLI when the checks settings creation is complete. The output is long and can be copied to a separate file for reference.</p>
         <h3>Create a new check</h3>
         <ol>
-            <li><b>Create a new file</b> in your <MadCap:variable name="General.Liquibase" /> working directory. This file will contain the Python script that is your custom policy check. In this example, we title our new file <code class="language-text">custom-check-no-tables.py</code>. The purpose of this sample check is to ensure that there are no tables in the database.</li>
+            <li><b>Create a new file</b> in your <MadCap:variable name="General.Liquibase" /> working directory. This file will contain the Python script that is your custom policy check. In this example, we title our new file <code class="language-text">custom-check-no-tables.py</code>.</li>
             <li><b>Open</b> the new <code class="language-text">custom-check-no-tables.py</code> file and add the following custom policy check to it:</li>
             <MadCap:codeSnippet>
                 <MadCap:codeSnippetCopyButton />
-                <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">import liquibase_utilities as lb # importing helper script provided by Liquibase
-import sys # useful for indicating a check has been triggered
+                <MadCap:codeSnippetBody MadCap:useLineNumbers="True" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;"># import Liquibase helper scripts containing useful functions
+import liquibase_utilities as lb
+import sys
 
-obj = lb.get_database_object() # gets the current database object the Liquibase policy check is examining
-status = lb.get_status() # gets the status object of the Liquibase check, used for reporting status and messages from the custom policy check
+# define reusable variables
+obj = lb.get_database_object() # database object to examine
+status = lb.get_status() # Status object of the check
 
+# write check logic
 if lb.is_table(obj): # checks if the current object is a table
 	status.fired = True # indicates that the custom check has been triggered
-	status.message = "No tables allowed!" # set the message of the custom check, which liquibase will return
+	status.message = "No tables allowed!" # message for Liquibase to return when check is triggered
 	sys.exit(1) # halt execution of the script</MadCap:codeSnippetBody>
             </MadCap:codeSnippet>
-            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you're new to Python, it is a best practice to read the <a href="https://docs.python.org/3/library/distribution.html">official Python tutorials</a> before making custom checks.</p>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> will run the entire check against every object in the database, so this script doesn't include a Python looping mechanism.</p>
+            <p>The purpose of this sample check is to ensure that there are no tables in the database.</p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> will run the check against every object in the database, so this script doesn't need a Python looping mechanism to iterate through database objects.</p>
         </ol>
         <h3>Configure and customize your new check in the CLI</h3>
-        <p>In the CLI, run this command to <b>initiate the customization process</b>:</p><pre><code class="language-text">liquibase checks customize --check-name=CustomCheckTemplate</code></pre>
-        <p>The CLI prompts you to finish configuring your file. A message displays:</p><pre><code class="language-text">This check cannot be customized directly because one or more fields does not have a default value.</code></pre>
-        <p><MadCap:variable name="General.Liquibase" /> will then create a copy of this check and initiate the customization workflow.</p>
         <ol>
+            <li>In the CLI, run this command to <b>initiate the customization process</b>:</li><pre><code class="language-text">liquibase checks customize --check-name=CustomCheckTemplate</code></pre>
+            <p>The CLI prompts you to finish configuring your file. A message displays:</p><pre><code class="language-text">This check cannot be customized directly because one or more fields does not have a default value.</code></pre>
+            <p><MadCap:variable name="General.Liquibase" /> will then create a copy of this check and initiate the customization workflow.</p>
             <li><b>Give your check a short name</b> for easier identification. In this example, we will name the check <code class="language-text">CustomCheckNoTables</code>.<br />Now you have successfully created the check <code class="language-text">CustomCheckNoTables</code> from <code class="language-text">CustomCheckTemplate</code>.</li>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The new check short name <code class="language-text">CustomCheckNoTables</code> and all of its associated information comes from the Python script you created. Your company may have their own coding standards that these scripts must adhere to.</p>
             <li>Set the <b>severity</b> to return a code of 0-4 when triggered. In this example, we will set the severity to <code class="language-text">1</code>. Options:</li>
