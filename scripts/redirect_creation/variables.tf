@@ -1401,7 +1401,7 @@ variable "redirects" {
     { key = "/what-is-a-jdbc-url", website_redirect = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html" },
     { key = "/what-is-a-jdbc-url.html", website_redirect = "/workflows/liquibase-community/using-jdbc-url-in-liquibase.html" },
     { key = "/workflows", website_redirect = "/workflows/home.html" },
-    { key = "/workflows/command-line/maven.html", website_redirect = "tools-integrations/maven/commands/home.html" },
+    { key = "/workflows/command-line/maven.html", website_redirect = "/tools-integrations/maven/commands/home.html" },
     { key = "/workflows/command-line/rollback.html", website_redirect = "/commands/rollback/home.html" },
     { key = "/workflows/commandline.html", website_redirect = "/commands/home.html" },
     { key = "/workflows/database-change-management/hibernate-5-integration.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/hibernate/" },
