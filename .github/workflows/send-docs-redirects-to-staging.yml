@@ -41,6 +41,15 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ADMIN_GITHUB_OIDC_ROLE_ARN_DOCS }}
           aws-region: us-east-1
 
+      - name: Check website redirects format
+        run: |
+          if grep -P 'website_redirect\s*=\s*"[^/]' variables.tf; then
+            echo "Error: Found website_redirect that doesn't start with '/'"
+            echo "All website_redirect values must start with a forward slash"
+            echo "Example: website_redirect = \"/home.html\""
+            exit 1
+          fi
+
       - name: Terraform Format
         if: ${{ github.event_name == 'pull_request' }}
         id: fmt
