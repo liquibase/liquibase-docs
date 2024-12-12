@@ -38,6 +38,23 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ADMIN_GITHUB_OIDC_ROLE_ARN_DOCS }}
           aws-region: us-east-1
 
+      - name: Check website redirects format
+        run: |
+          INVALID_REDIRECTS=$(grep -P 'website_redirect\s*=\s*"[^/h]|website_redirect\s*=\s*"h(?!ttps?://)' variables.tf || true)
+          if [ ! -z "$INVALID_REDIRECTS" ]; then
+            echo "❌ Error: Found website_redirect entries with invalid format:"
+            echo "----------------------------------------"
+            echo "$INVALID_REDIRECTS" | while read -r line; do
+              echo -e "\033[31m$line\033[0m"
+            done
+            echo "----------------------------------------"
+            echo "website_redirect must start with either '/' or 'http'"
+            echo "Examples:"
+            echo "  website_redirect = \"/home.html\""
+            echo "  website_redirect = \"https://example.com\""
+            exit 1
+          fi
+
       - name: Terraform Format
         if: ${{ github.event_name == 'pull_request' }}
         id: fmt
