@@ -38,7 +38,7 @@
                 </MadCap:snippetBlock>
             </li>
             <li>
-                <p>Choose an authentication method. This guide includes SCRAM&#160;(username/password), X.509 Certificate, and AWS&#160;IAM.</p>
+                <p>Choose an authentication method. This guide includes SCRAM (username/password), X.509 Certificate, AWS IAM, and OIDC.</p>
             </li>
             <div class="js-tabs">
                 <ul class="js-tablist" data-existing-hx="h3">
@@ -47,6 +47,8 @@
                     <li class="js-tablist__item"><a href="#x509_certificate_example" id="label_x509_certificate_example" class="js-tablist__link">X.509 certificate example</a>
                     </li>
                     <li class="js-tablist__item"><a href="#aws_iam_example" id="label_aws_iam_example" class="js-tablist__link">AWS IAM example</a>
+                    </li>
+                    <li class="js-tablist__item"><a href="#oidc_example" id="label_oidc_example" class="js-tablist__link">OIDC example</a>
                     </li>
                 </ul>
                 <div id="scram_example" class="js-tabcontent">
@@ -88,9 +90,9 @@
                     </ol>
                 </div>
                 <div id="aws_iam_example" class="js-tabcontent">
-                    <p>AWS&#160;lets you configure credentials using IAM&#160;(Identity and Access Management) roles, which can offer better security and simplify your credential management process.</p>
-                    <h3>MongoDB&#160;Atlas configuration</h3>
-                    <p>Follow the steps in the MongoDB&#160;documentation <a href="https://www.mongodb.com/docs/atlas/security/aws-iam-authentication/">Set Up Authentication with AWS IAM</a>:</p>
+                    <p>AWS lets you configure credentials using IAM (Identity and Access Management) roles, which can offer better security and simplify your credential management process.</p>
+                    <h3>MongoDB Atlas configuration</h3>
+                    <p>Follow the steps in the MongoDB documentation <a href="https://www.mongodb.com/docs/atlas/security/aws-iam-authentication/">Set Up Authentication with AWS IAM</a>:</p>
                     <ol>
                         <li><a href="https://www.mongodb.com/docs/atlas/security/aws-iam-authentication/#set-up-authentication-with-aws-iam-roles">Set Up Authentication with AWS IAM Roles</a>
                         </li>
@@ -107,6 +109,40 @@
                         <li>Configure your properties file, environment variables, or command line options in the following format:</li><pre xml:space="preserve"><code class="language-text">liquibase.command.url=mongodb+srv://&lt;atlas-host-name&gt;/test?authSource=%24external&amp;authMechanism=MONGODB-AWS
 liquibase.command.username=&lt;AWS_ACCESS_KEY_ID&gt; # optional
 liquibase.command.password=&lt;AWS_SECRET_ACCESS_KEY&gt; # optional</code></pre>
+                    </ol>
+                </div>
+                <div id="scram_example" class="js-tabcontent">
+                    <p>OIDC is a type of federated authentication that provides a secure, scalable, and user-friendly identity solution with Single Sign-On (SSO) capabilities and seamless integration across diverse applications.</p>
+                    <p>In <MadCap:variable name="General.LBPro" />, you can authenticate using OIDC through <a href="https://learn.microsoft.com/en-us/entra/identity/">Microsoft Entra ID</a> (formerly called Azure Active Directory)&#160;in an Azure environment. For more information, see <a href="https://www.mongodb.com/docs/drivers/java/sync/current/fundamentals/enterprise-auth/#std-label-mongodb-oidc">MongoDB:&#160;Enterprise Authentication Mechanisms</a>.</p>
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>A running MongoDB Atlas cluster (version 7 or newer)</li>
+                        <li>An active Azure subscription with administrative access</li>
+                        <li>Java Development Kit (JDK) 8 or later installed</li>
+                        <li>MongoDB Java driver version 5.2.0 or later, which includes OIDC support</li>
+                    </ul>
+                    <h3>Microsoft Azure configuration</h3>
+                    <ol>
+                        <li><b>Register your application</b> in Azure Entra ID from the <a href="https://portal.azure.com/">Azure portal</a>. For more information, see <a href="https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app">Quickstart: Register an application with the Microsoft identity platform</a>.</li>
+                        <li><b>Retrieve your application ID&#160;URI</b> so that you can provide it to <MadCap:variable name="General.Liquibase" /> later in this tutorial. For more information, see <a href="https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-configure-app-expose-web-apis">Quickstart: Configure an application to expose a web API</a>.</li>
+                        <li><b>Configure a user-managed or system-managed identity.</b> Retrieve the Object (principal)&#160;ID so that you can provide it to MongoDB&#160;Atlas later in this tutorial. For more information, see <a href="https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-to-configure-managed-identities">Configure managed identities on Azure virtual machines (VMs)</a>.</li>
+                        <li>(Optional) If you have a user-managed identity, <b>retrieve your Client ID</b> so that you can provide it to <MadCap:variable name="General.Liquibase" /> later in this tutorial. This is the unique identifier of your user-assigned managed identity (it is different than your overall application ID). For more information, see <a href="https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/how-manage-user-assigned-managed-identities">Manage user-assigned managed identities</a>.</li>
+                    </ol>
+                    <h3>MongoDB&#160;Atlas configuration</h3>
+                    <ol>
+                        <li><b>Enable Workforce Identity&#160;Provider</b> for your organization. Follow the steps in <a href="https://www.mongodb.com/docs/atlas/workforce-oidc/#std-label-configure-oidc">§ Configure Workforce Identity Federation Authentication</a>.</li>
+                        <li><b>Register your Azure identity</b> by adding it to a new database user in MongoDB Atlas. Follow the steps in <a href="https://www.mongodb.com/docs/atlas/workforce-oidc/#add-a-database-user-using-workforce-authentication">§ Add a Database User using Workforce Authentication</a>. While you configure the database user, ensure that:<ul><li>For "Select Identity Provider,"&#160;select "Liquibase OIDC config for Applications."</li><li>For "User Identifier," specify the Object&#160;ID&#160;you retrieved earlier (not the application&#160;ID).</li></ul></li>
+                    </ol>
+                    <h3><MadCap:variable name="General.Liquibase"></MadCap:variable> configuration</h3>
+                    <ol>
+                        <li>
+                            <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/database-tutorials/database-license-key.flsnp" />
+                        </li>
+                        <li>Configure your properties file, environment variables, or command line options in the following format:</li><pre xml:space="preserve"><code class="language-text">url=mongodb+srv://dat-18611.cn9br.mongodb.net/demo
+liquibase.mongodb.oidc.authenticationMechanism=MONGODB-OIDC
+liquibase.mongodb.oidc.environment=azure
+liquibase.mongodb.oidc.oidcApplicationIDURI=api://8d719796-c744-4352-aab9-47a52c363907
+liquibase.mongodb.oidc.oidcClientID=&lt;optional-user-assigned-client-id&gt;</code></pre>
                     </ol>
                 </div>
             </div>
