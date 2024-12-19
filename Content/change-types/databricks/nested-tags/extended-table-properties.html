@@ -33,6 +33,17 @@
             </thead>
             <tbody>
                 <tr>
+                    <td><code class="language-text">clusterColumns</code>
+                    </td>
+                    <td>String</td>
+                    <td>
+                        <p>The columns to cluster. Clusters are an alternative to partitions. The column order does not matter. Using clusters can help optimize performance for some database queries, such as read operations on some table filters.  Databricks recommends using clustering for all new tables you create. For more information, see <a href="https://docs.databricks.com/en/delta/clustering.html">Use liquid clustering for Delta tables</a> and <a href="https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-cluster-by.html">CLUSTER&#160;BY clause (TABLE)</a>.</p>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/change-type-databricks-cluster-columns-partition-columns.flsnp" />
+                        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">Databricks does not allow you to drop tables containing clustered columns. You must use <code class="language-text"><MadCap:xref href="../alter-cluster.html">alterCluster</MadCap:xref></code> to remove clustering before you can drop the table.</p>
+                    </td>
+                    <td>Optional</td>
+                </tr>
+                <tr>
                     <td><code class="language-text">tableFormat</code>
                     </td>
                     <td>String</td>
@@ -59,7 +70,10 @@
                     <td><code class="language-text">partitionColumns</code>
                     </td>
                     <td>String</td>
-                    <td>The columns to partition. The column order does not matter. Using partitions can speed up table queries and data manipulation. Partitions are an alternative to clusters. For more information, see <a href="https://docs.databricks.com/en/sql/language-manual/sql-ref-partition.html">Partitions</a> and <a href="https://docs.databricks.com/en/tables/partitions.html">When to partition tables on Databricks</a>.</td>
+                    <td>
+                        <p>The columns to partition. The column order does not matter. Using partitions can speed up table queries and data manipulation. Partitions are an alternative to clusters. For more information, see <a href="https://docs.databricks.com/en/sql/language-manual/sql-ref-partition.html">Partitions</a> and <a href="https://docs.databricks.com/en/tables/partitions.html">When to partition tables on Databricks</a>.</p>
+                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/change-type-databricks-cluster-columns-partition-columns.flsnp" />
+                    </td>
                     <td>Optional</td>
                 </tr>
             </tbody>
@@ -74,7 +88,8 @@
                 <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
                 </li>
             </ul>
-            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+            <div id="yaml_example" class="js-tabcontent">
+                <p>With clustered columns:</p><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
   - changeSet:
       id: 1
       author: your.name
@@ -83,11 +98,39 @@
             tableName: test_table_properties
             columns:
               - column:
-                  name: test_id
+                  name: id
                   type: int
                   constraints:
                     primaryKey: true
                     nullable: false
+              - column:
+                  name: some_column
+                  type: int
+            extendedTableProperties:
+              clusterColumns: id, some_column
+              tableFormat: delta
+              tableLocation: s3://databricks-external-folder/test_table_properties
+              tblProperties: 'this.is.my.key'=12,'this.is.my.key2'=true
+      rollback:
+        dropTable:
+          tableName: test_table_properties</code></pre>
+                <p>With partitioned columns:</p><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: your.name
+      changes:
+        - createTable:
+            tableName: test_table_properties
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: some_column
+                  type: int
             extendedTableProperties:
               partitionColumns: id, some_column
               tableFormat: delta
@@ -97,7 +140,8 @@
         dropTable:
           tableName: test_table_properties</code></pre>
             </div>
-            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+            <div id="json_example" class="js-tabcontent">
+                <p>With clustered columns:</p><pre xml:space="preserve"><code class="language-json">{
   "databaseChangeLog": [
     {
       "changeSet": {
@@ -110,12 +154,66 @@
               "columns": [
                 {
                   "column": {
-                    "name": "test_id",
+                    "name": "id",
                     "type": "int",
                     "constraints": {
                       "primaryKey": "true",
                       "nullable": "false"
                     }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "some_column",
+                    "type": "int"
+                  }
+                }
+              ],
+              "extendedTableProperties": {
+                "clusterColumns": "id, some_column",
+                "tableFormat": "delta",
+                "tableLocation": "s3://databricks-external-folder/test_table_properties",
+                "tblProperties": "'this.is.my.key'=12,'this.is.my.key2'=true"
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "dropTable": {
+              "tableName": "test_table_properties"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
+                <p>With partitioned columns:</p><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "your.name",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "test_table_properties",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "int",
+                    "constraints": {
+                      "primaryKey": "true",
+                      "nullable": "false"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "some_column",
+                    "type": "int"
                   }
                 }
               ],
@@ -140,13 +238,36 @@
   ]
 }</code></pre>
             </div>
-            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-databricks.flsnp" />
+            <div id="xml_example" class="js-tabcontent">
+                <p>With clustered columns:</p><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-databricks.flsnp" />
 
     &lt;changeSet id="1" author="your.name"&gt;
         &lt;createTable tableName="test_table_properties"&gt;
-            &lt;column name="test_id" type="int" &gt;
+            &lt;column name="id" type="int" &gt;
                 &lt;constraints primaryKey="true" nullable="false"/&gt;
             &lt;/column&gt;
+            &lt;column name="some_column" type="int"/&gt;
+
+            &lt;databricks:extendedTableProperties clusterColumns="id, some_column"
+                                                tableFormat="delta"
+                                                tableLocation="s3://databricks-external-folder/test_table_properties"
+                                                tblProperties="'this.is.my.key'=12,'this.is.my.key2'=true"/&gt;
+        &lt;/createTable&gt;
+
+        &lt;rollback&gt;
+            &lt;dropTable tableName="test_table_properties"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+                <p>With partitioned columns:</p><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-databricks.flsnp" />
+
+    &lt;changeSet id="1" author="your.name"&gt;
+        &lt;createTable tableName="test_table_properties"&gt;
+            &lt;column name="id" type="int" &gt;
+                &lt;constraints primaryKey="true" nullable="false"/&gt;
+            &lt;/column&gt;
+            &lt;column name="some_column" type="int"/&gt;
 
             &lt;databricks:extendedTableProperties partitionColumns="id, some_column"
                                                 tableFormat="delta"
@@ -162,6 +283,13 @@
 &lt;/databaseChangeLog&gt;</code></pre>
             </div>
         </div>
+        <h2>Troubleshooting</h2>
+        <h3>Clustered and partitioned columns collision</h3>
+        <p>If you specify values for <code class="language-text">clusterColumns</code> and <code class="language-text">partitionColumns</code> on the same table, <MadCap:variable name="General.Liquibase" /> throws this error:</p><pre><code class="language-text">Databricks does not support CLUSTER columns AND PARTITION BY columns, please pick one.</code></pre>
+        <p>Instead, you must specify either <code class="language-text">clusterColumns</code> or <code class="language-text">partitionColumns</code>, but not both.</p>
+        <h3>Extended table properties double initialization</h3>
+        <p>It is technically possible to specify some Databricks-specific <MadCap:variable name="General.Param/Attribute" />s directly in <code class="language-text">createTable</code> instead of in <code class="language-text">extendedTableProperties</code>. <b>This is not a best practice.</b> If you specify Databricks-specific <MadCap:variable name="General.Param/Attribute" />s in both places, <MadCap:variable name="General.Liquibase" /> throws this error:</p><pre><code class="language-text">Double initialization of extended table properties is not allowed. Please avoid using both EXT createTable attributes and Databricks specific extendedTableProperties element. Element databricks:extendedTableProperties is preferred way to set databricks specific configurations.</code></pre>
+        <p>Instead, you must specify all Databricks-specific <MadCap:variable name="General.Param/Attribute" />s in <code class="language-text">extendedTableProperties</code>.</p>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/change-type-databricks-database-support-nested-tag.flsnp" />
         <h2>Related links</h2>
         <ul>
