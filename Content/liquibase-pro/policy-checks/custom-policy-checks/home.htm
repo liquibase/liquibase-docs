@@ -17,24 +17,15 @@
         <p>The logic of a custom policy check is stored in a Python (<code class="language-text">.py</code>) script file in your <MadCap:variable name="General.Liquibase" /> working directory. You can write and modify that script without using <MadCap:variable name="General.Liquibase" /> commands:&#160;it's just a Python file. You should keep the logic for different checks in different Python files.</p>
         <p>You can integrate your Python file into <MadCap:variable name="General.Liquibase" /> by using the same <MadCap:xref href="../../../commands/policy-checks/subcommands/home.htm">Policy Checks Commands</MadCap:xref> you would use to copy a built-in policy check. Specifically, there is a built-in policy check called <code class="language-text">CustomChecksTemplate</code> that you can <MadCap:xref href="../../../commands/policy-checks/subcommands/copy.htm">copy</MadCap:xref> and <MadCap:xref href="../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> to specify your own logic. In the CLI, you specify a short name for your custom check in <MadCap:variable name="General.Liquibase" />, the Python script containing the check logic to run, and other configurations like the check's severity level.</p>
         <p>Since a custom policy check runs in the <MadCap:variable name="General.Liquibase" /> policy checks framework, you can <a href="../workflows/automation-severity-exit-code.htm">deploy custom policy checks into your CI/CD&#160;automation</a> the same way as built-in checks. This allows your code to be robust but keeps your processes simple.</p>
-        <h2>Python script looping</h2>
-        <p><MadCap:variable name="General.Liquibase" /> always runs every enabled policy check against <b>every object the check targets</b>. This works the same for custom policy checks. For example, <MadCap:variable name="General.Liquibase" /> runs any custom policy check with a scope of:</p>
-        <ul>
-            <li><code class="language-text">changelog</code>: <b>once per <MadCap:variable name="General.changeset" /></b> in that <MadCap:variable name="General.changelog" />. If the <MadCap:variable name="General.changelog" /> uses <code><MadCap:xref href="../../../change-types/include.html">include</MadCap:xref></code> or <code><MadCap:xref href="../../../change-types/includeall.html">includeAll</MadCap:xref></code> to reference child <MadCap:variable name="General.changelog" />s, the script also runs once per <MadCap:variable name="General.changeset" /> in each of those <MadCap:variable name="General.changelog" />s.</li>
-            <li><code class="language-text">database</code>: <b>once per database object</b>.<MadCap:conditionalText MadCap:conditions="exclude.future"> &lt;within a schema?&#160;what about multiple schemas?&gt;</MadCap:conditionalText></li>
-        </ul>
-        <p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">If you write a custom policy check that is individually performance-heavy, and you have a very large <MadCap:variable name="General.changelog" /> or database, <MadCap:variable name="General.Liquibase" /> may take a long time to run your custom check iteratively.</p>
-        <h2>Python helper scripts</h2>
-        <p><MadCap:variable name="General.Liquibase" /> has a public API that you can import in your Python scripts in order to access a library of <MadCap:variable name="General.Liquibase" /> helper scripts. For example, there are helper scripts to find the author of a <MadCap:variable name="General.changeset" /> and to determine whether a database object is a table.</p>
-        <p>Using helper scripts makes it easier to access information in <MadCap:variable name="General.Liquibase" /> resources and your database. This way, you can keep your Python scripts concise.</p>
         <h2>Python script pseudocode</h2>
         <p>Your Python script contains:</p>
         <ol>
-            <li>Imports of useful <MadCap:variable name="General.Liquibase" /> helper scripts to access the <MadCap:variable name="General.Liquibase" /> API</li>
-            <li>Clearly named variables that call on functions in the helper scripts (for ease of use)</li>
-            <li>The logic of your custom check. The code for <MadCap:variable name="General.Liquibase" /> to run against your <MadCap:variable name="General.changelog" /> or database.</li>
-            <li>A default return code (<code class="language-text">False</code>)</li>
+            <li>Imports of useful <MadCap:variable name="General.Liquibase" /> helper scripts to access the <MadCap:variable name="General.Liquibase" /> API.</li>
+            <li>Clearly named variables that call on functions in the helper scripts (for ease of use).</li>
+            <li>The logic of your custom check; the code for <MadCap:variable name="General.Liquibase" /> to run against your <MadCap:variable name="General.changelog" /> or database.</li>
+            <li>A default return code (<code class="language-text">False</code>).</li>
         </ol>
+        <p>The following examples show you the structure of a custom Python check script:</p>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
                 <li class="js-tablist__item"><a href="#changelog_example" id="label_changelog_example" class="js-tablist__link">Changelog-scoped pseudocode</a>
@@ -42,33 +33,43 @@
                 <li class="js-tablist__item"><a href="#database_example" id="label_database_example" class="js-tablist__link">Database-scoped pseudocode</a>
                 </li>
             </ul>
-            <div id="changelog_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-python">import helpers
+            <div id="changelog_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-text">import helper scripts
 
-some_variable = helpers.get_useful_object()
-particular_changeset = helpers.other_function()
+define a reusable variable = use helper scripts to get changelog objects
 
-for change_type in particular_changeset:
+for each change type in the changeset:
     if some condition is met, then do the following:
-        tell liquibase: the check triggered!
-        send this message: "NOOOOO"
+        tell liquibase = the check triggered!
+        send this message as output = "NOOOOO"
         exit script with return code 1
 
 otherwise, return false</code></pre>
-                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Remember that your Python script should test a <b>single <MadCap:variable name="General.changeset" /></b>. <MadCap:variable name="General.Liquibase" /> then iterates it across your entire <MadCap:variable name="General.changelog" />.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Remember that your Python script should test a <b>single <MadCap:variable name="General.changeset" /></b>. <MadCap:variable name="General.Liquibase" /> runs it iteratively across your entire <MadCap:variable name="General.changelog" />.</p>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">In your <MadCap:variable name="General.changelog" />, it is a best practice to use only one change per <MadCap:variable name="General.changeset" />. However, if you have multiple changes within a single <MadCap:variable name="General.changeset" />, this pseudocode loops through all of them. </p>
             </div>
-            <div id="database_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-python">import helpers
+            <div id="database_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-text">import helper scripts
 
-some_variable = helpers.get_useful_object()
-database_object = helpers.get_database_object()
+define a reusable variable = use helper scripts to get database objects
 
 if some condition is met, then do the following:
-    tell liquibase: the check triggered!
-    send this message: "NOOOOO"
+    tell liquibase = the check triggered!
+    send this message as output = "NOOOOO"
     exit script with return code 1
 
 otherwise, return false</code></pre>
-                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Remember that your Python script should test a <b>single database object</b>. <MadCap:variable name="General.Liquibase" /> then iterates it across your entire database.</p>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Remember that your Python script should test a <b>single database object</b>. <MadCap:variable name="General.Liquibase" /> runs it iteratively across your entire database.</p>
             </div>
+            <h2>Guidance on writing Python code</h2>
+            <h3>Helper scripts</h3>
+            <p><MadCap:variable name="General.Liquibase"></MadCap:variable> has a public API that you can import in your Python scripts in order to access a library of <MadCap:variable name="General.Liquibase"></MadCap:variable> helper scripts. For example, there are helper scripts to find the author of a <MadCap:variable name="General.changeset"></MadCap:variable> and to determine whether a database object is a table.</p>
+            <p>Using helper scripts makes it easier to access information in <MadCap:variable name="General.Liquibase"></MadCap:variable> resources and your database. This way, you can keep your Python scripts concise. For a list of helper scripts and functions you can call on, see <MadCap:xref href="api-helper-scripts.htm">Checks Python API Helper Scripts</MadCap:xref>.</p>
+            <h3>Looping</h3>
+            <p><MadCap:variable name="General.Liquibase" /> always runs every enabled policy check against <b>every object the check targets</b>. This works the same for custom policy checks. For example, <MadCap:variable name="General.Liquibase" /> runs any custom policy check with a scope of:</p>
+            <ul>
+                <li><code class="language-text">changelog</code>: <b>once per <MadCap:variable name="General.changeset" /></b> in that <MadCap:variable name="General.changelog" />. If the <MadCap:variable name="General.changelog" /> uses <code><MadCap:xref href="../../../change-types/include.html">include</MadCap:xref></code> or <code><MadCap:xref href="../../../change-types/includeall.html">includeAll</MadCap:xref></code> to reference child <MadCap:variable name="General.changelog" />s, the script also runs once per <MadCap:variable name="General.changeset" /> in each of those <MadCap:variable name="General.changelog" />s.</li>
+                <li><code class="language-text">database</code>: <b>once per database object</b>.<MadCap:conditionalText MadCap:conditions="exclude.future"> &lt;within a schema?&#160;what about multiple schemas?&gt;</MadCap:conditionalText></li>
+            </ul>
+            <p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">If you write a custom policy check that is individually performance-heavy, and you have a very large <MadCap:variable name="General.changelog" /> or database, <MadCap:variable name="General.Liquibase" /> may take a long time to run your custom check iteratively.</p>
         </div>
         <h2 MadCap:conditions="exclude.future">Example custom policy checks</h2>
     </body>
