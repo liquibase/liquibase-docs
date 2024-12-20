@@ -9,23 +9,38 @@
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <h1>Custom Policy Checks</h1>
         <p>Custom Policy Checks are Python scripts that allow you run advanced policies using the <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../home.htm">Policy Checks</MadCap:xref> framework. Custom policy checks allow you to enforce compliance for a wide array of security, code standards, data quality, and more.</p>
-        <p>While it's possible to configure the behavior of many <a href="../checks/home.htm">built-in <MadCap:variable name="General.Liquibase" /> policy checks</a> using regular expressions, those checks only work for predefined use-cases. Sometimes, they might not be robust enough for your needs. In contrast, you can use custom policy checks to create unique checks for any situation in your <MadCap:variable name="General.Liquibase" /> workflow.</p>
+        <p>While it's possible to configure the behavior of many <a href="../checks/home.htm">built-in <MadCap:variable name="General.Liquibase" /> policy checks</a> using regular expressions (such as <code><MadCap:xref href="../checks/changelog-checks/patterna-followed-bypatternb.htm">PatternAFollowedByPatternB</MadCap:xref></code>), those checks may not be robust enough for complex governance requirements. In contrast, you can use custom policy checks to create unique checks for any situation in your <MadCap:variable name="General.Liquibase" /> workflow.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This is a <MadCap:variable name="General.LBPro"></MadCap:variable> feature, so you need a <a href="https://docs.liquibase.com/workflows/liquibase-pro/how-to-apply-your-liquibase-pro-license-key.html" target="_blank"><MadCap:variable name="General.LBPro"></MadCap:variable> License Key</a> to use it.</p>
+        <h2>Business benefits</h2>
+        <ul>
+            <li><b>Ensure compliance</b> to your specific issues and tech stack</li>
+            <li><b>Develop</b> at your own cadence</li>
+            <li><b>Share easily</b> across your entire organization</li>
+            <li><b>Easily customize</b> from a base template</li>
+        </ul>
         <h2>Quickstart: Create a custom policy check</h2>
-        <p>For a step-by-step tutorial, see <MadCap:xref href="tutorial.htm">Create a Custom Policy Check</MadCap:xref>.</p>
+        <p>For a detailed, <b>step-by-step tutorial</b>, see <MadCap:xref href="tutorial.htm">Create a Custom Policy Check</MadCap:xref>. This tutorial explains:</p>
+        <ul>
+            <li><b>Prerequisites</b> for using custom policy checks</li>
+            <li><b>Downloading</b> the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> checks extension</a></li>
+            <li><b>Creating</b> your first custom policy check based on a template</li>
+            <li><b>Configuring</b> your check in the <MadCap:variable name="General.Liquibase" /> checks framework</li>
+            <li><b>Running</b> your check using <MadCap:variable name="General.Liquibase" /> commands</li>
+        </ul>
         <h2><MadCap:variable name="General.Liquibase" /> checks framework</h2>
         <p>The logic of a custom policy check is stored in a Python (<code class="language-text">.py</code>) script file in your <MadCap:variable name="General.Liquibase" /> working directory. You can write and modify that script without using <MadCap:variable name="General.Liquibase" /> commands:&#160;it's just a Python file. You should keep the logic for different checks in different Python files.</p>
         <p>You can integrate your Python file into <MadCap:variable name="General.Liquibase" /> by using the same <MadCap:xref href="../../../commands/policy-checks/subcommands/home.htm">Policy Checks Commands</MadCap:xref> you would use to copy a built-in policy check. Specifically, there is a built-in policy check called <code class="language-text">CustomChecksTemplate</code> that you can <MadCap:xref href="../../../commands/policy-checks/subcommands/copy.htm">copy</MadCap:xref> and <MadCap:xref href="../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> to specify your own logic. In the CLI, you specify a short name for your custom check in <MadCap:variable name="General.Liquibase" />, the Python script containing the check logic to run, and other configurations like the check's severity level.</p>
         <p>Since a custom policy check runs in the <MadCap:variable name="General.Liquibase" /> policy checks framework, you can <a href="../workflows/automation-severity-exit-code.htm">deploy custom policy checks into your CI/CD&#160;automation</a> the same way as built-in checks. This allows your code to be robust but keeps your processes simple.</p>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-custom-policy-checks-isolation.flsnp" />
         <h2>Python script pseudocode</h2>
-        <p>Your Python script contains:</p>
+        <p>Any Python script you use in the custom policy check framework includes:</p>
         <ol>
             <li>Imports of useful <MadCap:variable name="General.Liquibase" /> helper scripts to access the <MadCap:variable name="General.Liquibase" /> API.</li>
             <li>Clearly named variables that call on functions in the helper scripts (for ease of use).</li>
             <li>The logic of your custom check; the code for <MadCap:variable name="General.Liquibase" /> to run against your <MadCap:variable name="General.changelog" /> or database.</li>
             <li>A default return code (<code class="language-text">False</code>).</li>
         </ol>
-        <p>The following examples show you the structure of a custom Python check script:</p>
+        <p>Here's that structure in Python pseudocode:</p>
         <div class="js-tabs">
             <ul class="js-tablist" data-hx="h3">
                 <li class="js-tablist__item"><a href="#changelog_example" id="label_changelog_example" class="js-tablist__link">Changelog-scoped pseudocode</a>
@@ -60,8 +75,9 @@ otherwise, return false</code></pre>
                 <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Remember that your Python script should test a <b>single database object</b>. <MadCap:variable name="General.Liquibase" /> runs it iteratively across your entire database.</p>
             </div>
             <h2>Guidance on writing Python code</h2>
+            <p>If you want to get started, see <MadCap:xref href="tutorial.htm">Create a Custom Policy Check</MadCap:xref>. Here are some tips to make writing custom policy checks more successful:</p>
             <h3>Helper scripts</h3>
-            <p><MadCap:variable name="General.Liquibase"></MadCap:variable> has a public API that you can import in your Python scripts in order to access a library of <MadCap:variable name="General.Liquibase"></MadCap:variable> helper scripts. For example, there are helper scripts to find the author of a <MadCap:variable name="General.changeset"></MadCap:variable> and to determine whether a database object is a table.</p>
+            <p><MadCap:variable name="General.Liquibase" /> has a public API that you can import in your Python scripts in order to access a <b>library of <MadCap:variable name="General.Liquibase" /> helper scripts</b>. For example, there are helper scripts to find the author of a <MadCap:variable name="General.changeset" /> and to determine whether a database object is a table. Built-in helper scripts are included when you download the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> checks extension</a>.</p>
             <p>Using helper scripts makes it easier to access information in <MadCap:variable name="General.Liquibase"></MadCap:variable> resources and your database. This way, you can keep your Python scripts concise. For a list of helper scripts and functions you can call on, see <MadCap:xref href="api-helper-scripts.htm">Checks Python API Helper Scripts</MadCap:xref>.</p>
             <h3>Looping</h3>
             <p>When you execute the <code><a href="../../../commands/policy-checks/subcommands/run.htm">checks run</a></code> command, <MadCap:variable name="General.Liquibase" /> always runs every enabled policy check against <b>every object the check targets</b>. This works the same for custom policy checks. For example, <MadCap:variable name="General.Liquibase" /> runs any custom policy check with a <code>--<MadCap:xref href="../../../commands/policy-checks/command-parameters/checks-scope.htm">checks-scope</MadCap:xref></code> setting of:</p>
@@ -69,7 +85,7 @@ otherwise, return false</code></pre>
                 <li><code class="language-text">changelog</code>: <b>once per <MadCap:variable name="General.changeset" /></b> in that <MadCap:variable name="General.changelog" />. If the <MadCap:variable name="General.changelog" /> uses <code><MadCap:xref href="../../../change-types/include.html">include</MadCap:xref></code> or <code><MadCap:xref href="../../../change-types/includeall.html">includeAll</MadCap:xref></code> to reference child <MadCap:variable name="General.changelog" />s, the script also runs once per <MadCap:variable name="General.changeset" /> in each of those <MadCap:variable name="General.changelog" />s.</li>
                 <li><code class="language-text">database</code>: <b>once per database object</b>. <MadCap:variable name="General.Liquibase" /> generates a database <MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref> once and then runs your script against every object in the snapshot. <MadCap:variable name="General.Liquibase" /> runs your check against the schema(s) you specify.</li>
             </ul>
-            <p class="warning" MadCap:autonum="&lt;b&gt;Warning: &lt;/b&gt;">If you write a custom policy check that is individually performance-heavy, and you have a very large <MadCap:variable name="General.changelog" /> or database, <MadCap:variable name="General.Liquibase" /> may take a long time to run your custom check iteratively.</p>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you write a custom policy check that is individually performance-heavy, and you have a very large <MadCap:variable name="General.changelog" /> or database, <MadCap:variable name="General.Liquibase" /> may take a long time to run your custom check against all objects.</p>
         </div>
         <h2 MadCap:conditions="exclude.future">Example custom policy checks</h2>
         <p MadCap:conditions="exclude.future">For executable custom policy check samples, see this documentation page: &lt;link to page&gt;</p>
@@ -77,7 +93,7 @@ otherwise, return false</code></pre>
         <h2>Limitations</h2>
         <ul>
             <li>When you run <code>checks run --checks-scope=database</code>, <MadCap:variable name="General.Liquibase" /> generates a database snapshot. If your database contains a very large number of complex objects, the <code>snapshot</code> command may take a long time to execute.<ul><li>If you experience memory limitations while trying to generate the snapshot for database-scoped checks, see <MadCap:xref href="../../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</li><li>If you want to manually create a snapshot to run database-scoped checks against an offline version of your database, see the instructions on <code><MadCap:xref href="../../../commands/policy-checks/command-parameters/checks-scope.htm">checks-scope</MadCap:xref></code>.</li></ul></li>
-            <li>As of <MadCap:variable name="General.Liquibase" /> 4.30.0, you can only use custom policy checks to analyze your <MadCap:variable name="General.changelog" /> and database. You cannot use custom policy checks against other <MadCap:variable name="General.Liquibase" /> resources like <a href="../../../concepts/connections/creating-config-properties.html">properties files</a> and <a href="../../flow/home.htm">flow files</a>.</li>
+            <li>As of <MadCap:variable name="General.Liquibase" /> 4.30.0, you can only use the custom policy checks framework to analyze your <MadCap:variable name="General.changelog" /> and database. You cannot natively use custom policy checks against other <MadCap:variable name="General.Liquibase" /> resources like <a href="../../../concepts/connections/creating-config-properties.html">properties files</a> and <a href="../../flow/home.htm">flow files</a>.</li>
         </ul>
     </body>
 </html>
