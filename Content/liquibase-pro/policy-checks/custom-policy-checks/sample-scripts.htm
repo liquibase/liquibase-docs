@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="exclude.future">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/api-helper-scripts.html" />
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/sample-scripts.html" />
         <meta name="description" content="Sample Python scripts to use as Liquibase custom policy checks." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
@@ -10,6 +10,117 @@
         <h1>Sample Custom Policy Check Scripts</h1>
         <p>This page provides executable sample Python scripts that you can run as custom policy checks in <MadCap:variable name="General.Liquibase" />. These samples are representative of how you can structure your own scripts.</p>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/checks-sample-scripts-hatnote.flsnp" />
-        <p>&#160;</p>
+        <h2>Guidance on writing Python code</h2>
+        <h3>Python tutorial</h3>
+        <p>If you're new to Python, read the <a href="https://docs.python.org/3/tutorial/index.html">official Python tutorial</a> before writing any scripts.</p>
+        <p>See a list of <a href="https://docs.python.org/3/library/index.html#library-index">Python libraries</a> for information on built-in functions. You may also want to use external libraries like <a href="https://pypi.org/project/sqlparse/">sqlparse</a>.</p>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-custom-policy-checks-isolation.flsnp" />
+        <h3>Helper scripts</h3>
+        <p>When you download the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> checks extension</a>, you also get a built-in <b>library of <MadCap:variable name="General.Liquibase" /> helper scripts</b> that you can use to call the <a href="https://contribute.liquibase.com/code/api/"><MadCap:variable name="General.Liquibase" /> API</a> without writing your own helpers. For example, there are helper scripts to find the author of a <MadCap:variable name="General.changeset" /> and to determine whether a database object is a table.</p>
+        <p>Using helper scripts makes it easier to access information in <MadCap:variable name="General.Liquibase" /> resources and your database. This way, you can keep your Python scripts concise. For a list of helper scripts and functions you can call on, see <MadCap:xref href="api-helper-scripts.htm">Checks Python API Helper Scripts</MadCap:xref>.</p>
+        <h3>Looping behavior</h3>
+        <p>When you execute the <code><a href="../../../commands/policy-checks/subcommands/run.htm">checks run</a></code> command, <MadCap:variable name="General.Liquibase" /> always runs every enabled policy check against <b>every object the check targets</b>. This works the same for custom policy checks. For example, <MadCap:variable name="General.Liquibase" /> runs any custom policy check with a <code>--<MadCap:xref href="../../../commands/policy-checks/command-parameters/checks-scope.htm">checks-scope</MadCap:xref></code> setting of:</p>
+        <ul>
+            <li><code class="language-text">changelog</code>: <b>once per <MadCap:variable name="General.changeset" /></b> in that <MadCap:variable name="General.changelog" />. If the <MadCap:variable name="General.changelog" /> uses <code><MadCap:xref href="../../../change-types/include.html">include</MadCap:xref></code> or <code><MadCap:xref href="../../../change-types/includeall.html">includeAll</MadCap:xref></code> to reference child <MadCap:variable name="General.changelog" />s, the script also runs once per <MadCap:variable name="General.changeset" /> in each of those <MadCap:variable name="General.changelog" />s.</li>
+            <li><code class="language-text">database</code>: <b>once per database object</b>. <MadCap:variable name="General.Liquibase" /> generates a database <MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref> once and then runs your script against every object in the snapshot. <MadCap:variable name="General.Liquibase" /> runs your check against the schema(s) you specify.</li>
+        </ul>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you write a custom policy check that is individually performance-heavy, and you have a very large <MadCap:variable name="General.changelog" /> or database, <MadCap:variable name="General.Liquibase" /> may take a long time to run your custom check against all objects.</p>
+        <h2>Sample scripts</h2>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#changelog_example" id="label_changelog_example" class="js-tablist__link">Changelog check pseudocode</a>
+                </li>
+                <li class="js-tablist__item"><a href="#database_example" id="label_database_example" class="js-tablist__link">Database check pseudocode</a>
+                </li>
+            </ul>
+            <div id="changelog_example" class="js-tabcontent"><pre><code class="language-python"># This script checks for the phrase "DELETE FROM" without "WHERE"
+
+# Helpers come from Liquibase
+import liquibase_utilities
+import sqlparse
+import sys
+
+# Retrieve log handler
+# Ex. liquibase_logger.info(message)
+liquibase_logger = liquibase_utilities.get_logger()
+
+# Retrieve status handler
+liquibase_status = liquibase_utilities.get_status()
+
+# Retrieve all changes in changeset
+changes = liquibase_utilities.get_changeset().getChanges()
+
+# Loop through all changes in a particular changeset
+for change in changes:
+    # LoadData change types are not currently supported
+    if "loaddatachange" in change.getClass().getSimpleName().lower():
+        continue
+
+    # Retrieve sql as string, remove extra whitespace
+    raw_sql = liquibase_utilities.strip_comments(liquibase_utilities.generate_sql(change)).casefold()
+    raw_sql = " ".join(raw_sql.split())
+
+    # Split sql into statements
+    raw_statements = liquibase_utilities.split_statements(raw_sql)
+    for raw_statement in raw_statements:
+
+        # Get list of token objects, convert to string
+        tokens = liquibase_utilities.tokenize(raw_statement)
+        keywords = [str(token) for token in tokens if token.is_keyword or isinstance(token, sqlparse.sql.Where)]
+        keywords = [keyword for keyword in " ".join(keywords).split()]
+
+        # Look for delete
+        if len(keywords) &gt;= 2 and keywords[0] == "delete" and keywords[1] == "from" and "where" not in keywords:
+            liquibase_status.fired = True
+            liquibase_status.message = liquibase_utilities.get_script_message()
+            sys.exit(1)
+
+# Default return code
+False</code></pre>
+                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-python-loop-changelog.flsnp" />
+                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-python-loop-changelog-best-practices.flsnp" />
+            </div>
+            <div id="database_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-python"># This script ensures all VARCHAR columns are under a maximum size
+
+# Helpers come from Liquibase
+import sys
+import liquibase_utilities
+
+# Retrieve log handler
+# Ex. liquibase_logger.info(message)
+liquibase_logger = liquibase_utilities.get_logger()
+
+# Retrieve status handler
+liquibase_status = liquibase_utilities.get_status()
+
+# Retrive maximum size from check definition
+max_size = int(liquibase_utilities.get_arg("VARCHAR_MAX"))
+
+# Retrieve database object
+database_object = liquibase_utilities.get_database_object()
+
+# Skip if not a varchar column
+if "column" in database_object.getObjectTypeName().lower() and "varchar" in str(database_object.getType()).lower():
+    column_name = database_object.getName()
+    column_size = int(database_object.getType().getColumnSize())
+    if column_size &gt; max_size:
+        liquibase_status.fired = True
+        status_message = str(liquibase_utilities.get_script_message()).replace("__COLUMN_NAME__", f"'{column_name}'")
+        status_message = status_message.replace("__COLUMN_SIZE__", f"{max_size}")
+        liquibase_status.message = status_message
+        sys.exit(1)
+
+# Default return code
+False</code></pre>
+                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-python-loop-database.flsnp" />
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">This check uses a variable to dynamically generate content in the status message. For more information, see <MadCap:xref href="status-message-variable.htm">Status Message Variables for Custom Policy Checks</MadCap:xref>.</p>
+            </div>
+        </div>
+        <p>If you need help deploying a finished check, see <MadCap:xref href="tutorial.htm">Create a Custom Policy Check</MadCap:xref>.</p>
+        <h2>Related links</h2>
+        <ul>
+            <li><a href="https://github.com/liquibase/custom_policychecks">GitHub:&#160;liquibase/custom_policychecks</a>
+            </li>
+        </ul>
     </body>
 </html>
