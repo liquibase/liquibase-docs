@@ -44,7 +44,7 @@ False</code></pre>
         <p>Notes on the preceding code sample:</p>
         <ul>
             <li><code class="language-text">liquibase_utilities.get_status().fired</code> is set to <code class="language-text">False</code> by default. You must set it to <code class="language-text">True</code> or else the <MadCap:variable name="General.Liquibase" /> policy checks framework assumes the check didn't trigger.</li>
-            <li><code class="language-text">liquibase_utilities.get_script_message()</code> returns the static string you specify when you create your <MadCap:variable name="General.Liquibase" /> custom policy check object in the CLI. If you want to insert dynamic content into this string, such as the name of a database object, see <MadCap:xref href="status-message-variable.htm">Status Message Variables for Custom Policy Checks</MadCap:xref>.</li>
+            <li><code class="language-text">liquibase_utilities.get_script_message()</code> returns the static string you specify when you create your <MadCap:variable name="General.Liquibase" /> custom policy check object in the CLI.<ul><li>If you left the CLI&#160;field blank, you have to <MadCap:xref href="../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> your check or specify your message directly in your Python script.</li><li>If you want to insert dynamic content into this string, such as the name of a database object, see <MadCap:xref href="dynamic-status-messages.htm">Write Dynamic Status Messages for Custom Policy Checks</MadCap:xref>.</li></ul></li>
             <li>Normally, <code class="language-text">sys.exit(1)</code> signifies a program failure. However, in this case you just want to use it to force Python to exit. In this case, <MadCap:variable name="General.Liquibase" /> is working just how you want it to! You can specify a more meaningful exit code by configuring the severity level of your custom check in the CLI. See <MadCap:xref href="tutorial.htm">Create a Custom Policy Check</MadCap:xref>.</li>
             <li>Specify <code class="language-text">False</code> at the end of your script to follow Python convention. This code is evaluated if the check doesn't trigger, but has no effect.</li>
         </ul>
@@ -104,39 +104,8 @@ False</code></pre>
                 <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-python-loop-changelog.flsnp" />
                 <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-python-loop-changelog-best-practices.flsnp" />
             </div>
-            <div id="database_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-python"># This script ensures all VARCHAR columns are under a maximum size
-
-# Helpers come from Python and Liquibase
-import sys
-import liquibase_utilities
-
-# Retrieve log handler
-# Ex. liquibase_logger.info(message)
-liquibase_logger = liquibase_utilities.get_logger()
-
-# Retrieve status handler
-liquibase_status = liquibase_utilities.get_status()
-
-# Retrive maximum size from check definition
-max_size = int(liquibase_utilities.get_arg("VARCHAR_MAX"))
-
-# Retrieve database object
-database_object = liquibase_utilities.get_database_object()
-
-# Skip if not a varchar column
-if "column" in database_object.getObjectTypeName().lower() and "varchar" in str(database_object.getType()).lower():
-    column_name = database_object.getName()
-    column_size = int(database_object.getType().getColumnSize())
-
-    if column_size &gt; max_size:
-        liquibase_status.fired = True
-        status_message = str(liquibase_utilities.get_script_message()).replace("__COLUMN_NAME__", f"'{column_name}'")
-        status_message = status_message.replace("__COLUMN_SIZE__", f"{max_size}")
-        liquibase_status.message = status_message
-        sys.exit(1)
-
-# Default return code
-False</code></pre>
+            <div id="database_example" class="js-tabcontent">
+                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/code/checks-custom-sample-script-database.flsnp" />
                 <MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-python-loop-database.flsnp" />
             </div>
         </div>
