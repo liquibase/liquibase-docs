@@ -7,30 +7,48 @@
     </head>
     <body>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
-        <h1><MadCap:variable name="General.Liquibase" /> Checks Python Package</h1>
-        <p>You can use <a href="api-helper-scripts.htm"><MadCap:variable name="General.Liquibase" /> helper scripts</a> while writing <a href="home.htm">custom policy checks</a> to access the <MadCap:variable name="General.Liquibase" /> API. <MadCap:variable name="General.Liquibase" /> also provides a Python package called <code>liquibase-checks-python</code> to provide <b>in-IDE documentation and auto-complete</b> for your helper scripts. This helps you write custom policy check scripts much faster.</p>
-        <p><MadCap:variable name="General.Liquibase" /> bundles and utilizes <a href="https://www.graalvm.org/latest/reference-manual/python/Python-Runtime/">GraalPy</a> to execute Python scripts via Java. GraalPy also provides patches to certain packages that facilitates a smooth workflow with Java when installing those packages.</p>
-        <p>You must use GraalPy to create a <a href="https://docs.python.org/3/tutorial/venv.html">local Python virtual environment</a> to access in-IDE documentation and auto-complete for <MadCap:variable name="General.Liquibase" /> helper scripts. The <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> checks extension</a> comes with a built-in virtual environment, or you can create your own. Virtual environments help you isolate your projects so that you can have different versions of libraries in each one.</p>
-        <p>Custom policy checks <b>do not require</b> using a virtual environment, but it is a best practice.</p>
+        <h1>Install the <MadCap:variable name="General.Liquibase" /> Checks Python Package</h1>
+        <p>You can use <a href="api-helper-scripts.htm"><MadCap:variable name="General.Liquibase" /> helper scripts</a> while writing <a href="home.htm">custom policy checks</a> to access the <MadCap:variable name="General.Liquibase" /> API. <MadCap:variable name="General.Liquibase" /> also provides a Python package called <code class="language-text">liquibase-checks-python</code> to provide <b>in-IDE documentation and auto-complete</b> for your helper scripts. This helps you write custom policy check scripts much faster.</p>
+        <p><MadCap:variable name="General.Liquibase" /> is a Java application, so it uses the <a href="https://www.graalvm.org/latest/reference-manual/python/Python-Runtime/">GraalPy</a> runtime on the back-end to execute all Python scripts for custom policy checks. To use the <code class="language-text">liquibase-checks-python</code> package, you must install a GraalPy binary to create a <a href="https://docs.python.org/3/tutorial/venv.html">local Python virtual environment</a>. Virtual environments help you isolate your projects so that you can have different versions of libraries in each one.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It is a best practice to use the <code class="language-text">liquibase-checks-python</code> package while writing Python scripts for <MadCap:variable name="General.Liquibase" /> policy checks, but it is <b>optional</b>.</p>
         <h2>Prerequisites</h2>
         <ul>
             <li>Python 3.10.14+</li>
             <li>GraalPy 24.0.0+</li>
             <li>Follow the  prerequisites on <MadCap:xref href="tutorial.htm">Create a Custom Policy Check</MadCap:xref> to download and install the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> Checks extension</a>.</li>
         </ul>
-        <h2>Create a virtual environment</h2>
+        <h2>Built-in virtual environment</h2>
+        <p><MadCap:variable name="General.Liquibase" /> comes pre-installed with a GraalPy virtual environment. In addition to the built-in <a href="api-helper-scripts.htm"><MadCap:variable name="General.Liquibase" /> helper scripts</a>, the built-in virtual environment contains the following Python modules:</p>
+        <ul>
+            <li><code><a href="https://simplejson.readthedocs.io/en/latest/">simplejson</a></code>
+            </li>
+            <li><code><a href="https://sqlparse.readthedocs.io/en/latest/">sqlparse</a></code>
+            </li>
+            <li><code><a href="https://urllib3.readthedocs.io/en/stable/">urllib3</a></code>
+            </li>
+        </ul>
+        <p>However, you <b>cannot</b> install additional modules in the built-in virtual environment because it is packaged in the <MadCap:variable name="General.Liquibase" /> checks extension JAR file. To install additional modules, including the <code>liquibase-checks-python</code> package, you must <b>create your own virtual environment</b>.</p>
+        <h2>Create your own virtual environment</h2>
         <ol>
             <li><b>Download</b> and extract the latest version of <a href="https://www.graalvm.org/latest/reference-manual/python/Python-Runtime/#installing-graalpy">GraalPy</a> on your machine.</li>
             <li>Add GraalPy (<code class="language-text">&lt;graalpy/install/dir&gt;/bin</code>) to your <code class="language-text">PATH</code> environment variable.</li>
-            <li>In your command line, <b>invoke GraalPy to run the <code class="language-text">venv</code> module</b> to create a virtual environment and directory structure containing Python executable files:</li><pre><code class="language-shell">graalpy -m venv .your/path/to/venv</code></pre>
+            <li>In your command line, <b>invoke GraalPy to run the <code class="language-text">venv</code> module</b> to create a virtual environment in the directory you specify:</li><pre><code class="language-shell">graalpy -m venv .your/path/to/venv</code></pre>
+        </ol>
+        <h2>Install Python modules</h2>
+        <p>By default, your virtual environment has no modules installed. To install them, follow these steps:</p>
+        <ol>
             <li><b>Activate the virtual environment</b>:</li>
             <ul>
                 <li>Windows: <code class="language-shell">source &lt;path\to\venv&gt;\Scripts\activate</code></li>
                 <li>Linux and macOS: <code class="language-shell">source &lt;path/to/venv&gt;/bin/activate</code><br /></li>
             </ul>
-            <li><b>Install modules</b> using <code class="language-text">pip</code>. For example, to install the <code><a href="https://sqlparse.readthedocs.io/en/latest/">sqlparse</a></code> module, which helps you parse SQL in your custom policy checks:</li><pre><code class="language-shell">pip install sqlparse</code></pre>
+            <li><b>Install modules and packages</b> using <code class="language-text">pip</code>. For example, to install the <code>liquibase-checks-python</code> package:</li><pre><code class="language-shell">pip install liquibase-checks-python</code></pre>
+            <p>Or, to install several packages at once:</p><pre><code class="language-shell">pip install liquibase-checks-python simplejson sqlparse urllib3</code></pre>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The GraalPy implementation of <code class="language-text">pip</code> may choose package versions other than the latest when it ships patches.</p>
             <li><b>Deactivate the virtual environment</b> by exiting your command line or running this command:</li><pre><code class="language-shell">deactivate</code></pre>
+        </ol>
+        <h2>Configure <MadCap:variable name="General.Liquibase" /> to use your virtual environment</h2>
+        <ol>
             <li>Use the <MadCap:variable name="General.Liquibase" /> parameter <code>--script-python-executable-path</code> to tell <MadCap:variable name="General.Liquibase" /> the path to the Python executable in your virtual environment:</li>
             <div class="js-tabs">
                 <ul class="js-tablist" data-hx="h3">
@@ -41,26 +59,19 @@
                 </ul>
                 <div id="windows_example" class="js-tabcontent">
                     <ul>
-                        <li>Command line at runtime: <code class="language-text">--script-python-executable-path=./your/path/to/venv/Scripts/python.exe</code></li>
-                        <li>Defaults file (<MadCap:variable name="General.liquiPropFile" />): <code class="language-text">liquibase.script.python.executablePath=./your/path/to/venv/Scripts/python.exe</code></li>
-                        <li>Environment variable: <code class="language-text">LIQUIBASE_SCRIPT_PYTHON_EXECUTABLE_PATH</code></li>
+                        <li>Command line at runtime: <code class="language-text">--script-python-executable-path=.\your\path\to\venv\Scripts\python.exe</code></li>
+                        <li>Defaults file (<MadCap:variable name="General.liquiPropFile" />): <code class="language-text">liquibase.script.python.executablePath=.\your\path\to\venv\Scripts\python.exe</code></li>
+                        <li>Environment variable: <code class="language-text">LIQUIBASE_SCRIPT_PYTHON_EXECUTABLE_PATH=.\your\path\to\venv\Scripts\python.exe</code></li>
                     </ul>
                 </div>
                 <div id="linux_example" class="js-tabcontent">
                     <ul>
                         <li>Command line at runtime: <code class="language-text">--script-python-executable-path=./your/path/to/venv/bin/python</code></li>
                         <li>Defaults file (<MadCap:variable name="General.liquiPropFile" />): <code class="language-text">liquibase.script.python.executablePath=./your/path/to/venv/bin/python</code></li>
-                        <li>Environment variable: <code class="language-text">LIQUIBASE_SCRIPT_PYTHON_EXECUTABLE_PATH</code></li>
+                        <li>Environment variable: <code class="language-text">LIQUIBASE_SCRIPT_PYTHON_EXECUTABLE_PATH=./your/path/to/venv/bin/python</code></li>
                     </ul>
                 </div>
             </div>
-        </ol>
-        <p>You have now successfully configured your virtual environment for <MadCap:variable name="General.Liquibase" /> policy checks.</p>
-        <h2>Install the Python package</h2>
-        <p>Now install the <code>liquibase-checks-python</code> Python package to configure in-IDE documentation and auto-complete with your <MadCap:variable name="General.Liquibase" /> helper scripts:</p>
-        <ol>
-            <li>In your command line, navigate to your virtual environment.</li>
-            <li>Install the <MadCap:variable name="General.Liquibase" /> Python package:</li><pre><code class="language-shell">pip install liquibase-checks-python</code></pre>
             <li>In your Python script, replace <code class="language-python">import liquibase_utilities</code> with <code class="language-python">from liquibase_checks_python import liquibase_utilities</code>:</li>
             <MadCap:codeSnippet>
                 <MadCap:codeSnippetCopyButton />
@@ -76,14 +87,15 @@ if lb.is_table(obj): # function provided from liquibase utilities
 	sys.exit(1) # exit from the check</MadCap:codeSnippetBody>
             </MadCap:codeSnippet>
         </ol>
-        <p>You have now successfully activated the  Checks Python package.</p>
+        <p>You have now successfully configured your virtual environment for <MadCap:variable name="General.Liquibase" /> policy checks.</p>
         <h2>Run custom policy checks with a virtual environment</h2>
         <p>If you haven't yet run any <MadCap:variable name="General.Liquibase" /> policy checks commands to configured your Python script as a check, follow the steps on <MadCap:xref href="tutorial.htm">Create a Custom Policy Check</MadCap:xref>.</p>
-        <p>If you've already configured your custom policy check, you can run it using your new virtual environment:</p>
+        <p>If you've already configured your custom policy check, you can now run it using your new virtual environment. For example:</p>
         <ul>
             <li>Windows:</li><pre xml:space="preserve"><code class="language-shell">liquibase --script-python-executable-path=./your/path/to/venv/Scripts/python.exe checks run --check-name=MySweetPythonCheck --checks-scripts-enabled=true --checks-scope=database</code></pre>
             <li>Linux/macOS:</li><pre xml:space="preserve"><code class="language-shell">liquibase --script-python-executable-path=./your/path/to/venv/bin/python checks run --check-name=MySweetPythonCheck --checks-scripts-enabled=true --checks-scope=database</code></pre>
         </ul>
         <p>If you specified <code class="language-text">--script-python-executable-path</code> in your <code class="language-text"><MadCap:variable name="General.liquiPropFile" /></code> file or as an environment variable, you don't need to specify it at runtime.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you don't specify a custom virtual environment to use, <MadCap:variable name="General.Liquibase" /> runs your script in the built-in virtual environment.</p>
     </body>
 </html>
