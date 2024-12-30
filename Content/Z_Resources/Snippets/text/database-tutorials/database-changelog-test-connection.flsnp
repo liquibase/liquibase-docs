@@ -292,12 +292,7 @@ CREATE TABLE test_table (test_id INT NOT NULL, test_column INT, PRIMARY KEY (tes
   ]
 }</code></pre>
                 </div>
-                <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:dynamodb="http://www.liquibase.org/xml/ns/pro-dynamodb"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
-    http://www.liquibase.org/xml/ns/pro-dynamodb http://www.liquibase.org/xml/ns/pro-dynamodb/liquibase-pro-dynamodb-latest.xsd"&gt;
+                <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../code/liquibase-xsd-xml-changelog-amazon-dynamodb.flsnp" />
 
     &lt;changeSet id="1" author="your.name"&gt;
         &lt;dynamodb:createDynamoTable tableName="Music3XML" billingMode="PROVISIONED" tableClass="STANDARD" deletionProtectionEnabled="false"&gt;
@@ -341,9 +336,115 @@ CREATE TABLE test_table (test_id INT NOT NULL, test_column INT, PRIMARY KEY (tes
 &lt;/databaseChangeLog&gt;</code></pre>
                 </div>
             </div>
-            <li MadCap:conditions="database.mongodb">
-                <p>Create a text file called <code><a href="../../../../concepts/changelogs/home.html">changelog</a></code> (<code class="language-text">.js</code>, <code class="language-text">.yaml</code>, <code class="language-text">.json</code>, or <code class="language-text">.xml</code>) in your project directory and add a <a href="../../../../concepts/changelogs/changeset.html">changeset</a>.</p>
-            </li>
+            <li MadCap:conditions="database.databricks">Create a text file called <code><a href="../../../../concepts/changelogs/home.html">changelog</a></code> (<code class="language-text">.yaml</code>, <code class="language-text">.json</code>, or <code class="language-text">.xml</code>) in your project directory and add a <a href="../../../../concepts/changelogs/changeset.html">changeset</a>.</li>
+            <div class="js-tabs" MadCap:conditions="database.databricks">
+                <ul class="js-tablist" data-hx="h3">
+                    <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                    </li>
+                    <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                    </li>
+                    <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                    </li>
+                </ul>
+                <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: your.name
+      changes:
+        - createTable:
+            tableName: test_table_properties
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: some_column
+                  type: int
+            extendedTableProperties:
+              clusterColumns: id, some_column
+              tableFormat: delta
+              tableLocation: s3://databricks-external-folder/test_table_properties
+              tblProperties: 'this.is.my.key'=12,'this.is.my.key2'=true
+      rollback:
+        dropTable:
+          tableName: test_table_properties</code></pre>
+                </div>
+                <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "your.name",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "test_table_properties",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "int",
+                    "constraints": {
+                      "primaryKey": "true",
+                      "nullable": "false"
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "some_column",
+                    "type": "int"
+                  }
+                }
+              ],
+              "extendedTableProperties": {
+                "clusterColumns": "id, some_column",
+                "tableFormat": "delta",
+                "tableLocation": "s3://databricks-external-folder/test_table_properties",
+                "tblProperties": "'this.is.my.key'=12,'this.is.my.key2'=true"
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "dropTable": {
+              "tableName": "test_table_properties"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}</code></pre>
+                </div>
+                <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../code/liquibase-xsd-xml-changelog-databricks.flsnp" />
+
+    &lt;changeSet id="1" author="your.name"&gt;
+        &lt;createTable tableName="test_table_properties"&gt;
+            &lt;column name="id" type="int" &gt;
+                &lt;constraints primaryKey="true" nullable="false"/&gt;
+            &lt;/column&gt;
+            &lt;column name="some_column" type="int"/&gt;
+
+            &lt;databricks:extendedTableProperties clusterColumns="id, some_column"
+                                                tableFormat="delta"
+                                                tableLocation="s3://databricks-external-folder/test_table_properties"
+                                                tblProperties="'this.is.my.key'=12,'this.is.my.key2'=true"/&gt;
+        &lt;/createTable&gt;
+
+        &lt;rollback&gt;
+            &lt;dropTable tableName="test_table_properties"/&gt;
+        &lt;/rollback&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;</code></pre>
+                </div>
+            </div>
+            <li MadCap:conditions="database.mongodb">Create a text file called <code><a href="../../../../concepts/changelogs/home.html">changelog</a></code> (<code class="language-text">.js</code>, <code class="language-text">.yaml</code>, <code class="language-text">.json</code>, or <code class="language-text">.xml</code>) in your project directory and add a <a href="../../../../concepts/changelogs/changeset.html">changeset</a>.</li>
             <MadCap:snippetBlock src="database-mongodb-changelog-formats.flsnp" MadCap:conditions="database.mongodb" />
             <MadCap:snippetBlock src="database-mongodb-modeled-changelogs.flsnp" MadCap:conditions="database.mongodb" />
             <li>Navigate to your project folder in the CLI and run the <MadCap:variable name="General.Liquibase" />&#160;<code><MadCap:xref href="../../../../commands/change-tracking/status.htm">status</MadCap:xref></code> command to see whether the connection is successful:</li><pre xml:space="preserve" MadCap:conditions="database.default"><code class="language-text">liquibase status --username=test --password=test --changelog-file=&lt;changelog.xml&gt;</code></pre><pre xml:space="preserve" MadCap:conditions="database.amazon-dynamodb"><code class="language-text">liquibase status --changelog-file=&lt;changelog.xml&gt;</code></pre>
