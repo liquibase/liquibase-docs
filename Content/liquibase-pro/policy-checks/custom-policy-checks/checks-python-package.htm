@@ -7,21 +7,27 @@
     </head>
     <body>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
-        <h1>Create a Python Virtual Environment and IDE&#160;Auto-Complete</h1>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">To install the <MadCap:variable name="General.Liquibase" /> Checks extension, see <MadCap:xref href="create-check.htm">Create a Custom Policy Check</MadCap:xref>. The following tutorial to create a virtual environment is <b>optional</b>.</p>
-        <p>You can use <a href="api-helper-scripts.htm"><MadCap:variable name="General.Liquibase" /> helper scripts</a> while writing <a href="home.htm">custom policy checks</a> to access the <MadCap:variable name="General.Liquibase" /> API. <MadCap:variable name="General.Liquibase" /> installs these libraries for you as part of the <code class="language-text">liquibase-checks-python</code> package when you download the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> Checks extension</a>, along with a few natively supported Python libraries.</p>
+        <h1>Create a Python Virtual Environment</h1>
+        <p>When you write <MadCap:xref href="home.htm">Custom Policy Checks</MadCap:xref>, you can access the <MadCap:variable name="General.Liquibase" /> API by using <a href="api-helper-scripts.htm"><MadCap:variable name="General.Liquibase" /> helper scripts</a>. <MadCap:variable name="General.Liquibase" /> installs these libraries for you when you download the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> Checks extension</a>, along with a few natively supported Python libraries.</p>
         <p><MadCap:variable name="General.Liquibase" /> is a Java application, so it uses the <a href="https://www.graalvm.org/latest/reference-manual/python/Python-Runtime/">GraalPy</a> runtime on the back-end to execute all Python scripts for custom policy checks. <MadCap:variable name="General.Liquibase" /> runs all Python scripts in a built-in <a href="https://docs.python.org/3/tutorial/venv.html">local Python virtual environment</a>. Virtual environments help you isolate your projects so that you can have different versions of libraries in each one.</p>
-        <p>To write policy checks using most <b>external Python libraries</b>, you must install a GraalPy binary to create your own virtual environment and then use the Python <code class="language-text">pip</code> tool to install them in your virtual environment. Also, you can integrate your custom virtual environment into your IDE in order to access <b>in-IDE documentation and auto-complete</b> for your helper scripts.</p>
-        <p>The purpose of this tutorial is to demonstrate how to <b>create a virtual environment</b> that you can use for these purposes.</p>
+        <h2>Uses</h2>
+        <p>You can <a href="create-check.htm">create and run custom policy checks</a> using the built-in virtual environment and libraries that come with the <MadCap:variable name="General.Liquibase" /> Checks extension.</p>
+        <p>However, you must create a <b>custom virtual environment</b> if you want to:</p>
+        <ul>
+            <li><b>Write policy checks using most external Python libraries.</b> Python has many <a href="https://docs.python.org/3/library/index.html">standard libraries</a> that are installed when you download Python. Additionally, the <MadCap:variable name="General.Liquibase" /> Checks JAR comes with several <MadCap:variable name="General.Liquibase" /> libraries as well as a few external libraries (<code><a href="https://simplejson.readthedocs.io/en/latest/">simplejson</a></code>, <code><a href="https://sqlparse.readthedocs.io/en/latest/">sqlparse</a></code>, and <code><a href="https://urllib3.readthedocs.io/en/stable/">urllib3</a></code>). However, if you create a virtual environment, you can install the built-in libraries with the <code class="language-text">liquibase-checks-python</code> package as well as any other libraries you want.</li>
+            <li><b>Ensure your IDE recognizes the <MadCap:variable name="General.Liquibase" /> API.</b> By default, your IDE does not know to look in a Java JAR file for Python libraries. As a result, your IDE can't provide <b>in-IDE documentation or auto-complete</b> using the built-in virtual environment, making development more tedious.  However, if you create a custom virtual environment, your IDE will be able to recognize any libraries you install. If you don't use an IDE, this makes no difference.</li>
+        </ul>
+        <p>To do this, you must install a GraalPy binary to create your own virtual environment and then use the Python <code class="language-text">pip</code> tool to install all external libraries you want to use (including <MadCap:variable name="General.Liquibase" /> libraries)&#160;into your virtual environment.</p>
         <h2>Prerequisites</h2>
         <ul>
             <li>Python 3.10.14+</li>
             <li>GraalPy 24.0.0+</li>
+            <li>If you use an IDE, ensure you have installed any necessary extensions to support IDE features in Python-language files.</li>
             <li>Follow the  prerequisites on <MadCap:xref href="create-check.htm">Create a Custom Policy Check</MadCap:xref> to download and install the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> Checks extension</a>.</li>
         </ul>
         <h2>Create your own virtual environment</h2>
         <ol>
-            <li><b>Download</b> and extract the latest version of <a href="https://www.graalvm.org/latest/reference-manual/python/Python-Runtime/#installing-graalpy">GraalPy</a> on your machine.</li>
+            <li><b>Download</b> and extract the latest version of <a href="https://www.graalvm.org/latest/reference-manual/python/Python-Runtime/#installing-graalpy">GraalPy</a> on your machine. You must use the GraalPy runtime to create the virtual environment, not the Python runtime.</li>
             <li><b>Update</b> your <code class="language-text">PATH</code> environment variable to include the path to the GraalPy <code class="language-text">/bin</code> directory you just installed.</li>
             <li>In your command line, <b>invoke GraalPy to run the <code class="language-text">venv</code> module</b> to create a virtual environment in the directory you specify:</li><pre><code class="language-shell">graalpy -m venv &lt;path/to/venv&gt;</code></pre>
             <p>Your command line won't display anything, but this creates some scripts. You may have to wait a few minutes for the command to execute before you can type in the terminal again.</p>
@@ -35,10 +41,16 @@
                 <li>Windows: <code class="language-shell">&lt;path/to/venv&gt;\Scripts\activate</code></li>
                 <li>Linux and macOS: <code class="language-shell">source &lt;path/to/venv&gt;/bin/activate</code><br /></li>
             </ul>
-            <p class="tip" MadCap:conditions="exclude.future" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">If you want to access <b>in-IDE documentation and auto-complete</b> for <MadCap:variable name="General.Liquibase" /> helper scripts while writing Python custom policy checks, you must <b>activate the virtual environment from the terminal in your IDE</b>. If you just want to install more external libraries to use in your custom policy checks, you can use any terminal. &lt;TBD is this true?&gt;</p>
+            <li><b>Configure your IDE&#160;to recognize your custom virtual environment.</b>
+                <ul>
+                    <li><a href="https://code.visualstudio.com/docs/python/environments">VS Code:&#160;Python environments in VS Code</a>
+                    </li>
+                    <li><a href="https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html">PyCharm:&#160;Configure a virtualenv environment</a>
+                    </li>
+                </ul>
+            </li>
             <li><b>Install modules and packages</b> using <code class="language-text">pip</code>:</li><pre><code class="language-shell">pip install &lt;package/module name&gt;</code></pre>
-            <p>Or, to install several packages at once:</p><pre><code class="language-shell">pip install liquibase-checks-python simplejson sqlparse urllib3</code></pre>
-            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The GraalPy implementation of <code class="language-text">pip</code> may choose package versions other than the latest when it ships patches.</p>
+            <p>For example, to install all the modules that come with the built-in virtual environment:</p><pre><code class="language-shell">pip install liquibase-checks-python simplejson sqlparse urllib3</code></pre>
             <li><b>Deactivate the virtual environment</b> by closing your command line window or running this command:</li><pre><code class="language-shell">deactivate</code></pre>
         </ol>
         <h2>Configure <MadCap:variable name="General.Liquibase" /> to use your virtual environment</h2>
@@ -95,13 +107,21 @@ sys.exit(1) # halt execution of the script</MadCap:codeSnippetBody>
         <p>If you specified <code class="language-text">--script-python-executable-path</code> in your <code class="language-text"><MadCap:variable name="General.liquiPropFile" /></code> file or as an environment variable, you don't need to specify it at runtime.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you don't specify a custom virtual environment to use, <MadCap:variable name="General.Liquibase" /> runs your script in the built-in virtual environment.</p>
         <h2>Troubleshooting</h2>
+        <h3>IDE does not recognize <MadCap:variable name="General.Liquibase" /> libraries</h3>
+        <p>Your IDE may add red underlines to your <MadCap:variable name="General.Liquibase" /> libraries if you've configured your virtual environment incorrectly. To fix this, follow these steps:</p>
+        <ol>
+            <li>Ensure you have correctly configured your IDE to recognize Python and your custom virtual Python environment.</li>
+            <li>Ensure you have correctly imported the <code class="language-text">liquibase-checks-python</code> package and any other modules you want to use.</li>
+            <li>Restart your IDE to see any changes.</li>
+        </ol>
+        <h3><code>liquibase_checks_python</code> module not found</h3>
         <p>You may receive this error if <code class="language-text">--script-python-executable-path</code> is set to the Python executable in your custom virtual environment but you haven't correctly installed your libraries:</p><pre xml:space="preserve"><code class="language-text">Error while executing script 'python_scripts/test_python_check.py': ModuleNotFoundError: No module named
 'liquibase_checks_python' line:  2</code></pre>
         <p>Activate your virtual environment. Then run this command to ensure that you have all of the basic <MadCap:variable name="General.Liquibase" /> helper scripts and natively supported Python libraries:</p><pre><code class="language-shell">pip install liquibase-checks-python simplejson sqlparse urllib3</code></pre>
         <p MadCap:conditions="exclude.future">TODO:</p>
         <ul MadCap:conditions="exclude.future">
-            <li>Confirm exactly how to get the in-IDE documentation/auto-complete to work. I did it, but it seems to be a VS Code extension? Should that be a prerequisite?</li>
-            <li>Split this into two pages? A venv might be a prereq for autocomplete (maybe), but certainly not the other way around?</li>
+            <li>TODO:&#160;add note about pip working outside a venv... warning?</li>
+            <li>Think about how to integrate this into the main tutorial... it isn't really optional</li>
         </ul>
     </body>
 </html>
