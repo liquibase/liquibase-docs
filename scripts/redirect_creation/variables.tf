@@ -956,6 +956,7 @@ variable "redirects" {
     { key = "/liquibase-pro/native-executors/msqql-server-sqlcmd.html", website_redirect = "/liquibase-pro/native-executors/mssql-server-sqlcmd.html" },
     { key = "/liquibase-pro/policy-checks/check-chains/home.html", website_redirect = "/liquibase-pro/policy-checks/check-chains.html" },
     { key = "/liquibase-pro/policy-checks/checks/changelog-checks/require-changeset-dis-uuid.html", website_redirect = "/liquibase-pro/policy-checks/checks/changelog-checks/require-changeset-id-is-uuid.html" },
+    { key = "/liquibase-pro/policy-checks/custom-policy-checks/api-helper-scripts.html", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/liquibase-api-libraries.html" },
     { key = "/liquibase-pro/policy-checks/custom-policy-checks/checks-python-package.html", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/python-virtual-environment.html" },
     { key = "/liquibase-pro/policy-checks/custom-policy-checks/status-message-variable.html", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/dynamic-status-messages.html" },
     { key = "/liquibase-pro/policy-checks/custom-policy-checks/tutorial.html", website_redirect = "http://liquibase-pro/policy-checks/custom-policy-checks/create-check.html" },
