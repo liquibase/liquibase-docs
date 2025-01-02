@@ -385,7 +385,7 @@ variable "redirects" {
     { key = "/commands/quality-checks/constraint-must-exist.html", website_redirect = "/liquibase-pro/policy-checks/checks/constraint-must-exist.html" },
     { key = "/commands/quality-checks/copy.html", website_redirect = "/commands/policy-checks/subcommands/copy.html" },
     { key = "/commands/quality-checks/custom-policy-checks/api-helper-scripts.html", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/api-helper-scripts.html" },
-    { key = "/commands/quality-checks/custom-policy-checks/checks-python-package.html", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/checks-python-package.html" },
+    { key = "/commands/quality-checks/custom-policy-checks/checks-python-package.html", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/python-virtual-environment.html" },
     { key = "/commands/quality-checks/custom-policy-checks/helper-scripts.htm", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/api-helper-scripts.html" },
     { key = "/commands/quality-checks/custom-policy-checks/home.htm", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/home.html" },
     { key = "/commands/quality-checks/custom-policy-checks/home.html", website_redirect = "/liquibase-pro/policy-checks/custom-policy-checks/home.html" },
