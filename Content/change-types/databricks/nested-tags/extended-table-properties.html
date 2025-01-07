@@ -131,6 +131,9 @@
               - column:
                   name: some_column
                   type: int
+              - column
+                  name: some_other_column
+                  type: int
             extendedTableProperties:
               partitionColumns: id, some_column
               tableFormat: delta
@@ -215,6 +218,12 @@
                     "name": "some_column",
                     "type": "int"
                   }
+                },
+                {
+                  "column": {
+                    "name": "some_other_column",
+                    "type": "int"
+                  }
                 }
               ],
               "extendedTableProperties": {
@@ -268,6 +277,7 @@
                 &lt;constraints primaryKey="true" nullable="false"/&gt;
             &lt;/column&gt;
             &lt;column name="some_column" type="int"/&gt;
+            &lt;column name="some_other_column" type="int"/&gt;
 
             &lt;databricks:extendedTableProperties partitionColumns="id, some_column"
                                                 tableFormat="delta"
@@ -290,6 +300,9 @@
         <h3>Extended table properties double initialization</h3>
         <p>It is technically possible to specify some Databricks-specific <MadCap:variable name="General.Param/Attribute" />s directly in <code class="language-text">createTable</code> instead of in <code class="language-text">extendedTableProperties</code>. <b>This is not a best practice.</b> If you specify Databricks-specific <MadCap:variable name="General.Param/Attribute" />s in both places, <MadCap:variable name="General.Liquibase" /> throws this error:</p><pre><code class="language-text">Double initialization of extended table properties is not allowed. Please avoid using both EXT createTable attributes and Databricks specific extendedTableProperties element. Element databricks:extendedTableProperties is preferred way to set databricks specific configurations.</code></pre>
         <p>Instead, you must specify all Databricks-specific <MadCap:variable name="General.Param/Attribute" />s in <code class="language-text">extendedTableProperties</code>.</p>
+        <h3>All columns in table are partitioned</h3>
+        <p>If you try to create a partition using every column in a table, Databricks throws an <a href="https://docs.databricks.com/en/error-messages/sqlstates.html#class-kd-datasource-specific-errors">error</a> like:</p><pre><code class="language-text">Cannot use all columns for partition columns.</code></pre><pre><code class="language-text">Data written into Delta needs to contain at least one non-partitioned column.</code></pre>
+        <p>To resolve this, ensure that your table contains at least column that does not have a partition. For more information, see <a href="https://docs.databricks.com/en/tables/partitions.html">When to partition tables on Databricks</a>.</p>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/change-type-databricks-database-support-nested-tag.flsnp" />
         <h2>Related links</h2>
         <ul>

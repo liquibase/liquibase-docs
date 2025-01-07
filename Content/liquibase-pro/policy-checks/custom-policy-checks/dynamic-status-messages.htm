@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/dynamic-status-messages.html" />
+        <meta name="description" content="This guide shows you how to insert dynamic content into custom policy check status messages." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Write Dynamic Status Messages for Custom Policy Checks</h1>
+        <p><MadCap:variable name="General.Liquibase" /> displays the status message after you run a custom policy check. Normally, this is just a static string you define in the CLI. However, you can use your Python script to specify dynamic content to display in your status message.</p>
+        <p>This guide shows where to configure dynamic variables in your Python script and how <MadCap:variable name="General.Liquibase" /> can expand those variables into useful values.</p>
+        <h2>Prerequisites</h2>
+        <ol>
+            <li>Ensure you meet the prerequisites specified on <MadCap:xref href="create-check.htm">Create a Custom Policy Check</MadCap:xref>.</li>
+            <li>Follow the steps in that tutorial until the step for "<b>Set the script message</b>."</li>
+        </ol>
+        <h2>Step-by-step guide</h2>
+        <ol>
+            <li>In the CLI, at the <code class="language-text">Set SCRIPT_MESSAGE</code> prompt, specify a message to display when the check triggers.&#160;Specify one or more variables to display dynamic content in the message. For example:</li><pre><code class="language-text">Column __COLUMN_NAME__ does not conform to your policies!</code></pre>
+            <li>In your Python script, use <a href="liquibase-api-libraries.htm"><MadCap:variable name="General.Liquibase" /> libraries</a> to define variables for your message:</li>
+            <ul>
+                <li><b>Dynamic phrase</b> (one or more): the phrase you want to dynamically insert into your message. For example, the name of the column:</li><pre><code class="language-python">column_name = liquibase_utilities.get_database_object().getName()</code></pre>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This technically returns the name of the database object, which might not be a column. We'll handle this case later!</p>
+                <li><b>Status message</b>: gets the message you specified in the CLI. Then append the Python <code><a href="https://docs.python.org/3/library/stdtypes.html#str.replace">replace()</a></code> function to do the replacement:</li><pre><code class="language-python">status_message = str(liquibase_utilities.get_script_message()).replace("__COLUMN_NAME__", f"'{column_name}'")</code></pre>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">In this case, we use Python <a href="https://docs.python.org/3/reference/lexical_analysis.html#f-strings">formatted string</a> notation (f-strings) because we're using a variable inside it.</p>
+            </ul>
+            <li>(Optional) If you defined multiple dynamic variables in Steps 1 and 2, subsequently use <code class="language-text">replace()</code> again for each one:</li><pre><code class="language-text">status_message = status_message.replace("__TABLE_NAME__", f"\"{table_name}\"")</code></pre>
+            <li>Send your dynamic status message to the <MadCap:variable name="General.Liquibase" /> API:</li><pre><code class="language-python">liquibase_status.message = status_message</code></pre>
+        </ol>
+        <h2>Sample script</h2>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/code/checks-custom-sample-script-database.flsnp" />
+        <p>For more sample scripts, see <a href="https://github.com/liquibase/custom_policychecks/tree/main/Python">GitHub: liquibase/custom_policychecks</a>.</p>
+        <h2>Next steps</h2>
+        <p>Now that you've specified your dynamic status message, continue following the steps to <MadCap:xref href="create-check.htm">Create a Custom Policy Check</MadCap:xref>.</p>
+    </body>
+</html>
