@@ -1208,6 +1208,7 @@ variable "redirects" {
     { key = "/start/tutorials/mongodb/using-mongosh-changelog.html", website_redirect = "/liquibase-pro/native-executors/mongodb-mongosh.html" },
     { key = "/start/tutorials/mongodb-db-atlas-config.html", website_redirect = "/start/tutorials/mongodb-pro/mongodb-atlas.html" },
     { key = "/start/tutorials/mongodb-pro/amazon-documentdb-tls-ssl.html", website_redirect = "/start/tutorials/mongodb-pro/home.html" },
+    { key = "/start/tutorials/mongodb-pro/config-user-roles-mongodb-pro.html", website_redirect = "/start/tutorials/mongodb-pro/config-user-roles.html" },
     { key = "/start/tutorials/mongodb-pro/mongodb-changelog-formats.html", website_redirect = "/liquibase-pro/native-executors/mongodb-mongosh.html" },
     { key = "/start/tutorials/mongodb-pro/using-mongosh-changelog.html", website_redirect = "/liquibase-pro/native-executors/mongodb-mongosh.html" },
     { key = "/start/tutorials/mongodb-pro.html", website_redirect = "/start/tutorials/mongodb-pro/home.html" },
