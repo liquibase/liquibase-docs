@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/docker.html" />
+        <meta name="description" content="[placeholder]." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Use Custom Policy Checks with Docker</h1>
+        <p>This tutorial shows you how to configure Docker and <MadCap:variable name="General.Liquibase" /> to deploy <MadCap:xref href="home.htm">Custom Policy Checks</MadCap:xref>. This helps isolate your Python scripts, minimizing conflicts with other applications on your machine.</p>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>Docker x.y.z+</li>
+            <li><a href="https://github.com/liquibase/liquibase-package-manager"><MadCap:variable name="General.Liquibase" /> Package Manager</a> (LPM) 0.2.8+</li>
+            <li><MadCap:variable name="General.Liquibase" /> prerequisites on <MadCap:xref href="create-check.htm">Create a Custom Policy Check</MadCap:xref></li>
+        </ul>
+        <h2>Install Docker image</h2>
+        <ol>
+            <li>In your command line, install the official <MadCap:variable name="General.Liquibase" /> Docker image:</li><pre><code class="language-text">docker pull liquibase</code></pre>
+            <li>Install the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks"><MadCap:variable name="General.Liquibase" /> Checks extension</a>:</li>
+            <ul>
+                <li><b><MadCap:variable name="General.Liquibase" /> 4.31.0 and later:</b> the checks extension is <b>pre-installed</b> in your image.</li>
+                <li><b><MadCap:variable name="General.Liquibase" /> 4.30.0 or earlier:</b> you must <b>manually add</b> the checks extension to your image:</li><pre><code class="language-text">lpm add liquibase-checks</code></pre>
+            </ul>
+        </ol>
+        <p>For more information, see <MadCap:xref href="../../../workflows/liquibase-community/using-liquibase-and-docker.htm">Using [%=General.Liquibase%] and Docker</MadCap:xref>.</p>
+        <h2>Configure Docker image</h2>
+        <ol>
+            <li>In your Dockerfile, set necessary permissions:</li><pre><code class="language-text">USER&#160;root</code></pre>
+            <li>On Linux, set the <code class="language-text">XDG_CACHE_HOME</code> environment variable to any directory that exists and you have write permissions for:</li><pre><code class="language-text">XDG_CACHE_HOME=/tmp</code></pre>
+            <li>(Optional) <MadCap:xref href="python-virtual-environment.htm">Create a Python Virtual Environment</MadCap:xref>. <MadCap:variable name="General.Liquibase" /> includes a built-in virtual environment in the checks extension JAR. The built-in environment contains <MadCap:xref href="liquibase-python-modules.htm">[%=General.Liquibase%] Python Modules</MadCap:xref> and the modules <code><a href="https://simplejson.readthedocs.io/en/latest/">simplejson</a></code>, <code><a href="https://sqlparse.readthedocs.io/en/latest/">sqlparse</a></code>, and <code><a href="https://urllib3.readthedocs.io/en/stable/">urllib3</a></code>. However, if you want to install additional Python libraries, you must create your own virtual environment.</li>
+        </ol>
+        <h2>Create and run your checks</h2>
+        <ol>
+            <li>Follow the steps in <MadCap:xref href="create-check.htm">Create a Custom Policy Check</MadCap:xref> to write a basic Python check and configure it in the <MadCap:variable name="General.Liquibase" /> checks framework.</li>
+            <li>Run the <MadCap:variable name="General.Liquibase" />&#160;<code><a href="../../../commands/policy-checks/subcommands/run.htm">checks run</a></code> command. Ensure that you specify all necessary parameters. For example:</li><pre>docker run -e "LIQUIBASE_LOG_LEVEL=DEBUG" --network=host --rm -v /home/liquibase-project:/liquibase/changelog --user=root liquibase/liquibase --search-path=/liquibase/changelog checks run --url=jdbc:mysql://mysql-db.us-east-1.rds.amazonaws.com:3306/db --password=xxx --username=admin --changelog-file=changelog.xml --checks-scope=changelog,database --checks-settings-file=/liquibase/changelog/liquibase.checks-settings.conf --checks-scripts-enabled=true --checks-scripts-path=/liquibase/changelog</pre>
+        </ol>
+        <h2>Troubleshooting</h2>
+        <h3>Failed to initialize execution listener class</h3>
+        <p>If you try to run <MadCap:variable name="General.Liquibase" /> custom policy checks using Docker on Linux, you may receive this error:</p><pre xml:space="preserve"><code class="language-text">Unexpected error running Liquibase: Failed to initialize execution listener class.
+Caused by: java.lang.reflect.InvocationTargetException
+Caused by: /home/liquibase</code></pre>
+        <p>This happens because the <code class="language-text">/home/liquibase</code> directory may not exist in your Docker container, so GraalPy has nowhere to write output. To fix this, you must set your <code class="language-text">XDG_CACHE_HOME</code> environment variable to any directory that exists and you have write permissions for, such as <code class="language-text">/tmp</code>. For example:</p><pre><code class="language-shell">docker run --rm --env XDG_CACHE_HOME=/tmp --env LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SCRIPTS_ENABLED='true' -v &lt;path/to/changelog&gt;:/liquibase/changelog -v C:\Liquibase\Demos\CPCs\lib:/liquibase/lib liquibase/liquibase:latest sh -c "liquibase checks run"</code></pre>
+        <p>Alternatively, you can use the <code class="language-text">-v</code> flag to mount a directory on your machine to <code class="language-text">/home/liquibase</code> in your Docker container:</p><pre><code class="language-shell">docker run --rm --env LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SCRIPTS_ENABLED='true' -v &lt;path/to/changelog&gt;:/liquibase/changelog -v &lt;path/to/liquibase/lib&gt;:/liquibase/lib -v  &lt;path/to/changelog&gt;:/home/liquibase liquibase/liquibase:latest sh -c "liquibase checks run"</code></pre>
+        <h2>Next steps</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="sample-scripts.htm">Sample Custom Policy Check Scripts</MadCap:xref>: see examples of real-world scripts for custom policy checks that you can adapt</li>
+            <li>
+                <MadCap:xref href="liquibase-python-modules.htm">[%=General.Liquibase%] Python Modules</MadCap:xref>: learn how to access the <MadCap:variable name="General.Liquibase" /> API&#160;to write more custom checks</li>
+            <li>
+                <MadCap:xref href="dynamic-status-messages.htm">Write Dynamic Status Messages for Custom Policy Checks</MadCap:xref>: improve the usability of your checks with better output messages</li>
+        </ul>
+    </body>
+</html>
