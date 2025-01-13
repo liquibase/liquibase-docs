@@ -59,7 +59,7 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
 &lt;/changeSet&gt;</code></pre>
         <p>In your command line, deploy your change:</p><pre><code class="language-text">liquibase update</code></pre>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><MadCap:variable name="General.Liquibase" /> 4.4.0+ assumes that spaces in the CSV&#160;header are part of the column names and does not strip them. If your header contains spaces and the column names in your <MadCap:variable name="General.changeset" /> don't, <MadCap:variable name="General.Liquibase" /> throws an error. To resolve this, use the <code>--<MadCap:xref href="../parameters/trim-load-data-file-header.htm">trim-load-data-file-header</MadCap:xref></code> parameter in <MadCap:variable name="General.Liquibase" /> 4.29.0.</p>
-        <h4>Generating <code>loadData</code>&#160;<MadCap:variable name="General.changeset" />s and a CSV from your current database</h4>
+        <h3>Generating <code>loadData</code>&#160;<MadCap:variable name="General.changeset" />s and a CSV from your current database</h3>
         <p>You can also capture the current state of your database as a CSV with the <MadCap:xref href="../commands/inspection/generate-changelog.html">generate-changelog</MadCap:xref> command and <code>dataOutputDirectory</code>&#160;<MadCap:variable name="General.Param/Attribute" />. This generates the <code>loadData</code> <MadCap:variable name="General.changeset" />s with the columns from the CSV, and formats your data as a CSV in the folder you specified for <code>dataOutputDirectory</code>:</p><pre xml:space="preserve"><code class="language-text">liquibase generate-changelog --diffTypes=tables,columns,data --dataOutputDirectory=myData --changelog-file=output_changelog.xml</code></pre>
         <MadCap:dropDown>
             <MadCap:dropDownHead>
@@ -108,6 +108,20 @@ If UUID type is used, UUID value is stored as string and NULL in cell is support
 &lt;/databaseChangeLog&gt;</code></pre>
             </MadCap:dropDownBody>
         </MadCap:dropDown>
+        <h3 MadCap:conditions="exclude.future-4-31-0">Placeholder values</h3>
+        <p MadCap:conditions="exclude.future-4-31-0">In <MadCap:variable name="General.Liquibase" /> 4.31.0 and later, you can specify a null placeholder value in your <code>loadData</code>&#160;<MadCap:variable name="General.changeset" />. This allows <MadCap:variable name="General.Liquibase" /> to translate corresponding values in your&#160;CSV into <code>NULL</code> values. This is an alternative to leaving a CSV&#160;cell blank, which <MadCap:variable name="General.Liquibase" /> translates as an empty string.</p>
+        <p MadCap:conditions="exclude.future-4-31-0">For example, consider this <MadCap:variable name="General.changeset" />:</p><pre xml:space="preserve" MadCap:conditions="exclude.future-4-31-0"><code class="language-xml">&lt;changeSet id="nullPlaceHolderTest" author="your.name"&gt;
+    &lt;loadData tableName="nullPlaceholderTable"
+        file="nullPlaceHolderTestData.csv"
+        relativeToChangelogFile="true"&gt;
+        &lt;column name="test_col" type="COMPUTED" nullPlaceholder="testNullPlaceholder"/&gt;
+        &lt;column name="other_col" type="varchar(100)"/&gt;
+    &lt;/loadData&gt;
+&lt;/changeSet&gt;</code></pre>
+        <p MadCap:conditions="exclude.future-4-31-0">And this CSV file <code>nullPlaceHolderTestData.csv</code>:</p><pre xml:space="preserve" MadCap:conditions="exclude.future-4-31-0"><code class="language-text">colKey,col2
+1+1,testNullPlaceholder
+5,there</code></pre>
+        <p MadCap:conditions="exclude.future-4-31-0">When you deploy this <MadCap:variable name="General.changeset" />, <MadCap:variable name="General.Liquibase" /> searches for <code>testNullPlaceholder</code> in your CSV file and replaces any instances of that string with a <code>NULL</code> SQL reference.</p>
         <MadCap:snippetBlock src="../Z_Resources/Snippets/text/change-type-load-data-nested.flsnp" MadCap:conditionTagExpression="include[change-type-load-data-attributes.loadData]" />
         <h2>Examples</h2>
         <div class="js-tabs">
