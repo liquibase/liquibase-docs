@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+	<head><title><MadCap:variable name="Heading.Level1" /></title>
+		<link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/flow/control-commands.html" />
+		<meta name="description" content="Reference information and use cases for control commands in the Flow File." />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	</head>
+    <body>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Control Command</h1>
+        <p>Using the Control command, <code>exit,</code> in a <a href="home.htm">flow file</a> allows you to exit running the flow if there are not any pending <MadCap:variable name="General.changeset" />s present. This enhances your efficiency when using a flow file by eliminating the need to run checks on unchanged changesets or generate drift reports when no changes are being applied.</p>
+        <p class="note">Available with a <MadCap:variable name="General.LBPro" /> license key in +4.30.0</p>
+        <h2>Procedure</h2>
+        <ol>
+            <li>
+                <p>To use the <code>exit</code> Control command in your Flow file, you must run the status command within the Flow file:</p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve"> - type: liquibase
+      command: status</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to use <MadCap:xref href="../../concepts/changelogs/attributes/labels.html">Labels</MadCap:xref>, add them here. You must add them under the <code>status</code> command, not the <code>exit</code> command.</p>
+            <li>
+                <p>Set the <code>type</code> argument to <code>control</code>:</p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve"> - type: control
+      command: exit</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <p>The exit command has two command arguments:</p>
+            <ul>
+                <li><code>exitCode: 0 </code>This is an integer and does not require quotes in its syntax.</li>
+                <li><code>exitMessage: "a string"</code> This is a string and requires quotes in its syntax.</li>
+            </ul>
+            <li>Set the exitCode to 0-4 depending on the severity you want to trigger.</li>
+            <li>Set the exitMessage.<br />Example: <code>Exiting with an error status of 0 because the database is up-to-date.</code></li>
+            <li>Set the <code>if: "status.<MadCap:variable name="General.changeset" />.Count == 0"</code>. This will trigger the command to exit if <MadCap:variable name="General.Liquibase" /> detects there are no pending deployed <MadCap:variable name="General.changeset" />s.
+                <MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>exit control command flow example</p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: JavaScript;">stages:
+  stage-status-check:
+
+    #
+    # Exit if no pending changes to deploy
+    #
+    - type: liquibase
+      command: status
+    
+    - type: control
+      if: "status.changesetCount == 0"
+      command: exit
+      cmdArgs: {exitStatus: 0, message: "Exiting with an error status of 0 because the database is up-to-date"}</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">A child Flow cannot cause a parent flow to <code>exit</code>. <code>status</code> commands must be run in the same Flow file that contains the control being checked.</p>
+            <li>After you set up your Flow file, run the <code><MadCap:xref href="../../commands/flow/flow.htm">flow</MadCap:xref></code> command:</li><pre xml:space="preserve"><code class="language-text">liquibase flow --flow-file=flows/&lt;path/to/your/flowfile&gt;.yaml</code></pre>
+            <p>The control bash commits successfully and if no new <MadCap:variable name="General.changeset" />s are detected, <MadCap:variable name="General.Liquibase" /> exits the Flow.</p>
+        </ol>
+    </body>
+</html>
