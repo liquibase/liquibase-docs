@@ -52,13 +52,13 @@ import sys
 
 # define reusable variables
 obj = lb.get_database_object() # database object to examine
-status = lb.get_status() # Status object of the check
+liquibase_status = lb.get_status() # Status object of the check
 
 # write check logic
 if lb.is_table(obj): # checks if the current object is a table
-	status.fired = True # indicates that the custom check has been triggered
-	status.message = "No tables allowed!" # message for Liquibase to return when check is triggered
-	sys.exit(1) # halt execution of the script
+    liquibase_status.fired = True # indicates that the custom check has been triggered
+    liquibase_status.message = "No tables allowed!" # message for Liquibase to return when check is triggered
+    sys.exit(1) # halt execution of the script
 
 # default return code
 False</code></pre>
@@ -74,26 +74,26 @@ False</code></pre>
             <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">For ease of use, it is a best practice to name your custom check after your Python script.</p>
             <li>Set the <b>severity</b> to return a code of 0–4 when triggered. In this example, we will set the severity to <code class="language-text">1</code>. Options:</li>
             <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/policy-checks/cli-checks-severity-customization.flsnp" />
-            <li>Set the <b>script description</b> for the custom check. In this example, we will set the description to:</li><pre><code class="language-text">This script looks to see if any tables exist and notifies you if one is detected.</code></pre>
-            <li>Set the <b>script scope</b> for the custom check to <code class="language-text">database</code>. The Python sample provided in this tutorial requires it.</li>
+            <li>Set <b><code class="language-text">SCRIPT_DESCRIPTION</code></b>. In this example, we will set the description to:</li><pre><code class="language-text">This script looks to see if any tables exist and notifies you if one is detected.</code></pre>
+            <li>Set <b><code class="language-text">SCRIPT_SCOPE</code></b>. In this example, we will set the scope to <code class="language-text">database</code>. The Python sample provided in this tutorial requires it.</li>
             <p>In general, you should set the scope to <code class="language-text">changelog</code> or <code class="language-text">database</code> depending on what your custom script does:</p>
             <ul>
                 <li><code class="language-text">changelog</code>: for example, if your check looks for syntax patterns or attributes in your <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../../concepts/changelogs/home.html">Changelog</MadCap:xref> (the changes you author in your repository). With this value, the check runs <b>once per <MadCap:variable name="General.changeset" /></b>. </li>
                 <li><code class="language-text">database</code>: for example, if your check looks for the presence of keys, indexes, or table name patterns in your database schema (including <MadCap:variable name="General.Liquibase" />&#160;<MadCap:xref href="../../../concepts/tracking-tables/tracking-tables.htm">Tracking Tables</MadCap:xref>). With this value, the check runs <b>once for each database object</b>.</li>
             </ul>
             <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is a best practice for your custom checks to have <b>only one scope</b>, not both scopes.</p>
-            <li>Set the <b>script message</b>. This message will display when the check is triggered. In this example we will leave this blank, as we are handling the message in the script.</li>
-            <li>Set the <b>script path</b>. This is the relative path where your script is stored, whether it is stored locally or in a repository. In this example, we will set the path to: <code class="language-text">scripts/custom-check-no-tables.py</code>.</li>
-            <li>Set the <b>script argument</b>. This allows you to pass dynamic information into the custom policy check without modifying the Python code. <MadCap:snippetText src="../../../Z_Resources/Snippets/text/checks-get-arg-example.flsnp" /> If you <MadCap:xref href="../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> your check later, you can specify a new value in the&#160;CLI. If you don't need dynamic arguments, leave this field blank.</li>
-            <li>If your script scope is <code class="language-text">changelog</code>, set whether the check requires a database <b><MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref></b>. Specify <code class="language-text">true</code> if your check needs to inspect database objects. (If your script scope is <code class="language-text">database</code>, <MadCap:variable name="General.Liquibase" /> always takes a snapshot.)</li>
+            <li>Set <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will leave this blank, as we are handling the message in the script.</li>
+            <li>Set <b><code class="language-text">SCRIPT_PATH</code></b>. This is the relative path where your script is stored in relation to the <MadCap:variable name="General.changelog" /> specified in <code class="language-text">--changelog-file</code>, whether it is stored locally or in a repository. In this example, we will set the path to: <code class="language-text">scripts/custom_check_no_tables.py</code>.</li>
+            <li>Set <b><code class="language-text">SCRIPT_ARGUMENT</code></b>. This allows you to pass dynamic information into the custom policy check without modifying the Python code. <MadCap:snippetText src="../../../Z_Resources/Snippets/text/checks-get-arg-example.flsnp" /> If you <MadCap:xref href="../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> your check later, you can specify a new value in the&#160;CLI. If you don't need dynamic arguments, leave this field blank.</li>
+            <li>Set <b><code class="language-text">REQUIRES_SNAPSHOT</code></b>. If your script scope is <code class="language-text">changelog</code>, set whether the check requires a database <MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref>. Specify <code class="language-text">true</code> if your check needs to inspect database objects. (If your script scope is <code class="language-text">database</code>, <MadCap:variable name="General.Liquibase" /> always takes a snapshot, so this prompt does not appear.)</li>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The larger your database, the more performance impact a snapshot causes. If you cannot run a snapshot due to memory limitations, see <MadCap:xref href="../../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
         </ol>
         <p>You have now successfully created and customized a policy check!</p>
         <h2>Run your new check</h2>
         <p>To <b>run your custom check</b>, you must use the <code><a href="../../../commands/policy-checks/subcommands/run.htm">checks run</a></code> command. <MadCap:variable name="General.Liquibase" /> provides additional security configuration parameters for this command to ensure you do not accidentally execute Python code on your database:</p>
         <ul>
-            <li>Custom policy checks are <b>disabled by default</b>.  Using the <code class="language-text">checks run</code> command, you must set <code class="language-text">--checks-scripts-enabled=true</code> in the CLI or set <code class="language-text">LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SCRIPTS_ENABLED=TRUE</code> via environment variable.</li>
-            <li>Custom policy check Python scripts can <b>filter to specific directory paths</b>. Using the <code class="language-text">checks run</code> command, you can set the <code class="language-text">--checks-scripts-path</code> parameter, <code class="language-text">LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SCRIPTS_PATH</code> environment variable, and other standard methods.<ul><li>When set, the check's Python script must be in the specified path(s) to execute successfully.</li><li>If you don't set a script path, <MadCap:variable name="General.Liquibase" /> accepts any script path.</li></ul><MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-custom-policy-checks-isolation.flsnp" /></li>
+            <li>Custom policy checks are <b>disabled by default</b>.  Using the <code class="language-text">checks run</code> command, you must set <code class="language-text">--checks-scripts-enabled=true</code> in the CLI, set <code class="language-text">liquibase.command.checks.run.checksScriptsEnabled: true</code> in the defaults file, or set <code class="language-text">LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SCRIPTS_ENABLED=TRUE</code> via environment variable.</li>
+            <li>Custom policy check Python scripts can <b>filter to specific directory paths</b>. Using the <code class="language-text">checks run</code> command, you can set the <code class="language-text">--checks-scripts-path</code> parameter in the CLI, set <code class="language-text">liquibase.command.checks.run.checksScriptsPath</code> in the defaults file, <code class="language-text">LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SCRIPTS_PATH</code> environment variable, and other standard methods.<ul><li>When set, the check's Python script must be in the specified path(s) to execute successfully.</li><li>If you don't set a script path, <MadCap:variable name="General.Liquibase" /> accepts any script path.</li></ul><MadCap:snippetBlock src="../../../Z_Resources/Snippets/note/checks-custom-policy-checks-isolation.flsnp" /></li>
         </ul>
         <p>For example, if you enable custom checks via the CLI and want to run all policy checks, including your new check:</p><pre><code class="language-text">liquibase checks run --checks-scripts-enabled=true</code></pre>
         <p> If you instead only want to run policy checks with the scope <code class="language-text">database</code> (such as this check), you must set the <code class="language-text">--checks-scope</code> parameter to <code class="language-text">database</code>:</p><pre><code class="language-text">liquibase checks run --checks-scope=database --checks-scripts-enabled=true</code></pre>
