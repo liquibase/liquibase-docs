@@ -51,14 +51,19 @@ import liquibase_utilities as lb
 import sys
 
 # define reusable variables
-obj = lb.get_database_object() # database object to examine
-liquibase_status = lb.get_status() # Status object of the check
+obj = lb.get_database_object()  # database object to examine
+liquibase_status = lb.get_status()  # Status object of the check
 
 # write check logic
-if lb.is_table(obj): # checks if the current object is a table
-    liquibase_status.fired = True # indicates that the custom check has been triggered
-    liquibase_status.message = "No tables allowed!" # message for Liquibase to return when check is triggered
-    sys.exit(1) # halt execution of the script
+# this condition checks if the current object is a table
+# and whether it starts with the prefix 'tbl_'
+if lb.is_table(obj) and not obj.getName().lower().startswith("tbl_"):
+    # indicate that the custom check has been triggered
+    liquibase_status.fired = True
+    # set the message for Liquibase to return when check is triggered
+    liquibase_status.message = "Tables must start with the prefix tbl_. Add this prefix."
+    # halt execution of the script
+    sys.exit(1)
 
 # default return code
 False</code></pre>
