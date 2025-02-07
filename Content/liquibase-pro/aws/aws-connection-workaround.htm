@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="Default.EXCLUDE">
+    <head>
+    </head>
+    <body>
+        <h1>AWS connection workaround</h1>
+        <p>You may encounter the error code "PKIX&#160;path building failed" if you are using <MadCap:variable name="General.Liquibase" /> MongoDB&#160;Pro with Amazon DocumentDB&#160;TLS/SSL&#160;Configuration alongside the <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-aws-extension">AWS extension</a> or the individual <MadCap:xref href="../secrets-management/aws-secrets-mgr.htm">AWS Secrets Manager Extension</MadCap:xref>. This is caused by a lack of required certificates in your custom Java Truststore. Follow the guide below to resolve the error.</p>
+        <h2>Error</h2><pre>Unexpected error running Liquibase: Unable to execute HTTP request: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target</pre>
+        <h2>Solution</h2>
+        <ol>
+            <li>Enter this command into the CLI&#160;to create a new combined truststore from your default Java CAcerts.I:<p>Linux syntax:</p><pre>keytool -importkeystore -srckeystore "$JAVA_HOME/lib/security/cacerts" -srcstorepass changeit -destkeystore s3-docdb-combined-truststore.jks -deststorepass MyCombinedPassword -noprompt
+</pre><p>Windows syntax: </p><pre>&lt;pre&gt;keytool -importkeystore -srckeystore "%JAVA_HOME%\lib\security\cacerts" -srcstorepass changeit -destkeystore s3-docdb-combined-truststore.jks -deststorepass MyCombinedPassword -noprompt</pre></li>
+            <li>
+                <p>Copy the new truststore to the same directory as your existing truststore.<br />In this example we will copy the new <code>s3-docdb-combined-truststore.jks</code> to the location of <code>rds-truststore.jks</code>.</p>
+            </li>
+            <li>
+                <p>Run this command to merge the contents of both truststores into one.<br /></p><pre>keytool -importkeystore -srckeystore rds-truststore.jks -srcstorepass SOME_PASSWORD -destkeystore s3-docdb-combined-truststore.jks -deststorepass MyCombinedPassword</pre>
+            </li>
+            <li>
+                <p>Run this command to set the <MadCap:xref href="../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref> for <MadCap:variable name="General.Liquibase" /> to recognize the new truststore:</p>
+                <p>Linux syntax:</p><pre>export JAVA_OPTS="-Djavax.net.ssl.trustStore=ABSOLUTE_PATH_TO_TRUSTSTORE/s3-docdb-combined-truststore.jks -Djavax.net.ssl.trustStorePassword=MyCombinedPassword"
+</pre>
+                <p>Windows syntax:</p><pre>JAVA_OPTS=-Djavax.net.ssl.trustStore=C:\path\to\s3-docdb-combined-truststore.jks -Djavax.net.ssl.trustStorePassword=MyCombinedPassword</pre>
+            </li>
+        </ol>
+    </body>
+</html>
