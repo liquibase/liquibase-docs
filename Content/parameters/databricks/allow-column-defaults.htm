@@ -3,7 +3,95 @@
     <head>
     </head>
     <body>
-        <h1>allowColumnDefaults</h1>
-        <p>Liquibase adds three table properties by default when creating an external table from a modelled changeset. </p>
+        <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1><code>[DELTA_CREATE_TABLE_WITH_DIFFERENT_PROPERTY] The specified properties do not match the existing properties</code> remedy</h1>
+        <p>As a Liquibase user who also uses the Databricks Delta Lake tool, you may encounter  the error code <code>[DELTA_CREATE_TABLE_WITH_DIFFERENT_PROPERTY] The specified properties do not match the existing properties</code> when you are using the <code><a href="https://docs.delta.io/latest/delta-default-columns.html"><code>allowColumnDefaults</code> Databricks</a></code> parameter. This parameter is specifically used with the Delta Lake <code>ALTER&#160;TABLE</code>&#160;command when managing tables. You can set default values for columns in a Delta table schema and ensures that new rows inserted into the table will have default values for columns that aren't explicitly given a value. This is helpful  when you want certain fields in your table to automatically receive a specific value when not provided. </p>
+        <h2>Issue</h2>
+        <p>When <MadCap:variable name="General.LBPro"></MadCap:variable> creates an external table from a modeled changeset it triggers the creation of these three table properties:</p>
+        <ul>
+            <li><code>delta.feature.allowColumnDefaults=supported</code>
+            </li>
+            <li><code>delta.columnMapping.mode=name</code>
+            </li>
+            <li><code>delta.enableDeletionVectors=true</code>
+            </li>
+        </ul>
+        <p>Databricks creates metadata for two of these properties in an external location, but not for <code>allowColumnDefaults</code>. If you delete the external table, you are not deleting the files for this table in external locations, so the metadata continues to exist. When you create this table after deleting it, the error occurs and properties will not match because Databricks will continue to look for the old, persisting metadata and not for the newly created table.</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>Error Message</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">Caused by: com.databricks.sql.transaction.tahoe.DeltaAnalysisException: [DELTA_CREATE_TABLE_WITH_DIFFERENT_PROPERTY] The specified properties do not match the existing properties at s3://databricks-test/test_table_properties.
+
+== Specified ==
+delta.columnMapping.mode=name
+delta.enableDeletionVectors=true
+delta.feature.allowcolumndefaults=supported
+
+== Existing ==
+delta.columnMapping.mode=name
+delta.enableDeletionVectors=true</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <p>This becomes an issue when you run <code>liquibase update</code> which creates an external table in the CICD&#160;pipeline. If a failure occurs at any point in the pipeline, and you delete the table with the reference rather than the source containing the metadata, the file in the external location remains. In this situation, <MadCap:variable name="General.LBPro" /> can't create a new table because Databricks is still referencing the old metadata property.</p>
+        <h2>Remedy</h2>
+        <h3>Option 1: Manual deletion</h3>
+        <p>Manually delete the table files in the external location.</p>
+        <p><b>Or</b>
+        </p>
+        <h3>Option 2:&#160;Use the default value instead of <code>allowColumnDefaults</code> property</h3>
+        <p>If you can't delete table files directly, you must create an external file using SQL changetype without specifying the <code>allowColumnDefaults</code> property and instead use the default value for a column.</p>
+        <ol>
+            <li>
+                <p>In this example, you commit this <MadCap:variable name="General.changeset" /> to your <MadCap:variable name="General.changelog" /> that contains your Databricks table properties:<br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: SQL;">&lt;changeSet id="1" author="test"&gt;
+      &lt;createTable tableName="test_table_properties"&gt;
+          &lt;column name="test_id" type="int"/&gt;
+          &lt;column name="test_column" type="varchar(50)" defaultValue="42"/&gt;
+          &lt;databricks:extendedTableProperties tableLocation="s3://databricks-test/test_table_properties"/&gt;
+      &lt;/createTable&gt;
+  &lt;/changeSet&gt;</MadCap:codeSnippetBody></MadCap:codeSnippet></p>
+                <p>Liquibase generates this SQL response and deploys the change successfully. The table and corresponding files are created in the S3 external location as expected:<br /></p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">CREATE TABLE main.testSchema.test_table_properties (test_id INT, test_column VARCHAR(50) DEFAULT '42') 
+USING delta TBLPROPERTIES('delta.feature.allowColumnDefaults' = 'supported', 'delta.columnMapping.mode' = 'name', 'delta.enableDeletionVectors' = true) 
+LOCATION 's3://databricks-test/test_table_properties';</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <li>
+                <p>The table containing the default files is dropped  by a rollback procedure. The files created in step 1 are deleted, but Liquibase and Databricks are still looking for the S3 location. If you try to deploy this to Databricks, you will see this error message:<br /></p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetCaption>
+                        <p>Error message</p>
+                    </MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">Caused by: com.databricks.sql.transaction.tahoe.DeltaAnalysisException: [DELTA_CREATE_TABLE_WITH_DIFFERENT_PROPERTY] The specified properties do not match the existing properties at s3://databricks-test/test_table_properties.
+
+== Specified ==
+delta.columnMapping.mode=name
+delta.enableDeletionVectors=true
+delta.feature.allowcolumndefaults=supported
+
+== Existing ==
+delta.columnMapping.mode=name
+delta.enableDeletionVectors=true</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <li>
+                <p>Rewrite this changeset into a SQL&#160;change without specifying allowColumnDefaults:</p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetCaption>
+                        <p>SQL change without <code>allowColumnDefaults</code></p>
+                    </MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve"> &lt;changeSet id="1" author="test"&gt;
+      &lt;sql&gt;CREATE TABLE main.testSchema.test_table_properties (test_id INT, test_column VARCHAR(50) DEFAULT '42')
+USING delta TBLPROPERTIES('delta.columnMapping.mode' = 'name', 'delta.enableDeletionVectors' = true)
+LOCATION 's3://databricks-test/test_table_properties';
+      &lt;/sql&gt;
+  &lt;/changeSet&gt;</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+        </ol>
     </body>
 </html>
