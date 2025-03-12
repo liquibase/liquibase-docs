@@ -3,7 +3,103 @@
     <head>
     </head>
     <body>
-        <h1>table-names-must-have-pk-or-named-npk</h1>
-        <p>Delete this text and replace it with your own content.</p>
+        <h1>TablesMustHavePkOrBeNamedNpk</h1>
+        <p>Database check to find tables that do not have a Primary Key AND do not contain "NPK" in their name. This check uses Check Chaining which requires Liquibase Pro 4.27.0+.</p>
+        <h2>Step-by-Step</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
+        <ol>
+            <li>Enter this command into the CLI:&#160;<br /><code>liquibase checks enable --check-name=ObjectNameMustNotMatch<![CDATA[
+]]></code><![CDATA[	]]></li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>TablenameContainsNPK</code></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set 'OPERATOR' (options: STARTS_WITH, ENDS_WITH, CONTAINS, REGEXP, EQUALS) [STARTS_WITH]:<br /><code>CONTAINS</code></p>
+            </li>
+            <li>
+                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>npk</code></p>
+            </li>
+            <li>
+                <p>Set 'OBJECT_TYPES' to check, separated by commas (options: TABLE, COLUMN, SEQUENCE, INDEX, SCHEMA):<br /><code>TABLE</code><br /></p>
+            </li>
+            <li>
+                <p>Set 'CASE_SENSITIVE' to <code>true</code> or <code>false</code> depending on how narrow you want your search to be.<br />In this example, we will set it to <code>false</code>.</p>
+            </li>
+            <li>
+                <p>Enter this command into the CLI:<br /><code>liquibase checks enable --check-name=ConstraintMustExist</code><br /></p>
+            </li>
+            <li>
+                <p>Give your check a short name for easier identification (up to 64 alpha-numeric characters only) [ConstraintMustExist1]:<br />TablesMustHavePK</p>
+            </li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set 'CONSTRAINT_OPERATOR' (options: STARTS_WITH, ENDS_WITH, CONTAINS, REGEXP, ALL) [STARTS_WITH]:<br /><code>ALL</code></p>
+            </li>
+            <li>
+                <p>Enter the required constraint(s), separated by commas (options: NOT_NULL, UNIQUE, PRIMARYKEY, FOREIGNKEY, DEFAULT) [PRIMARYKEY]:<br /><code>PRIMARYKEY</code></p>
+            </li>
+            <li>
+                <p>Set 'CASE_SENSITIVE' to <code>true</code> or <code>false</code> depending on how narrow you want your search to be.<br />In this example, we will set it to <code>true</code>.</p>
+            </li>
+            <li>
+                <p>Set 'MESSAGE' [A match for regular expression &lt;SEARCH_STRING&gt; was detected in Changeset .]:<br /><code>All tables must have primary key.</code></p>
+            </li>
+            <li>
+                <p>Enter this command into the CLI:<br /><code>liquibase checks copy --check-name=ChainedChecksTemplate</code></p>
+            </li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>TablesWithoutPKNamingStandard</code></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Enter the shortname, logic conditional (using &amp;&amp;, ||, !), and optional (groupings) for your checks. Example: "(shortname1 &amp;&amp; shortname2) || shortname3":<br /></p>
+                <p><code>TablesMustHavePK &amp;&amp; TablenameContainsNPK</code>
+                </p>
+            </li>
+            <li>
+                <p>Set 'MESSAGE' [A match for regular expression &lt;SEARCH_STRING&gt; was detected in Changeset .]:<br /><code>Tables without primary keys must have npk in the table name</code></p>
+            </li>
+        </ol>
+        <h2>Sample Passing Tables</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CREATE TABLE `tablenpk` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CREATE TABLE `tablewithpk` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Failing Table</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CREATE TABLE `tablewithoutpk` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Error Message</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">DATABASE CHECKS
+----------------
+Validation of the database snapshot found the following issues:
+
+Check Name:         Chained checks template (TablesWithoutPKNamingStandard)
+Object Type:        table
+Object Name:        tablewithoutpk
+Object Location:    horses.horses.tablewithoutpk
+Check Severity:     MAJOR (Return code: 2)
+Message:            Tables without primary keys must have npk in the table name</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
     </body>
 </html>
