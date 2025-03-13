@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="Default.EXCLUDE">
+    <head>
+    </head>
+    <body>
+        <h1>mongoCrCollectionValidatorChk</h1>
+        <p>Every db.createCollection statement must include a validator definition statement</p>
+        <p>regex: <code>(?is)(?=.*createCollection)^(?!.*validator\s)</code></p>
+        <h2>Step-by-Step</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
+        <ol>
+            <li>Enter this command into the CLI:&#160;<br /><code>liquibase checks customize --check-name=SqlUserDefinedPatternCheck
+</code><![CDATA[	]]></li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>mongoCrCollectionValidatorChk</code></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>(?is)(?=.*createCollection)^(?!.*validator\s)</code></p>
+            </li>
+            <li>
+                <p>Set the MESSAGE for when a match for regular expression &lt;SEARCH_STRING&gt; is found in a Changeset:<br /></p>
+                <p>Example:&#160;<code>A validator is not defined for the Collection that is being created in Mongo. Please add validator statement.</code></p>
+            </li>
+            <li>
+                <p>Set STRIP_COMMENTS to <code>true</code> if you want to remove the comments from the output.</p>
+                <p>The regex custom policy check is created successfully.<br /></p>
+            </li>
+        </ol>
+        <h2>Sample Passing Script</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">{
+            "changeSet": {
+                "id": "create_students-collection",
+                "author": "jennl",
+                "labels": "[jira-101],'version 1.0'",
+                "runWith": "mongosh",
+                "changes": [
+                  {
+                    "mongoFile": {
+                      "dbms": "mongodb",
+                      "path": "create-collection-students.js",
+                      "relativeToChangelogFile": true
+                    }
+                  }
+                  ],       
+                "rollback": [
+                    {
+                      "mongo": {
+                        "mongo": "db.students.drop()"
+                      }
+                    }
+                ]
+            }    
+        }
+--create-collection-students.js contents
+-- current bug in core is not finding QCs violation when this is embedded in changelog so
+--it is defined in separate file that contains what is passed to mongosh
+db.createCollection("students", {
+        validator: {
+                $jsonSchema: {
+                      bsonType: "object",
+                      title: "Student Document Validation",
+                      required: [ "name", "year", "major" ],
+                      properties: {
+                        name: {
+                            bsonType: "string",
+                            description: "name must be a string and is required"
+                        },
+                        year: {
+                            bsonType: "int",
+                            minimum: 2017,
+                            maximum: 3017,
+                            description: "year must be an integer between 2017 and 3017 and is required"
+                        },
+                        major: {
+                            enum: [ "Math", "English", "Computer Science", "History" ],
+                            description: "can only be one of the enum values and is required"
+                        }
+                    }
+                }
+        }
+    });
+</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Failing Scripts</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">{
+            "changeSet": {
+                "id": "create_students-collection",
+                "author": "jennl",
+                "labels": "[jira-101],'version 1.0'",
+                "runWith": "mongosh",
+                "changes": [
+                  {
+                    "mongoFile": {
+                      "dbms": "mongodb",
+                      "path": "create-collection-students-fails.js",
+                      "relativeToChangelogFile": true
+                    }
+                  }
+                  ],       
+                "rollback": [
+                    {
+                      "mongo": {
+                        "mongo": "db.students.drop()"
+                      }
+                    }
+                ]
+            }    
+        }
+--create-collection-students-fails.js contents
+-- current bug in core is not finding QCs violation when this is embedded in changelog so
+--it is defined in separate file that contains what is passed to mongosh
+db.createCollection("students");
+</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <p>Sample Error Message</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CHANGELOG CHECKS
+----------------
+Checks completed validation of the changelog and found the following issues:
+
+Check Name:         Check for specific patterns in sql (mongoCrCollectionValidatorChk)
+Changeset ID:       create_students-collection
+Changeset Filepath: dbchangelog.json
+Check Severity:     MINOR (Return code: 1)
+Message:            A validator is not defined for the Collection that is being
+                    created in Mongo. Please add validator statement.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+    </body>
+</html>
