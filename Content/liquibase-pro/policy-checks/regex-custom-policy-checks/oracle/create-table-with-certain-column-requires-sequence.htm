@@ -3,7 +3,71 @@
     <head>
     </head>
     <body>
-        <h1>create-table-with-certain-column-requires-sequence</h1>
-        <p>Delete this text and replace it with your own content.</p>
+        <h1>CreateTableWithCertainColumnRequiresSequence</h1>
+        <p>CREATE TABLE statement with a certain column (e.g., SQLKEY) requires that there must also be a CREATE SEQUENCE included.</p>
+        <p>regex: <code>(?is)(?=.*\b(create.*table.*sqlkey\s+number)\b)(?!.*\b(create\s+sequence)\b).*</code></p>
+        <h2>Step-by-Step</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
+        <ol>
+            <li>Enter this command into the CLI:&#160;<br /><code>liquibase checks customize --check-name=SqlUserDefinedPatternCheck
+</code><![CDATA[	]]></li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>CreateTableWithCertainColumnRequiresSequence</code></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>(?is)(?=.*\b(create.*table.*sqlkey\s+number)\b)(?!.*\b(create\s+sequence)\b).*</code></p>
+            </li>
+            <li>
+                <p>Set the MESSAGE for when a match for regular expression &lt;SEARCH_STRING&gt; is found in a Changeset:<br /></p>
+                <p>Example:&#160;<code>Error! SQLKEY column requires creation of a SEQUENCE. Ensure that you have a CREATE SEQUENCE in your changeset.</code></p>
+            </li>
+            <li>
+                <p>Set STRIP_COMMENTS to <code>true</code> if you want to remove the comments from the output.</p>
+            </li>
+            <li>
+                <p>Leave the PATH_FILTER_REGEX item blank.</p>
+            </li>
+            <li>
+                <p>Set 'SPLIT_STATEMENTS' to <code>false</code> so Liquibase <b>does not</b> split multiple SQL statements on the delimiter, and evaluate each individually.</p>
+            </li>
+        </ol>
+        <p>The regex custom policy check is created successfully.<br /></p>
+        <h2>Sample Passing Script</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:employee
+CREATE TABLE EMPLOYEE (
+   SQLKEY NUMBER(15,0),
+   EMPLOYEE_ID INT NOT NULL GENERATED ALWAYS AS IDENTITY	CONSTRAINT PEOPLE_PK PRIMARY KEY, 
+   FIRST_NAME VARCHAR(26),
+   LAST_NAME VARCHAR(26)
+);
+CREATE SEQUENCE SEQ_EMPLOYEE MINVALUE 1 MAXVALUE 999999999999 INCREMENT BY 1 START WITH 1 CACHE NOORDER NOCYCLE;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Failing Scripts</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:employee
+CREATE TABLE EMPLOYEE (
+   SQLKEY NUMBER(15,0),
+   EMPLOYEE_ID INT NOT NULL GENERATED ALWAYS AS IDENTITY	CONSTRAINT PEOPLE_PK PRIMARY KEY, 
+   FIRST_NAME VARCHAR(26),
+   LAST_NAME VARCHAR(26)
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Error Message</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CHANGELOG CHECKS
+----------------
+Checks completed validation of the changelog and found the following issues:
+
+Check Name:         Check for specific patterns in sql (CreateTableWithCertainColumnRequiresSequence)
+Changeset ID:       PMA0087
+Changeset Filepath: script1.sql
+Check Severity:     MAJOR (Return code: 2)
+Message:            Error! SQLKEY column requires creation of a SEQUENCE. Ensure that you have a CREATE SEQUENCE in your changeset.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
     </body>
 </html>
