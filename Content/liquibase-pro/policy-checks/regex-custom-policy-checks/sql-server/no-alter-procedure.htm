@@ -3,41 +3,41 @@
     <head>
     </head>
     <body>
-        <h1>NoDeleteWithoutWhere</h1>
-        <p>Every <code>DELETE</code> statement must also have a <code>WHERE</code> included.</p>
-        <p>regex: <code>(?is)(?=.*\b(delete)\b)(?!.*\b(where)\b).*</code></p>
+        <h1>NoAlterProcedure</h1>
+        <p>Every ALTER PROCEDURE statement should be flagged.</p>
+        <p>regex: <code>(?i:alter\s)\s*(?i:procedure\s)</code></p>
         <h2>Step-by-Step</h2>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
         <ol>
             <li>Enter this command into the CLI:&#160;<br /><code>liquibase checks customize --check-name=SqlUserDefinedPatternCheck
 </code><![CDATA[	]]></li>
-            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>NoDeleteWithoutWhere</code></li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>NoAlterProcedure</code></li>
             <li>
                 <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
             </li>
             <li>
-                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>(?is)(?=.*\b(delete)\b)(?!.*\b(where)\b).*</code></p>
+                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>(?i:alter\s)\s*(?i:procedure\s)</code></p>
             </li>
             <li>
                 <p>Set the MESSAGE for when a match for regular expression &lt;SEARCH_STRING&gt; is found in a Changeset:<br /></p>
-                <p>Example:&#160;<code>Error! All DELETE statements must have a WHERE clause.</code></p>
+                <p>Example:&#160;<code>Error! ALTER PROCEDURE not allowed.</code></p>
             </li>
             <li>
                 <p>Set STRIP_COMMENTS to <code>true</code> if you want to remove the comments from the output.</p>
                 <p>The regex custom policy check is created successfully.<br /></p>
             </li>
         </ol>
-        <h2>Sample Passing Script</h2>
-        <MadCap:codeSnippet>
-            <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:delete
-DELETE FROM customers WHERE ID='1';</MadCap:codeSnippetBody>
-        </MadCap:codeSnippet>
         <h2>Sample Failing Scripts</h2>
         <MadCap:codeSnippet>
             <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:delete
-DELETE FROM customers;</MadCap:codeSnippetBody>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:alter_CustOrderHist
+ALTER PROCEDURE [dbo].[CustOrderHist] @CustomerID nchar(5)
+AS
+SELECT ProductName, Total=SUM(Quantity)
+FROM Products P, [Order Details] OD, Orders O, Customers C
+WHERE C.CustomerID = @CustomerID
+AND C.CustomerID = O.CustomerID AND O.OrderID = OD.OrderID AND OD.ProductID = P.ProductID
+GROUP BY ProductName</MadCap:codeSnippetBody>
         </MadCap:codeSnippet>
         <h2>Sample Error Message</h2>
         <MadCap:codeSnippet>
@@ -46,12 +46,11 @@ DELETE FROM customers;</MadCap:codeSnippetBody>
 ----------------
 Checks completed validation of the changelog and found the following issues:
 
-Check Name:         Check for specific patterns in sql (NoDeleteWithoutWhere)
-Changeset ID:       delete
-Changeset Filepath: main/QCs/delete_from_table.sql
+Check Name:         Check for specific patterns in sql (NoAlterProcedure)
+Changeset ID:       alter_CustOrderHist
+Changeset Filepath: changeLogs/2_objects/02_storedprocedure/alter_CustOrderHist.sql
 Check Severity:     BLOCKER (Return code: 4)
-Message:            Error! All DELETE statements must have a WHERE clause.
-</MadCap:codeSnippetBody>
+Message:            Error! ALTER PROCEDURE not allowed.</MadCap:codeSnippetBody>
         </MadCap:codeSnippet>
     </body>
 </html>
