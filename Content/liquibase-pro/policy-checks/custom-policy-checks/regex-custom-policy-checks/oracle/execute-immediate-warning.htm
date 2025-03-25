@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/regex-custom-policy-checks/oracle/execute-immediate-warning" />
+        <meta name="description" content="ExecuteImmediateWarning is a custom policy check that warns you if any EXECUTE IMMEDIATE statements are detected." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>ExecuteImmediateWarning</h1>
+        <p><code>ExecuteImmediateWarning</code> is a custom policy check that warns you if any <code>EXECUTE IMMEDIATE</code> statements are detected.</p>
+        <p>regex: <code>[\t\n\r\s]*(?i:execute)[\t\n\r\s]*(?i:immediate\s)</code></p>
+        <h2>Step-by-Step</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
+        <ol>
+            <li>Enter this command into the CLI:&#160;<br /><code>liquibase checks customize --check-name=SqlUserDefinedPatternCheck
+</code><![CDATA[	]]></li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>ExecuteImmediateWarning</code></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>[\t\n\r\s]*(?i:execute)[\t\n\r\s]*(?i:immediate\s)</code></p>
+            </li>
+            <li>
+                <p>Set the MESSAGE for when a match for regular expression &lt;SEARCH_STRING&gt; is found in a Changeset:<br /></p>
+                <p>Example:&#160;<code>Warning! EXECUTE IMMEDIATE statements found.</code></p>
+            </li>
+            <li>
+                <p>Set STRIP_COMMENTS to <code>true</code> if you want to remove the comments from the output.</p>
+                <p>The regex custom policy check is created successfully.<br /></p>
+            </li>
+        </ol>
+        <h2>Sample Failing Scripts</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:execute_immediate
+DECLARE
+   sql_stmt    VARCHAR2(200);
+   plsql_block VARCHAR2(500);
+   emp_id      NUMBER(4) := 7566;
+   salary      NUMBER(7,2);
+   dept_id     NUMBER(2) := 50;
+   dept_name   VARCHAR2(14) := 'PERSONNEL';
+   location    VARCHAR2(13) := 'DALLAS';
+   emp_rec     emp%ROWTYPE;
+BEGIN
+   EXECUTE IMMEDIATE 'CREATE TABLE bonus (id NUMBER, amt NUMBER)';
+   sql_stmt := 'INSERT INTO dept VALUES (:1, :2, :3)';
+   EXECUTE IMMEDIATE sql_stmt USING dept_id, dept_name, location;
+   sql_stmt := 'SELECT * FROM emp WHERE empno = :id';
+   EXECUTE IMMEDIATE sql_stmt INTO emp_rec USING emp_id;
+   plsql_block := 'BEGIN emp_pkg.raise_salary(:id, :amt); END;';
+   EXECUTE IMMEDIATE plsql_block USING 7788, 500;
+   sql_stmt := 'UPDATE emp SET sal = 2000 WHERE empno = :1
+      RETURNING sal INTO :2';
+   EXECUTE IMMEDIATE sql_stmt USING emp_id RETURNING INTO salary;
+   EXECUTE IMMEDIATE 'DELETE FROM dept WHERE deptno = :num'
+      USING dept_id;
+   EXECUTE IMMEDIATE 'ALTER SESSION SET SQL_TRACE TRUE';
+END;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Error Message</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CHANGELOG CHECKS
+----------------
+Checks completed validation of the changelog and found the following issues:
+
+Check Name:         Check for specific patterns in sql (ExecuteImmediateWarning)
+Changeset ID:       execute_immediate
+Changeset Filepath: changeLogs/2_objects/02_storedprocedure/execute_immediate.sql
+Check Severity:     INFO (Return code: 0)
+Message:            Warning! EXECUTE IMMEDIATE statements found.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+    </body>
+</html>

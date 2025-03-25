@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/regex-custom-policy-checks/any-database/table-names-must-uppercase.html" />
+        <meta name="description" content="viewsMustHaveCreateReplaceViewOnly is a custom policy check that requires all changesets in the Views folder to have a CREATE OR REPLACE VIEW statement." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>viewsMustHaveCreateReplaceViewOnly</h1>
+        <p><code>viewsMustHaveCreateReplaceViewOnly</code> is a custom policy check that requires all changesets in the Views folder to have a <code>CREATE OR REPLACE VIEW</code> statement.
+
+<br />regex: <code>(?is)^((?!create\s*or\s*replace\s*view).)*$
+
+path_filter_regex: Views\/.*</code></p>
+        <h2>Step-by-Step</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
+        <ol>
+            <li>Enter this command into the CLI:&#160;<br /><code>liquibase checks customize --check-name=SqlUserDefinedPatternCheck
+</code><![CDATA[	]]></li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>ViewsMustHaveCreateOrReplaceViewOnly</code></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>(?is)^((?!create\s*or\s*replace\s*view).)*$</code></p>
+            </li>
+            <li>
+                <p>Set the MESSAGE for when a match for regular expression &lt;SEARCH_STRING&gt; is found in a Changeset:<br /></p>
+                <p>Example:&#160;<code>Views must have CREATE OR REPLACE VIEW statement.</code></p>
+            </li>
+            <li>
+                <p>Set STRIP_COMMENTS to <code>true</code> if you want to remove the comments from the output.</p>
+            </li>
+            <li>
+                <p>Set 'PATH_FILTER_REGEX':<br /></p>
+                <p><code>Views\/.*</code>
+                </p>
+            </li>
+        </ol>
+        <p>The regex custom policy check is created successfully.<br /></p>
+        <h2>Sample Passing Changeset</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset user.name:films_01_vw labels:CRQ123456
+CREATE OR REPLACE VIEW films_01_vw(name,id) AS (
+  SELECT
+    name,id
+  FROM
+    films_01
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Failing Changeset</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset user.name:films_01_vw labels:CRQ123456
+CREATE VIEW films_01_vw(name,id) AS (
+  SELECT
+    name,id
+  FROM
+    films_01
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Error Message</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CHANGELOG CHECKS
+----------------
+Checks completed validation of the changelog and found the following issues:
+
+Check Name:         Check for specific patterns in sql (ViewsMustHaveCreateOrReplaceViewOnly)
+Changeset ID:       new-view
+Changeset Filepath: Views/bad_view.sql
+Check Severity:     MAJOR (Return code: 2)
+Message:            Views must have CREATE OR REPLACE VIEW statement.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+    </body>
+</html>

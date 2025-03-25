@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/regex-custom-policy-checks/any-database/enumeration-list-context.html" />
+        <meta name="description" content="enumerationListContext is a custom policy check that tells Liquibase that IF a context is provided, the context value must match a specified pattern. .   " />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1><code>enumerationListContext</code>
+        </h1>
+        <p><code>enumerationListContext</code> is a custom policy check that tells <MadCap:variable name="General.Liquibase" /> that <b>if</b> a context is provided, the context value must match a specified pattern. This is different from <code>UserDefinedContextCheck</code> because context is <b>not required</b> in this check. </p>
+        <h2>Step-by-step</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />. This check uses Check Chaining which requires Liquibase Pro 4.27.0+.
+</p>
+        <h3>Create a context value for <MadCap:variable name="General.CompanyName" /> to look for</h3>
+        <ol>
+            <li>First we must provide Liquibase with a context value. <br />Enter <code>liquibase checks copy --check-name=UserDefinedContextCheck</code> into the CLI.</li>
+            <li>
+                <p>Give your check a short name for easier identification (up to 64 alpha-numeric characters only) In this example we will use <code>ContextEnvironmentsDevUatProd</code></p>
+            </li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />(options: 'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4)</p>
+            </li>
+            <li>
+                <p>Set the OPERATOR to one of these options: STARTS_WITH, ENDS_WITH, CONTAINS, REGEXP, EQUALS) [STARTS_WITH].<br />In this example, since we are creating a regex check, we will set the operator to <code>REGEXP</code>.</p>
+            </li>
+            <li>
+                <p>Set the SEARCH_STRING to  this valid regular expression:<br /><code>(?i:(|(|!)DEV|(|!)UAT|(|!)PROD))</code></p>
+            </li>
+        </ol>
+        <h3>Create the EnumerationListContext</h3>
+        <ol>
+            <li>
+                <p>Enter this into the CLI to create the EnumerationListContext:<br /><code>liquibase checks copy --check-name=ChainedChecksTemplate</code></p>
+            </li>
+            <li>
+                <p>Enter the shortname, logic conditional (using <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>), and optional groupings for your checks. <br />Formula Example: <code>(shortname1 &amp;&amp; shortname2) || shortname3</code><br />In this example we will enter this into the CLI:<br /><code>(!ChangesetContextCheck &amp;&amp; ContextEnvironmentsDevUatProd)</code></p>
+            </li>
+            <li>
+                <p>Set 'MESSAGE' A match for regular expression &lt;SEARCH_STRING&gt; was detected in Changeset .]:<br />For this check, we will enter:&#160;<code>If context is provided, value must be DEV, UAT, or PROD.</code></p>
+            </li>
+        </ol>
+        <p>The regex custom policy check is created successfully.<br /></p>
+        <h2>Sample Passing Changesets</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset ASmith:table01 context:PROD
+create table table01 (
+	id numeric not null,
+	name varchar (255)
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Failing Changeset</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset ASmith:table01 context:INVALID_ENVIRONMENT
+create table table01 (
+	id numeric not null,
+	name varchar (255)
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Error Message</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">DATABASE CHECKS
+----------------
+Checks completed validation of the changelog and found the following issues:
+
+Check Name:         Chained checks template (EnumerationListContext)
+Changeset ID:       table01
+Changeset Filepath: changelogs/changelog.sql
+Check Severity:     MAJOR (Return code: 2)
+Message:            If context is provided, value must be DEV, UAT, or PROD.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+    </body>
+</html>

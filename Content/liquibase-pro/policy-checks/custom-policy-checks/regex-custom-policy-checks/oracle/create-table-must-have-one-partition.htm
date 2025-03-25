@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/regex-custom-policy-checks/oracle/create-table-must-have-one-partition" />
+        <meta name="description" content="CreateTableMustHaveOneGrant is a custom policy check that requires every CREATE TABLE statement to also have at least one PARTITION included." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <h1>CreateTableMustHavePartition</h1>
+        <p><code>CreateTableMustHaveOnePartition</code> is a custom policy check that requires every <code>CREATE TABLE</code> statement to also have at least one <code>PARTITION</code> included.</p>
+        <p>regex: <code>(?is)(?=.*\b(create)\b)(?=.*\b(table)\b)(?!.*\b(partition)\b).*</code></p>
+        <h2>Step-by-Step</h2>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">These steps describe how to create the custom policy check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
+        <ol>
+            <li>Enter this command into the CLI:&#160;<br /><code>liquibase checks customize --check-name=SqlUserDefinedPatternCheck
+</code><![CDATA[	]]></li>
+            <li>Give your check a short name for easier identification. In this example we will title the check: <br /><code>CreateTableMustHavePartition</code></li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. <br />Options: <code>'INFO'=0, 'MINOR'=1, 'MAJOR'=2, 'CRITICAL'=3, 'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set the SEARCH_STRING to this valid regular expression:<br /><code>(?is)(?=.*\b(create)\b)(?=.*\b(table)\b)(?!.*\b(partition)\b).*</code></p>
+            </li>
+            <li>
+                <p>Set the MESSAGE for when a match for regular expression &lt;SEARCH_STRING&gt; is found in a Changeset:<br /></p>
+                <p>Example:&#160;<code>Error! CREATE TABLE statement include PARTITION information.</code></p>
+            </li>
+            <li>
+                <p>Set STRIP_COMMENTS to <code>true</code> if you want to remove the comments from the output.</p>
+                <p>The regex custom policy check is created successfully.<br /></p>
+            </li>
+        </ol>
+        <h2>Sample Passing Script</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:employee
+CREATE TABLE employee (
+   id  NUMBER(5), 
+   name VARCHAR2(30), 
+   week_no NUMBER(2)) 
+   PARTITION BY HASH(id) 
+   PARTITIONS 4 
+   STORE IN (data1, data2, data3, data4
+);</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Failing Scripts</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">--changeset amalik:sales
+CREATE TABLE sales (
+   salesman_id  NUMBER(5), 
+   salesman_name VARCHAR2(30), 
+   sales_amount  NUMBER(10), 
+   week_no       NUMBER(2)
+);
+
+--changeset amalik:company
+CREATE TABLE COMPANY (
+   COMPANY_ID INT NOT NULL, 
+   BOOKING_DATE DATE NOT NULL,
+	ROOMS_TAKEN INT DEFAULT 0, 
+;</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+        <h2>Sample Error Message</h2>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">CHANGELOG CHECKS
+----------------
+Checks completed validation of the changelog and found the following issues:
+
+Check Name:         Check for specific patterns in sql (CreateTableMustHavePrimaryKey)
+Changeset ID:       employee
+Changeset Filepath: changeLogs/1_tables/01_createTable1.sql
+Check Severity:     INFO (Return code: 0)
+Message:            Error! CREATE TABLE statement include PARTITION information.</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
+    </body>
+</html>
