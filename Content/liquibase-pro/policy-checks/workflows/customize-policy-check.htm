@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1>Customizing a Policy Check</h1>
+        <p>Some default Policy Checks have customization options that allow you to adjust the parameters  used to determine whether a <MadCap:variable name="General.changeset" /> meets the criteria of the check.  You can adjust these parameters using the <MadCap:xref href="../../../commands/policy-checks/subcommands/copy.htm">copy</MadCap:xref> or <MadCap:xref href="../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> command.</p>
+        <h2>Step-by-step</h2>
+        <p>In this example we will create a check that finds table truncation statements in a sample <MadCap:variable name="General.changelog" /> by generating a copy of the <code class="language-text">SqlUserDefinedPatternCheck</code> check. </p>
+        <ol>
+            <li>Run this command in the CLI to create a copy of the check. The copy of the check will become the customized policy check:</li><pre xml:space="preserve"><code class="language-text">liquibase checks copy --check-name=SqlUserDefinedPatternCheck</code></pre>
+        </ol>
+        <ol start="2">
+            <li>When you see the below instructions in the CLI, provide a short name. A short name is a descriptive name that indicates what you want the check to search for in the database or <MadCap:variable name="General.changelog" />.<br />In this example we will provide <code>SqlTruncateCheck</code> as the short name because we will be searching for any instances of <code>Truncate</code>.<br />The CLI&#160;will indicate that the new check was created from&#160;SqlUserDefinedPattern check successfully.:<pre>
+New check 'SqlTruncateCheck' created from 'SqlUserDefinedPatternCheck'</pre></li>
+            <li>When you see the below instructions in the CLI, provide a search string.<br />In this example, we will use <code>TRUNCATE</code>&#160;because this check will search the database or changelog for the <code>TRUNCATE</code>&#160;label.<br /><pre><code class="language-text">
+Set 'SEARCH_STRING' (current: 'null'):
+(?i)^(\s*)(TRUNCATE)
+</code></pre></li>
+            <li> When you see the below instructions in the CLI, provide a message for your check. This message should indicate that the check you are creating is triggered. You can type custom values, or press the Enter/Return key to use the default values:</li><pre><code class="language-text">Set 'MESSAGE' (current: 'A match for regular expression &lt;SEARCH_STRING&gt; was detected in Changeset &lt;CHANGESET&gt;.') (default "A match for regular expression &lt;SEARCH_STRING&gt; was detected in Changeset &lt;CHANGESET&gt;."):
+</code></pre>
+            <li>In this example, we will use this as our message:</li><pre><code class="language-text">Table truncation detected.  Review this changeset to ensure data is not unintentionally deleted.
+</code></pre>
+            <li>The CLI&#160;will prompt you to review the table to confirm the customization:</li><pre><code class="language-text">Customization complete. Review the table below to confirm your changes.</code></pre>
+            <p>After you complete these tasks, the checks configuration displays for your review.</p>
+            <li>Add the following to the <code class="language-text">changelog.sql</code> file and save your changes:</li><pre><code class="language-text">--changeset other.dev:4 labels:v0 context:all
+truncate person;</code></pre>
+            <li>Execute the <code class="language-text">run</code> subcommand again:</li><pre xml:space="preserve"><code class="language-text">liquibase checks run</code></pre>
+            <p>The new check indicates that there is an issue with your new <MadCap:variable name="General.changeset" />:</p><pre><code class="language-text">Checks completed validation of the changelog and found the following issues:
+Changeset ID:       5
+Changeset Filepath: changelog.sql
+Check Name:         Check for specific patterns in sql (SqlUserDefinedPatternCheck)
+Message:            Table truncation detected.  Review this changeset to ensure
+                    data is not unintentionally deleted.</code></pre>
+        </ol>
+        <p>With this knowledge provided by the customized policy check, you can investigate the table truncation and resolve it before proceeding with any deployments to the database.</p>
+    </body>
+</html>
