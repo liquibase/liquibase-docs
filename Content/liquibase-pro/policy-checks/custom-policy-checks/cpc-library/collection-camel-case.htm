@@ -1,15 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title><MadCap:variable name="Heading.Level1" /></title>
-        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-library/varchar-max-size.html" />
-        <meta name="description" content="varcharMaxSize is a custom policy check that ensures all VARCHAR columns are under a maximum size." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <head>
     </head>
     <body>
         <MadCap:snippetBlock src="../../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
-        <h1><code>varcharMaxSize</code>
+        <h1><code>collectionMustHaveValidator</code>
         </h1>
-        <p><code>varcharMaxSize </code>is a custom policy check that ensures all <code>VARCHAR</code> columns are under a maximum size.</p>
+        <p><code>collectionMustHaveValidator</code> is a custom policy check that  checks for a validator when creating a new collection.</p>
+        <p>Learn how to create and customize the <code>collectionMustHaveValidator</code> Liquibase Custom Policy Check using a Python script. For a conceptual overview of this feature, see <MadCap:xref href="../home.htm">Custom Policy Checks</MadCap:xref>.</p>
         <h2>Prerequisites</h2>
         <h3>Liquibase prerequisites</h3>
         <ul>
@@ -52,17 +50,24 @@
                 <p>Add this code to your <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/workflows/checks-settings-file.html">Checks Settings file</a>: </p>
                 <MadCap:codeSnippet>
                     <MadCap:codeSnippetCopyButton />
-                    <MadCap:codeSnippetCaption>varcharMaxSize Quotes Python Script</MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetCaption>
+                        <p>collectionMustHaveValidator Python Script</p>
+                    </MadCap:codeSnippetCaption>
                     <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">###
-### This script ensures all VARCHAR columns are under a maximum size
+### This script checks for a validator when creating a new collection
 ###
-### Notes:
 
 ###
 ### Helpers come from Liquibase
 ###
 import sys
+import liquibase_database
 import liquibase_utilities
+
+###
+### Constants
+###
+NOSQL_DATABASES = ["MongoDB"]
 
 ###
 ### Retrieve log handler
@@ -76,26 +81,36 @@ liquibase_logger = liquibase_utilities.get_logger()
 liquibase_status = liquibase_utilities.get_status()
 
 ###
-### Retrive maximum size from check definition
+### Check for Mongo
 ###
-max_size = int(liquibase_utilities.get_arg("VARCHAR_MAX"))
+current_database = liquibase_utilities.get_database()
+product_name = liquibase_database.get_short_name(current_database)
+if not product_name.casefold() in map(str.casefold, NOSQL_DATABASES):
+    liquibase_logger.info(f"Database {product_name} ignored")
+    liquibase_status.fired = False
+    sys.exit(1)
 
 ###
-### Retrieve database object
+### Retrieve all changes in changeset
 ###
-database_object = liquibase_utilities.get_database_object()
+changes = liquibase_utilities.get_changeset().getChanges()
 
 ###
-### Skip if not a varchar column
+### Loop through all changes
 ###
-if "column" in database_object.getObjectTypeName().lower() and "varchar" in str(database_object.getType()).lower():
-    column_name = database_object.getName()
-    column_size = int(database_object.getType().getColumnSize())
-    if column_size &gt; max_size:
+for change in changes:
+    ###
+    ### Retrieve sql as string, remove extra whitespace
+    ###
+    raw_sql = liquibase_utilities.strip_comments(liquibase_utilities.generate_sql(change)).casefold()
+    raw_sql = " ".join(raw_sql.split())
+
+    ###
+    ### Look for createCollection
+    ###
+    if "createcollection" in raw_sql and not "validator:" in raw_sql:
         liquibase_status.fired = True
-        status_message = str(liquibase_utilities.get_script_message()).replace("__COLUMN_NAME__", f"'{column_name}'")
-        status_message = status_message.replace("__COLUMN_SIZE__", f"{max_size}")
-        liquibase_status.message = status_message
+        liquibase_status.message = liquibase_utilities.get_script_message()
         sys.exit(1)
 
 ###
@@ -109,19 +124,20 @@ False</MadCap:codeSnippetBody>
                 <p>Liquibase will then create a copy of <code class="language-text">CustomCheckTemplate</code> and initiate the customization workflow.</p>
             </li>
             <li>
-                <p>Give your check a short name so you can easily identify what Python script it is associated with (up to 64 alpha-numeric characters only).<br />In this example we will name the check:<br /><code>varcharMaxSize</code></p>
+                <p>Give your check a short name so you can easily identify what Python script it is associated with (up to 64 alpha-numeric characters only).<br />In this example we will name the check:<br /><code>collectionMustHaveValidator</code></p>
             </li>
             <li>
                 <p>Set the Severity to return a code of 0-4 when triggered. These severity codes allow you to determine if the job moves forward or stops when this check triggers. <br />Learn more here:&#160;<MadCap:xref href="../../workflows/automation-severity-exit-code.htm">Use Policy Checks in Automation: Severity and Exit Code</MadCap:xref><br />options: <code>'INFO'=0</code>, <code>'MINOR'=1</code>,<code> 'MAJOR'=2</code>,<code> 'CRITICAL'=3</code>, <code>'BLOCKER'=4</code></p>
             </li>
-            <li>Set <b><code class="language-text">SCRIPT_DESCRIPTION</code></b>. In this example, we will set the description to:<pre><code class="language-text">This script ensures all VARCHAR&#160;columns do not exceed VARCHAR_MAX&#160;size.</code></pre></li>
+            <li>Set <b><code class="language-text">SCRIPT_DESCRIPTION</code></b>. In this example, we will set the description to:<pre><code class="language-text">This script checks for a validator when creating a new collection.</code></pre></li>
+            <li>Set <b><code class="language-text">SCRIPT_SCOPE</code></b>. In this example, we will set the scope to <code class="language-text">changelog</code>.
+                </li>
             <ul>
-                <li>Set <b><code class="language-text">SCRIPT_SCOPE</code></b>. In this example, we will set the scope to <code class="language-text">database</code>.                 </li>
+                <li><code class="language-text">changelog</code>: for example, if your check looks for syntax patterns or attributes in your Liquibase&#160;<MadCap:xref href="../../../../concepts/changelogs/home.html">Changelog</MadCap:xref> (the changes you author in your repository). With this value, the check runs <b>once per <MadCap:variable name="General.changeset"></MadCap:variable></b>. </li>
             </ul>
-            <li><code class="language-text">database</code>: for example, if your check looks for the presence of keys, indexes, or table name patterns in your database schema (including Liquibase&#160;<MadCap:xref href="../../../../concepts/tracking-tables/tracking-tables.htm">Tracking Tables</MadCap:xref>). With this value, the check runs <b>once for each database object</b>.</li>
-            <li>Set the <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will use:<br /><code class="language-text">This script identified that Column __COLUMN_NAME__&#160;exceeds __COLUMN_SIZE__.</code></li>
-            <li>Set the <b><code class="language-text">SCRIPT_PATH</code></b>. This is the relative path where your script is stored in relation to the <MadCap:variable name="General.changelog" /> specified in <code class="language-text">--changelog-file</code>, whether it is stored locally or in a repository. <br />In this example, we will set the path to: <code class="language-text">scripts/varchar-max-size.py</code>.</li>
-            <li>Set the <b><code class="language-text">SCRIPT_ARGUMENT</code></b>. This allows you to pass dynamic information into the Custom Policy Check without modifying the Python code. This is important so you do not hard code values into your check that may change over time or if you have different teams with different thresholds.<br /><br />In this example, specify <code>VARCHAR_MAX=255</code> in the CLI to specify that the character max is 255.<br /><br />If you <MadCap:xref href="../../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> your check later, you can specify a new value in the&#160;CLI. If you don't need dynamic arguments, leave this field blank.</li>
+            <li>Set the <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will use:<br /><code class="language-text"><code class="language-text">Collection __COLLECTION__ must be camelCase. It is recommended you fix the casing before proceeding.</code></code></li>
+            <li>Set the <b><code class="language-text">SCRIPT_PATH</code></b>. This is the relative path where your script is stored in relation to the <MadCap:variable name="General.changelog" /> specified in <code class="language-text">--changelog-file</code>, whether it is stored locally or in a repository. <br />In this example, we will set the path to: <code class="language-text">scripts/collection-camel-case.py</code>.</li>
+            <li>This Custom Policy Check does not need a <b><code class="language-text">SCRIPT_ARGUMENT</code></b>, so leave it blank. </li>
             <li>Set the <b><code class="language-text">REQUIRES_SNAPSHOT</code></b>. If your script scope is <code class="language-text">changelog</code>, set whether the check requires a database <MadCap:xref href="../../../../commands/inspection/snapshot.html">snapshot</MadCap:xref>. Specify <code class="language-text">true</code> if your check needs to inspect database objects. (If your script scope is <code class="language-text">database</code>, Liquibase always takes a snapshot, so this prompt does not appear.)</li>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The larger your database, the more performance impact a snapshot causes. If you cannot run a snapshot due to memory limitations, see <MadCap:xref href="../../../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
         </ol>
@@ -133,13 +149,8 @@ False</MadCap:codeSnippetBody>
             </li>
         </ul>
         <h3>Related Topics</h3>
-        <ul>
-            <li>
-                <MadCap:xref href="../sample-scripts.htm">Sample Custom Policy Check Scripts</MadCap:xref>
-            </li>
-            <li>
-                <MadCap:xref href="../home.htm">Custom Policy Checks</MadCap:xref>
-            </li>
-        </ul>
+        <p>
+            <MadCap:xref href="../sample-scripts.htm">Sample Custom Policy Check Scripts</MadCap:xref>
+        </p>
     </body>
 </html>
