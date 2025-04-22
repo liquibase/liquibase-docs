@@ -6,7 +6,7 @@
         <MadCap:snippetBlock src="../../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <h1><code>varchar2MustUseChar</code>
         </h1>
-        <p><code>timestampColumnName </code>is a custom policy check that ensures a varchar 2 column states char. The default is byes, but Liquibase prefers char.</p>
+        <p><code>varchar2MustUseChar </code>is a custom policy check that ensures a<code> varchar 2</code> column states <code>char</code>. The default is <code>bytes</code>, but Liquibase prefers <code>char</code>.</p>
         <p>Learn how to create and customize the <code>varchar2MustUseChar</code> Liquibase Custom Policy Check using a Python script. For a conceptual overview of this feature, see <MadCap:xref href="../home.htm">Custom Policy Checks</MadCap:xref>.</p>
         <h2>Prerequisites</h2>
         <h3>Liquibase prerequisites</h3>
@@ -51,19 +51,19 @@
                 <MadCap:codeSnippet>
                     <MadCap:codeSnippetCopyButton />
                     <MadCap:codeSnippetCaption>varchar2MustUseChar Quotes Python Script</MadCap:codeSnippetCaption>
-                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">###
-### This script checks ensures that all columns of a specified type include a postfix
-### e.g., timestamp columns must include _ts at the end
-###
-### Notes:
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">###  Copyright 2024 Liquibase, Inc.
+### This script ensures a varchar2 column states char
+### default is bytes but we prefer char
+### Limitations:
 ###
 
 ###
-### Helpers come from Liquibase
+### Script helper comes from Liquibase
 ###
 import liquibase_utilities
-import sqlparse
 import sys
+import liquibase_changesets
+
 
 ###
 ### main
@@ -80,11 +80,6 @@ liquibase_logger = liquibase_utilities.get_logger()
 ###
 liquibase_status = liquibase_utilities.get_status()
 
-###
-### Retrive column information from check definition
-###
-column_check = liquibase_utilities.get_arg("COLUMN_TYPE").casefold()
-column_postfix = liquibase_utilities.get_arg("COLUMN_POSTFIX").casefold()
 
 ###
 ### Retrieve all changes in changeset
@@ -107,37 +102,61 @@ for change in changes:
     raw_sql = liquibase_utilities.strip_comments(liquibase_utilities.generate_sql(change)).casefold()
     raw_sql = " ".join(raw_sql.split())
     raw_statements = liquibase_utilities.split_statements(raw_sql)
+    # print(f"Raw statements: {raw_statements}")
     ###
     ### Process each statement
     ###
     for raw_statement in raw_statements:
-        column_list_detail = []
-        is_create, is_table = False, False
-        token_list = [token for token in liquibase_utilities.tokenize(raw_statement) if not token.is_whitespace]
-        for token in token_list:
-            if token.ttype == sqlparse.tokens.DDL and token.value == "create":
-                is_create = True
-            elif is_create and token.ttype == sqlparse.tokens.Keyword and token.value == "table":
-                is_table = True
-            elif is_create and is_table and token.value.startswith("("):
-                columns = token.value[1:token.value.rfind(")")].replace("\n","").split(",")
-                for column in columns:
-                    column_list_detail.append(' '.join(column.split()).split())
-                break
-        if (is_create == False or is_table == False):
-            liquibase_logger.info(f"Non create table statement skipped: {raw_statement}")
+        sql_list = raw_statement.split()
+        ###
+        ### CREATE [SCHEMA.]TABLE NAME (column1 datatype1, column2 datatype2, ...)
+        ###
+        try:
+            if sql_list[0] == "create" and sql_list[1] == "table":
+                ###
+                ### Remove schema and parenthesis if provided
+                ###
+                table_name = sql_list[2].split(".")[-1]
+                start = table_name.rfind("(")
+                if start != -1:
+                    table_name = table_name[0:start]
+            else:
+                raise UserWarning
+        except IndexError:
+            liquibase_logger.warning(f"Unsupported Create Table statement skipped: {raw_statement}")
+            continue
+        except UserWarning:
+            liquibase_logger.info(f"Non Create Index statement skipped: {raw_statement}")
             continue
         ###
         ### Process column list
         ###
-        postfix_len = len(column_postfix)
-        for column in column_list_detail:
-            column_name = column[0].replace("\"","")
-            column_type = column[1]
-            if column_type == column_check and column_name[-postfix_len:] != column_postfix:
+        column_list = []
+        search_string = f"{table_name} ("
+        start = raw_statement.find(search_string)
+        if start == -1:
+            liquibase_logger.warning(f"Unsupported Create Table statement skipped: {raw_statement}")
+            continue
+        start += len(search_string)
+        end = raw_statement.rfind(")")
+        if end != -1:
+            column_list = [column_info.strip() for column_info in raw_statement[start:end].split(",")]
+        ###
+        ### Look for varchar2 in column list
+        ###
+        data_type_size = len("varchar2")
+        data_type="varchar2"
+        for name_type in column_list:
+            column_info = name_type.split(" ",1)
+            if len(column_info) &lt; 2 or column_info[0] == "constraint":
+                continue
+            column_name = column_info[0]
+            column_type = column_info[1]
+            # print(f"Name type: {column_name}")
+            # print(f"Column_type: {column_type}")
+            if column_type[0:data_type_size] == data_type and not column_type.endswith("char)"):            
                 liquibase_status.fired = True
                 status_message = str(liquibase_utilities.get_script_message()).replace("__COLUMN_NAME__", f"\"{column_name}\"")
-                status_message = status_message.replace("__COLUMN_POSTFIX__", f"\"{column_postfix}\"")
                 liquibase_status.message = status_message
                 sys.exit(1)
 
@@ -157,16 +176,14 @@ False</MadCap:codeSnippetBody>
             <li>
                 <p>Set the Severity to return a code of 0-4 when triggered. These severity codes allow you to determine if the job moves forward or stops when this check triggers. <br />Learn more here:&#160;<MadCap:xref href="../../workflows/automation-severity-exit-code.htm">Use Policy Checks in Automation: Severity and Exit Code</MadCap:xref><br />options: <code>'INFO'=0</code>, <code>'MINOR'=1</code>,<code> 'MAJOR'=2</code>,<code> 'CRITICAL'=3</code>, <code>'BLOCKER'=4</code></p>
             </li>
-            <li>Set <b><code class="language-text">SCRIPT_DESCRIPTION</code></b>. In this example, we will set the description to:<pre><code class="language-text">This script ensures that all columns include _ts at the end.</code></pre></li>
-            <li>Set <b><code class="language-text">SCRIPT_SCOPE</code></b>. In this example, we will set the scope to <code class="language-text">database</code>.                 <p>You should set the scope to <code class="language-text">changelog</code> or <code class="language-text">database</code> depending on what your custom script does:</p></li>
+            <li>Set <b><code class="language-text">SCRIPT_DESCRIPTION</code></b>. In this example, we will set the description to:<pre><code class="language-text">This script ensures that all columns define Char instead of Bytes.</code></pre></li>
+            <li>Set <b><code class="language-text">SCRIPT_SCOPE</code></b>. In this example, we will set the scope to <code class="language-text">changelog</code>.                 </li>
             <ul>
                 <li><code class="language-text">changelog</code>: for example, if your check looks for syntax patterns or attributes in your Liquibase&#160;<MadCap:xref href="../../../../concepts/changelogs/home.html">Changelog</MadCap:xref> (the changes you author in your repository). With this value, the check runs <b>once per <MadCap:variable name="General.changeset"></MadCap:variable></b>. </li>
-                <li><code class="language-text">database</code>: for example, if your check looks for the presence of keys, indexes, or table name patterns in your database schema (including Liquibase&#160;<MadCap:xref href="../../../../concepts/tracking-tables/tracking-tables.htm">Tracking Tables</MadCap:xref>). With this value, the check runs <b>once for each database object</b>.</li>
             </ul>
-            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is a best practice for your custom checks to have <b>only one scope</b>, not both scopes.</p>
-            <li>Set the <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will use:<br /><code class="language-text">This script identified that some columns do not include the _ts postfix. It is recommended this be fixed before proceeding.</code></li>
-            <li>Set the <b><code class="language-text">SCRIPT_PATH</code></b>. This is the relative path where your script is stored in relation to the <MadCap:variable name="General.changelog" /> specified in <code class="language-text">--changelog-file</code>, whether it is stored locally or in a repository. <br />In this example, we will set the path to: <code class="language-text">scripts/custom_check_no_tables.py</code>.</li>
-            <li>Set the <b><code class="language-text">SCRIPT_ARGUMENT</code></b>. This allows you to pass dynamic information into the Custom Policy Check without modifying the Python code. <MadCap:snippetText src="../../../../Z_Resources/Snippets/text/checks-get-arg-example.flsnp" /> If you <MadCap:xref href="../../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> your check later, you can specify a new value in the&#160;CLI. If you don't need dynamic arguments, leave this field blank.</li>
+            <li>Set the <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will use:<br /><code class="language-text">This script identified that some columns use Bytes instead of Char. It is recommended this be fixed before proceeding.</code></li>
+            <li>Set the <b><code class="language-text">SCRIPT_PATH</code></b>. This is the relative path where your script is stored in relation to the <MadCap:variable name="General.changelog" /> specified in <code class="language-text">--changelog-file</code>, whether it is stored locally or in a repository. <br />In this example, we will set the path to: <code class="language-text">scripts/varchar2-must-use-char.py</code>.</li>
+            <li>Set the <b><code class="language-text">SCRIPT_ARGUMENT</code></b>. This allows you to pass dynamic information into the Custom Policy Check without modifying the Python code. This is important so you do not hard code values into your check that may change over time or if you have different teams with different thresholds.<br /><br /><MadCap:snippetText src="../../../../Z_Resources/Snippets/text/checks-get-arg-example.flsnp" /> <br /><br />If you <MadCap:xref href="../../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref> your check later, you can specify a new value in the&#160;CLI. If you don't need dynamic arguments, leave this field blank.</li>
             <li>Set the <b><code class="language-text">REQUIRES_SNAPSHOT</code></b>. If your script scope is <code class="language-text">changelog</code>, set whether the check requires a database <MadCap:xref href="../../../../commands/inspection/snapshot.html">snapshot</MadCap:xref>. Specify <code class="language-text">true</code> if your check needs to inspect database objects. (If your script scope is <code class="language-text">database</code>, Liquibase always takes a snapshot, so this prompt does not appear.)</li>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The larger your database, the more performance impact a snapshot causes. If you cannot run a snapshot due to memory limitations, see <MadCap:xref href="../../../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
         </ol>
