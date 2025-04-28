@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
+        <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-library/index-different-tablespace.html" />
+        <meta name="description" content="indexDifferentTablespace is a custom policy check that  ensures an index is created in a different tablespace than table." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1><code>indexDifferentTablespace</code>
+        </h1>
+        <p><code>indexDifferentTablespace </code>is a custom policy check that  ensures an index is created in a different tablespace than table.</p>
+        <p>Limitations:<br />A&#160;Table must exist, if table is created in a prior changeset and it does not check for schema included in names such as <code>schema.table</code>.</p>
+        <p>Learn how to create and customize the <code>indexDifferentTablespace</code> Liquibase Custom Policy Check using a Python script. </p>
+        <p>This example works for <b>Oracle</b>. You can use this check as it is or customize it further to fit your needs in your SQL database.</p>
+        <p>For a conceptual overview of this feature, see <MadCap:xref href="../home.htm">Custom Policy Checks</MadCap:xref>.</p>
+        <table style="margin-left: auto; margin-right: auto;">
+            <col style="width: 69px;" />
+            <col />
+            <thead>
+                <tr>
+                    <th>Scope</th>
+                    <th>Database</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Database</td>
+                    <td>Oracle</td>
+                </tr>
+            </tbody>
+        </table>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Liquibase Prerequisites</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <ul>
+                    <li>Install Liquibase 4.29.0+</li>
+                    <li>Configure a valid <a href="../../../license-key.htm"><MadCap:variable name="General.LBPro" /> license key</a></li>
+                    <li>Ensure the Liquibase Checks extension&#160;is installed. <b>In Liquibase 4.31.0+, it is already installed in the <code class="language-text">/liquibase/internal/lib</code> directory, so no action is needed.</b> If the checks JAR is not installed, <a href="https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-checks">download <code class="language-text">liquibase-checks-&lt;version&gt;.jar</code></a> and put it in the <code class="language-text">liquibase/lib</code> directory. <ul><li><b>Maven users only:</b> Add this dependency to your <code class="language-text">pom.xml</code> file:</li></ul></li><pre xml:space="preserve"><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.liquibase.ext&lt;/groupId&gt;
+    &lt;artifactId&gt;liquibase-checks&lt;/artifactId&gt;
+    &lt;version&gt;<MadCap:variable name="software-versions.latest-liquibase-checks" />&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+                    <li>Java Development Kit 17+
+(available for Open JDK and Oracle JDK)</li>
+                    <li>Linux, macOS, or Windows operating system</li>
+                    <li>Familiarity with Liquibase concepts: <MadCap:xref href="../../../../concepts/changelogs/home.html">Changelog</MadCap:xref>, <MadCap:xref href="../../../../concepts/changelogs/changeset.html">Changeset</MadCap:xref>, <MadCap:xref href="../../../../commands/policy-checks/subcommands/home.htm">Policy Checks Commands</MadCap:xref>, <MadCap:xref href="../../../../commands/policy-checks/command-parameters/checks-scope.htm">checks-scope</MadCap:xref>, and <MadCap:xref href="../../../../commands/inspection/snapshot.html">snapshot</MadCap:xref></li>
+                </ul>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Python prerequisites</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <p>Before creating a custom policy check with Python, we recommend being familiar with:</p>
+                <ul>
+                    <li><a href="https://docs.python.org/3/reference/index.html">Python 3.10.14+</a>. (See here for the <a href="https://docs.python.org/3/tutorial/index.html">official Python tutorial</a>)</li>
+                    <li>Optional: General coding and Python best practices which will improve your check performance:</li>
+                    <ul>
+                        <li>Efficient handling of structured data objects</li>
+                        <li>Effective and targeted parsing of text, objects, and SQL</li>
+                        <li>Using regular expressions and other pattern-matching tools within Python</li>
+                        <li>Using Python <a href="https://docs.python.org/3/tutorial/venv.html">virtual environments</a>. Liquibase comes with a built-in virtual environment for Liquibase Custom Policy Checks. The built-in environment includes Liquibase Python modules and some common external Python modules—no configuration needed. However, if you want to install additional modules, or if you want your IDE to recognize the Liquibase modules, you must <MadCap:xref href="../python-virtual-environment.htm">Create a Python Virtual Environment</MadCap:xref> separately.</li>
+                    </ul>
+                </ul>
+                <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"><b>Downloading Python itself is not required to create custom checks</b> in the Liquibase checks framework, but it may be useful to test checks against Python 3.10.14+.</p>
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
+        <h2>Step-by-step</h2>
+        <p>These steps describe how to create the Custom Policy Check. It does not exist by default in <MadCap:variable name="General.LBPro" />.</p>
+        <ol>
+            <li>Create a Check Settings file:&#160;<MadCap:xref href="../../workflows/checks-settings-file.htm">Use the Checks Settings Configuration File</MadCap:xref></li>
+            <li>
+                <p>Add this code to your <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/workflows/checks-settings-file.html">Checks Settings file</a>: </p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetCaption>
+                        <p>indexDifferentTablespace Quotes Python Script</p>
+                    </MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">###
+### This script ensures an index is created
+### in a different tablespace than table
+### Limitations:
+### Table must exist, if table is created in a prior changeset TBD
+### Does not check for schema included in names i.e. schema.table
+
+
+
+###
+### Script helper comes from Liquibase
+###
+import liquibase_utilities
+import sys
+import sqlparse
+
+###
+### Functions
+###
+
+### Check sql statement for the tablename to create the index on
+def get_tablename(sql_tokens):
+    for idx, sql_token in enumerate(sql_tokens):
+        if sql_token == "on":
+            return sql_tokens[idx+1]
+
+### Check if a table exists in the database
+### Requires a snapshot to be taken as part of the check
+def table_exists(table_name):
+    table = None 
+    liquibase_logger.info("Table name " + table_name)
+    tables = liquibase_snapshot['snapshot']['objects']['liquibase.structure.core.Table']
+    for t in tables:
+        if table_name.upper() == t['table']['name']:
+            table = t
+            break
+    return table
+
+### This function assumes table exists in snapshot
+
+def get_tablespace_for_table_from_snapshot(table_name):
+    tablespace = "DEFAULT"
+    tables = liquibase_snapshot['snapshot']['objects']['liquibase.structure.core.Table']
+    for table in tables:
+        if table_name.upper() == table['table']['name']:
+            tablespace = table['table']['tablespace']
+            break
+    return tablespace
+
+### This function gets the index name from the sql tokens
+def get_indexname_from_sql(sql_tokens):
+    for idx_idx, indexname in enumerate(sql_tokens):
+        if "index" == indexname:
+            return sql_tokens[idx_idx + 1]
+###
+### main
+###
+
+###
+### Retrieve log handler
+### Ex. liquibase_logger.info(message)
+###
+liquibase_logger = liquibase_utilities.get_logger()
+
+###
+### Retrieve status handler
+###
+liquibase_status = liquibase_utilities.get_status()
+
+###
+### Retrieve JSON snapshot
+###
+liquibase_snapshot = liquibase_utilities.get_snapshot()
+
+###
+### Retrieve all changes in changeset
+###
+changes = liquibase_utilities.get_changeset().getChanges()
+
+###
+### Loop through all changes
+###
+for change in changes:
+    ###
+    ### LoadData change types are not currently supported
+    ###
+    if "loaddatachange" in change.getClass().getSimpleName().lower():
+        liquibase_logger.info("LoadData change type not supported. Statement skipped.")
+        continue
+    ###
+    ### Retrieve sql as string, remove extra whitespace
+    ###
+    raw_sql = liquibase_utilities.strip_comments(liquibase_utilities.generate_sql(change)).casefold()
+    raw_sql = " ".join(raw_sql.split())
+    # print(f"{raw_sql}")
+    ###
+    ### Split sql into statements
+    ###
+    raw_statements = liquibase_utilities.split_statements(raw_sql)
+    for raw_statement in raw_statements:
+        # Get list of sql tokens
+        tokens = raw_statement.split()
+        # print(f"T0: {tokens[0]}")
+        # print(f"T1: {tokens[1]}")
+        if tokens[0] == "create":
+            # this could be a create index or create unique index statement tokens
+            # print(f"TOKEN1: {tokens[1]}")
+            # print(f"TOKEN2: {tokens[2]}")
+            if tokens[1] == "index" or tokens[2] == "index":
+                # Look for table name
+                table_name = get_tablename(tokens)
+                # Look for tablespace in snapshot
+                s_tablespace = get_tablespace_for_table_from_snapshot(table_name)
+                # Look for index name in sql statement
+                index_name = get_indexname_from_sql(tokens)
+                # Look for tablespace in sql_statement
+                found_tablespace = raw_statement.rfind("tablespace")
+                # print(f"TB: {found_tablespace}")
+                #If no tablespace found then it will default to same tablespace so error
+                if found_tablespace == -1:
+                    liquibase_status.fired = True
+                    status_message = str(liquibase_utilities.get_script_message()).replace("__INDEX_NAME__", f"\"{index_name}\"")
+                    status_message = status_message.replace("__TABLE_NAME__",f"{table_name}")
+                    status_message = status_message.replace("__TABLE_SPACE__",f"{s_tablespace}")
+                    liquibase_status.message = status_message
+                    sys.exit(1)
+                # If defined tablespace, it must not be same as table
+                else:
+                    #Found a tablespace token in sql statement
+                    for tkidx, tk in enumerate(tokens):
+                        if tk == "tablespace":
+                            # Tablespace name is the next token so use it
+                            tbspace = tokens[tkidx+1]
+                            #If endswith semicolon, remove it
+                            if tbspace.endswith(';'):
+                                tbspace = tbspace.rstrip(';')
+                            #If quotes around tablespace remove them
+                            if tbspace.startswith('"') and tbspace.endswith('"'):
+                                tbspace = tbspace[1:-1]
+                            # Now check to see if the tablespaces are equal
+                            # if the tablespaces are equal then that's a no-no
+                            # print(f"DB tbs: {s_tablespace} SQL tbs: {tbspace}")
+                            if tbspace.lower() == s_tablespace.lower():
+                                liquibase_status.fired = True
+                                status_message = str(liquibase_utilities.get_script_message()).replace("__INDEX_NAME__", f"\"{index_name}\"")
+                                status_message = status_message.replace("__TABLE_NAME__",f"{table_name}")
+                                status_message = status_message.replace("__TABLE_SPACE__",f"{s_tablespace}")
+                                liquibase_status.message = status_message
+                                sys.exit(1)
+###
+### Default return code
+###
+False</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <li>
+                <p><b>Initiate the customization process</b>. In the CLI, run this command:<br /><code><code class="language-text">liquibase checks customize --check-name=CustomCheckTemplate</code></code><br />The CLI prompts you to finish configuring your file. A message displays:</p><pre><code class="language-text">This check cannot be customized directly because one or more fields does not have a default value.</code></pre>
+                <p>Liquibase will then create a copy of <code class="language-text">CustomCheckTemplate</code> and initiate the customization workflow.</p>
+            </li>
+            <li>
+                <p>Give your check a short name so you can easily identify what Python script it is associated with (up to 64 alpha-numeric characters only).<br />In this example we will name the check:<br /><code>indexDifferentTablespace</code></p>
+            </li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. These severity codes allow you to determine if the job moves forward or stops when this check triggers. <br />Learn more here:&#160;<MadCap:xref href="../../workflows/automation-severity-exit-code.htm">Use Policy Checks in Automation: Severity and Exit Code</MadCap:xref><br />options: <code>'INFO'=0</code>, <code>'MINOR'=1</code>,<code> 'MAJOR'=2</code>,<code> 'CRITICAL'=3</code>, <code>'BLOCKER'=4</code></p>
+            </li>
+            <li>Set <b><code class="language-text">SCRIPT_DESCRIPTION</code></b>. In this example, we will set the description to:<pre><code class="language-text">This script checks to see if an index appears in a different tablespace from the original table specified.</code></pre></li>
+            <li>Set <b><code class="language-text">SCRIPT_SCOPE</code></b>. In this example, we will set the scope to <code class="language-text">changelog</code>.                 </li>
+            <ul>
+                <li><code class="language-text">changelog</code>: for example, if your check looks for syntax patterns or attributes in your Liquibase&#160;<MadCap:xref href="../../../../concepts/changelogs/home.html">Changelog</MadCap:xref> (the changes you author in your repository). With this value, the check runs <b>once per <MadCap:variable name="General.changeset"></MadCap:variable></b>. </li>
+            </ul>
+            <li>Set the <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will use:<br /><code class="language-text">Index __INDEX_NAME__ must be in a different tablespace than __TABLE_NAME__ tablespace __TABLE_SPACE__</code></li>
+            <li>Set the <b><code class="language-text">SCRIPT_PATH</code></b>. This is the relative path where your script is stored in relation to the <MadCap:variable name="General.changelog" /> specified in <code class="language-text">--changelog-file</code>, whether it is stored locally or in a repository. <br />In this example, we will set the path to: <code class="language-text">scripts/index-different-tablespace.py</code>.</li>
+            <li>This policy check does not require a <b><code class="language-text">SCRIPT_ARGUMENT</code></b>, so leave this field blank.</li>
+            <li>Set the <b><code class="language-text">REQUIRES_SNAPSHOT</code></b>. If your script scope is <code class="language-text">changelog</code>, set whether the check requires a database <MadCap:xref href="../../../../commands/inspection/snapshot.html">snapshot</MadCap:xref>. Specify <code class="language-text">true</code> if your check needs to inspect database objects. (If your script scope is <code class="language-text">database</code>, Liquibase always takes a snapshot, so this prompt does not appear.)</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The larger your database, the more performance impact a snapshot causes. If you cannot run a snapshot due to memory limitations, see <MadCap:xref href="../../../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
+        </ol>
+        <p>You have now successfully created and customized a policy check!</p>
+        <h2>Next steps</h2>
+        <ul>
+            <li>
+                <MadCap:xref href="../run-check.htm">Run a Custom Policy Check</MadCap:xref>
+            </li>
+        </ul>
+        <h3>Related Topics</h3>
+        <p>
+            <MadCap:xref href="../sample-scripts.htm">Sample Custom Policy Check Scripts</MadCap:xref>
+        </p>
+    </body>
+</html>

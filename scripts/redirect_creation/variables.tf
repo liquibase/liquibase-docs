@@ -1243,6 +1243,7 @@ variable "redirects" {
     { key = "/start/tutorials/sap-adaptive-server-enterprise-sap-ase.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-adaptive-server-enterprise-sap-ase/" },
     { key = "/start/tutorials/sap-hana.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-hana/" },
     { key = "/start/tutorials/sap-sql-anywhere.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sap-sql-anywhere/" },
+    { key = "/start/tutorials/snowflake.html", website_redirect = "https://docs.liquibase.com/start/tutorials/snowflake/home.html" },
     { key = "/start/tutorials/sqlite.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/sqlite/" },
     { key = "/start/tutorials/teradata.html", website_redirect = "https://contribute.liquibase.com/extensions-integrations/directory/database-tutorials/teradata/" },
     { key = "/start/tutorials/tools-integrations/maven/maven-pom-file.htm", website_redirect = "/tools-integrations/maven/maven-pom-file.html" },
