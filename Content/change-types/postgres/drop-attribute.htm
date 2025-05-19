@@ -5,7 +5,7 @@
     <body>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <h1>dropAttribute</h1>
-        <p>Delete this text and replace it with your own content.</p>
+        <p>The dropAttributes change type allows you to delete attributes associated with a <a href="https://www.postgresql.org/docs/17/rowtypes.html">composite type</a>. </p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Inspection features or commands, such as <code>snapshot</code>, <code>diff</code>, <code>generate-changelog</code>, and <code>diff-changelog</code>, are not currently supported with composite types.</p>
     </body>
     <h2>Run dropAttribute</h2>
@@ -14,7 +14,7 @@
     <table>
         <col style="width: 142px;" />
         <col />
-        <col />
+        <col style="width: 222px;" />
         <col />
         <thead>
             <tr>
@@ -30,21 +30,21 @@
                 </td>
                 <td>String</td>
                 <td>
-				add description					</td>
+				The name of the attribute.					</td>
                 <td>Optional</td>
             </tr>
             <tr>
                 <td>ifExists</td>
-                <td>String</td>
+                <td>Boolean</td>
                 <td>
-				add description				</td>
+				Check if the attribute exists.</td>
                 <td>Optional</td>
             </tr>
             <tr>
-                <td><code class="language-text">onDelete</code>
+                <td><code class="language-text">onDelete()</code>
                 </td>
                 <td>String</td>
-                <td>add description				</td>
+                <td>Set to <code>CASCADE</code> or <code>RESTRICT</code>. <code>CASCADE</code> automatically drops objects that depend on the type. <code>RESTRICT</code> does not drop the type if any objects depend on it. <b>Default</b>: <code>RESTRICT</code>.			</td>
                 <td>Optional</td>
             </tr>
         </tbody>
@@ -59,11 +59,120 @@
             <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
             </li>
         </ul>
-        <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">yaml example</code></pre>
+        <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: itTest
+      changes:
+        - createCompositeType:
+            typeName: "myType"
+            typeAttributes:
+              - typeAttribute:
+                  name: "attr0"
+                  type: "int"
+              - typeAttribute:
+                  name: "attr1"
+                  type: "int"
+              - typeAttribute:
+                  name: "attr2"
+                  type: "int"
+  - changeSet:
+      id: 2
+      author: itTest
+      changes:
+        - alterCompositeTypeAttributes:
+            typeName: "myType"
+            dropAttributes:
+              - dropAttribute:
+                  name: "attr1"
+                  ifExists: "true"
+                  onDelete: "CASCADE"
+
+      rollback:
+        - empty</code></pre>
         </div>
-        <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">json example</code></pre>
+        <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "itTest",
+        "changes": [
+          {
+            "createCompositeType": {
+              "typeName": "myType",
+              "typeAttributes": [
+                {
+                  "typeAttribute": {
+                    "name": "attr0",
+                    "type": "int"
+                  }
+                },
+                {
+                  "typeAttribute": {
+                    "name": "attr1",
+                    "type": "int"
+                  }
+                },
+                {
+                  "typeAttribute": {
+                    "name": "attr2",
+                    "type": "int"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "itTest",
+        "changes": [
+          {
+            "alterCompositeTypeAttributes": {
+              "typeName": "myType",
+              "dropAttributes": [
+                {
+                  "dropAttribute": {
+                    "name": "attr1",
+                    "ifExists": "true",
+                    "onDelete": "CASCADE"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "rollback": []
+      }
+    }
+  ]
+}</code></pre>
         </div>
-        <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">xml example</code></pre>
+        <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"&gt;
+    &lt;changeSet author="itTest" id="1"&gt;
+        &lt;pro:createCompositeType typeName="myType"&gt;
+            &lt;pro:typeAttribute name="attr0" type="int"/&gt;
+            &lt;pro:typeAttribute name="attr1" type="int"/&gt;
+            &lt;pro:typeAttribute name="attr2" type="int"/&gt;
+        &lt;/pro:createCompositeType&gt;
+    &lt;/changeSet&gt;
+    &lt;changeSet author="itTest" id="2"&gt;
+        &lt;pro:alterCompositeTypeAttributes typeName="myType"&gt;
+            &lt;pro:dropAttribute name="attr1" ifExists="true" onDelete="CASCADE"/&gt;
+        &lt;/pro:alterCompositeTypeAttributes&gt;
+        &lt;rollback/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
         </div>
     </div>
     <h2>Database Support</h2>
