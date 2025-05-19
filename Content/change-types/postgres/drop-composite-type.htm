@@ -5,7 +5,7 @@
     <body>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <h1>dropCompositeType</h1>
-        <p>Delete this text and replace it with your own content.</p>
+        <p><code>dropCompositeType</code> removes a defined composite type in your PostgreSQL tables, columns, and function signatures that is used to organize related fields into a single logical structure.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Inspection features or commands, such as <code>snapshot</code>, <code>diff</code>, <code>generate-changelog</code>, and <code>diff-changelog</code>, are not currently supported with composite types.</p>
     </body>
     <h2>Run renameCompositeType</h2>
@@ -29,38 +29,36 @@
                 <td><code class="language-text">catalogName</code>
                 </td>
                 <td>String</td>
-                <td>
-				add description	<![CDATA[				]]></td>
+                <td>This is the name of the database containing the object being grouped by the Composite Type.</td>
                 <td>Optional</td>
             </tr>
             <tr>
                 <td>schemaName</td>
                 <td>String</td>
-                <td>
-				add description				</td>
+                <td>This is the space that contains the Composite Types.</td>
                 <td>Optional</td>
             </tr>
             <tr>
                 <td><code class="language-text">typeName</code>
                 </td>
                 <td>String</td>
-                <td>add description				</td>
+                <td>This is the name given to the Composite group of fields as one unit.</td>
                 <td>Optional</td>
             </tr>
-			<tr>
-				<td><code class="language-text">ifExists</code>
-				</td>
-				<td>String</td>
-				<td>add description				</td>
-				<td>Optional</td>
-			</tr>
-			<tr>
-				<td><code class="language-text">onDelete</code>
-				</td>
-				<td>String</td>
-				<td>add description				</td>
-				<td>Optional</td>
-			</tr>
+            <tr>
+                <td><code class="language-text">ifExists</code>
+                </td>
+                <td>String</td>
+                <td>This attribute allows you to control how to handle object deletion or modification if the object you are searching for does not exist.			</td>
+                <td>Optional</td>
+            </tr>
+            <tr>
+                <td><code class="language-text">onDelete</code>
+                </td>
+                <td>Boolean:&#160;<br /><code>CASCADE</code>&#160;or <code>RESTRICT</code></td>
+                <td><code>CASCADE</code>:&#160;This value causes the Composite Type to automatically drop all dependent objects such as tables or functions.<br /><code>RESTRICT</code>:&#160;This value prevents the Composite Type from droping any objects depending on the type specified.		</td>
+                <td>Optional</td>
+            </tr>
         </tbody>
     </table>
     <h2 id="examples">Examples</h2>
@@ -73,11 +71,87 @@
             <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
             </li>
         </ul>
-        <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">yaml example</code></pre>
+        <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: itTest
+      changes:
+        - createCompositeType:
+            typeName: "myDelType"
+            typeAttributes:
+              - typeAttribute:
+                  name: "attr1"
+                  type: "int"
+              - typeAttribute:
+                  name: "attr2"
+                  type: "text"
+                  collation: "en_US"
+        - dropCompositeType:
+            typeName: "myDelType"
+            ifExists: true
+            onDelete: "CASCADE"
+      rollback:
+        empty
+</code></pre>
         </div>
-        <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">json example</code></pre>
+        <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "itTest",
+        "changes": [
+          {
+            "createCompositeType": {
+              "typeName":"myDelType",
+              "typeAttributes": [
+                {
+                  "typeAttribute": {
+                    "name": "attr1",
+                    "type": "int"
+                  }
+                },
+                {
+                  "typeAttribute": {
+                    "name": "attr2",
+                    "type": "text",
+                    "collation":"en_US"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "dropCompositeType": {
+              "typeName":"myDelType",
+              "ifExists": true,
+              "onDelete": "CASCADE"
+            }
+          }
+        ],
+        "rollback":[]
+      }
+    }
+  ]
+}
+</code></pre>
         </div>
-        <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">xml example</code></pre>
+        <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"> &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"&gt;
+    &lt;changeSet author="itTest" id="1"&gt;
+        &lt;pro:createCompositeType typeName="myDelType"&gt;
+            &lt;pro:typeAttribute name="attr1" type="int"/&gt;
+            &lt;pro:typeAttribute name="attr2" type="text" collation="en_US"/&gt;
+        &lt;/pro:createCompositeType&gt;
+        &lt;pro:dropCompositeType typeName="myDelType" ifExists="true" onDelete="CASCADE"/&gt;
+        &lt;rollback/&gt;
+    &lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;</code></pre>
         </div>
     </div>
     <h2>Database Support</h2>
