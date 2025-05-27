@@ -13,7 +13,7 @@
         <ul>
             <li>Confirm your machine meets the system <MadCap:xref href="../install/liquibase-requirements.htm">requirements.</MadCap:xref></li>
             <li>Confirm your liquibase.properties file is available in your Liquibase directory.</li>
-            <li>Ensure the Docker daemon is running:<ul><li><b>Windows:</b>&#160;Docker daemon starts automatically when you open <b>Docker Desktop.</b></li><li><b>Linux:</b>&#160;Run the <code>sudo systemctl start docker</code> command to start the Docker service.</li></ul></li>
+            <li>Ensure the Docker daemon is running:<ul><li><b>Windows and MacOS:</b>&#160;Docker daemon starts automatically when you open <b>Docker Desktop.</b></li><li><b>Linux:</b>&#160;Run the <code>sudo systemctl start docker</code> command to start the Docker service.</li></ul></li>
             <li>Ensure that your database is accessible from the Docker container.<br />If the database is running outside of Docker, confirm that you have network access. <br />This can be done by running <code>host.docker.internal</code> on Windows or macOS.</li>
         </ul>
         <h2>Step-by-step</h2>
@@ -22,11 +22,11 @@
                 <p>Pull the Liquibase Docker image from <a href="https://hub.docker.com/_/liquibase">Docker Hub</a> into your setup by running  the <code>docker pull liquibase/liquibase</code> command. </p>
             </li>
             <li>
-                <p>Apply  the <MadCap:variable name="General.LBPro" /> license key by first setting the key as an environment variable in the CLI:</p>
-                <ul>Windows: <code class="language-text" data-lang="text">set LIQUIBASE_LICENSE_KEY=&lt;insert-license-key&gt;</code><br />Linux: <code>export LIQUIBASE_LICENSE_KEY=&lt;insert-license-key&gt;</code></ul>
+                <p>Apply  the <MadCap:variable name="General.LBPro" /> license key in the CLI by first setting the key as an environment variable temporarily for the duration of the current terminal session. Once you close the terminal instance, this setting will be lost.</p>
+                <ul>Windows: <code class="language-text" data-lang="text">set LIQUIBASE_LICENSE_KEY=&lt;insert-license-key&gt;</code><br />Linux/MacOS: <code>export LIQUIBASE_LICENSE_KEY=&lt;insert-license-key&gt;</code></ul>
                 <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;"> This example is for testing purposes, so It is best to use a <MadCap:xref href="../../liquibase-pro/secrets-management/home.htm">Secrets Management</MadCap:xref> tool like Hashicorp Vault or AWS Secrets Manager to keep Liquibase license keys secure.</p>
             </li>
-            <li>Now run the following command to specify the license key as an environment variable. Ensure your database URL and changelog file is included in the update command. <br />It's important to know that this command carries out all of these tasks:<br /><p><ul><li>Run the specified docker container.</li><li>Pass the Liquibase license key from your local environment into the container as an environment variable.</li><li>Mount your current local directory into the container.</li><li>Specify where the official Liquibase image is coming from Docker Hub.</li><li>Specify the JDBC&#160;URL&#160;connection for your database and map the host name in Docker to your local machine.</li><li>Specify the user name and password credentials Liquibase needs to connect to the PostgreSQL&#160;database.</li><li>Specify the main changelog file that contains the list of Liquibase changesets.</li><li>Specify the search path for Docker to find the changelog inside the Docker image.</li><li>Run the update command to update the database.</li></ul></p><br /><ul><li>Windows:<br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">docker run --rm
+            <li>Ensure that the environment variable has been set by running the following command:<br /></li>Windows: <code class="language-text" data-lang="text">echo $LIQUIBASE_LICENSE_KEY</code><br />Linux/MacOS: <code>echo %LIQUIBASE_LICENSE_KEY%</code><br />When the environment variable is set properly, the license key will display in the terminal.<li>Now run the following command to specify the license key as an environment variable. Ensure your database URL and changelog file is included in the update command. <br />It's important to know that this command carries out all of these tasks:<br /><p><ul><li>Run the specified docker container.</li><li>Pass the Liquibase license key from your local environment into the container using the <code>LIQUIBASE_LICENSE_KEY</code> environment variable you set up in step 2.</li><li>Mount your current local directory into the container.</li><li>Specify where the official Liquibase image is coming from Docker Hub.</li><li>Specify the JDBC&#160;URL&#160;connection for your database and map the host name in Docker to your local machine.<ul><li>If you are working with a different Liquibase-supported database, visit the <a href="https://www.liquibase.com/supported-databases">Liquibase Database Tutorials</a> documentation to download the JDBC&#160;driver specific to your database.</li></ul></li><li>Specify the user name and password credentials Liquibase needs to connect to the PostgreSQL&#160;database.</li><li>Specify the main changelog file that contains the list of Liquibase changesets.</li><li>Specify the search path for Docker to find the changelog inside the Docker image.</li><li>Run the update command to update the database.</li></ul></p><br /><ul><li>Windows:<br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">docker run --rm
         -e LIQUIBASE_LICENSE_KEY=%LIQUIBASE_LICENSE_KEY%
         -v %cd%:/liquibase/changelog
         liquibase/liquibase
@@ -35,7 +35,7 @@
         --password=password
         --changelog-file=example-changelog.xml
         --search-path=/liquibase/changelog/
-        update</MadCap:codeSnippetBody></MadCap:codeSnippet></li><li>Linux: <MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">docker run --rm \
+        update</MadCap:codeSnippetBody></MadCap:codeSnippet></li><li>Linux/MacOS: <MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">docker run --rm \
   -e LIQUIBASE_LICENSE_KEY=$LIQUIBASE_LICENSE_KEY \
   -v "$(pwd)":/liquibase/changelog \
   liquibase/liquibase \
@@ -45,8 +45,7 @@
   --changelog-file=example-changelog.xml \
   --search-path=/liquibase/changelog/ \
   update
-</MadCap:codeSnippetBody></MadCap:codeSnippet></li></ul><p><b>Optional:</b> The Liquibase installation comes with JDBC drivers for popular database platforms such as Oracle, SQL&#160;Server, PostgreSQL, MariaDB, Snowflake, and H2. <br />If you are working with a different Liquibase-supported database, visit the <a href="https://www.liquibase.com/supported-databases">Liquibase Database Tutorials</a> documentation to download the JDBC&#160;driver specific to your database.</p></li>
-            <li>Once the command runs, notice in your log output that the latest version of Liquibase appears which confirms the license key is applied.
+</MadCap:codeSnippetBody></MadCap:codeSnippet></li></ul><p><b>Optional:</b> The Liquibase installation comes with JDBC drivers for popular database platforms such as Oracle, SQL&#160;Server, PostgreSQL, MariaDB, Snowflake, and H2. <br /></p></li><li>Once the command runs, notice in your log output that the latest version of Liquibase appears which confirms the license key is applied.
                 <MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption>Successful log output example</MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">C:\Users\AmberWilliams&gt;docker run --rm -e LIQUIBASE_LICENSE_KEY=%LIQUIBASE_LICENSE_KEY% -v %cd%:/liquibase/changelog liquibase/liquibase --url="jdbc:postgresql://host.docker.internal:5432/testdb" --username=postgres --password=liquibase --changelog-file=example-changelog.sql --search-path=/liquibase/changelog/ update
 ####################################################
 ##   _     _             _ _                      ##
@@ -78,9 +77,7 @@ Pro Update Report created!
 * File 'resourceaccessor:./Update-report-16-May-2025-182205.html' was created.
 ** To suppress Update reports add command arg 'liquibase update --report-enabled=false"
 ** To suppress all Pro Reports set liquibase.reports.enabled=false, or LIQUIBASE_REPORTS_ENABLED=false
-Liquibase command 'update' was executed successfully.</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
-            <li>You can also validate your Liquibase Pro license key in the CLI by running this command in your working directory:<code><br />docker run --rm -e LIQUIBASE_LICENSE_KEY=&lt;your-license-key&gt; -it liquibase/liquibase:latest --version</code></li>
-        </ol>
+Liquibase command 'update' was executed successfully.</MadCap:codeSnippetBody></MadCap:codeSnippet></li><li>You can also validate your Liquibase Pro license key in the CLI by running this command in your working directory:<code><br />docker run --rm -e LIQUIBASE_LICENSE_KEY=&lt;your-license-key&gt; -it liquibase/liquibase:latest --version</code></li></ol>
         <h2>Next steps</h2>
         <ul>
             <li>
