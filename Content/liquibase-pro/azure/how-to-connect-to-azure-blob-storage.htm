@@ -4,6 +4,54 @@
     </head>
     <body>
         <h1>How to connect to Azure blob storage</h1>
-        <p>Delete this text and replace it with your own content.</p>
+        <p>Liquibase can connect to Azure blob storage to access files using the <a href="https://repo1.maven.org/maven2/org/liquibase/ext/liquibase-azure/1.0.0/">Liquibase Azure extension</a>. This allows you to use Azure for your pipeline and store configuration files for Policy Checks and Flows in Azure files.</p>
+        <h2>Prerequisites</h2>
+        <h3>Azure</h3>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/azure/healthcare-apis/register-application">Register you application with Microsoft Entra and record your client ID</a>
+            </li>
+            <li><a href="https://learn.microsoft.com/en-us/azure/healthcare-apis/register-application">Generate a client secret</a>
+            </li>
+            <li><a href="https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal">Add the Storage Blob Data Contributor condition to your storage account using role assignment</a>
+            </li>
+            <li><a href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-find-tenant">Record your tenant ID</a>
+            </li>
+        </ul>
+        <h3>Liquibase Azure extension</h3>
+        <ul>
+            <li><a href="install-azure-extension.htm">Install the Liquibase Azure extension</a>
+            </li>
+        </ul>
+        <p>1. Set up <a href="https://docs.liquibase.com/concepts/connections/liquibase-environment-variables.html">environment variables</a>. </p>
+        <p>Environment variables are key-value pairs used to securely pass configuration data such as credentials and connection details to applications. Before running Liquibase with Azure support, you must set a few environment variables so Liquibase can authenticate to your Azure storage account. Liquibase uses these variables during runtime to authenticate with Azure.<br /></p>
+        <p>Before you run the example code, be sure to:</p>
+        <ul>
+            <li>Update YOUR_STORAGE_ACCOUNT with your storage account name. </li>
+            <li>Update YOUR_TENANT_ID with your <a href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-find-tenant">tenant ID</a>. </li>
+            <li>Update YOUR_CLIENT_ID with your <a href="https://learn.microsoft.com/en-us/azure/healthcare-apis/register-application">client ID</a>. </li>
+            <li>Update YOUR_CLIENT_SECRET with your <a href="https://learn.microsoft.com/en-us/azure/healthcare-apis/register-application">client secret</a>. </li>
+        </ul>
+        <h3>Example Code</h3>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">This sets the environment variables temporarily for the duration of the current terminal session. Once you close the terminal, this setting will be lost and you will need to reset the environment variables for your new terminal session. These variables include sensitive information like client secrets, so we do not recommend persisting them to avoid long-term storage in configuration files.</p>
+        <h4>Windows<br /><br /></h4><code>set LIQUIBASE_AZURE_STORAGE_ACCOUNT="YOUR_STORAGE_ACCOUNT"<br />set AZURE_TENANT_ID="YOUR_TENANT_ID"<br />set AZURE_CLIENT_ID="YOUR_CLIENT_ID"<br />set AZURE_CLIENT_SECRET="YOUR_CLIENT_SECRET"</code><code><br /></code>
+        <h4>Linux/MacOS<br /><br /></h4><code>export LIQUIBASE_AZURE_STORAGE_ACCOUNT="YOUR_STORAGE_ACCOUNT"<br />export AZURE_TENANT_ID="YOUR_TENANT_ID"<br />export AZURE_CLIENT_ID="YOUR_CLIENT_ID"<br />export AZURE_CLIENT_SECRET="YOUR_CLIENT_SECRET"</code><code><br /></code>
+        <p>2. Run <code>liquibase flow</code><br />3. Select option 3: <code>Just create sample flow file in the CWD, do not use, and exit command </code></p>
+        <p>A <a href="../flow/home.htm">Flow File</a> will be created in the $LIQUIBASE_HOME directory. </p>
+        <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">$LIQUIBASE_HOME is an environment variable that points to the location of the directory where Liquibase is installed on your machine. The location of $LIQUIBASE_HOME&#160;will depend on where Liquibase was installed on your machine. </p>
+        <p>4. Open the created <code>liquibase.flowfile.yaml</code> file.<br />5. Add the following code to your flow file:</p><pre><code>globalVariables:
+&#160;&#160;ENV: DEV
+stages:
+&#160;&#160;Snapshot:
+&#160;&#160;&#160;&#160;actions:
+&#160;&#160;&#160;&#160;&#160;&#160;- type: liquibase
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;command: snapshot
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;cmdArgs: 
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{ snapshot-format: json }
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;globalArgs: 
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{ output-file: 'az://snapshots/${ENV}-azure-snapshot.json' }
+</code></pre>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"><code>${ENV}</code> will be replaced with the value from your environment. In this case, the environment was set to DEV in the flow file.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The <code>output-file</code> is stored in the Azure blob storage.</p>
+        <p>6. Run <code>liquibase flow --flowfile=&lt;YOUR_FLOWFILE_PATH&gt;</code> where <code>YOUR_FLOWFILE_PATH</code> is the file path to your flow file. <br />For example, <code>liquibase flow --flowfile= liquibase-pro-4.32.0/liquibase.flowfile.yaml</code></p>
     </body>
 </html>
