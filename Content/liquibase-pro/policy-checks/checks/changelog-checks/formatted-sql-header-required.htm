@@ -9,7 +9,7 @@
         </h1>
         <p>This check triggers when the following criteria are met:<br /></p>
         <ul>
-            <li>A <MadCap:variable name="General.changelog" /> includes a .sql file that do not begin with the required --liquibase formatted sql header. When triggered, Liquibase lists all offending .sqlfiles missing the required header which helps maintain the integrity and reliability of database change management.</li>
+            <li>A <MadCap:variable name="General.changelog" /> includes a <code>.sql</code> file that do not begin with the required --liquibase formatted SQL header. When triggered, Liquibase lists all offending <code>.sql</code> files missing the required header which helps maintain the integrity and reliability of database change management.</li>
         </ul>
         <table>
             <col />
@@ -47,10 +47,138 @@
             </tbody>
         </table>
         <h2>Uses</h2>
-        <p>This check helps prevent improperly formatted SQL&#160;changes that could bypass Liquibase's change tracking, auditing, and rollback features.  This check makes sure <MadCap:variable name="General.changeset" />s that require an end delimiter have one before moving forward in a job.</p>
-        <h2>Use <code>EndDelimiterExistsWhenPatternExists</code></h2>
-        <p>If a custom pattern exists in a changeset, then that changeset must have an enddelimiter. If the enddelimiter does not exist, this check notifies the user.</p>
-        <MadCap:snippetBlock src="../../../../Z_Resources/Snippets/text/checks-use.flsnp" MadCap:conditionTagExpression="include[checks-use.default-disabled or checks-use.must-copy-customize or checks-use.settings-dynamic]" />
+        <p>This check helps prevent improperly formatted SQL&#160;changes that could bypass Liquibase's change tracking, auditing, and rollback features.  </p>
+        <h2>Use <code>FormattedSqlHeaderRequired</code></h2>
+        <p>If an  improperly formatted SQL exists in a changeset, then Liquibase notifies the user.</p>
+        <h3>Prerequisites</h3>
+        <ol>
+            <li>Ensure that you have correctly specified your <a href="../../../license-key.htm"><MadCap:variable name="General.LBPro" /> license key</a>.</li>
+            <li>Ensure that the <code class="language-text">--checks-scope</code> parameter includes the scope of this check.</li>
+        </ol>
+        <p>For example:</p>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#cli_example_prereq" id="label_cli_example_prereq" class="js-tablist__link">CLI</a>
+                </li>
+                <li class="js-tablist__item"><a href="#flow_example_prereq" id="label_flow_example_prereq" class="js-tablist__link">Flow</a>
+                </li>
+                <li class="js-tablist__item"><a href="#properties_file_example_prereq" id="label_properties_file_example_prereq" class="js-tablist__link"><code>liquibase.properties</code></a>
+                </li>
+                <li class="js-tablist__item"><a href="#java_opts_example_prereq" id="label_java_opts_example_prereq" class="js-tablist__link"><code>JAVA_OPTS</code></a>
+                </li>
+                <li class="js-tablist__item"><a href="#envar_example_prereq" id="label_envar_example_prereq" class="js-tablist__link">Environment variable</a>
+                </li>
+            </ul>
+            <div id="cli_example_prereq" class="js-tabcontent"><pre xml:space="preserve"><code class="language-text">--license-key=&lt;string&gt;</code></pre><pre xml:space="preserve"><code class="language-text">--checks-scope=&lt;string&gt;</code></pre>
+            </div>
+            <div id="flow_example_prereq" class="js-tabcontent"><pre xml:space="preserve"><code class="language-text">globalArgs: { license-key: "&lt;string&gt;" }
+cmdArgs: { checks-scope: "&lt;string&gt;" }</code></pre>
+            </div>
+            <div id="properties_file_example_prereq" class="js-tabcontent"><pre xml:space="preserve"><code class="language-text">liquibase.licenseKey: &lt;string&gt;
+liquibase.command.checksScope: &lt;string&gt;</code></pre><pre xml:space="preserve"><code class="language-text">liquibase.licenseKey: &lt;string&gt;
+liquibase.command.checks.run.checksScope: &lt;string&gt;</code></pre>
+            </div>
+            <div id="java_opts_example_prereq" class="js-tabcontent"><pre xml:space="preserve"><code class="language-text">JAVA_OPTS=-Dliquibase.licenseKey=&lt;string&gt; -Dliquibase.command.checksScope=&lt;string&gt;</code></pre><pre xml:space="preserve"><code class="language-text">JAVA_OPTS=-Dliquibase.licenseKey=&lt;string&gt; -Dliquibase.command.checks.run.checksScope=&lt;string&gt;</code></pre>
+            </div>
+            <div id="envar_example_prereq" class="js-tabcontent"><pre xml:space="preserve"><code class="language-text">LIQUIBASE_LICENSE_KEY=&lt;string&gt;
+LIQUIBASE_COMMAND_CHECKS_SCOPE=&lt;string&gt;</code></pre><pre xml:space="preserve"><code class="language-text">LIQUIBASE_LICENSE_KEY=&lt;string&gt;
+LIQUIBASE_COMMAND_CHECKS_RUN_CHECKS_SCOPE=&lt;string&gt;</code></pre>
+            </div>
+        </div>
+        <h3>Enable</h3>
+        <p>These steps describe how to create the Policy Check.</p>
+        <ol>
+            <li>Create a Check Settings file:&#160;<MadCap:xref href="../../workflows/checks-settings-file.htm">Use the Checks Settings Configuration File</MadCap:xref></li>
+            <li>
+                <p><b>Initiate the customization process</b>. In the CLI, run this command:<br /><code><code class="language-text">liquibase checks customize --check-name=FormattedSqlHeaderRequired</code></code><br />This message will display:<br /><code>WARNING: Additional checks have been added to 'liquibase.checks-settings.conf' and are disabled. To auto-enable new checks on upgrades, set '--auto-enable-new-checks=true'. Learn more at https://docs.liquibase.com/policy-checks</code><br /><code>Set the Severity to return a code of 0-4 when triggered. (options: 'INFO'|0, 'MINOR'|1, 'MAJOR'|2, 'CRITICAL'|3, 'BLOCKER'|4)? [INFO]:</code></p>
+            </li>
+            <li>
+                <p>Set the Severity to return a code of 0-4 when triggered. These severity codes allow you to determine if the job moves forward or stops when this check triggers. <br />Learn more here:&#160;<MadCap:xref href="../../workflows/automation-severity-exit-code.htm">Use Policy Checks in Automation: Severity and Exit Code</MadCap:xref><br />options: <code>'INFO'=0</code>, <code>'MINOR'=1</code>,<code> 'MAJOR'=2</code>,<code> 'CRITICAL'=3</code>, <code>'BLOCKER'=4</code></p>
+            </li>
+            <li>
+                <p>Set the files you don't want this check to run against by setting the <code>'SQL_FILE_EXCEPTIONS_LIST'</code> as a comma-separated list of 'path/to/sqlfiles'. This list will not trigger this check.<br />In this example, we will specify:<br /><code>schema.sql, create_functions.sql, add_indexes.sql</code><br />This message will display in the CLI:<br /></p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">Customization complete. Review the table below to confirm your changes.
++----------------------------+-----------+--------+---------+----------+--------------------------------+--------------------------------+
+| Short Name                 | Scope     | Type   | Status  | Severity | Customization                  | Description                    |
++----------------------------+-----------+--------+---------+----------+--------------------------------+--------------------------------+
+| FormattedSqlHeaderRequired | changelog | sql,   | enabled | 0        | SQL_FILE_EXCEPTIONS_LIST =     | This check triggers when a     |
+|                            |           | xml,   |         |          | schema.sql,                    | changelog does not start with  |
+|                            |           | yaml,  |         |          | create_functions.sql,          | the required '--liquibase      |
+|                            |           | json   |         |          | add_indexes.sql                | formatted sql' header.         |
++----------------------------+-----------+--------+---------+----------+--------------------------------+--------------------------------+
+Liquibase command 'checks customize' was executed successfully.</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <li>
+                <li>When finished, verify that your configuration is correct by running the <code><MadCap:xref href="../../../../commands/policy-checks/subcommands/show.htm">show</MadCap:xref></code> command:</li><pre xml:space="preserve"><code class="language-text">liquibase checks show --check-name=&lt;string&gt;<br /></code></pre>
+                <p>This message will display:</p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">C:\Users\AmberWilliams\Projects\liquibase-4.32&gt;liquibase checks show --check-name=FormattedSqlHeaderRequired
+####################################################
+##   _     _             _ _                      ##
+##  | |   (_)           (_) |                     ##
+##  | |    _  __ _ _   _ _| |__   __ _ ___  ___   ##
+##  | |   | |/ _` | | | | | '_ \ / _` / __|/ _ \  ##
+##  | |___| | (_| | |_| | | |_) | (_| \__ \  __/  ##
+##  \_____/_|\__, |\__,_|_|_.__/ \__,_|___/\___|  ##
+##              | |                               ##
+##              |_|                               ##
+##                                                ##
+##  Get documentation at docs.liquibase.com       ##
+##  Get certified courses at learn.liquibase.com  ##
+##                                                ##
+####################################################
+Starting Liquibase at 15:16:49 using Java 21.0.1 (version merge-test #12 built at 2025-04-28 21:24+0000)
+Liquibase Version:
+Liquibase Pro merge-test by Liquibase licensed to Liquibase until Mon Dec 11 17:00:00 MST 20
+
+Generating report on current configuration of checks using settings in: liquibase.checks-settings.conf
+
+WARNING: Additional checks have been added to 'liquibase.checks-settings.conf' and are disabled. To auto-enable new checks on upgrades, set '--auto-enable-new-checks=true'. Learn more at https://docs.liquibase.com/policy-checks
++----------------------------+-----------+--------+---------+----------+--------------------------------+--------------------------------+
+| Short Name                 | Scope     | Type   | Status  | Severity | Customization                  | Description                    |
++----------------------------+-----------+--------+---------+----------+--------------------------------+--------------------------------+
+| FormattedSqlHeaderRequired | changelog | sql,   | enabled | 0        | SQL_FILE_EXCEPTIONS_LIST =     | This check triggers when a     |
+|                            |           | xml,   |         |          | schema.sql,                    | changelog does not start with  |
+|                            |           | yaml,  |         |          | create_functions.sql,          | the required '--liquibase      |
+|                            |           | json   |         |          | add_indexes.sql                | formatted sql' header.         |
++----------------------------+-----------+--------+---------+----------+--------------------------------+--------------------------------+
+INFO: Customize 'checks show' table with --show-cols flag. Learn more with 'liquibase checks show --help'
+
+Liquibase command 'checks show' was executed successfully.</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
+            <li MadCap:conditions="checks-use.must-copy-customize">If you need to make any other changes, run the <code><MadCap:xref href="../../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref></code> command:</li><pre MadCap:conditions="checks-use.must-copy-customize"><code class="language-text">liquibase checks customize --check-name=&lt;string&gt;</code></pre>
+            <p class="note" MadCap:conditions="checks-use.must-copy-customize" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you want to create another variant of this check with different settings, use the <code><MadCap:xref href="../../../../commands/policy-checks/subcommands/copy.htm">copy</MadCap:xref></code> command to create a copy of the original check and then use the <code><MadCap:xref href="../../../../commands/policy-checks/subcommands/customize.htm">customize</MadCap:xref></code> command to customize it.</p>
+        </ol>
+        <h3>Run</h3>
+        <p>To run the check, use the <code><MadCap:xref href="../../../../commands/policy-checks/subcommands/run.htm">run</MadCap:xref></code> command:</p>
+        <div class="js-tabs">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#cli_example_use" id="label_cli_example_use" class="js-tablist__link">CLI example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#flow_example_use" id="label_flow_example_use" class="js-tablist__link">Flow example</a>
+                </li>
+            </ul>
+            <div id="cli_example_use" class="js-tabcontent"><pre xml:space="preserve"><code class="language-cli">liquibase checks run --check-name=formattedSqlHeaderRequired</code></pre>
+            </div>
+            <div id="flow_example_use" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">stages:
+  Default:
+    actions:
+      - type: liquibase
+        command: checks run
+        cmdArgs: {check-name: formattedSqlHeaderRequired}</code></pre>
+                <p>And then run the <code><MadCap:xref href="../../../../commands/flow/flow.htm">flow</MadCap:xref></code> command on your flow file:</p><pre xml:space="preserve"><code class="language-text">liquibase flow</code></pre>
+            </div>
+        </div>
+        <p>The Checks Run report will appear for you to review if this check triggered.</p>
+        <p>
+            <img src="../../../../Z_Resources/Images/Screenshots/formatted-sql-header-required-report.png" />
+            <br />
+        </p>
         <h2>Related links</h2>
         <ul>
             <li>
