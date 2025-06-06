@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="exclude.future">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-property-substitution.html" />
         <meta name="description" content="In Liquibase Pro 4.31+, users who utilize Custom Policy Checks can use property substitution when they are setting the SCRIPT_ARGS during check creation. You can reference properties such as environment variables, CLI arguments, or values from the defaults file using standard property substitution syntax." />
@@ -8,227 +8,65 @@
     <body>
         <MadCap:snippetBlock src="../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <h1>Custom&#160;Policy Check property substitution</h1>
-        <p>In Liquibase Pro 4.31+, users who utilize Custom Policy Checks can use <a href="https://docs.liquibase.com/concepts/changelogs/property-substitution.html">property substitution</a> when they are setting the <code>SCRIPT_ARGS</code> during <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/create-check.html#:~:text=custom_check_no_tables.py.-,Set SCRIPT_ARGUMENT,-. This allows you">check creation</a>. You can reference properties such as environment variables, CLI arguments, or values from the defaults file using standard property substitution syntax. This enables dynamic and context-aware scripting, such as configuring behavior based on runtime attributes like the current Git branch or target environment. It makes your Custom Policy Checks more flexible, reusable, and maintainable. The values to replace in your Custom Policy Check are described using the <code>${property-name}</code> syntax.</p>
+        <p>In Liquibase Pro 4.31+, users who utilize Custom Policy Checks can use property substitution when they are setting the <code>SCRIPT_ARGS</code> during <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/create-check.html#:~:text=custom_check_no_tables.py.-,Set SCRIPT_ARGUMENT,-. This allows you">check creation</a>. You can reference properties such as environment variables, CLI arguments, or values from the defaults file using standard property substitution syntax. This enables dynamic and context-aware scripting, such as configuring behavior based on runtime attributes like the current Git branch or target environment. It makes your Custom Policy Checks more flexible, reusable, and maintainable. The values to replace in your Custom Policy Check are described using the <code>${property.name}</code> syntax.</p>
         <h2>Uses</h2>
-        <p>By substituting values for replacement values in the format of <code>${property-name}</code>, you can use the same <code>SCRIPT_ARGS</code> to reflect small environmental changes.</p>
+        <p>By substituting values for replacement values in the format of <code>${property.name}</code>, you can use the same <code>SCRIPT_ARGS</code> to reflect small environmental changes.</p>
         <p>For example, your tablespace name in Oracle may differ from environment to environment, but you want to only write one create table <MadCap:variable name="General.changeset" /> that can be used in all of your environments.</p>
         <h2>Example scenario 1:</h2>
         <p>In this example, a Python script needs to run against a target URL, but you don’t know the URL ahead of time. Instead of hard coding it, you can use the value that Liquibase sets for <code>liquibase.command.url</code>, since that’s always the correct target for each operation. <br /><br />By adding the below script to the Custom Policy Check script, Liquibase can then use that value automatically.<br /><br /><code>targeturl= "${liquibase.command.url}"</code></p>
-        <h2>example scenario 2:&#160;</h2>
+        <h2>Example scenario 2:&#160;</h2>
         <p>In this example, the script needs to behave differently depending on who owns the pipeline. If the pipeline name starts with <code>UK_DEV_APPS_</code>, you want to run a conditional action. I can do this by passing a variable like <code>${PIPELINE_NAME}</code> into my script, and using Python to check if the name starts with <code>UK_DEV_APPS_</code>. <br /><br />By adding the below script to the Custom Policy Check script, <MadCap:variable name="General.CompanyName" /> can decide whether to run certain actions or skip them.<br /><br /><code>pipelinename="${PIPELINE.TEAM}"</code><br /></p>
-        <h1>Substituting Properties in Changelogs</h1>
+        <h2>Prerequisites</h2>
+        <p>Understand the concept of the Checks Settings file:&#160;<MadCap:xref href="../workflows/checks-settings-file.htm">Use the Checks Settings Configuration File</MadCap:xref></p>
         <h2>Using property substitution in your Custom Policy Check</h2>
         <p>You can set property values in Liquibase in several ways. Liquibase assigns these values in the following order:</p>
         <ol>
-            <li>As an <MadCap:variable name="General.Param/Attribute" /> passed to your Liquibase runner. See the <a href="https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/ant/">Ant</a>, <MadCap:xref href="../../../tools-integrations/maven/home.html">Maven</MadCap:xref>, or <a href="https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/servlet-listener/">Servlet Listener</a> documentation for more information on how to pass them.</li>
-            <li>As a JVM system property. See <MadCap:xref href="../../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref> for more information.</li>
-            <li>As an environment variable. See <MadCap:xref href="../../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref> for more information.</li>
-            <li>As a CLI <MadCap:variable name="General.Param/Attribute" />, if executed from the command line. Use the syntax <code>liquibase &lt;command.name&gt; -D&lt;property.name&gt;=&lt;property.value&gt;</code>. On Windows, surround the property name in quotation marks if it contains a dot. For example: <code>-D"property.name"=value</code>.</li>
-            <li>In the parameters block (property element of the <MadCap:variable name="General.changelog" /> file itself).</li>
+            <li>First navigate to your Checks Settings file and add the value of the property you want to substitute under the parameters section. This is the arg that will pass to the Custom Policy Check Python script.<br />In this example, we will use <code>value:&#160;your-property-here={changelog}::${url}</code></li>
+            <li>Navigate to the Custom Policy Check Python script and add the coordinating line to call on the properties in the Checks Settings file.<br />In this example we will add <code>logger.info("TEST VALUE&#160;= " + liquibase_utilities.get_arg("your-property-here")</code><br />This will pull the <MadCap:variable name="General.changelog" /> file and the url from your Checks Settings file into the Custom Policy Check script.</li>
         </ol>
-        <p>Once a property has been set, it cannot be changed. Also, only the first definition is used, others are skipped.</p>
+        <p>&#160;</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the content of <code>${property-name}</code> does not match a property, it is left as-is and it is not removed.  The supported format includes alphanumeric characters, <code>+</code>, <code>-</code>, <code>.</code> , and <code>_</code>.</p>
-        <h3><code>sql</code> and <code>sqlFile</code></h3>
-        <p MadCap:conditions="exclude.future">You can use property substitution with the <code><MadCap:xref href="../../../change-types/sql.html">sql</MadCap:xref></code> and <code><MadCap:xref href="../../../change-types/sql-file.html">sqlFiles</MadCap:xref></code>&#160;in&#160;Custom Policy Checks. Note that Liquibase obtains the <a href="../../../concepts/changelogs/changeset-checksums.htm">checksum</a> of a <code>sql</code>&#160;<MadCap:variable name="General.changeset" />&#160;<b>after</b> substituting any properties you specify. However, it obtains the checksum of a <code>sqlFile</code>&#160;<MadCap:variable name="General.changeset" />&#160;<b>before</b> substituting the properties in the external SQL file.</p>
-        <p>This affects the behavior of <MadCap:variable name="General.Param/Attribute" />s like <code><MadCap:xref href="../../../concepts/changelogs/attributes/runonchange.htm">runOnChange</MadCap:xref></code>. For example, suppose you set an environment variable <code>ENV_EXAMPLE=value</code> and you use property substitution for <code>ENV_EXAMPLE</code> in two <MadCap:variable name="General.changeset" />s:&#160;<code>sql</code> and <code>sqlFile</code>. If you deploy your changes with the <code><MadCap:xref href="../../../commands/update/update.html">update</MadCap:xref></code> command, <code>ENV_EXAMPLE</code> is substituted for the value you set. Suppose each <MadCap:variable name="General.changeset" /> is also labeled with <code>runOnChange=true</code>, so if you run the <code>update</code> command, the <MadCap:variable name="General.changeset" />s rerun only if their contents have changed since the last deployment. If you then set <code>ENV_EXAMPLE=new_value</code> and run <code>update</code>, only the <code>sql</code>&#160;<MadCap:variable name="General.changeset" /> runs a second time.</p>
-        <h2>Nested properties</h2>
-        <table style="width: 100%;margin-left: auto;margin-right: auto;">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Required for</th>
-                    <th>Supports</th>
-                    <th>Multiple allowed?</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>&lt;property&gt;</code>
-                    </td>
-                    <td>Defined before <MadCap:variable name="General.changeset" /><i>s </i>in the <MadCap:variable name="General.changelog" /></td>
-                    <td>Substituting portions of a <MadCap:variable name="General.changeset" /> during runtime</td>
-                    <td>All supported <MadCap:variable name="General.changeset" /> tokens</td>
-                    <td>No. Property names are unique and can only be set one.</td>
-                </tr>
-            </tbody>
-        </table>
-        <h2>Available attributes</h2>
-        <table style="margin-left: auto;margin-right: auto;width: 100%;">
-            <thead>
-                <tr>
-                    <th>Attribute</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>name</code>
-                    </td>
-                    <td>The name of the parameter. <b>Required if <code>file</code> is not set</b></td>
-                </tr>
-                <tr>
-                    <td><code>value</code>
-                    </td>
-                    <td>The value  of the property. <b>Required if <code>file</code> is not set</b></td>
-                </tr>
-                <tr>
-                    <td><code>file</code>
-                    </td>
-                    <td>The name of the file from which the properties should be loaded. It will create a property for all properties in the file. 
-The content of the file must follow the Java properties file format.</td>
-                </tr>
-                <tr>
-                    <td><code>relativeToChangelogFile</code>
-                    </td>
-                    <td>The <code>relativeToChangelogFile</code> attribute is used <b>in conjunction</b> with the <code>file</code> attribute to allow Liquibase to find the referenced file without having to configure <MadCap:xref href="../../../parameters/search-path.htm">search-path</MadCap:xref>.<br /><br />The default for <code>relativeToChangelogFile</code> remains <code>FALSE</code> for backwards compatibility.</td>
-                </tr>
-                <tr>
-                    <td><code>context</code>
-                    </td>
-                    <td>Contexts in which the property is valid. Expected as a comma-separated list.  </td>
-                </tr>
-                <tr>
-                    <td><code>dbms</code>
-                    </td>
-                    <td>
-                        <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/change-types/change-type-dbms.flsnp" />
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>global</code>
-                    </td>
-                    <td>Boolean. The <MadCap:variable name="General.Param/Attribute" /> defines whether the property is global or limited to the actual <MadCap:variable name="General.databasechangelog" />.  <b>Default:&#160;<code>true</code></b>. </td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="js-tabs">
-            <ul class="js-tablist" data-hx="h2">
-                <li class="js-tablist__item"><a href="#sql_example" id="label_sql_example" class="js-tablist__link">SQL example</a>
-                </li>
-                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
-                </li>
-                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
-                </li>
-                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
-                </li>
-            </ul>
-            <div id="sql_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>
+                <p>Custom Policy Check that includes Property Substitution</p>
+            </MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">import sys
+import liquibase_utilities
+import liquibase_changesets
+#
+# Get the logger handle
+#
+logger = liquibase_utilities.get_logger()
+logMode = liquibase_utilities.get_arg("logger")
+executed_by = liquibase_utilities.get_arg("executedBy")
+changelog_file = liquibase_utilities.get_arg("changelogFile")
 
---changeset example:1
-CREATE TABLE ${schema.name}.person
-( id int primary key,
-  first_name varchar(50) NOT NULL,
-  last_name varchar(50) NOT NULL
-)</code></pre>
-                <p>Using the example <MadCap:variable name="General.changelog" /> and running the <code>liquibase update-sql</code> command with the configured environment variable <code>schema.name=dev_schema</code>, you will receive the following SQL output: <code>CREATE TABLE dev_schema.person</code>.</p>
-                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Dynamic property substitution via changelog is only supported with formatted SQL. It is not supported for raw SQL.</p>
-            </div>
-            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
-  -  property:
-        dbms:  oracle,postgresql
-        name:  clob.type
-        value:  clob
-  -  property:
-        dbms:  mysql,mariadb
-        name:  clob.type
-        value:  longtext
-  -  property:
-        name:  table.name
-        value:  tableA
-  -  changeSet:
-          id:  1
-          author:  joe
-          dbms: mariadb
-          changes:
-          -  createTable:
-               tableName:  ${table.name}
-               columns:
-                 -  column:
-                      name:  id
-                      type:  int
-                 -  column:
-                      name:  Column1
-                      type:  ${clob.type}
-                 -  column:
-                      name:  Column2
-                      type:  int</code></pre>
-            </div>
-            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">{
-  "databaseChangeLog": [
-    {
-      "property": {
-        "_name": "clob.type",
-        "_value": "clob",
-        "_dbms": "oracle,postgresql"
-      }
-    },
-    {
-      "property": {
-        "_name": "clob.type",
-        "_value": "longtext",
-        "_dbms": "mysql"
-      }
-    },
-    {
-      "property": {
-        "_name": "table.name",
-        "_value": "tableA"
-      }
-    },
-    {
-      "changeSet": {
-        "id": "1",
-        "author": "joe",
-        "dbms": "mariadb",
-        "changes": [
-          {
-            "createTable": {
-              "tableName": "${table.name}",
-              "columns": [
-                {
-                  "column": {
-                    "name": "id",
-                    "type": "int"
-                  }
-                },
-                {
-                  "column": {
-                    "name": "Column1",
-                    "type": "${clob.type}"
-                  }
-                },
-                {
-                  "column": {
-                    "name": "Column2",
-                    "type": "int"
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    }
-  ]
-}</code></pre>
-            </div>
-            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml"><MadCap:snippetText src="../../../Z_Resources/Snippets/code/liquibase-xsd-xml-changelog-closed.flsnp" />
-						
-    &lt;property  name="clob.type"  value="clob"  dbms="oracle,postgresql"/&gt;
-    &lt;property  name="clob.type"  value="longtext"  dbms="mysql"/&gt;
-    &lt;property  name="table.name"  value="tableA"/&gt;
+#
+# Fire if no labels
+#
+change_set = liquibase_utilities.get_changeset()
+labels = change_set.getLabels()
+logger.info("Labels are " + labels.toString())
+if labels.isEmpty() == True:
+    status = liquibase_utilities.get_status()
+    status.fired = True
+    status.message = liquibase_utilities.get_script_message()
+    if status.message == None:
+        status.message = "The check has fired"
+    sys.exit(1)
+#
+# Log additional attributes
+#
 
-    &lt;changeSet  id="1"  author="joe" dbms="mariadb"&gt;
-        &lt;createTable tableName="${table.name}"&gt;
-            &lt;column  name="id"  type="int"/&gt;
-            &lt;column  name="Column1"  type="${clob.type}"/&gt;
-            &lt;column  name="Column2"  type="int"/&gt;
-        &lt;/createTable&gt;
-    &lt;/changeSet&gt;
+logger.info("LOG LEVEL = " + logMode)
+logger.info("EXECUTED BY = " + executed_by)
+logger.info("CHANGELOG FILE = " + changelog_file)
 
-&lt;/databaseChangeLog&gt;</code></pre>
-            </div>
-        </div>
+#
+# Fall through and return False
+#
+False</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
     </body>
 </html>
