@@ -12,43 +12,28 @@
             <img src="../../Z_Resources/Images/Diagrams/flowfile-basic.png" />
         </p>
         <h2>Actions</h2>
-        <p><code>type</code> specifies the type of action such as <code>liquibase</code>, <code>shell</code>, or <code>control</code>.<br /></p>
-        <p><code>command</code> specifies the <a href="../../commands/home.htm">Liquibase Commands</a> to execute.</p>
-        <p><code>if</code> specifies an optional conditional such as <code>exitCode</code></p>
-        <p><code>cmdArgs</code> specifies the arguments for the command and  uses the following format:</p><pre><code class="language-text">cmdArgs: {argument: value, snapshot-format: JSON}</code></pre>
-        <p><code>continueOnError</code> specifies if the flow continues execution if this command fails.</p>
-        <p>Put all of these parameters together in one Flow file:</p><pre xml:space="preserve"><code class="language-yaml">## Note: Any command which fails in any stage below result in the command stopping, and endStage being run.
-## A flow file can have one or more stages, each with multiple "actions", 
-## or your flow file can have multiple stages with fewer actions in each stage.
-
-stages:
-
-  ## The first stage of actions. 
-  Default:
-        
+        <ul><li><code>type</code> specifies the type of action such as <code>liquibase</code>, <code>shell</code>, or <code>control</code>.<br /></li>
+        <li><code>command</code> specifies the <a href="../../commands/home.htm">Liquibase Commands</a> to execute.</li>
+        <li><code>if</code> specifies an optional conditional such as <code>exitCode</code></li>
+        <li><code>cmdArgs</code> specifies the arguments for the command and  uses the following format:</li><pre><code class="language-text">cmdArgs: {argument: value, snapshot-format: JSON}</code></pre>
+        <li><code>continueOnError</code> specifies if the flow continues execution if this command fails.</li></ul>
+        <p>Put all of these parameters together in one Flow file:</p>
+        <MadCap:codeSnippet>
+            <MadCap:codeSnippetCopyButton />
+            <MadCap:codeSnippetCaption>Flow file including all parameters</MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve"> # flow-file-a
+ stages:
+  stage1:
     actions:
-      # Policy Checks for changelog
       - type: liquibase
-        command: checks run
-        cmdArgs: {checks-scope: changelog}
-	 contnueOnError: true #Continue flow execution if this commnand fails. 
-        
-      # Run the update
+        command: flow
+        cmdArgs: {flow-file: 'flow-file-b.yml'}
+        continueOnError: true
+        # Flow failed with an exit command, but continue-on-error is true
+        # Exit code is 4 so history will execute
       - type: liquibase
-        command: update
-          
-      # Policy Checks for database
-      - type: liquibase
-        command: checks run
-        cmdArgs: {checks-scope: database}
-
-## The endStage ALWAYS RUNS. 
-## So put actions here which you desire to perform whether previous stages' actions succeed or fail.
-## If you do not want any actions to ALWAYS RUN, simply delete the endStage from your flow file.
-
-endStage:
-  actions:
-    - type: liquibase
-      command: history</code></pre>
+        if: 'exitCode == 4'
+        command: history</MadCap:codeSnippetBody>
+        </MadCap:codeSnippet>
     </body>
 </html>
