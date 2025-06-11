@@ -5,6 +5,50 @@
     <body>
         <MadCap:snippetBlock src="../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
         <h1>Flow File Action Parameters</h1>
-        <p>Flow files contain one or more Stages that contain Actions which are individual <a href="../../commands/home.htm">Liquibase Commands</a> or <MadCap:xref href="shell-commands.htm">Shell Commands</MadCap:xref> that execute within <code>stages</code> or <a href="advanced-flow-file.htm"><code>endStage</code></a> as part of the Flow File. Any Liquibase command arguments (abbreviated as <code>cmdArgs</code> in the Flow File) can be placed in any <code>action</code> section, with the exception of the global arguments shown in: <MadCap:xref href="#Incompat">Incompatible commands and global arguments</MadCap:xref>.</p>
+        <p>Flow files contain one or more Stages that contain Actions which are individual <a href="../../commands/home.htm">Liquibase Commands</a> or <MadCap:xref href="shell-commands.htm">Shell Commands</MadCap:xref> that execute within <code>stages</code> or <a href="advanced-flow-file.htm"><code>endStage</code></a> as part of the Flow File. Any Liquibase command arguments can be placed in any <code>action</code> section, with the exception of the global arguments shown in: <MadCap:xref href="#Incompat">Incompatible commands and global arguments</MadCap:xref>.</p>
+        <h2>Organization</h2>
+        <p>The Flow File contains one or more Stages and Actions. Below are definitions of these and a visual aid.</p>
+        <p class="center">
+            <img src="../../Z_Resources/Images/Diagrams/flowfile-basic.png" />
+        </p>
+        <h2>Actions</h2>
+        <p><code>type</code> specifies the type of action such as <code>liquibase</code>, <code>shell</code>, or <code>control</code>.<br /></p>
+        <p><code>command</code> specifies the <a href="../../commands/home.htm">Liquibase Commands</a> to execute.</p>
+        <p><code>if</code> specifies an optional conditional such as <code>exitCode</code></p>
+        <p><code>cmdArgs</code> specifies the arguments for the command and  uses the following format:</p><pre><code class="language-text">cmdArgs: {argument: value, snapshot-format: JSON}</code></pre>
+        <p><code>continueOnError</code> specifies if the flow continues execution if this command fails.</p>
+        <p>Put all of these parameters together in one Flow file:</p><pre xml:space="preserve"><code class="language-yaml">## Note: Any command which fails in any stage below result in the command stopping, and endStage being run.
+## A flow file can have one or more stages, each with multiple "actions", 
+## or your flow file can have multiple stages with fewer actions in each stage.
+
+stages:
+
+  ## The first stage of actions. 
+  Default:
+        
+    actions:
+      # Policy Checks for changelog
+      - type: liquibase
+        command: checks run
+        cmdArgs: {checks-scope: changelog}
+	 contnueOnError: true #Continue flow execution if this commnand fails. 
+        
+      # Run the update
+      - type: liquibase
+        command: update
+          
+      # Policy Checks for database
+      - type: liquibase
+        command: checks run
+        cmdArgs: {checks-scope: database}
+
+## The endStage ALWAYS RUNS. 
+## So put actions here which you desire to perform whether previous stages' actions succeed or fail.
+## If you do not want any actions to ALWAYS RUN, simply delete the endStage from your flow file.
+
+endStage:
+  actions:
+    - type: liquibase
+      command: history</code></pre>
     </body>
 </html>
