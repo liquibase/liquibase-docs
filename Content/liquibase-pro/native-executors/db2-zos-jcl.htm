@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>Use native executors with DB2 z/OS</h1>
+        <p>Liquibase supports the JCL native executor to integrate with DB2 z/OS&#160;mainframe operations into your Liquibase change management workflow. This allows you to submit JCL jobs and track them in the Liquibase changelog by using the <a href="../../concepts/changelogs/attributes/runwith.htm">runWith</a> attribute on <a href="../../concepts/changelogs/changeset.html">changesets</a> in the <a href="../../concepts/changelogs/home.html">changelog</a> that require JCL jobs.</p>
+        <p>This article walks through how to add a column in the middle of a table on DB2 z/OS. Since DB2 does not support reordering columns directly, this operation requires unloading the table data, dropping the table, recreating it with the new column in the desired position, and then reloading the data.</p>
+        <p>While this specific example focuses on adding a column, the broader goal is to demonstrate how you can use Liquibase’s native JCL executor to automate any operation on DB2 z/OS that requires mainframe utilities, such as UNLOAD, LOAD,  or any custom JCL-based task.</p>
+        <p>By following this pattern, you can adapt the same changelog structure to perform more complex or organization-specific workflows that integrate JCL jobs into your deployment pipeline.</p>
+        <h2>1. Configure your liquibase.properties file</h2>
+        <p>To use the JCL executor with Liquibase on DB2 z/OS, you must set several required properties in your <code><a href="../../concepts/connections/creating-config-properties.html">liquibase.properties</a></code> file.</p>
+        <p>Before using the example properties file below, be sure to:</p>
+        <ul>
+            <li>Replace <i>your_hostname</i>, <i>your_port</i>, and <i>your_db_name</i> in the connection url for your database </li>
+            <li>Replace <i>your_username</i> and <i>your_password</i>
+with the username and password for authenticating with the DB2 instance </li>
+            <li>Replace <i>your_schema</i> with the name of the DB2 schema Liquibase should use.</li>
+            <li>Replace <i>/tmp/jcl.log</i> with your preferred output file name and path, if desired.</li>
+        </ul>
+        <h3>Example liquibase.properties file</h3><pre><code class="language-text">
+driver: com.ibm.db2.jcc.DB2Driver
+url: jdbc:db2://your_hostname:your_port/your_db_name
+username: your_username
+password: your_password
+defaultSchemaName: your_schema
+
+liquibase.jcl.logFile: /tmp/jcl.log
+liquibase.jcl.overwrite.logFile: true
+liquibase.reports.enabled: true
+		</code></pre>
+        <h2>2. Configure your changelog</h2>
+        <p>The following changelog demonstrates how to add a column to the middle of a table on DB2 z/OS. Since DB2 doesn’t allow altering column order directly, you’ll need to:</p>
+        <ol>
+            <li>Unload the table's data
+            </li>
+            <li>Drop the table            </li>
+            <li>Create the table with the new column
+            </li>
+            <li>Load the table's data</li>
+        </ol>
+        <p>Each of these steps is represented by a changeset in the changelog.</p>
+        <p>Before using this changelog, make sure you’ve created the appropriate <code>.jcl</code> and <code>.sql</code> files for each step and saved them in the correct paths referenced by <code>--include</code> file.</p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">While this example focuses on modifying table structure, the same pattern applies to any mainframe-native operation that you need to integrate into a Liquibase workflow. The <code>runWith:jcl</code> option enables Liquibase to submit and manage these operations natively on DB2 z/OS, so be sure to add this to any changesets that include jcl.</p><pre><code class="language-text">
+--liquibase formatted sql
+
+--changeset liquibase-deployer:create-objects-1 runWith:jcl
+--comment: Creating objects on DB2 z/OS
+--file path:jcl/unload.jcl
+
+--changeset liquibase-deployer:create-objects-2
+--comment: Drop the table on DB2 z/OS
+--file path:sql/drop.sql</code></pre><pre><code class="language-text">
+--changeset liquibase-deployer:create-objects-3
+--comment: Create the table on DB2 z/OS
+--file path:sql/create.sql
+
+--changeset liquibase-deployer:create-objects-4 runWith:jcl
+--comment: Creating objects on DB2 z/OS
+--file path:jcl/load.jcl</code></pre><pre>&#160;</pre>
+        <h2>3. Run the workflow</h2>
+        <p>Once you have your liquibase.properties set up and your changelog file created, you run your changelog file to test that your operations complete successfully. </p>
+        <p style="font-style: normal;">Use the example code to apply the changelog. Be sure to update <i>your_changelog_file</i>.</p><pre><code class="language-text">liquibase update --changelog-file=your_changelog_file</code></pre>
+        <p>If the command is successful, you'll see:</p><pre><code class="language-text">Liquibase command 'update' was executed successfully</code></pre>
+        <p>If there is an error you'll see:</p><pre><code class="language-text">JOB FAILED - JCL ERROR</code></pre>
+        <p>You should also see a Liquibase update report open in a browser window with the execution details including the JCL script and generated SQL that you can use to troubleshoot any issues.</p>
+    </body>
+</html>
