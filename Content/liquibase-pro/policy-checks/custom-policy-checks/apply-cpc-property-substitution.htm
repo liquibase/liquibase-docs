@@ -1,9 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:conditions="exclude.future">
-    <head>
-    </head>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+	<head><title><MadCap:variable name="Heading.Level1" /></title>
+		<link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/apply-cpc-property-substitution.html" />
+		<meta name="description" content="This tutorial shows you how to substitute properties within a Custom Policy Check." />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	</head>
     <body>
-        <h1>Apply Custom Policy Checks Property Substitution</h1>
+        <h1>Apply Custom Policy Checks property substitution</h1>
         <p>In Liquibase Pro 4.31+, you can utilize <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-property-substitution.html">Custom Policy Checks property substitution</a> when setting the <code>SCRIPT_ARGS</code> during <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/create-check.html#:~:text=custom_check_no_tables.py.-,Set SCRIPT_ARGUMENT,-. This allows you">check creation</a>. This enables dynamic and context-aware scripting, such as configuring behavior based on runtime attributes like the current Git branch or target environment. It makes your Custom Policy Checks more flexible, reusable, and maintainable.</p>
         <h2>Prerequisites</h2>
         <ul>
@@ -11,12 +14,19 @@
             <li>Review the <MadCap:xref href="cpc-property-substitution.htm">Custom&#160;Policy Check property substitution</MadCap:xref> concept content</li>
         </ul>
         <h2>Using property substitution in your Custom Policy Check</h2>
-        <p>You can set property values in Liquibase in several ways. Liquibase assigns these values in the following order:</p>
+        <p>You can substitute any command argument, system property, or environment variable within the <MadCap:variable name="General.CompanyName" /> ecosystem. Liquibase assigns these values in the following order:</p>
+        <p><code>SCRIPT_ARGS</code> syntax used when creating a Custom Policy check:</p>
+        <ul>
+            <li><MadCap:variable name="General.liquiPropFile" /> file example:&#160;<code>targeturl="${liquibase.command.url}"</code></li>
+            <li>User supplied property:&#160;<code>pipelinename="${PIPELINE_NAME}"</code></li>
+            <li>Environment variable example:&#160;<code>logfile="${LIQUIBASE_LOG_LEVEL}"</code></li>
+        </ul>
+        <h3>Property substitution with system properties</h3>
         <ol>
-            <li>First navigate to your Checks Settings file and add the value of the property you want to substitute under the parameters section. This is the arg that will pass to the Custom Policy Check Python script.<br />In this example, we will use <code>value:&#160;your-property-here={changelog}::${url}</code></li>
-            <li>Navigate to the Custom Policy Check Python script and add the coordinating line to call on the properties added to the Checks Settings file in step 1.<br />In this example we will add <code>logger.info("TEST VALUE&#160;= " + liquibase_utilities.get_arg("your-property-here")</code><br />This will pull the <MadCap:variable name="General.changelog" /> file and the url from your Checks Settings file into the Custom Policy Check script.</li>
+            <li>First navigate to your Checks Settings file and add the value of the property you want to substitute under the <code>SCRIPT_ARGS</code>&#160;section. This is the arg that will pass to the Custom Policy Check Python script.<br />Syntax: <code>value:&#160;example-property-here={changelog}::${url}</code><br />In this example, we will use <code>value:&#160;example-property-here={changelog}::${url}</code> which will pull both the changelog and url file into the Custom Policy Check. When you are creating your own property in your Checks Settings file, be sure to name your property appropriately so you know what properties are being substituted.<img src="../../../Z_Resources/Images/Screenshots/CPC/cpc-script-arg example.png" /><br /></li>
+            <li>Navigate to the Custom Policy Check Python script and add the coordinating line to call on the properties added to the Checks Settings file in step 1.<br />In this example we will add <code>logger.info("TEST VALUE&#160;= " + liquibase_utilities.get_arg("example-property-here")</code><br />This will pull the <MadCap:variable name="General.changelog" /> file and the url from your Checks Settings file into the Custom Policy Check script.</li>
+            <li>Run the liquibase checks run command.<br />In this example we will run<code> liquibase checks run --check-name=changelog-and-url</code><br />When the check runs, the output will be a version of this depending on what your changelog and database url are named: <code>changelog-xml::jdbc:postgresql://localhost6432/intuserdb</code> </li>
         </ol>
-        <p>&#160;</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the content of <code>${property-name}</code> does not match a property, it is left as-is and it is not removed.  The supported format includes alphanumeric characters, <code>+</code>, <code>-</code>, <code>.</code> , and <code>_</code>.</p>
         <MadCap:codeSnippet>
             <MadCap:codeSnippetCopyButton />
@@ -60,5 +70,16 @@ logger.info("CHANGELOG FILE = " + changelog_file)
 #
 False</MadCap:codeSnippetBody>
         </MadCap:codeSnippet>
+        <h3 MadCap:conditions="exclude.future">Property substitution with an environment variable</h3>
+        <ol MadCap:conditions="exclude.future">
+            <li>
+                <p>First navigate to your Checks Settings file and add the value of the environment variable you want to substitute under the <code>SCRIPT_ARGS</code>&#160;section. This is the arg that will pass to the Custom Policy Check Python script.<br />Syntax: <code>value:&#160;example-property-here=${TEST_ENV}</code><br />In this example, we will use <code>value=${ENV_VAR}</code> which will pull the environment variable into the Custom Policy Check. <br />When you are creating your own property in your Checks Settings file, be sure to name your property appropriately so you know what properties are being substituted.<br /></p>
+                <p>
+                    <img src="../../../Z_Resources/Images/Screenshots/CPC/cpc-env-var-ex.png" />
+                </p>
+            </li>
+            <li>Navigate to the Custom Policy Check Python script and add the coordinating line to call on the environment variable added to the Checks Settings file in step 1.<br />In this example we will add <code>logger.info("TEST VALUE&#160;= " + liquibase_utilities.get_arg("example-property-here")</code><br />This will pull the <MadCap:variable name="General.changelog" /> file and the url from your Checks Settings file into the Custom Policy Check script.<br />An example output would be: <code>changelog-xml::jdbc:postgresql://localhost6432/intuserdb</code> which represents the changelog and database url that your property substitution pulled into your Custom Policy check.</li>
+        </ol>
+        <p>If a Custom&#160;Policy Check calls on a property that is not defined, you will get an error:<br /><code>Error while executing script 'test.py':&#160;Exception: No value found for argument 'test' line:&#160;13</code><br /></p>
     </body>
 </html>
