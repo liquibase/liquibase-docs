@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>Use LDAP&#160;Authentication with Liquibase and MongoDB</h1>
+        <p>Liquibase can connect to a MongoDB database using LDAP authentication by configuring MongoDB&#160;for LDAP and including the correct authentication parameters in the connection URL.</p>
+        <p>This guide walks you through:</p>
+        <ul>
+            <li>What setup is needed for the MongoDB server side for LDAP to work,
+and where to find <a href="https://www.mongodb.com/docs/manual/core/security-ldap-external/">MongoDB's documentation</a> to do so</li>
+            <li>How to configure your <a href="../../../concepts/connections/creating-config-properties.html">liquibase.properties</a> file for connecting via LDAP
+            </li>
+            <li>How to create a simple <a href="../../../concepts/changelogs/home.html">changelog file</a><![CDATA[
+            ]]></li>
+            <li>How to test the connection to verify your configuration is correct
+            </li>
+        </ul>
+        <p>By the end, you'll have a working Liquibase setup that connects securely to MongoDB using LDAP credentials.</p>
+        <h2>1. Configure MongoDB for LDAP</h2>
+        <p>Before using Liquibase with LDAP, ensure your MongoDB server is configured correctly to support LDAP authentication.</p>
+        <p>MongoDB must be set up to:</p>
+        <ul>
+            <li>Enable LDAP for external authentication
+            </li>
+            <li>Use the correct authenticationMechanisms, such as PLAIN
+            </li>
+            <li>Support connections over TLS/SSL if using the PLAIN mechanism
+            </li>
+        </ul>
+        <p>You'll need to refer to <a href="https://www.mongodb.com/docs/manual/core/security-ldap-external/">MongoDB's official documentation</a> for setup instructions.</p>
+        <h2>2. Configure your liquibase.properties </h2>
+        <p>Before using the example properties file below, be sure to:</p>
+        <ul>
+            <li style="font-style: normal;">Replace <i>your_changelog.js</i> with the name or path to your changelog file</li>
+            <li>Replace <i>your_hostname</i>, <i>your_port</i>, and <i>your_db_name</i> in the connection URL for your database
+</li>
+            <li>Replace <i>your_license_key</i> with your Liquibase Pro license key   </li>
+            <li>Replace <i>your_username</i> and <i>your_password</i> with the username and password for authenticating with MongoDB via LDAP
+            </li>
+            <li>Replace <i>/tmp/liquibase.log</i> with your preferred output file name and path, if desired
+            </li>
+        </ul><pre><code class="language-text">
+changeLogFile=your_changelog.js
+liquibase.command.url=mongodb://your_hostname:your_port/your_db_name?authMechanism=PLAIN&amp;authSource=$external
+liquibase.licenseKey=your_license_key
+username=your_username
+password=your_password
+logLevel=info
+logFile=/tmp/liquibase.log</code></pre>
+        <h2>3. Create a Test Chanelog File</h2>
+        <p>Before testing the connection, create a basic changlog file that performs a simple operation. The example changelog below creates a collection. </p>
+        <p>Be sure to save the changelog file with the same name you used for <i>your_changelog.js</i> in your <code>liquibase.properties</code> file and set the path appropriately to find the file.</p><pre><code class="language-text">
+// your_changelog.js
+// Liquibase formatted MongoDB changelog
+
+// Create a new collection
+db.createCollection("exampleCollection");
+		</code></pre>
+        <h2>Test the Connection</h2>
+        <p>To verify your LDAP setup is working with Liquibase:</p>
+        <ol>
+            <li>Open a terminal and navigate to the directory where your Liquibase files are stored.
+            </li>
+            <li>Run the following command:
+<br /><pre><code class="language-text">liquibase update</code></pre></li>
+			<li>If the connection is successful and the exampleCollection is created, your LDAP configuration is working correctly.</li>
+        </ol>
+    </body>
+</html>
