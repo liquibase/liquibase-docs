@@ -40,27 +40,110 @@ liquibase.reports.enabled: true
             <li>Load the table's data</li>
         </ol>
         <p>Each of these steps is represented by a changeset in the changelog.</p>
-        <p>Before using this changelog, make sure you’ve created the appropriate <code>.jcl</code> and <code>.sql</code> files for each step and saved them in the correct paths referenced by <code>--include</code> file.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">While this example focuses on modifying table structure, the same pattern applies to any mainframe-native operation that you need to integrate into a Liquibase workflow. The <code>runWith:jcl</code> option enables Liquibase to submit and manage these operations natively on DB2 z/OS, so be sure to add this to any changesets that include jcl.</p><pre><code class="language-text">
---liquibase formatted sql
+        <p>Before using this changelog, make sure you’ve created the appropriate <code>.jcl</code> and <code>.sql</code> files for each step and saved them in the correct paths referenced by <code>--include</code> file. </p>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">We support <a href="../../concepts/changelogs/property-substitution.html">property substitution</a> in your JCL scripts.</p>
+        <p>You can use these files if you'd like to use the example code:</p>
+        <ul>
+            <li><a href="../../Resources/Files/load.jcl" download="load.jcl">load.jcl</a>
+            </li>
+            <li><a href="../../Resources/Files/unload.jcl" download="unload.jcl">unload.jcl</a>
+            </li>
+            <li><a href="../../Resources/Files/create-alter.sql" download="create-alter.sql">create-alter.sql</a>
+            </li>
+            <li><a href="../../Resources/Files/drop.sql" download="drop.sql">drop.sql</a>
+            </li>
+        </ul>
+        <h3>
+            <br />Example Code</h3>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">While this example focuses on modifying table structure, the same pattern applies to any mainframe-native operation that you need to integrate into a Liquibase workflow. The <code>runWith:jcl</code> option enables Liquibase to submit and manage these operations natively on DB2 z/OS, so be sure to add this to any changesets that include jcl.</p>
+        <div class="js-tabs" MadCap:conditions="database.default">
+            <ul class="js-tablist" data-hx="h3">
+                <li class="js-tablist__item"><a href="#sql_example" id="label_sql_example" class="js-tablist__link">SQL example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#yaml_example" id="label_yaml_example" class="js-tablist__link">YAML example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#json_example" id="label_json_example" class="js-tablist__link">JSON example</a>
+                </li>
+                <li class="js-tablist__item"><a href="#xml_example" id="label_xml_example" class="js-tablist__link">XML example</a>
+                </li>
+            </ul>
+            <div id="sql_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-sql">--liquibase formatted sql
 
---changeset liquibase-deployer:create-objects-1 runWith:jcl
---comment: Creating objects on DB2 z/OS
+--changeset liquibase-deployer:unload-table-1 runWith:jcl
+--comment: Unloading table data on DB2 z/OS
 --file path:jcl/unload.jcl
 
---changeset liquibase-deployer:create-objects-2
---comment: Drop the table on DB2 z/OS
---file path:sql/drop.sql
-				
---changeset liquibase-deployer:create-objects-3
---comment: Create the table on DB2 z/OS
---file path:sql/create.sql
+--changeset liquibase-deployer:drop-objects-1
+--comment Drop objects ahead of creation of table with new column in middle
+--file path:sql/drop.sql 
 
---changeset liquibase-deployer:create-objects-4 runWith:jcl
---comment: Creating objects on DB2 z/OS
+--changeset liquibase-deployer:create-alter-objects-1
+--comment: Creating new table with new column in middle
+--file path:sql/create-alter.sql
+
+--changeset liquibase-deployer:load-table-1 runWith:jcl
+--comment: Loading table data on DB2 z/OS
 --file path:jcl/load.jcl</code></pre>
-        <h2>
-            <br />3. Run the workflow</h2>
+            </div>
+            <div id="yaml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-yaml">databaseChangeLog:
+<br />- changeSet:
+	id: unload-table-1
+	author: liquibase-deployer
+	runWith: jcl
+	changes:
+	- sqlFile:
+		path: jcl/unload.jcl
+		relativeToChangelogFile: true
+
+	- changeSet:
+		id: drop-objects-1
+		author: liquibase-deployer
+		changes:
+		- sqlFile:
+			path: sql/drop.sql
+			relativeToChangelogFile: true
+
+	- changeSet:
+		id: create-alter-objects-1
+		author: liquibase-deployer
+		changes:
+		- sqlFile:
+			path: sql/create-alter.sql
+			relativeToChangelogFile: true
+
+	- changeSet:
+		id: load-table-1 
+		author: liquibase-deployer
+		runWith: jcl
+		changes:
+		- sqlFile:
+			path: jcl/load.jcl
+			relativeToChangelogFile: true</code></pre>
+            </div>
+            <div id="json_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-json">
+{<br />&#160;&#160;"databaseChangeLog": [<br />&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;"changeSet": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"id": "unload-table-1",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"author": "liquibase-deployer",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"runWith": "jcl",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"changes": [<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"sqlFile": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"path": "jcl/unload.jcl",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"relativeToChangelogFile": "true"<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;]<br />&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;},<br />&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;"changeSet": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"id": "drop-objects-1",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"author": "liquibase-deployer",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"changes": [<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"sqlFile": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"path": "sql/drop.sql",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"relativeToChangelogFile": "true"<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;]<br />&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;},<br />&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;"changeSet": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"id": "create-alter-objects-1",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"author": "liquibase-deployer",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"changes": [<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"sqlFile": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"path": "sql/create-alter.sql",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"relativeToChangelogFile": "true"<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;]<br />&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;},<br />&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;"changeSet": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"id": "load-objects-1",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"author": "liquibase-deployer",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"runWith": "jcl",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"changes": [<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"sqlFile": {<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"path": "jcl/load.jcl",<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"relativeToChangelogFile": "true"<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;]<br />&#160;&#160;&#160;&#160;&#160;&#160;}<br />&#160;&#160;&#160;&#160;}<br />&#160;&#160;]<br />}
+</code></pre>
+            </div>
+            <div id="xml_example" class="js-tabcontent"><pre xml:space="preserve"><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;?xml&#160;version="1.1"&#160;encoding="UTF-8"&#160;standalone="no"?&gt;
+&lt;databaseChangeLog&#160;<br />xmlns="http://www.liquibase.org/xml/ns/dbchangelog"&#160;<br />xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"&#160;<br />xmlns:pro="http://www.liquibase.org/xml/ns/pro"&#160;<br />xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&#160;<br />xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext&#160;http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd&#160;http://www.liquibase.org/xml/ns/pro&#160;http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd&#160;http://www.liquibase.org/xml/ns/dbchangelog&#160;http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"&gt;
+&#160;&#160;&lt;property&#160;name="PORT"&#160;value="6432"/&gt;
+&#160;&#160;&lt;changeSet&#160;author="wesley&#160;(generated)"&#160;id="1692462595665-1"&#160;runWith="jcl"&gt;
+&#160;&#160;&#160;&#160;&lt;sqlFile&#160;path="jcl/unload.jcl"/&gt;
+&#160;&#160;&lt;/changeSet&gt;
+&#160;&#160;&lt;changeSet&#160;author="wesley&#160;(generated)"&#160;id="1692462595665-2"&gt;
+&#160;&#160;&#160;&#160;&lt;sqlFile&#160;path="sql/drop.sql"/&gt;
+&#160;&#160;&lt;/changeSet&gt;
+&#160;&#160;&lt;changeSet&#160;author="wesley&#160;(generated)"&#160;id="1692462595665-3"&gt;
+&#160;&#160;&#160;&#160;&lt;sqlFile&#160;path="sql/create-alter.sql"/&gt;
+&#160;&#160;&lt;/changeSet&gt;
+&#160;&#160;&lt;changeSet&#160;author="wesley&#160;(generated)"&#160;id="1692462595665-4"&#160;runWith="jcl"&gt;
+&#160;&#160;&#160;&#160;&lt;sqlFile&#160;path="jcl/load.jcl"/&gt;
+&#160;&#160;&lt;/changeSet&gt;
+&lt;/databaseChangeLog&gt;		</code></pre>
+            </div>
+        </div>
+        <h2>3. Run the workflow</h2>
         <p>Once you have your liquibase.properties set up and your changelog file created, you run your changelog file to test that your operations complete successfully. </p>
         <p style="font-style: normal;">Use the example code to apply the changelog. Be sure to update <i>your_changelog_file</i>.</p><pre><code class="language-text">liquibase update --changelog-file=your_changelog_file</code></pre>
         <p>If the command is successful, you'll see:</p><pre><code class="language-text">Liquibase command 'update' was executed successfully</code></pre>
