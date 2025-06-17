@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <MadCap:snippetBlock src="../../../../Z_Resources/Snippets/images/icon-pro-top.flsnp" />
+        <h1><code>MongoChangetypeAttributes</code>
+            <br />
+        </h1>
+        <p>The MongoChangetypeAttributes changelog check validates whether a specified attribute of a Mongo changetype is set to an exact value or pattern.</p>
+        <table>
+            <col />
+            <col />
+            <tbody>
+                <tr>
+                    <th colspan="2">About <code class="language-text">SqlUserDefinedPatternCheck</code></th>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Liquibase version required</td>
+                    <td>4.33.0+</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Scope (<code class="language-text">--checks-scope</code>)</td>
+                    <td><code class="language-text">changelog</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Default status</td>
+                    <td><code class="language-text">disabled</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Default severity (exit code)</td>
+                    <td><code class="language-text">0</code> ("<code class="language-text">INFO</code>")</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Customizable settings</td>
+                    <td>Yes (dynamic)</td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Prerequisites</h2>
+        <ul>
+            <li>You must have a valid <a href="../../../license-key.htm">Liquibase Pro license</a> to use this policy check.</li>
+        </ul>
+        <h2>Uses</h2>
+        <p>Use this check to enforce naming conventions, security standards, or deployment rules by validating specific fields in MongoDB changetypes. For example, you can:</p>
+        <ul>
+            <li>Require that <code>collectionName</code> starts with <code>prod_</code></li>
+            <li>Ensure the <code>command</code> field matches a specific structure
+            </li>
+            <li>Block deployments if a certain field does not follow your internal naming policies
+            </li>
+        </ul>
+        <p>You can define multiple checks with different attributes and patterns to match your standards across various changetypes.</p>
+        <h2>When does this check trigger?</h2>
+        <p>This check is fully driven by how you configure it. Once configured, the check will trigger only when <b>all</b> of the following are true:</p>
+        <ol>
+            <li>A changeset contains the specific changetype you specified, such as <code>createIndex</code></li>
+            <li>That changetype includes the attribute that you're checking, such as <code>collectionName</code></li>
+            <li>The attribute’s value <b>does not</b> match the value or regex pattern you've defined            </li>
+        </ol>
+        <p>If the changetype isn’t used, or the attribute isn’t present, the check <b>doesn’t run</b>. This ensures you're only enforcing rules when that part of the changelog is relevant.</p>
+        <h2>Configure the check</h2>
+        <ol>
+            <li>This check is disabled by default. To enable it, run the enable command:<br /><br /><code>liquibase checks enable --check-name=MongoChangetypeAttributes<br /><br /></code></li>
+            <li>Liquibase will prompt you to name your custom version of the check. By default, it will be named MongoChangetypeAttributes1. You can accept the default by pressing <b>Enter</b> or enter a custom name.<br /><br /></li>
+            <li>Set the severity level. This determines the exit code when the check is triggered. Choose one:<br /><ul><li>INFO (0)</li><li>MINOR (1)</li><li>MAJOR (2)</li><li>CRITICAL (3)</li><li>BLOCKER (4)</li></ul><br /></li>
+            <li>Set the MongoDB changetype this check will inspect. You’ll be prompted with:<br /><p><pre><code class="language-text">Set the changetype this check will inspect:<br />(options: adminCommand, createCollection, createIndex, dropCollection, dropIndex, insertMany, insertOne, runCommand)</code></pre></p><ul><li>Only one changetype is allowed per check</li><li>Input is case-insenesitive</li><li>Don't include commas or multiple values. Only input one valid name<br /></li></ul><br /></li>
+            <li>Once you've selected the changetype, you'll be walked through its specific attributes. These are based on the changetype you chose.
+ You'll use regex patterns to set commands for each value. Below is each available command and a common use case for that command. You can modify these examples to fit your own use case.<br /></li>
+            <p><b>createCollection</b> — Used to create new MongoDB collections. This check helps enforce naming conventions for collections being created. To require collection names to start with prod_, you'll first set collectionName to the attribute you want to validate, and then apply a pattern to it.</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName <br />
+Set 'OPTIONS' (requires string attributes specific to the change type): ^prod_.*$</code></pre>
+            </p>
+            <p><b>createIndex</b> — Used to create indexes on collections. You can enforce rules on the collection name, index structure, or index options. To enforce a unique index, you might check for <code>"unique":true</code> in <code>OPTIONS</code>.</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
+Set 'KEYS' (requires a document that defines the index's basic contents and structure):: keys<br />
+Set 'OPTIONS' (requires string attributes specific to the change type): .*"unique"\s*:\s*true.*</code></pre>
+            </p>
+            <p><b>dropIndex</b> — Used to drop indexes from collections. You can enforce rules on which collections and indexes can be dropped by specifying the collection name and index keys. </p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
+Set 'KEYS' (requires a document that defines the index's basic contents and structure): keys</code></pre>
+            </p>
+            <p><b>insertMany</b> — Used to insert multiple documents into a collection. You can enforce rules on the structure or contents of the documents being inserted. To require documents that include <code>"status": "active"</code>, you’d set:</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
+Set 'DOCUMENTS' (requires JSON that defines the objects to insert): documents<br />
+Set 'OPTIONS' (requires string attributes specific to the change type): .*"status"\s*:\s*"active".*</code></pre>
+            </p>
+            <p><b>insertOne</b> — Used to insert a single document into a collection. You can enforce rules on the structure or contents of the document being inserted. For example, to require a document containing "status": "active", you’d set:</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
+Set 'DOCUMENT' (requires JSON that defines the object to insert): document<br />
+Set 'OPTIONS' (requires string attributes specific to the change type): .*"status"\s*:\s*"active".*<br /></code></pre>
+            </p>
+            <p><b>MONGO_FILE</b> — Used to load MongoDB commands from an external file. You can enforce rules on the file path or metadata related to the file. For example, to require the file path to be within a specific directory and mark it as relative to the changelog, you’d set:</p>
+            <p><pre><code class="language-text">Set 'DBMS' (options: DYNAMODB, MONGODB) [MONGODB]: MONGODB
+Set 'PATH' (requires string for the file path of the Mongo commands to load): /your-directory
+Set 'RELATIVE_TO_CHANGELOG' (options: true, false) [false]: true</code></pre>
+            </p>
+        </ol>
+        <h2>Example Output</h2>
+        <div class="liquibase-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Short Name</th>
+                        <th>Scope</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Severity</th>
+                        <th>Customization</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ProdUsers</td>
+                        <td>changelog</td>
+                        <td>sql, xml, yaml, json</td>
+                        <td>enabled</td>
+                        <td>1</td>
+                        <td>
+							MONGO_CHANGE_TYPE = CREATE_COLLECTION<br />							COLLECTION_NAME = users<br />							OPTIONS = ^prod_.*$
+						</td>
+                        <td>This check triggers when Mongo changetype attributes do not match the user-supplied string or regex pattern.</td>
+                    </tr>
+                </tbody>
+            </table><code><br />Liquibase command 'checks enable' was executed successfully. </code>
+        </div>
+    </body>
+</html>
