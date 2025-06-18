@@ -13,7 +13,7 @@
             <col />
             <tbody>
                 <tr>
-                    <th colspan="2">About <code class="language-text">SqlUserDefinedPatternCheck</code></th>
+                    <th colspan="2">About <code class="language-text">MongoChangetypeAttributes</code></th>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">Liquibase version required</td>
@@ -46,7 +46,6 @@
         <h2>Uses</h2>
         <p>Use this check to enforce naming conventions, security standards, or deployment rules by validating specific fields in MongoDB changetypes. For example, you can:</p>
         <ul>
-            <li>Require that <code>collectionName</code> starts with <code>prod_</code></li>
             <li>Ensure the <code>command</code> field matches a specific structure
             </li>
             <li>Block deployments if a certain field does not follow your internal naming policies
@@ -58,7 +57,7 @@
         <ol>
             <li>A changeset contains the specific changetype you specified, such as <code>createIndex</code></li>
             <li>That changetype includes the attribute that you're checking, such as <code>collectionName</code></li>
-            <li>The attribute’s value <b>does not</b> match the value or regex pattern you've defined            </li>
+            <li>The  value of <code>'KEYS'</code> or <code>'OPTIONS'</code> <b>does not</b> match the value or regex pattern you've defined            </li>
         </ol>
         <p>If the changetype isn’t used, or the attribute isn’t present, the check <b>doesn’t run</b>. This ensures you're only enforcing rules when that part of the changelog is relevant.</p>
         <h2>Configure the check</h2>
@@ -66,33 +65,25 @@
             <li>This check is disabled by default. To enable it, run the enable command:<br /><br /><code>liquibase checks enable --check-name=MongoChangetypeAttributes<br /><br /></code></li>
             <li>Liquibase will prompt you to name your custom version of the check. By default, it will be named MongoChangetypeAttributes1. You can accept the default by pressing <b>Enter</b> or enter a custom name.<br /><br /></li>
             <li>Set the severity level. This determines the exit code when the check is triggered. Choose one:<br /><ul><li>INFO (0)</li><li>MINOR (1)</li><li>MAJOR (2)</li><li>CRITICAL (3)</li><li>BLOCKER (4)</li></ul><br /></li>
-            <li>Set the MongoDB changetype this check will inspect. You’ll be prompted with:<br /><p><pre><code class="language-text">Set the changetype this check will inspect:<br />(options: adminCommand, createCollection, createIndex, dropCollection, dropIndex, insertMany, insertOne, runCommand)</code></pre></p><ul><li>Only one changetype is allowed per check</li><li>Input is case-insenesitive</li><li>Don't include commas or multiple values. Only input one valid name<br /></li></ul><br /></li>
+            <li>Set the MongoDB changetype this check will inspect. You’ll be prompted with:<br /><p><pre><code class="language-text">Set 'MONGO_CHANGE_TYPE' (options: INSERT_MANY, INSERT_ONE, CREATE_INDEX, CREATE_COLLECTION, MONGO_FILE, DROP_INDEX):</code></pre></p><ul><li>Only one changetype is allowed per check</li><li>Input is case-insenesitive</li><li>Don't include commas or multiple values. Only input one valid name<br /></li></ul><br /></li>
             <li>Once you've selected the changetype, you'll be walked through its specific attributes. These are based on the changetype you chose.
- You'll use regex patterns to set commands for each value. Below is each available command and a common use case for that command. You can modify these examples to fit your own use case.<br /></li>
-            <p><b>createCollection</b> — Used to create new MongoDB collections. This check helps enforce naming conventions for collections being created. To require collection names to start with prod_, you'll first set collectionName to the attribute you want to validate, and then apply a pattern to it.</p>
-            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName <br />
-Set 'OPTIONS' (requires string attributes specific to the change type): ^prod_.*$</code></pre>
+ You can modify these examples to fit your own use case. <br /></li>
+            <p><b>createCollection</b> — Used to create new MongoDB collections. See <a href="https://www.mongodb.com/docs/v6.0/reference/method/db.createCollection/">db.createCollection()</a> to view all available <code>'OPTIONS'</code>.<br />This example uses the <code>capped</code> option to require that collections are created as <code>capped collections.</code> When the collections reach the maximum size, older documents are removed to make space for new documents. </p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName <br />Set 'OPTIONS' (requires string attributes specific to the change type): { "capped": true, "size": 5242880 }</code></pre>
             </p>
-            <p><b>createIndex</b> — Used to create indexes on collections. You can enforce rules on the collection name, index structure, or index options. To enforce a unique index, you might check for <code>"unique":true</code> in <code>OPTIONS</code>.</p>
-            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
-Set 'KEYS' (requires a document that defines the index's basic contents and structure):: keys<br />
-Set 'OPTIONS' (requires string attributes specific to the change type): .*"unique"\s*:\s*true.*</code></pre>
+            <p><b>createIndex</b> — Used to create indexes on collections. See <a href="https://www.mongodb.com/docs/manual/reference/command/createIndexes/">db.createIndexes()</a> to view all available <code>'OPTIONS'</code>. You can enforce rules on the collection name, index structure, or index options. To enforce a unique index, you can set the unique option to true, so that the collection will not accept insertion or update of documents where the index key value matches an existing value in the index.</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />Set 'KEYS' (requires a document that defines the index's basic contents and structure): { name: 1, type: 1 }.<br />Set 'OPTIONS' (requires string attributes specific to the change type): { "unique": true, "name": "indexName" }</code></pre>
             </p>
-            <p><b>dropIndex</b> — Used to drop indexes from collections. You can enforce rules on which collections and indexes can be dropped by specifying the collection name and index keys. </p>
-            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
-Set 'KEYS' (requires a document that defines the index's basic contents and structure): keys</code></pre>
+            <p><b>dropIndex</b> — Used to drop indexes from collections. See <a href="https://www.mongodb.com/docs/php-library/current/reference/method/MongoDBCollection-dropIndex/">db.createIndexes()</a> to view all available <code>'OPTIONS'</code>. You can enforce rules on which collections and indexes are allowed to be dropped by specifying the collection name and the structure of the index.</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />Set 'KEYS' (requires a document that defines the index's basic contents and structure): { name: 1, type: 1 }.</code></pre>
             </p>
-            <p><b>insertMany</b> — Used to insert multiple documents into a collection. You can enforce rules on the structure or contents of the documents being inserted. To require documents that include <code>"status": "active"</code>, you’d set:</p>
-            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
-Set 'DOCUMENTS' (requires JSON that defines the objects to insert): documents<br />
-Set 'OPTIONS' (requires string attributes specific to the change type): .*"status"\s*:\s*"active".*</code></pre>
+            <p><b>insertMany</b> — Used to insert multiple documents into a collection.  See <a href="https://www.mongodb.com/docs/manual/reference/method/db.collection.insertMany/">collection.insertMany()</a> to view all available <code>'OPTIONS'</code>. You can enforce rules on the structure or contents of the inserted documents. For example, to require a document containing "name": "New York" and "population": 222000000, you would configure the check as follows:</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />Set 'DOCUMENTS' (requires JSON that defines the objects to insert): [{ "name": "New York", "population": 222000000 }]<br />Set 'OPTIONS' (requires string attributes specific to the change type): { "ordered": true }</code></pre>
             </p>
-            <p><b>insertOne</b> — Used to insert a single document into a collection. You can enforce rules on the structure or contents of the document being inserted. For example, to require a document containing "status": "active", you’d set:</p>
-            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />
-Set 'DOCUMENT' (requires JSON that defines the object to insert): document<br />
-Set 'OPTIONS' (requires string attributes specific to the change type): .*"status"\s*:\s*"active".*<br /></code></pre>
+            <p><b>insertOne</b> — Used to insert a single document into a collection.  See <a href="https://www.mongodb.com/docs/manual/reference/method/db.collection.insertOne/"><a href="https://www.mongodb.com/docs/php-library/current/reference/method/MongoDBCollection-dropIndex/">collection.insertOne()</a></a> to view all available <code>'OPTIONS'</code>. You can enforce rules on the structure or contents of the inserted document. For example, to require a document containing "name": "New York" and "population": 222000000, you would configure the check as follows:</p>
+            <p><pre><code class="language-text">Set 'COLLECTION_NAME' (requires string name of the collection): collectionName<br />Set 'DOCUMENT' (requires JSON that defines the object to insert): { "name": "New York", "population": 222000000 }<br />Set 'OPTIONS' (requires string attributes specific to the change type): { "bypassDocumentValidation": false }.<br /></code></pre>
             </p>
-            <p><b>MONGO_FILE</b> — Used to load MongoDB commands from an external file. You can enforce rules on the file path or metadata related to the file. For example, to require the file path to be within a specific directory and mark it as relative to the changelog, you’d set:</p>
+            <p><b>MONGO_FILE</b> — Used to load MongoDB commands from an external file. You can enforce rules on the file path or metadata related to the file. To require the file path to be within a specific directory and mark it as relative to the changelog, you’d set:</p>
             <p><pre><code class="language-text">Set 'DBMS' (options: DYNAMODB, MONGODB) [MONGODB]: MONGODB
 Set 'PATH' (requires string for the file path of the Mongo commands to load): /your-directory
 Set 'RELATIVE_TO_CHANGELOG' (options: true, false) [false]: true</code></pre>
@@ -114,15 +105,14 @@ Set 'RELATIVE_TO_CHANGELOG' (options: true, false) [false]: true</code></pre>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>ProdUsers</td>
+                        <td>CappedCollection</td>
                         <td>changelog</td>
                         <td>sql, xml, yaml, json</td>
                         <td>enabled</td>
                         <td>1</td>
                         <td>
-							MONGO_CHANGE_TYPE = CREATE_COLLECTION<br />							COLLECTION_NAME = users<br />							OPTIONS = ^prod_.*$
-						</td>
-                        <td>This check triggers when Mongo changetype attributes do not match the user-supplied string or regex pattern.</td>
+							MONGO_CHANGE_TYPE = CREATE_COLLECTION<br />							COLLECTION_NAME = myCollection<br />							OPTIONS = { "capped": true, "size": 5242880 }						</td>
+                        <td>This check triggers when a collection reaches the capped size.</td>
                     </tr>
                 </tbody>
             </table><code><br />Liquibase command 'checks enable' was executed successfully. </code>
