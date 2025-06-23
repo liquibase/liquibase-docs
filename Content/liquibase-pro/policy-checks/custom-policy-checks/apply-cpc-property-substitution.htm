@@ -2,99 +2,134 @@
 <html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
     <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/apply-cpc-property-substitution.html" />
-        <meta name="description" content="This tutorial shows you how to substitute properties within a Custom Policy Check." />
+        <meta name="description" content="This tutorial shows you how to substitute properties within a Custom policy check." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1>Apply Custom Policy Checks property substitution</h1>
-        <p>In Liquibase Pro 4.31+, you can utilize <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-property-substitution.html">Custom Policy Checks property substitution</a> when setting the <code>SCRIPT_ARGS</code> during <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/create-check.html#:~:text=custom_check_no_tables.py.-,Set SCRIPT_ARGUMENT,-. This allows you">check creation</a>. This enables dynamic and context-aware scripting, such as configuring behavior based on runtime attributes like the current Git branch or target environment. It makes your Custom Policy Checks more flexible, reusable, and maintainable.</p>
+        <h1>Apply Custom policy checks property substitution</h1>
+        <p>In Liquibase Pro 4.31+, you can utilize <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-property-substitution.html">Custom policy checks property substitution</a> when setting the <code>SCRIPT_ARGS</code> during <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/create-check.html#:~:text=custom_check_no_tables.py.-,Set SCRIPT_ARGUMENT,-. This allows you">check creation</a>. This enables dynamic and context-aware scripting, such as configuring behavior based on runtime attributes like the current Git branch or target environment. It makes your Custom policy checks more flexible, reusable, and maintainable.</p>
         <h2>Prerequisites</h2>
         <ul>
             <li>Understand the concept of the Checks Settings file:&#160;<MadCap:xref href="../workflows/checks-settings-file.htm">Use the Checks Settings Configuration File</MadCap:xref></li>
             <li>Review the <MadCap:xref href="cpc-property-substitution.htm">Custom&#160;Policy Check property substitution</MadCap:xref> concept content</li>
         </ul>
-        <h2>Using property substitution in your Custom Policy Check</h2>
+        <h2>Using property substitution in your Custom policy check</h2>
         <p>You can substitute any command argument, system property, or environment variable within the <MadCap:variable name="General.CompanyName" /> ecosystem. Liquibase assigns these values in the following order:</p>
         <p><code>SCRIPT_ARGS</code> syntax used when creating a Custom Policy check:</p>
         <ul>
-            <li><MadCap:variable name="General.liquiPropFile" /> file example:&#160;<code>targeturl="${liquibase.command.url}"</code></li>
-            <li>User supplied property:&#160;<code>pipelinename="${PIPELINE_NAME}"</code></li>
-            <li>Environment variable example:&#160;<code>loglevel="${LIQUIBASE_LOG_LEVEL}"</code></li>
+            <li><MadCap:variable name="General.liquiPropFile" /> file example:&#160;<code><br />targeturl="${liquibase.command.url}"</code></li>
+            <li>User supplied property:&#160;<code><br />pipelinename="${PIPELINE_NAME}"</code></li>
+            <li>Environment variable example:&#160;<code><br />loglevel="${LIQUIBASE_LOG_LEVEL}"</code></li>
         </ul>
-        <h3>Property substitution with system properties</h3>
+        <h2>Step-by-step</h2>
+        <h3>Create a checks settings file</h3>
         <ol>
-            <li>First navigate to your Checks Settings file and add the value of the property you want to substitute under the <code>SCRIPT_ARGS</code>&#160;section. This is the arg that will pass to the Custom Policy Check Python script.<br />Syntax: <code>value:&#160;example-property-here=${url}</code><br />In this example, we will use <code>value:&#160;db_url=${url}</code> your database URL&#160;into the Custom Policy Check. When you are creating your own property in your Checks Settings file, be sure to name your property appropriately so you know what properties are being substituted.<br /><br /><img src="../../../Z_Resources/Images/Screenshots/CPC/checks-settings-value.png" /></li>
-            <li>Navigate to the Custom Policy Check Python script and add the coordinating line to call on the properties added to the Checks Settings file in step 1.<br />In this example we will add <code>logger.info("DB&#160;URL VALUE&#160;= " + liquibase_utilities.get_arg("db_url")</code><br />This will pull the URL from your Checks Settings file into the Custom Policy Check script.</li>
-            <li>Run the <code>liquibase checks run</code> command.<br />In this example we will run<code> liquibase checks run --check-name=url</code><br />When the check runs, the output will be a version of this depending on what your changelog and database url are named: <code>changelog-xml::jdbc:postgresql://localhost6432/intuserdb</code> </li>
+            <li><b>Create a <a href="../workflows/checks-settings-file.htm">checks settings file</a></b> if you don't already have one. In the&#160;CLI, run this command:</li><pre><code class="language-text">liquibase checks show</code></pre>
+            <li>If you don't have a checks settings file, a prompt appears that allows you to create one. Confirm the file creation in the prompt. By default, the settings file is named <code class="language-text">liquibase.checks-settings.conf</code>.</li>
         </ol>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the content of <code>${property-name}</code> does not match a property, it is left as-is and it is not removed.  The supported format includes alphanumeric characters, <code>+</code>, <code>-</code>, <code>.</code> , and <code>_</code>.</p>
+        <h3>Create a new custom policy check</h3>
+        <ol>
+            <li><b>Create a new file</b> in your Liquibase working directory or a subdirectory like <code class="language-text">/scripts</code>. This file will contain the Python script that is your custom policy check. In this example, we title our new file <code class="language-text">custom_check_no_tables.py</code>.</li>
+            <li><b>Open</b> the new <code class="language-text">custom_check_no_tables.py</code> file and add the following custom policy check to it:</li><pre xml:space="preserve"><code class="language-python"># import Liquibase modules containing useful functions
+import liquibase_utilities as lb
+import sys
+
+# define reusable variables
+obj = lb.get_database_object()  # database object to examine
+liquibase_status = lb.get_status()  # Status object of the check
+
+# write check logic
+# this condition checks if the current object is a table
+# and whether it starts with the prefix 'tbl_'
+if lb.is_table(obj) and not obj.getName().lower().startswith("tbl_"):
+    # indicate that the custom check has been triggered
+    liquibase_status.fired = True
+    # set the message for Liquibase to return when check is triggered
+    liquibase_status.message = "Tables must start with the prefix tbl_. Add this prefix."
+    # halt execution of the script
+    sys.exit(1)
+
+# default return code
+False</code></pre>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Liquibase will run the check against every object in the database, so this script doesn't need a Python looping mechanism to iterate through database objects.</p>
+        </ol>
+        <h2>Configure and customize your new check in the CLI</h2>
+        <ol>
+            <li><b>Initiate the customization process</b>. In the CLI, run this command:</li><pre><code class="language-text">liquibase checks customize --check-name=CustomCheckTemplate</code></pre>
+            <p>The CLI prompts you to finish configuring your file. A message displays:</p><pre><code class="language-text">This check cannot be customized directly because one or more fields does not have a default value.</code></pre>
+            <p>Liquibase will then create a copy of <code class="language-text">CustomCheckTemplate</code> and initiate the customization workflow.</p>
+            <li><b>Give your new check a short name</b> for easier identification. In this example, we will name the check <code class="language-text">CustomCheckNoTables</code>.</li>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">For ease of use, it is a best practice to name your custom check after your Python script.</p>
+            <li>Set the <b>severity</b> to return a code of 0–4 when triggered. In this example, we will set the severity to <code class="language-text">1</code>. <br /><br />These severity codes allow you to determine if the job moves forward or stops when this check triggers. <br />Learn more here:&#160;<MadCap:xref href="../workflows/automation-severity-exit-code.htm">Use Policy Checks in Automation: Severity and Exit Code</MadCap:xref><br />Options:</li>
+            <MadCap:snippetBlock src="../../../Z_Resources/Snippets/def/attributes/cli/policy-checks/cli-checks-severity-customization.flsnp" style="font-weight: bold;" />
+            <li>Set <b><code class="language-text">SCRIPT_DESCRIPTION</code></b>. In this example, we will set the description to:</li><pre><code class="language-text">This script looks to see if any tables exist and notifies you if one is detected.</code></pre>
+            <li>Set <b><code class="language-text">SCRIPT_SCOPE</code></b>. In this example, we will set the scope to <code class="language-text">database</code>. The Python sample provided in this tutorial requires it.</li>
+            <p>In general, you should set the scope to <code class="language-text">changelog</code> or <code class="language-text">database</code> depending on what your custom script does:</p>
+            <ul>
+                <li><code class="language-text">changelog</code>: for example, if your check looks for syntax patterns or attributes in your Liquibase&#160;<MadCap:xref href="../../../concepts/changelogs/home.html">Changelog</MadCap:xref> (the changes you author in your repository). With this value, the check runs <b>once per <MadCap:variable name="General.changeset" /></b>. </li>
+                <li><code class="language-text">database</code>: for example, if your check looks for the presence of keys, indexes, or table name patterns in your database schema (including Liquibase&#160;<MadCap:xref href="../../../concepts/tracking-tables/tracking-tables.htm">Tracking Tables</MadCap:xref>). With this value, the check runs <b>once for each database object</b>.</li>
+            </ul>
+            <p class="tip" MadCap:autonum="&lt;b&gt;Tip: &lt;/b&gt;">It is a best practice for your custom checks to have <b>only one scope</b>, not both scopes.<br /></p>
+            <li>Set <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will leave this blank, as we are handling the message in the script.</li>
+            <li>Set <b><code class="language-text">SCRIPT_PATH</code></b> to the location of your script. You can provide either:<ul><li>a <b>relative path</b>, which is based on the location of the changelog file you specify with <code>--changelog-file</code>. This means that the path is relative to where that changelog file is stored.<br /><b>Example:</b>&#160;If your changelog is in a folder called <code>project/</code>, and your script is in <code>project/scripts/</code>, the relative path to the script would be <code>scripts/your-script.py</code>.<br /><b>OR</b></li><li>An <b>absolute path</b>, which starts from the root of the your computer's file system and includes the full path to the script. <br />Example:&#160;The full path to the script would be:&#160;<code>/Users/yourname/project/scripts/your-script.py</code><br />In this example, we will set the path to: <code class="language-text">scripts/custom_check_no_tables.py</code>.
+			</li></ul></li>
+            <li><b>Essential step for Property substitution:</b>&#160;Set the <b><code class="language-text">SCRIPT_ARGS</code></b>. This allows you to pass dynamic information into the custom policy check without modifying the Python code. With property substitution, you can reference properties such as environment variables, CLI arguments, or values from the defaults file using standard property substitution syntax.<br /> In this example, we will enter <code>logfile="${LIQUIBASE_LOG_LEVEL}"</code><br /></li>
+            <li>Set <b><code class="language-text">REQUIRES_SNAPSHOT</code></b>. If your script scope is <code class="language-text">changelog</code>, set whether the check requires a database <MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref>. Specify <code class="language-text">true</code> if your check needs to inspect database objects. (If your script scope is <code class="language-text">database</code>, Liquibase always takes a snapshot, so this prompt does not appear.)</li>
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The larger your database, the more performance impact a snapshot causes. If you cannot run a snapshot due to memory limitations, see <MadCap:xref href="../../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
+        </ol>
+        <p>You have now successfully created and customized a policy check!</p>
         <MadCap:codeSnippet>
             <MadCap:codeSnippetCopyButton />
-            <MadCap:codeSnippetCaption>
-                <p>Custom Policy Check that includes Property Substitution</p>
-            </MadCap:codeSnippetCaption>
-            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">import sys
-import liquibase_utilities
-import liquibase_changesets
-#
-# Get the logger handle
-#
-logger = liquibase_utilities.get_logger()
-logMode = liquibase_utilities.get_arg("logger")
-executed_by = liquibase_utilities.get_arg("executedBy")
-changelog_file = liquibase_utilities.get_arg("changelogFile")
-
-#
-# Fire if no labels
-#
-change_set = liquibase_utilities.get_changeset()
-labels = change_set.getLabels()
-logger.info("Labels are " + labels.toString())
-if labels.isEmpty() == True:
-    status = liquibase_utilities.get_status()
-    status.fired = True
-    status.message = liquibase_utilities.get_script_message()
-    if status.message == None:
-        status.message = "The check has fired"
-    sys.exit(1)
-#
-# Log additional attributes
-#
-
-logger.info("LOG LEVEL = " + logMode)
-logger.info("EXECUTED BY = " + executed_by)
-logger.info("CHANGELOG FILE = " + changelog_file)
-
-#
-# Fall through and return False
-#
-False</MadCap:codeSnippetBody>
+            <MadCap:codeSnippetCaption>Example Custom policy check property substitution output</MadCap:codeSnippetCaption>
+            <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">
+Customization complete. Review the table below to confirm your changes.
++---------------------+-----------+--------+----------+----------+--------------------------------+--------------------------------+
+| Short Name          | Scope     | Type   | Status   | Severity | Customization                  | Description                    |
++---------------------+-----------+--------+----------+----------+--------------------------------+--------------------------------+
+| CustomCheckTemplate | changelog | sql,   | disabled | 0        | SCRIPT_DESCRIPTION = Custom    | Executes a custom check        |
+|                     |           | xml,   |          |          | check                          | script.                        |
+|                     |           | yaml,  |          |          | SCRIPT_SCOPE = CHANGELOG       |                                |
+|                     |           | json   |          |          | SCRIPT_MESSAGE = The message   |                                |
+|                     |           |        |          |          | to display when the check is   |                                |
+|                     |           |        |          |          | triggered                      |                                |
+|                     |           |        |          |          | SCRIPT_TYPE = PYTHON           |                                |
+|                     |           |        |          |          | SCRIPT_PATH = null             |                                |
+|                     |           |        |          |          | SCRIPT_ARGS = null             |                                |
+|                     |           |        |          |          | REQUIRES_SNAPSHOT = false      |                                |
++---------------------+-----------+--------+----------+----------+--------------------------------+--------------------------------+
+| MyCustomCheck       | changelog | sql,   | enabled  | 0        | SCRIPT_DESCRIPTION = Custom    | Executes a custom check        |
+|                     |           | xml,   |          |          | check                          | script.                        |
+|                     |           | yaml,  |          |          | SCRIPT_SCOPE = CHANGELOG       |                                |
+|                     |           | json   |          |          | SCRIPT_MESSAGE = The message   |                                |
+|                     |           |        |          |          | to display when the check is   |                                |
+|                     |           |        |          |          | triggered                      |                                |
+|                     |           |        |          |          | SCRIPT_TYPE = PYTHON           |                                |
+|                     |           |        |          |          | SCRIPT_PATH = python_script.py |                                |
+|                     |           |        |          |          |                                |                                |
+|                     |           |        |          |          | SCRIPT_ARGS =                  |                                |
+|                     |           |        |          |          | logfile="${LIQUIBASE_LOG_LEVEL |                                |
+|                     |           |        |          |          | }"                             |                                |
+|                     |           |        |          |          | REQUIRES_SNAPSHOT = false      |                                |
++---------------------+-----------+--------+----------+----------+--------------------------------+--------------------------------+
+Liquibase command 'checks copy' was executed successfully.
+</MadCap:codeSnippetBody>
         </MadCap:codeSnippet>
-        <h3 MadCap:conditions="exclude.future">Property substitution with an environment variable</h3>
-        <ol MadCap:conditions="exclude.future">
-            <li>
-                <p>First navigate to your Checks Settings file and add the value of the environment variable you want to substitute under the <code>SCRIPT_ARGS</code>&#160;section. This is the arg that will pass to the Custom Policy Check Python script.<br />Syntax: <code>value:&#160;example-property-here=${TEST_ENV}</code><br />In this example, we will use <code>value=${ENV_VAR}</code> which will pull the environment variable into the Custom Policy Check. <br />When you are creating your own property in your Checks Settings file, be sure to name your property appropriately so you know what properties are being substituted.<br /></p>
-                <p>
-                    <img src="../../../Z_Resources/Images/Screenshots/CPC/cpc-env-var-ex.png" />
-                </p>
-            </li>
-            <li>Navigate to the Custom Policy Check Python script and add the coordinating line to call on the properties added to the Checks Settings file in step 1.<br />In this example we will add <code>logger.info("DB&#160;URL VALUE&#160;= " + liquibase_utilities.get_arg("db_url")</code><br />This will pull the  url from your Checks Settings file into the Custom Policy Check script.<br />An example output would be: <code>changelog-xml::jdbc:postgresql://localhost6432/intuserdb</code> which represents the changelog and database url that your property substitution pulled into your Custom Policy check.</li>
-        </ol>
+        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If the content of <code>${property-name}</code> does not match a property, it is left as-is and it is not removed.  The supported format includes alphanumeric characters, <code>+</code>, <code>-</code>, <code>.</code> , and <code>_</code>.</p>
         <p>If a Custom&#160;Policy Check calls on a property that is not defined, you will get an error:<br /><code>Error while executing script 'test.py':&#160;Exception: No value found for argument 'test' line:&#160;13</code></p>
         <h2>Next steps</h2>
         <ul>
             <li>
-                <MadCap:xref href="run-check.htm">Run a Custom Policy Check</MadCap:xref>
+                <MadCap:xref href="run-check.htm">Run a Custom policy check</MadCap:xref>
             </li>
             <li>
                 <MadCap:xref href="troubleshoot.htm">Troubleshooting a scope mismatch attribute error</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="sample-scripts.htm">Sample Custom Policy Check Scripts</MadCap:xref>: see examples of real-world scripts for Custom Policy Checks that you can adapt</li>
+                <MadCap:xref href="sample-scripts.htm">Sample Custom policy check Scripts</MadCap:xref>: see examples of real-world scripts for Custom policy checks that you can adapt</li>
             <li>
                 <MadCap:xref href="liquibase-python-modules.htm">[%=General.Liquibase%] Python Modules</MadCap:xref>: learn how to access the Liquibase API&#160;to write more custom checks</li>
             <li>
-                <MadCap:xref href="dynamic-status-messages.htm">Write Dynamic Status Messages for Custom Policy Checks</MadCap:xref>: improve the usability of your checks with better output messages</li>
+                <MadCap:xref href="dynamic-status-messages.htm">Write Dynamic Status Messages for Custom policy checks</MadCap:xref>: improve the usability of your checks with better output messages</li>
         </ul>
         <p>
             <br />
