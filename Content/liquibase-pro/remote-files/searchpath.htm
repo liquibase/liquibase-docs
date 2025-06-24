@@ -13,9 +13,9 @@
         <h2>Use <code>--search-path</code> to locate <MadCap:variable name="General.changelog" />s on S3</h2>
         <p>Both a directory in the search path and a relative path are required to find <MadCap:variable name="General.changelog" /> files or snapshot files. Follow the steps below to learn how to set both of these and configure them.</p>
         <ol>
-            <li>Determine the paths necessary to locate the <MadCap:variable name="General.changelog" /> to use. If <MadCap:variable name="General.changelog" /> resources, such as additional included <MadCap:variable name="General.changelog" />s or SQL files are in a different  path, you will have multiple items in the searchpath.<br style="font-weight: bold;" /><br style="font-weight: bold;" /><b>S3 Example</b><br /><br />If a <MadCap:variable name="General.changelog" /> file is in S3 at <code>s3://myContainer/demo</code> and the SQL files referenced by the <MadCap:variable name="General.changelog" /> are in <code>az://myContainer/demo/sqlFiles</code>, your search path is <code>az://myContainer/demo,az://myContainer/demo/sqlFiles</code>.<br /><br /><b>Azure Example</b><br /><br />If a <MadCap:variable name="General.changelog" /> file is in Azure Blob Storage at <code>az://myS3Bucket/demo</code> and the SQL files referenced by the <MadCap:variable name="General.changelog" /> are in <code>s3://myS3Bucket/demo/sqlFiles</code>, your search path is <code>s3://myS3Bucket/demo,s3://myS3Bucket/demo/sqlFiles</code>.<br /></li>
+            <li>Determine the paths necessary to locate the <MadCap:variable name="General.changelog" /> to use. If <MadCap:variable name="General.changelog" /> resources, such as additional included <MadCap:variable name="General.changelog" />s or SQL files are in a different  path, you will have multiple items in the searchpath.<br style="font-weight: bold;" /><br style="font-weight: bold;" /><b>S3 Example</b><br /><br />If a <MadCap:variable name="General.changelog" /> file is in S3 at <code>s3://myBucket/demo</code> and the SQL files referenced by the <MadCap:variable name="General.changelog" /> are in <code>s3://myBucket/demo/sqlFiles</code>, your search path is <code>az://myContainer/demo,s3://myBucket/demo/sqlFiles</code>.<br /><br /><b>Azure Example</b><br /><br />If a <MadCap:variable name="General.changelog" /> file is in Azure Blob Storage at <code>az://myContainer/demo</code> and the SQL files referenced by the <MadCap:variable name="General.changelog" /> are in <code>az://myContainer/demo/sqlFiles</code>, your search path is <code>az://myContainer/demo,az://myContainer/demo/sqlFiles</code>.<br /></li>
             <li>
-                <p>To execute Liquibase commands that read <MadCap:variable name="General.changelog" />s located in S3, provide the searchpath and a filename or relative path to the file.</p>
+                <p>To execute Liquibase commands that read <MadCap:variable name="General.changelog" />s located in remote storage, provide the searchpath and a filename or relative path to the file.</p>
                 <h4>Example 1: <code><MadCap:xref href="../../commands/update/update-sql.htm">update-sql</MadCap:xref></code> command using a <MadCap:variable name="General.changelog" /> file in remote storage:</h4>
                 <p><b>S3 Example</b>
                     <br /><code class="language-text"><br />liquibase --search-path=s3://myBucket/demo,az://myBucket/demo/sqlFiles update-sql --changelog-file=example-changelog.sql
@@ -24,14 +24,15 @@ liquibase --search-path=s3://mybucket/demo update-sql --changelog-file=example-c
                 <p><b>Azure Example</b><code class="language-text"><br /><br />liquibase --search-path=az://myContainer/demo,az://myContainer/demo/sqlFiles update-sql --changelog-file=example-changelog.sql
 liquibase --search-path=az://myContainer/demo update-sql --changelog-file=example-changelog.sql</code>
                 </p>
-                <h4>Example 2: <code>update-sql</code> command using a relative path to the <MadCap:variable name="General.changelog" /> file in remote storage:</h4>
+                <h4>
+                    <br />Example 2: <code>update-sql</code> command using a relative path to the <MadCap:variable name="General.changelog" /> file in remote storage:</h4>
                 <p><b>S3 Example</b>
                 </p>
                 <p>If the <MadCap:variable name="General.changelog" /> is located in subdirectory like <code>s3://myS3Bucket/demo/changelogs</code>, when you use the searchpath defined in the previous example, then you must specify the relative path to the <MadCap:variable name="General.changelog" />:</p><pre xml:space="preserve"><code class="language-text">liquibase --search-path=s3://myBucket/demo,s3://myBucket/demo/sqlFiles update-sql --changelog-file=changelogs/example-changelog.sql</code></pre>
             </li>
             <p><b>Azure Example</b>
             </p>
-            <p>If the <MadCap:variable name="General.changelog" /> is located in subdirectory like <code>s3://myS3Bucket/demo/changelogs</code>, when you use the searchpath defined in the previous example, then you must specify the relative path to the <MadCap:variable name="General.changelog" />:</p><pre xml:space="preserve"><code class="language-text">liquibase --search-path=az://myContainer/demo,az://myContainer/demo/sqlFiles update-sql --changelog-file=changelogs/example-changelog.sql</code></pre>
+            <p>If the <MadCap:variable name="General.changelog" /> is located in subdirectory like <code>az://myContainer/demo/changelogs</code>, when you use the searchpath defined in the previous example, then you must specify the relative path to the <MadCap:variable name="General.changelog" />:</p><pre xml:space="preserve"><code class="language-text">liquibase --search-path=az://myContainer/demo,az://myContainer/demo/sqlFiles update-sql --changelog-file=changelogs/example-changelog.sql</code></pre>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Paths to <MadCap:variable name="General.changelog" />s must always be relative to preserve integrity of the Liquibase <MadCap:variable name="General.databasechangelog" /> tracking table.</p>
         </ol>
         <h2>Rules</h2>
@@ -55,7 +56,7 @@ liquibase --search-path=az://myContainer/demo update-sql --changelog-file=exampl
         <p>The <code>ERROR</code> response states two files are found and Liquibase will not use either file. It will then suggest you rename the file or correct the value you specify for <code>--search-path</code>, and then re-run the command.</p>
         <p><b>Example: Default behavior of <code>--duplicate-file-mode</code> when <code>changelog.xml</code> is located in two <code>--search-path</code> directories.</b>
         </p>
-        <p>In this example, a <MadCap:variable name="General.changelog" /> named <code>changelog.xml</code> is located in both <code>s3://myS3bucket/demo</code> and in <code>s3://myS3Bucket/demo2</code>.</p><pre xml:space="preserve"><code class="language-text">liquibase --search-path=s3://myS3Bucket/demo,s3://myS3Bucket/demo2 update-sql --changelog-file=changelog.xml</code></pre>
+        <p>In this example, a <MadCap:variable name="General.changelog" /> named <code>changelog.xml</code> is located in both <code>s3://myBucket/demo</code> and in <code>s3://myBucket/demo2</code>.</p><pre xml:space="preserve"><code class="language-text">liquibase --search-path=s3://myBucket/demo,s3://myBucket/demo2 update-sql --changelog-file=changelog.xml</code></pre>
         <p>Liquibase console output shows an error and does not execute the <code>update-sql</code> command.</p>
         <MadCap:codeSnippet>
             <MadCap:codeSnippetCopyButton />
