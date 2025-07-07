@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <html MadCap:conditions="exclude.future" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
-    <head><title><MadCap:variable name="Heading.Level1" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" /></title>
+    <head><title><MadCap:variable name="Heading.Level1" /></title>
         <link rel="canonical" href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-get-config-value.html" />
         <meta name="description" content="The liquibase_utilities.get_config_value   python helper function allows you retrieve any configuration property which includes environment variables, system properties, flow files, flow variables, and checks run command line arguments." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,8 +14,9 @@ python helper function allows you to retrieve any configuration property which i
         <h2>Before you begin</h2>
         <ul>
             <li>
-                <MadCap:xref href="home.htm" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">[%=General.LBPro%] Custom Policy Checks</MadCap:xref>
+                <MadCap:xref href="home.htm">[%=General.LBPro%] Custom Policy Checks</MadCap:xref>
             </li>
+            <li>Ensure the property you want to pull into your Custom policy check is set in one of the following ways:&#160;<br /><ul><li><a href="../../../concepts/connections/creating-config-properties.html">Liquibase properties file</a> (defaults file)</li><li>Global <a href="../../flow/home.htm">flow file</a> argument</li><li>Global CLI parameter</li><li>JVM system property (<MadCap:xref href="../../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>)</li><li><MadCap:xref href="../../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref></li></ul></li>
         </ul>
         <h2>Step-by-step</h2>
         <h3>Create a checks settings file</h3>
@@ -47,15 +48,39 @@ if lb.is_table(obj) and not obj.getName().lower().startswith("tbl_"):
 
 # default return code
 False</code></pre>
-            <p class="note" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Liquibase will run the check against every object in the database, so this script doesn't need a Python looping mechanism to iterate through database objects.</p>
-            <li>Navigate to your Custom policy check Python script and add the configuration value desired. This configuration value could be an environment variable, a system property, flow file, flow variable, or a checks run argument.<br />Helper function syntax:&#160;<code>config_value=liquibase_utilities.get_config_value("<i>your-config-value</i>")<br /></code><table style="margin-left: auto; margin-right: auto;"><col /><thead><tr><th><p>Examples of helper functions</p></th></tr></thead><tbody><tr><td><code>dbplatfrom = liquibase_utilities.get_config_value("dbplatform")</code></td></tr><tr><td><code>currentloglevel = liquibase_utilities.get_config_value("LIQUIBASE_LOG_LEVEL")</code></td></tr><tr><td><code>currentchangelog = liquibase_utilities.get_config_value("changelogfile")</code></td></tr></tbody></table><p>Once the helper function is added, your script will look something like this:</p><MadCap:codeSnippet xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd"><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetCaption><p>Custom policy check Python script with the Get config value </p></MadCap:codeSnippetCaption><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve"># import Liquibase modules containing useful functions
+            <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Liquibase will run the check against every object in the database, so this script doesn't need a Python looping mechanism to iterate through database objects.</p>
+            <li>Navigate to your Custom policy check Python script and add the configuration value desired. This configuration value could be an environment variable, a system property, flow file, flow variable, or a checks run argument.<br />Helper function syntax:&#160;<code>config_value=liquibase_utilities.get_config_value("<i>your-config-value</i>")<br /></code><table style="margin-left: auto; margin-right: auto;"><col /><thead><tr><th><p>Examples of helper functions</p></th></tr></thead><tbody><tr><td><code>dbplatfrom = liquibase_utilities.get_config_value("dbplatform")</code></td></tr><tr><td><code>currentloglevel = liquibase_utilities.get_config_value("LIQUIBASE_LOG_LEVEL")</code></td></tr><tr><td><code>currentchangelog = liquibase_utilities.get_config_value("changelogfile")</code></td></tr></tbody></table></li>
+            <li>
+                <p>In this example, we will add the following piece of code to the Custom policy check which pulls in two configuration values called <code>loglevel</code> and <code>mychangelog</code> . You can replace myloglevel and mychangelog with any property configured in the liquibase.properties file, flow file, global CLI&#160;parameters, JVM&#160;system properties, or as an environment variable.</p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;">#pull the database url, loglevel, and changelogfile into this policy check message.
+						myloglevel = liquibase_utilities.get_config_value("loglevel")
+						mychangelog = liquibase_utilities.get_config_value("changelogfile")	
+						logger.info("LOG LEVEL = " + myloglevel)
+						logger.info("CHANGELOG FILE = " + mychangelog)
+						</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+                <p>Once the helper function is added, your script will look something like this:</p>
+                <MadCap:codeSnippet>
+                    <MadCap:codeSnippetCopyButton />
+                    <MadCap:codeSnippetCaption>
+                        <p>Custom policy check Python script with the Get config value </p>
+                    </MadCap:codeSnippetCaption>
+                    <MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve" style="mc-code-lang: Python;"># import Liquibase modules containing useful functions
 						import liquibase_utilities as lb
 						import sys
 
 						# define reusable variables
 						obj = lb.get_database_object()  # database object to examine
 						liquibase_status = lb.get_status()  # Status object of the check
-
+						
+						#pull the database loglevel and changelogfile into this policy check message.
+						myloglevel = liquibase_utilities.get_config_value("loglevel")
+						mychangelog = liquibase_utilities.get_config_value("changelogfile")	
+						logger.info("LOG LEVEL = " + myloglevel)
+						logger.info("CHANGELOG FILE = " + mychangelog)
+						
 						# write check logic
 						# this condition checks if the current object is a table
 						# and whether it starts with the prefix 'tbl_'
@@ -69,36 +94,26 @@ False</code></pre>
 
 						# default return code
 						False
-						#pull the database url, loglevel, and changelogfile into this policy check.
-						myurl = liquibase_utilities.get_config_value("url")
-						myloglevel = liquibase_utilities.get_config_value("loglevel")
-						mychangelog = liquibase_utilities.get_config_value("changelogfile")
-				</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
-            <li MadCap:conditions="exclude.future" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">Set the configuration value in any of the options described below.
-                <p> You can set this parameter in the following ways:</p><table style="width: 100%;"><col /><col /><thead><tr><th>Option</th><th>Syntax</th></tr></thead><tbody><tr><td><a href="../../../concepts/connections/creating-config-properties.html">Liquibase properties file</a> (defaults file)</td><td><pre xml:space="preserve"><code class="language-text">liquibase.getConfigValue: &lt;string&gt;</code></pre></td></tr><tr><td>Global <a href="../../flow/home.htm">flow file</a> argument (example)</td><td><pre xml:space="preserve"><code class="language-text">stages:
-  Default:
-    actions:
-      - type: liquibase
-        command: update
-        globalArgs: { get-config-value: "&lt;string&gt;" }</code></pre></td></tr><tr><td>Global CLI parameter</td><td><pre xml:space="preserve"><code class="language-text">liquibase
- --get-config-value=&lt;string&gt;&#160;update
- --changelog-file=example-changelog.xml</code></pre></td></tr><tr><td><p>JVM system property (<MadCap:xref href="../../../concepts/connections/java-opts-environment-variable.htm">JAVA_OPTS Environment Variable</MadCap:xref>)</p></td><td><p>Unix:</p><pre><code>JAVA_OPTS="TEST_SCRIPT_ARG="changelogfile"</code></pre><p>Windows:</p><pre><code class="language-text">JAVA_OPTS=-D"liquibase.<MadCap:variable name="parameters-global-command.case-camel" />"=<MadCap:variable name="parameters-global-command.value-type" /></code></pre></td></tr><tr><td><MadCap:xref href="../../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref></td><td><pre><code class="language-text">LIQUIBASE_COMMAND_CHANGELOG_FILE=&lt;string&gt;</code></pre></td></tr></tbody></table></li>
-            <br />
+						
+						
+				</MadCap:codeSnippetBody>
+                </MadCap:codeSnippet>
+            </li>
         </ol>
         <h2>Next steps</h2>
         <ul>
             <li>
-                <MadCap:xref href="run-check.htm" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">Run a Custom Policy Check</MadCap:xref>
+                <MadCap:xref href="run-check.htm">Run a Custom Policy Check</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="troubleshoot.htm" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">Troubleshooting a scope mismatch attribute error</MadCap:xref>
+                <MadCap:xref href="troubleshoot.htm">Troubleshooting a scope mismatch attribute error</MadCap:xref>
             </li>
             <li>
-                <MadCap:xref href="sample-scripts.htm" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">Sample Custom Policy Check Scripts</MadCap:xref>: see examples of real-world scripts for Custom Policy Checks that you can adapt</li>
+                <MadCap:xref href="sample-scripts.htm">Sample Custom Policy Check Scripts</MadCap:xref>: see examples of real-world scripts for Custom Policy Checks that you can adapt</li>
             <li>
-                <MadCap:xref href="liquibase-python-modules.htm" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">[%=General.Liquibase%] Python Modules</MadCap:xref>: learn how to access the Liquibase API&#160;to write more custom checks</li>
+                <MadCap:xref href="liquibase-python-modules.htm">[%=General.Liquibase%] Python Modules</MadCap:xref>: learn how to access the Liquibase API&#160;to write more custom checks</li>
             <li>
-                <MadCap:xref href="dynamic-status-messages.htm" xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">Write Dynamic Status Messages for Custom Policy Checks</MadCap:xref>: improve the usability of your checks with better output messages</li>
+                <MadCap:xref href="dynamic-status-messages.htm">Write Dynamic Status Messages for Custom Policy Checks</MadCap:xref>: improve the usability of your checks with better output messages</li>
         </ul>
     </body>
 </html>
