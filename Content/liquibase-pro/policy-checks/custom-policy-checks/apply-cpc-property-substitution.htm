@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
-        <h1>Apply Custom policy checks property substitution</h1>
+        <h1>Apply Property substitution in Custom policy checks</h1>
         <p>In Liquibase Pro 4.31+, you can utilize <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/cpc-property-substitution.html">Custom policy checks property substitution</a> when setting the <code>SCRIPT_ARGS</code> during <a href="https://docs.liquibase.com/liquibase-pro/policy-checks/custom-policy-checks/create-check.html#:~:text=custom_check_no_tables.py.-,Set SCRIPT_ARGUMENT,-. This allows you">check creation</a>. This enables dynamic and context-aware scripting, such as configuring behavior based on runtime attributes like the current Git branch or target environment. It makes your Custom policy checks more flexible, reusable, and maintainable.</p>
         <h2>Prerequisites</h2>
         <ul>
@@ -14,7 +14,15 @@
             <li>Review the <MadCap:xref href="cpc-property-substitution.htm">Custom&#160;Policy Check property substitution</MadCap:xref> concept content</li>
         </ul>
         <h2>Using property substitution in your Custom policy check</h2>
-        <p>You can substitute any command argument, system property, or environment variable within the <MadCap:variable name="General.CompanyName" /> ecosystem. Liquibase assigns these values in the following order:</p>
+        <p>You can substitute any command argument, system property, or environment variable within the <MadCap:variable name="General.CompanyName" /> ecosystem.<br /></p>
+        <MadCap:dropDown>
+            <MadCap:dropDownHead>
+                <MadCap:dropDownHotspot>Configuration hierarchy</MadCap:dropDownHotspot>
+            </MadCap:dropDownHead>
+            <MadCap:dropDownBody>
+                <MadCap:snippetBlock src="../../../Z_Resources/Snippets/text/parameter-configuration-hierarchy.flsnp" />
+            </MadCap:dropDownBody>
+        </MadCap:dropDown>
         <p><code>SCRIPT_ARGS</code> syntax used when creating a Custom Policy check:</p>
         <ul>
             <li><MadCap:variable name="General.liquiPropFile" /> file example:&#160;<code><br />targeturl="${liquibase.command.url}"</code></li>
@@ -36,7 +44,11 @@ import sys
 
 # define reusable variables
 obj = lb.get_database_object()  # database object to examine
-liquibase_status = lb.get_status()  # Status object of the check
+liquibase_status = lb.get_status()  # Status object of the check<br /><br />
+					
+if loglevel >= 2:
+//Notify the user when the loglevel value is triggered
+logger.info("LOG LEVEL = " + loglevel)
 
 # write check logic
 # this condition checks if the current object is a table
@@ -73,7 +85,7 @@ False</code></pre>
             <li>Set <b><code class="language-text">SCRIPT_MESSAGE</code></b>. This message will display when the check is triggered. In this example we will leave this blank, as we are handling the message in the script.</li>
             <li>Set <b><code class="language-text">SCRIPT_PATH</code></b> to the location of your script. You can provide either:<ul><li>a <b>relative path</b>, which is based on the location of the changelog file you specify with <code>--changelog-file</code>. This means that the path is relative to where that changelog file is stored.<br /><b>Example:</b>&#160;If your changelog is in a folder called <code>project/</code>, and your script is in <code>project/scripts/</code>, the relative path to the script would be <code>scripts/your-script.py</code>.<br /><b>OR</b></li><li>An <b>absolute path</b>, which starts from the root of the your computer's file system and includes the full path to the script. <br />Example:&#160;The full path to the script would be:&#160;<code>/Users/yourname/project/scripts/your-script.py</code><br />In this example, we will set the path to: <code class="language-text">scripts/custom_check_no_tables.py</code>.
 			</li></ul></li>
-            <li><b>Essential step for Property substitution:</b>&#160;Set the <b><code class="language-text">SCRIPT_ARGS</code></b>. This allows you to pass dynamic information into the custom policy check without modifying the Python code. With property substitution, you can reference properties such as environment variables, CLI arguments, or values from the defaults file using standard property substitution syntax. <code>loglevel</code> is a variable in the Custom policy check and its value is set to the <code>${LIQUIBASE_LOG_LEVEL}</code> property which can be changed dynamically in the <MadCap:variable name="General.liquiPropFile" /> file.<br /> In this example, we will enter <code>loglevel="${LIQUIBASE_LOG_LEVEL}"</code><br /></li>
+            <li><b>Essential step for Property substitution:</b>&#160;Set the <b><code class="language-text">SCRIPT_ARGS</code></b>. This allows you to pass dynamic information into the custom policy check without modifying the Python code. With property substitution, you can reference properties such as environment variables, CLI arguments, or values from the defaults file using standard property substitution syntax. <code>loglevel</code> is a variable in the Custom policy check and its value is set to the <code>${LIQUIBASE_LOG_LEVEL}</code> property which can be changed dynamically in the Environment variables.<br /> In this example, we will enter <code>loglevel="${LIQUIBASE_LOG_LEVEL}"</code><br /></li>
             <li>Set <b><code class="language-text">REQUIRES_SNAPSHOT</code></b>. If your script scope is <code class="language-text">changelog</code>, set whether the check requires a database <MadCap:xref href="../../../commands/inspection/snapshot.html">snapshot</MadCap:xref>. Specify <code class="language-text">true</code> if your check needs to inspect database objects. (If your script scope is <code class="language-text">database</code>, Liquibase always takes a snapshot, so this prompt does not appear.)</li>
             <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The larger your database, the more performance impact a snapshot causes. If you cannot run a snapshot due to memory limitations, see <MadCap:xref href="../../../workflows/limitations/memory-limits-inspecting-large-schemas.htm">Memory Limits of Inspecting Large Schemas</MadCap:xref>.</p>
         </ol>
