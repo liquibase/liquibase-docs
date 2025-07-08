@@ -1,0 +1,328 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd">
+    <head>
+    </head>
+    <body>
+        <h1>Liquibase 4.33.0 Release Notes</h1>
+        <h3>Liquibase 4.33.0 is a minor release</h3>
+        <p>This release delivers important updates across Policy Checks, Change Automation, and other areas of platform enhancement, along with critical bug fixes and improvements to MongoDB, PostgreSQL, and DB2 on Z/OS support.</p>
+        <h2>Notable Changes</h2>
+        <h3>[PRO]</h3>
+        <h4>Change Automation</h4>
+        <ul>
+            <li>
+                <p><b>PostgreSQL Composite TYPE Support in Database Inspection.</b> Liquibase Pro now includes support for inspecting PostgreSQL Composite TYPE objects during database inspection operations such as <code>snapshot</code> and <code>diff</code>. This enhancement ensures Composite TYPEs appear in inspection outputs, helping users manage and track changes to complex data structures more effectively. [INT-1249] [INT-135]</p>
+            </li>
+            <li>
+                <p><b>PostgreSQL Composite TYPE Support in <code>generate-changelog</code> and <code>diff-changelog</code>.</b> Liquibase Pro now includes support for detecting PostgreSQL composite TYPE objects during <code>generate-changelog</code> and <code>diff-changelog</code> operations. This enhancement ensures that composite TYPE definitions—used to group multiple fields into a custom data structure—are captured and modeled alongside other schema elements, helping users manage and track changes more comprehensively. [INT-1251]</p>
+            </li>
+            <li>
+                <p><b>PostgreSQL Password Escaping Enhancement.</b> Liquibase now escapes special characters in PostgreSQL passwords when using the <code>psql</code> native executor. Previously, if a password included characters requiring percent-encoding (such as <code>@</code>, <code>%</code>, or <code>#</code>), the executor would fail with a <code>psql: error: invalid percent-encoded token</code> message. [DAT-20254]</p>
+            </li>
+            <li>
+                <p><b>Db2 on Z/OS JCL Executor.</b> Liquibase Pro now includes the ability to submit JCL jobs to the mainframe via Db2 <code>DSNUTILU</code> stored procedure. This enables users to automate more sophisticated procedures by integrating system level activities and database activities in a standard changelog format. This feature is enabled by a <code>runwith:JCL</code> decoration on applicable changesets containing properly formatted JCL.[INT-573, INT-1217]</p>
+            </li>
+            <li>
+                <p><b>Improved Persistent Spool File Behavior for SQLPlus Executor.</b> The SQLPlus executor ensures that spool files are always retained when <code>--sqlplus-create-spool=true</code>, giving users consistent access to output files. Previously, spool file retention was tied to the <code>--sqlplus-keep-temp</code> setting; now, this setting applies only to temporary SQL files, not spool files. This decoupling improves clarity and gives users more control—if a spool file is created, it will remain unless users opt out by setting <code>--sqlplus-create-spool=false</code>. [DAT-18983</p>
+            </li>
+        </ul>
+        <h4>Policy Checks</h4>
+        <ul>
+            <li><b>MongoChangetypeAttributes Policy Check. </b>Introduced a new quality check named MongoChangetypeAttributes that allows users to enforce specific values or patterns for attributes within MongoDB-specific changetypes. Users can select a single Mongo changetype (e.g., <code>createIndex</code>, <code>dropCollection</code>) and specify expected values or patterns for its attributes. The check triggers if a specified attribute is present but does not match the defined value or regex—ensuring consistent standards across Mongo changesets. This supports validation across key changetypes attributes like <code>adminCommand</code>, <code>createCollection</code>, <code>insertOne</code>, and more, and enhances control and quality enforcement in MongoDB deployment pipelines. [DAT-18275]</li>
+        </ul>
+        <h2>Notable Changes</h2>
+        <h3>[OSS]</h3>
+        <p><b>Important dependency updates </b>
+            <br />
+            <ul>
+                <li>
+                    <p>Liquibase OSS 4.33+ has Java 24 core build support.</p>
+                </li>
+                <li>
+                    <p>The liquibase-cdi and liquibase-cdi-jakarta modules have been removed and are no longer supported in Liquibase 4.33.0 and later.</p>
+                </li>
+            </ul>
+        </p>
+        <h2>Changelog</h2>
+        <h3>[PRO]</h3>
+        <h4>New Features</h4>
+        <ul>
+            <li>
+                [DAT-20202] Added ProJdbcExecutor in order to show SQL warning messages on compiler errors in <a href="https://github.com/liquibase/liquibase-pro/pull/2410">#2410</a> by @wwillard7800
+            </li>
+            <li>[DAT-20173] Changes to allow connection to Azure MI in <a href="https://github.com/liquibase/liquibase-pro/pull/2489">#2489</a> by @wwillard7800           </li>
+            <li>
+                [DAT-20286] Added code to use the getVisibleUrl method for display of URL <a href="https://github.com/liquibase/liquibase-pro/pull/2478">#2478</a> by @wwillard7800 <![CDATA[            ]]></li>
+            <li>[INT-1318] Added application name to JDBC properties in <a href="https://github.com/liquibase/liquibase-pro/pull/2381">#2381</a>   by @wwillard7800  </li>
+            <li>[DAT-18983] Always keep the spool file if it was created in <a href="https://github.com/liquibase/liquibase-pro/pull/2476">#2476</a>    by @wwillard7800<![CDATA[           ]]></li>
+            <li>[DAT-20132] support regular expressions for string comparisons in <a href="https://github.com/liquibase/liquibase-checks/pull/221">#221</a> by @StevenMassaro</li>
+            <li>[DAT-20134] remove sql from changeset compatibility list for MongoChangetypeAttributes in <a href="https://github.com/liquibase/liquibase-checks/pull/224">#224</a>   by @StevenMassaro</li>
+            <li>[DAT-20133]: add additional logging around AbstractChangetypeAttributesCheck when not checking change in <a href="https://github.com/liquibase/liquibase-checks/pull/223">#223</a> by @StevenMassaro</li>
+            <li>[DAT-20131]: compare JSON in MongoChangetypeAttributes using JSON equivalence  in           </li>
+            <li>INT-170: Added composite primary key for MySQL DBCL table in <a href="https://github.com/liquibase/liquibase-pro/pull/2232">#2232</a> by @SvampX
+            </li>
+            <li>DAT-19753: Tweaked message to mention both S3 and Azure in <a href="https://github.com/liquibase/liquibase-pro/pull/2196">#2196</a> by @wwillard7800
+            </li>
+            <li>DAT-6694 You can now use the Liquibase Azure extension to <a href="../../../liquibase-pro/azure/connect-to-azure-blob-storage.htm">connect to Azure blob storage</a> DAT-19430 @wwillard7800
+            </li>
+            <li>DAT-19490: Added <code>continueOnError</code> to flow actions. Exposed <code>exitCode</code> (and <code>statusCode</code>) variables in flow conditions in <a href="https://github.com/liquibase/liquibase-pro/pull/2139">#2139</a> by @abrackx
+            </li>
+            <li>DAT-19525: Implemented Postgres Kerberos support in <a href="https://github.com/liquibase/liquibase-pro/pull/2216">#2216</a> by @wwillard7800
+            </li>
+            <li>DAT-18862: Made changes for enhanced line identification in <a href="https://github.com/liquibase/liquibase-pro/pull/2131">#2131</a> by @wwillard7800
+            </li>
+            <li>DAT-19407: Show standard message when flow contains a checks command without extension in <a href="https://github.com/liquibase/liquibase-pro/pull/2121">#2121</a> by @wwillard7800
+            </li>
+            <li>DAT-18910: Added title tag to drift report URL that includes full database URL in <a href="https://github.com/liquibase/liquibase-pro/pull/2123">#2123</a> by @abrackx
+            </li>
+            <li>INT-871 DAT-19563: Adjustments to enable mongo commercial extensions drift report in <a href="https://github.com/liquibase/liquibase-pro/pull/2192">#2192</a> by @SvampX
+            </li>
+            <li>INT-190 DAT-19778: Added Snowflake PKI flow within Liquibase PRO in <a href="https://github.com/liquibase/liquibase-pro/pull/2203">#2203</a> by @SvampX
+            </li>
+        </ul>
+        <h4>Bug Fixes</h4>
+        <ul>
+            <li>[DAT-19752] Fix creating flow files at S3/Azure bucket roots in <a href="https://github.com/liquibase/liquibase-pro/pull/2240">#2240</a> by @StevenMassaro
+            </li>
+            <li>[DAT-19045] Fix string wrapping when it contains newlines in <a href="https://github.com/liquibase/liquibase-pro/pull/2104">#2104</a> by @StevenMassaro
+            </li>
+            <li>[DAT-19432] Do not fail rollback-one-update when there is a tag dbcl record in the deployment group in <a href="https://github.com/liquibase/liquibase-pro/pull/2176">#2176</a> by @abrackx
+            </li>
+            <li>[DAT-19983] Fix report issue with string replacement in <a href="https://github.com/liquibase/liquibase-pro/pull/2229">#2229</a> by @wwillard7800
+            </li>
+            <li>[DAT-19702] Generated formatted SQL changeset missing <code>splitStatments:false</code> <a href="https://github.com/liquibase/liquibase-pro/pull/2197">#2197</a> by @wwillard7800
+            </li>
+            <li>[DAT-19220] Fix test for new ignore missing objects configuration property in <a href="https://github.com/liquibase/liquibase-pro/pull/2115">#2115</a> by @wwillard7800
+            </li>
+            <li> [DAT-19005] Fix help in <a href="https://github.com/liquibase/liquibase-pro/pull/2118">#2118</a> by @wwillard7800
+            </li>
+            <li>[DAT-19135] If the user has specified <code>WHENEVER SQLERROR EXIT SUCCESS</code>, and SQLPLUS returns an exit code of 0, then ignore any SP* errors and treat the execution as a success in <a href="https://github.com/liquibase/liquibase-pro/pull/2134">#2134</a> by @wwillard7800
+            </li>
+            <li> [DAT-19381] support @ symbol in password for psql in <a href="https://github.com/liquibase/liquibase-pro/pull/2112">#2112</a>  by @StevenMassaro
+            </li>
+            <li>[DAT-19258] Handle @ symbol in username for PostgreSQL in <a href="https://github.com/liquibase/liquibase-pro/pull/2113">#2113</a> by @wwillard7800
+                        </li>
+            <li>[DAT-19423] Sanitize display db URLs in drift reports in <a href="https://github.com/liquibase/liquibase-pro/pull/2127">#2127</a> by @abrackx
+            </li>
+            <li>[DAT-19063] Handle presence of <code>url</code> in arg value during obfuscation in <a href="https://github.com/liquibase/liquibase-pro/pull/2160">#2160</a> by @wwillard7800
+            </li>
+            <li>[DAT-18249] Output labels and contexts when running diff changelog with sprocs in <a href="https://github.com/liquibase/liquibase-pro/pull/2223">#2223</a> by @StevenMassaro
+            </li>
+            <li>[DAT-19701] Overloaded functions in Posgres generate an invalid <code>DROP FUNCTION</code> in <a href="https://github.com/liquibase/liquibase-pro/pull/2193">#2193</a> by @StevenMassaro
+            </li>
+            <li>[DAT-19951] Use default <code>filename</code> in error message if <code>filename</code> not specified in <a href="https://github.com/liquibase/liquibase-checks/pull/210">#210</a> by @StevenMassaro
+            </li>
+            <li>[DAT-19880] Fix issue where non-custom checks were not running if custom checks were turned off in <a href="https://github.com/liquibase/liquibase-checks/pull/205">#205</a> by @wwillard7800
+            </li>
+            <li>[DAT-19781] Modified message dealing with non-existent checks settings file in <a href="https://github.com/liquibase/liquibase-checks/pull/203">#203</a> by @wwillard7800
+            </li>
+            <li>[DAT-19387] Do not match on <code>USE ROLE</code> etc in <code>WarnOnUseDatabase</code> check in <a href="https://github.com/liquibase/liquibase-checks/pull/187">#187</a> by @abrackx
+            </li>
+            <li>[DAT-18954] Avoid spurious log message for checksScriptsEnabled param in <a href="https://github.com/liquibase/liquibase-checks/pull/184">#184</a> by @StevenMassaro
+            </li>
+            <li>[DAT-19008] Handle truncate table statement when not on first line of SQL in <a href="https://github.com/liquibase/liquibase-checks/pull/162">#162</a> by @wwillard7800
+            </li>
+            <li>[DAT-17317] Correctly pass rollback flag to the output code in <a href="https://github.com/liquibase/liquibase-checks/pull/176">#176</a> by @wwillard7800
+            </li>
+            <li>[DAT-19285] Check if Dynamo classes are present before allowing customization of dynamo checks in <a href="https://github.com/liquibase/liquibase-checks/pull/158">#158</a> by @abrackx
+            </li>
+            <li>[DAT-19236] Add plugin to set year in report in <a href="https://github.com/liquibase/liquibase-checks/pull/159">#159</a> by @abrackx
+            </li>
+            <li>[DAT-19327] Do not trigger max affected checks if SQL contains <code>ON &lt;dmlPrefix&gt;</code> in <a href="https://github.com/liquibase/liquibase-checks/pull/157">#157</a> by @abrackx
+            </li>
+            <li>[DAT-19235] Report fixes for column headers in <a href="https://github.com/liquibase/liquibase-checks/pull/153">#153</a> by @wwillard7800
+            </li>
+            <li>[DAT-19045] Fix line breaks in checks run report in <a href="https://github.com/liquibase/liquibase-checks/pull/154">#154</a> by @StevenMassaro
+            </li>
+            <li>[DAT-19276] Don't require database connection unless it is needed in <a href="https://github.com/liquibase/liquibase-checks/pull/152">#152</a> by @StevenMassaro
+</li>
+            <li>[DAT-19043] Added <code>diff-changelog</code> option to force schema attributes to be included if they are default @wwillard7800</li>
+            <li>[DAT-19849] Fixed a bug where the DATABASECHANGELOGLOCK table would remain locked after a <code>--sqlplus-timeout</code> @StevenMassaro           </li>
+            <li>Fix mismatched versions across poms in <a href="https://github.com/liquibase/liquibase-checks/pull/189">#189</a> by @StevenMassaro
+            </li>
+            <li>Fix issue where message about not locating custom script displayed always, ignore local YAML test config, added MySQL driver in <a href="https://github.com/liquibase/liquibase-checks/pull/204">#204</a> by @wwillard7800
+            </li>
+        </ul>
+        <h4>Security, Driver, and Other Updates</h4>
+        <ul>
+            <li>Bump net.snowflake:snowflake-jdbc from 3.23.1 to 3.23.2 in <a href="https://github.com/liquibase/liquibase-pro/pull/2221">#2221</a> by @dependabot
+            </li>
+            <li>Bump net.snowflake:snowflake-jdbc from 3.22.0 to 3.23.1 in <a href="https://github.com/liquibase/liquibase-pro/pull/2182">#2182</a> by @dependabot
+            </li>
+            <li>Bump org.jacoco:jacoco-maven-plugin from 0.8.12 to 0.8.13 in <a href="https://github.com/liquibase/liquibase-pro/pull/2217">#2217</a> by @dependabot
+            </li>
+            <li>Bump net.snowflake:snowflake-jdbc from 3.21.0 to 3.22.0 in <a href="https://github.com/liquibase/liquibase-pro/pull/2133">#2133</a> by @dependabot
+            </li>
+            <li>Bump actions/upload-artifact from 3 to 4 in <a href="https://github.com/liquibase/liquibase-pro/pull/1550">#1550</a> by @dependabot
+            </li>
+            <li>Bump org.yaml\:snakeyaml from 2.2 to 2.4 in <a href="https://github.com/liquibase/liquibase-checks/pull/199">#199</a> by @dependabot bot
+            </li>
+            <li>Bump Liquibase version in <a href="https://github.com/liquibase/liquibase-checks/pull/169">#169</a> by @sayaliM0412
+            </li>
+            <li>Bump Liquibase version in <a href="https://github.com/liquibase/liquibase-checks/pull/165">#165</a> by @filipelautert
+            </li>
+            <li>Bump org.apache.groovy\:groovy-jsr223 from 4.0.22 to 4.0.26 in <a href="https://github.com/liquibase/liquibase-checks/pull/196">#196</a> by @dependabot bot
+            </li>
+            <li>Bump org.apache.maven.plugins\:maven-surefire-plugin from 3.2.5 to 3.5.2 in <a href="https://github.com/liquibase/liquibase-checks/pull/164">#164</a> by @dependabot bot
+            </li>
+        </ul>
+        <h2>Changelog</h2>
+        <h3>[OSS]</h3>
+        <h4>New Features</h4>
+        <ul>
+            <li>(#6921) INT-1249: Refactored <code>StringSnapshotSerializerReadable</code> to be able to extend expandable and skipped object types from Pro and Extensions. @SvampX
+            </li>
+            <li>(#6899) Feat: Improve command definition internal status inheritance @filipelautert
+            </li>
+            <li>(#6905) Feat: Rename misleading update methods in Liquibase class @filipelautert
+            </li>
+            <li>(#6866) Feat: Add support for default value sequence next to hsqldb @filipelautert
+            </li>
+            <li>(#6798) Database support custom method <code>escapeForLike</code> @ThisOldDog
+            </li>
+            <li>(#6898) INT-170: Extracted <code>getCreateTableStatement</code> in separate method to enable composite PK for MySQL DBCL table. @SvampX
+            </li>
+            <li>(#6807) [DAT-19654] Made fields in <code>AbstractFormattedChangeLogParser</code> constants to reuse in util classes @KushnirykOleh
+            </li>
+            <li>(#6693) Added maven profile to build minimal distributions (DAT-19476) @StevenMassaro
+            </li>
+            <li>(#6835) Feat: New <code>tagDatabase</code> parameter to keep tag on rollback @filipelautert
+            </li>
+            <li>(#5775) Feat: Improve snapshot generation for NOSQL databases @filipelautert
+                        </li>
+            <li>(#6801) Reduce number of API calls for analytics by caching events (DAT-19789) @StevenMassaro
+            </li>
+            <li>(#6806) [DAT-19691] Code refactorings to fix sonar issues @MalloD12
+            </li>
+            <li>(#6781) [DAT-18971] You can now compress a <code><a href="https://docs.liquibase.com/parameters/log-file.html">log-file</a></code> automatically by adding<code>.gz</code> as the file extension @StevenMassaro
+            </li>
+            <li>(#6744) 6743: Support the Arabic character "Kasra" @Eraoui909
+            </li>
+            <li>(#6774) Use <code>hasIgnoreNested</code> method for all database preconditions @wwillard7800
+            </li>
+            <li>(#6780) Added method to return the original path for a resource @wwillard7800
+            </li>
+            <li>(#6679) Improves MDC logging by database-specific command formatting @CharlesQueiroz
+            </li>
+            <li>(#6706) Only report rows affected for DML statements @wwillard7800</li>
+            <li>(#6710) Handle changes skipped due to OS mismatch DAT-19334 @wwillard7800</li>
+            <li>(#8846) Changesets now work with GIN&#160;index when specifying <code>using</code> with <a href="../../../change-types/create-index.html">createIndex</a> @filipelautert
+</li>
+            <li>(#19776) Support added for defaultValueSequenceNext for HyperSQL @filipelautert</li>
+        </ul>
+        <h4>Bug Fixes</h4>
+        <ul>
+            <li>(#6900) INT-185 Log contains null values when using an OAuth token to connect to Snowflake @CharlesQueiroz
+            </li>
+            <li>(#6838) Upon Evaluation of <code>changeLogPropertyDefinied</code> precondition also include local properties of nested changesets. @2fxprogeeme
+            </li>
+            <li>(#6875) Fix Oracle regression from <code>splitStatements:false</code> change DAT-19983 @wwillard7800
+            </li>
+            <li>(#6872) Fix: change <code>String[]</code> to <code>List\&lt;String&gt;</code> in <code>COMMAND\_DEFINITIONS</code> cache @FatovDI
+            </li>
+            <li>(#6860) Fix: Prevent duplicate entries in databasechangelog with <code>runAlways</code> and <code>onFail="MARK\_RAN"</code> @filipelautert
+            </li>
+            <li>(#6867) Fix: resource path resolution inside JAR files @filipelautert
+            </li>
+            <li>(#6869) Test fixes for path issue @wwillard7800
+            </li>
+            <li>(#6833) Default <code>splitStatements</code> to <code>false</code> for formatted SQL generation DAT-19702 @wwillard7800
+            </li>
+            <li>(#6808) Date with timezone formats added. @MalloD12
+            </li>
+            <li>(#6800) Pass <code>CHANGELOG ARG</code> to scope of <code>changelogSync</code> command @fido-node
+            </li>
+            <li>(#6755) Fix handling of PostgreSQL uppercase catalog names after v42.7.5 driver changes @MalloD12
+            </li>
+            <li>(#6830) Fix: Exclude duplicated dependencies provided by opencsv @filipelautert
+            </li>
+            <li>(#6826) Fix #5197: Ensure contexts from properties object are not ignored @filipelautert
+            </li>
+            <li>(#6825) Fix multiline select statements in <code>execute-sql</code> (DAT-19722) @StevenMassaro
+            </li>
+            <li>(#6818) Excluded JUnit from commons-collections4 @KushnirykOleh
+            </li>
+            <li>(#6795) Re-add headers to <code>-sql</code> commands (DAT-18306) @StevenMassaro
+            </li>
+            <li>(#6806) DAT-19691 : Code refactorings to fix sonar issues @MalloD12
+            </li>
+            <li>(#6802) Fix snapshot for MSSQL decimal sequences (DAT-19504) @abrackx
+            </li>
+            <li>(#6787) For SQL Server, sync up the backing index for PK and UC to the one that is auto-generated DAT-19267 @wwillard7800
+            </li>
+            <li>(#6793) Fix: <code>classpath</code> expression should also work when it is separated by an empty space instead of an = @filipelautert
+            </li>
+            <li>(#6745) Fix <code>foreignKeyConstraintExists</code> precondition when constraint already exists in the DB @MalloD12
+            </li>
+            <li>(#6753) Fix <code>liquibase-cli</code> dependencies when deploying to Maven Central @filipelautert
+            </li>
+            <li>(#6764) Do not include size on user defined types (DAT-19150) @abrackx
+            </li>
+            <li>(#6596) Make the <code>logChannels</code> property work DAT-19296 @wwillard7800
+            </li>
+            <li>(#6752) Fix <code>LoadData</code> issues for CLOB Values Containing Invalid File Path Characters @filipelautert
+            </li>
+            <li>(#6674) Fix concurrency issues in multithread environments @filipelautert
+            </li>
+            <li>(#6751) Avoid NPE when analytics config issue occurs (DAT-19472) @StevenMassaro
+            </li>
+            <li>(#6770) Revert weld-se-core upgrade @abrackx
+            </li>
+            <li>(#6727) Improve/fix snowflake view generation SQL @filipelautert
+            </li>
+            <li>(#6750) DAT-18499 Log level changed when specifying driver on the CLI @MalloD12
+            </li>
+            <li>(#6560) Add <code>DiffOutputControl</code> support for specifying a data directory argument @MalloD12
+            </li>
+            <li>(#6692) Snapshot all configuration values for Oracle sequences @marchof
+            </li>
+            <li>(#6663) Close <code>ResultSet</code> to prevent leaking it @ahus1
+            </li>
+            <li>(#19267) Taking a snapshot of a database and then running the diff-command with the snapshot file leads to an argument mismatch error. @obovsunivskyi</li>
+        </ul>
+        <h4>Full changelog</h4>
+        <p>You can view a full changelog and compare Liquibase v4.31.0 to4.32.0 on <a href="https://github.com/liquibase/liquibase/compare/v4.31.0...v4.32.0">our Github</a>.</p>
+        <h4>Get Certified</h4>
+        <p>Learn all the Liquibase fundamentals from free online courses by Liquibase experts, and see how to apply them in the real world at <a href="https://learn.liquibase.com/">Liquibase University</a>.</p>
+        <h4>Read the Documentation</h4>
+        <p>Please check out and contribute to the <a href="https://docs.liquibase.com/">continually improving docs</a>.</p>
+        <h4>Join the Community</h4>
+        <p>Our community has built a lot. From extensions to integrations, you’ve helped make Liquibase the amazing open source project that it is today. Keep contributing to making it stronger:</p>
+        <ul>
+            <li><a href="https://www.liquibase.org/development/contribute.html">Contribute code</a><![CDATA[
+            ]]></li>
+            <li><a href="https://github.com/Datical/liquibase-docs">Make doc updates</a><![CDATA[
+            ]]></li>
+            <li><a href="https://forum.liquibase.org/">Help by asking and answering questions</a><![CDATA[
+            ]]></li>
+            <li><a href="https://discord.gg/qAMHY5U8">Join our Discord server</a><![CDATA[
+            ]]></li>
+            <li><a href="https://forms.gle/bsoD5K6iLLvkdqhC8">Sign up to provide feedback to the product team</a><![CDATA[
+            ]]></li>
+        </ul>
+        <h4>File Descriptions</h4>
+        <ul>
+            <li><b>Liquibase CLI</b> -- Includes open source + commercial functionality
+            </li>
+            <li><b>liquibase-x.y.z.tar.gz</b> — Archive in tar.gz format
+            </li>
+            <li><b>liquibase-x.y.z.zip</b> — Archive in zip format
+            </li>
+            <li><b>liquibase-windows-x64-installer-x.y.z.exe</b> — Installer for Windows
+            </li>
+            <li><b>Primary Libraries</b> — For embedding in other software
+            </li>
+            <li><b>liquibase-core-x.y.z.jar</b> — Base Liquibase library (open source)
+            </li>
+            <li><b>liquibase-commerical-x.y.z.jar</b> — Additional commercial functionality
+            </li>
+            <li><b>liquibase-additional-x.y.z.zip</b> — Contains additional, less commonly used files
+            </li>
+            <li>Additional libraries such as liquibase-maven-plugin.jar and liquibase-cdi.jar
+            </li>
+            <li>Javadocs for all the libraries</li>
+            <li>Source archives for all the open source libraries</li>
+            <li>ASC/MD5/SHA1 verification hashes for all files </li>
+        </ul>
+    </body>
+</html>
