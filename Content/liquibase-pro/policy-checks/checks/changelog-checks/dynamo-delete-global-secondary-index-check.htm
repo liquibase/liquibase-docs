@@ -44,57 +44,38 @@
             <li>You must have a valid <a href="../../../license-key.htm">Liquibase Pro license</a> to use this policy check.</li>
         </ul>
         <h2>Uses</h2>
-        <p>Use this check to enforce naming conventions, security standards, or deployment rules by validating specific fields in DynamoDB changetypes. For example, you can:</p>
+        <p>Use this check to enforce the use of the Dynamo-specific <code>DynamoDeleteGlobalSecondaryIndexCheck</code> changetype.  For example, you can:</p>
         <ul>
-            <li>Ensure the <code>command</code> field matches a specific structure
-            </li>
-            <li>Block deployments if a certain field does not follow your internal naming policies
-            </li>
+            <li>Ensure specific changetypes include the <code>DynamoDeleteGlobalSecondaryIndexCheck</code> changetype.            </li>
+            <li>Block deployments if the <code>DynamoDeleteGlobalSecondaryIndexCheck</code> changetype does not exist in any particular XML, YAML, or JSON changeset.            </li>
         </ul>
-        <p>You can define multiple checks with different attributes and patterns to match your standards across various changetypes.</p>
-        <h2>When does this check trigger?</h2>
-        <p>This check is fully driven by how you configure it. Once configured, the check will trigger only when <b>all</b> of the following are true:</p>
-        <ol>
-            <li>A changeset contains the specific changetype you specified, such as <code>createIndex</code></li>
-            <li>That changetype includes the attribute that you're checking, such as <code>collectionName</code></li>
-            <li>The  value of <code>'KEYS'</code> or <code>'OPTIONS'</code><b>does not</b> match the value or regex pattern you've defined            </li>
-        </ol>
-        <p>If the changetype isn’t used, or the attribute isn’t present, the check <b>doesn’t run</b>. This ensures you're only enforcing rules when that part of the changelog is relevant.</p>
-        <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">Regex and partial matching is available to all values in checks with the exception of<b> JSON-based values</b>.</p>
         <h2>Configure the check</h2>
         <ol>
-            <li>This check is disabled by default. To enable it, run the enable command:<br /><br /><code>liquibase checks enable --check-name=DynamoDeleteGlobalSecondaryIndexCheck<br /><br /></code></li>
-            <li>Liquibase will prompt you to name your custom version of the check. By default, it will be named <code>DynamoDeleteGlobalSecondaryIndexCheck1</code>. You can accept the default by pressing <b>Enter</b> or enter a custom name.<br /><br /></li>
-            <li>Set the severity level. This determines the exit code when the check is triggered. Choose one:<br /><ul><li>INFO (0)</li><li>MINOR (1)</li><li>MAJOR (2)</li><li>CRITICAL (3)</li><li>BLOCKER (4)</li></ul><br /></li>
-            <li>Set the DynamoDB changetype this check will inspect. You’ll be prompted with:<br /><p><pre><code class="language-text">Set 'DYNAMO_CHANGE_TYPE' (options: PARTIQL_FILE, CREATE_DYNAMO_TABLE, CREATE_GLOBAL_SECONDARY_INDEX, UPDATE_DYNAMO_TABLE):</code></pre></p><ul><li>Only one changetype is allowed per check</li><li>Input is case-insenesitive</li><li>Don't include commas or multiple values. Only input one valid name<br /></li></ul><br /></li>
+            <li>This check is disabled by default. To enable it, run the enable command:<br /><code>liquibase checks enable --check-name=DynamoDeleteGlobalSecondaryIndexCheck<br /></code>You will see this output:
+<br /><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">Check 'DynamoDeleteGlobalSecondaryIndexCheck' has been enabled.
+
++---------------------------------------+-----------+--------+---------+----------+---------------+--------------------------------+
+| Short Name                            | Scope     | Type   | Status  | Severity | Customization | Description                    |
++---------------------------------------+-----------+--------+---------+----------+---------------+--------------------------------+
+| DynamoDeleteGlobalSecondaryIndexCheck | changelog | sql,   | enabled | 0        | &lt;None&gt;        | This check triggers when a     |
+|                                       |           | xml,   |         |          |               | XML,YAML, or JSON changeset    |
+|                                       |           | yaml,  |         |          |               | contains the Dynamo-specific   |
+|                                       |           | json   |         |          |               | deleteGlobalSecondaryIndex     |
+|                                       |           |        |         |          |               | changetype.                    |
++---------------------------------------+-----------+--------+---------+----------+---------------+--------------------------------+
+Liquibase command 'checks enable' was executed successfully.</MadCap:codeSnippetBody></MadCap:codeSnippet></li>
+            <li>To set the severity of this check, run:<br /><code>liquibase checks customize --check-name=DynamoDeleteGlobalSecondaryIndexCheck</code></li>
+            <li>Set the severity level. This determines the exit code when the check is triggered. Choose one:<br /><ul><li>INFO (0)</li><li>MINOR (1)</li><li>MAJOR (2)</li><li>CRITICAL (3)</li><li>BLOCKER (4)</li></ul><br />You will see this output and the Severity you selected reflected in the Severity column. Your check will be enabled and customized successfully. <br /><p><MadCap:codeSnippet><MadCap:codeSnippetCopyButton /><MadCap:codeSnippetBody MadCap:useLineNumbers="False" MadCap:lineNumberStart="1" MadCap:continue="False" xml:space="preserve">Customization complete. Review the table below to confirm your changes.
++---------------------------------------+-----------+--------+---------+----------+---------------+--------------------------------+
+| Short Name                            | Scope     | Type   | Status  | Severity | Customization | Description                    |
++---------------------------------------+-----------+--------+---------+----------+---------------+--------------------------------+
+| DynamoDeleteGlobalSecondaryIndexCheck | changelog | sql,   | enabled | 1        | &lt;None&gt;        | This check triggers when a     |
+|                                       |           | xml,   |         |          |               | XML,YAML, or JSON changeset    |
+|                                       |           | yaml,  |         |          |               | contains the Dynamo-specific   |
+|                                       |           | json   |         |          |               | deleteGlobalSecondaryIndex     |
+|                                       |           |        |         |          |               | changetype.                    |
++---------------------------------------+-----------+--------+---------+----------+---------------+--------------------------------+
+Liquibase command 'checks customize' was executed successfully.</MadCap:codeSnippetBody></MadCap:codeSnippet></p><br /></li>
         </ol>
-        <h2>Example Output</h2>
-        <div class="liquibase-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Short Name</th>
-                        <th>Scope</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Severity</th>
-                        <th>Customization</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>CapCol</td>
-                        <td>changelog</td>
-                        <td>sql, xml, yaml, json</td>
-                        <td>enabled</td>
-                        <td>1</td>
-                        <td>
-							DYNAMO_CHANGE_TYPE = CREATE_COLLECTION<br />							COLLECTION_NAME = myCollection<br />							OPTIONS = { "capped": true, "size": 5242880 }						</td>
-                        <td>This check triggers when a collection when a collection being created does not comply with the specified options.</td>
-                    </tr>
-                </tbody>
-            </table><code><br />Liquibase command 'checks enable' was executed successfully. </code>
-        </div>
     </body>
 </html>
