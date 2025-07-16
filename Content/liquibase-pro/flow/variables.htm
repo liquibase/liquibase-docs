@@ -25,27 +25,27 @@
         <p>You can define a variable once but reuse it many times in different situations in your flow file. This provides flexibility and reduces code duplication. For example, variables may be useful to efficiently run multiple kinds of commands that contain the same file, directory, or other string.</p>
         <p>It is a best practice to use global variables for things that can apply to your whole flow file, and stage variables for things that only apply to specific stages. Included variables are best for things that apply to multiple flow files.</p>
         <p>You can also check the values of variables by using <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref> to dynamically run code in your flow files.</p>
-        <p>In Liquibase 4.26.0+, you can specify a default variable value for Liquibase to use if it doesn't receive an explicit one. For example, you could use this to specify optional command arguments (such as <a href="../../concepts/changelogs/attributes/contexts.html">contexts</a> and <a href="../../concepts/changelogs/attributes/labels.html">labels</a>) as <code class="language-text">NULL</code> if not explicitly specified in your definition.</p>
+        <p>In Liquibase 4.26.0+, you can specify a default variable value for Liquibase to use if it doesn't receive an explicit one. For example, you could use this to specify optional command arguments (such as <a href="../../concepts/changelogs/attributes/contexts.html">contexts</a> and <a href="../../concepts/changelogs/attributes/labels.html">labels</a>) as <code>NULL</code> if not explicitly specified in your definition.</p>
         <h2>Syntax</h2>
         <h3>Define variables</h3>
-        <p>Variable definitions always use the syntax <code class="language-text">key: "value"</code>. You must specify quotation marks around the value.</p>
-        <p>You can define <b>included variables</b> in an external YAML file, in this case <code class="language-text">liquibase.flowvariables.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">PROJECT_NAME: "MyFlowProject"
+        <p>Variable definitions always use the syntax <code>key: "value"</code>. You must specify quotation marks around the value.</p>
+        <p>You can define <b>included variables</b> in an external YAML file, in this case <code>liquibase.flowvariables.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">PROJECT_NAME: "MyFlowProject"
 THIS_DATE: "2024-05-12T15-00-20"</code></pre>
-        <p>You can define <b>global variables</b> at the top of your flow file, in this case <code class="language-text">liquibase.myflowfile.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
+        <p>You can define <b>global variables</b> at the top of your flow file, in this case <code>liquibase.myflowfile.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
   STATUS_FILE: "status.txt"
   UPDATE_LOG: "update.log"
   HISTORY_FILE: "history.txt"</code></pre>
-        <p>You can define <b>stage variables</b> within a particular stage, in this case <code class="language-text">stage-status</code>:</p><pre xml:space="preserve"><code class="language-yaml">stages:
+        <p>You can define <b>stage variables</b> within a particular stage, in this case <code>stage-status</code>:</p><pre xml:space="preserve"><code class="language-yaml">stages:
   stage-status:
     stageVariables:
       STATUS_FILE: "status.txt"</code></pre>
         <h3>Use variables</h3>
         <p>Variable calls in your flow files use the following syntax:</p>
         <ul>
-            <li><b>Included</b> variables: <code class="language-text">${NAMESPACE.VARIABLE_KEY}</code></li>
-            <li><b>Global and stage</b> variables: <code class="language-text">${VARIABLE_KEY}</code></li>
+            <li><b>Included</b> variables: <code>${NAMESPACE.VARIABLE_KEY}</code></li>
+            <li><b>Global and stage</b> variables: <code>${VARIABLE_KEY}</code></li>
         </ul>
-        <p>For example, we can run the <code><MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref></code> command in a flow file using included, global, and stage variables. In the following example, the included variables all have the namespace <code class="language-text">FLOW_VARS</code> and reference variables we previously defined in the file <code class="language-text">liquibase.flowvariables.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">include:
+        <p>For example, we can run the <code><MadCap:xref href="../../commands/change-tracking/status.htm">status</MadCap:xref></code> command in a flow file using included, global, and stage variables. In the following example, the included variables all have the namespace <code>FLOW_VARS</code> and reference variables we previously defined in the file <code>liquibase.flowvariables.yaml</code>:</p><pre xml:space="preserve"><code class="language-yaml">include:
   FLOW_VARS: liquibase.flowvariables.yaml
 
 globalVariables:
@@ -91,7 +91,7 @@ stages:
         cmdArgs: {verbose: "${VERBOSE_STATE}"}
         # This stage doesn't define any stage variables
         # Liquibase uses the definition from the global variable, which defaults to null</code></pre>
-        <p>In the preceding example, <code class="language-text">VERBOSE_STATE</code> is set to null by default as a global variable and is set to a non-null value as a stage variable. During <code class="language-text">stage-status</code>, Liquibase passes the non-null value. During <code class="language-text">stage-other</code>, <code class="language-text">VERBOSE_STATE</code> is not defined as a stage variable, so Liquibase passes the global value, which is null. When Liquibase detects a null value in a global or command argument, it omits the entire argument at runtime.</p>
+        <p>In the preceding example, <code>VERBOSE_STATE</code> is set to null by default as a global variable and is set to a non-null value as a stage variable. During <code>stage-status</code>, Liquibase passes the non-null value. During <code>stage-other</code>, <code>VERBOSE_STATE</code> is not defined as a stage variable, so Liquibase passes the global value, which is null. When Liquibase detects a null value in a global or command argument, it omits the entire argument at runtime.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">It's possible to define a variable without default values both globally and in a stage. In this design, you simply rely on the stage variable's higher precedence to control the value of the output in different situations. However, explicitly specifying default values can make the intended behavior of a flow file clearer to developers.</p>
         <p>Default values can also be useful when you use them with <MadCap:xref href="conditionals.htm">Flow Conditionals</MadCap:xref>. For example:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
   UPDATE: "${UPDATE:-null}"
@@ -104,7 +104,7 @@ stages:
       if: "UPDATE != null"
       command: update
       cmdArgs: {changelog-file: "${CHANGELOG_FILE}"}</code></pre>
-        <p>In the preceding example, Liquibase checks whether the value of the global variable <code class="language-text">UPDATE</code> is not null before executing the rest of the action.</p>
+        <p>In the preceding example, Liquibase checks whether the value of the global variable <code>UPDATE</code> is not null before executing the rest of the action.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If you define a default value for a variable, <b>the default is inherited by any nested flow files</b> that call on the parent flow file. The default value also applies to the nested flow files.</p>
         <h3>Default values:&#160;nested property substitution</h3>
         <p>You can nest variables within each other, which allows you to specify dynamic variable names at runtime. This allows flexibility within flow files to set and pass global variables as part of another variable.</p>
@@ -140,10 +140,10 @@ stages:
       - type: liquibase
         command: update-sql
         globalArgs: {changelog-file: "${LIQUIBASE_OUTPUT_FILE}"}</code></pre>
-        <p>This lets you avoid manually updating information in your flow file, such as the path of the system environment variable <code class="language-text">LIQUIBASE_HOME</code>, which could change if you later modify your installation directory.</p>
-        <p>Substituting environment variables may also be useful if you want to avoid modifying your flow file whenever you change the value of Liquibase parameters like <code class="language-text">LIQUIBASE_OUTPUT_FILE</code>. Instead of defining and updating variables in your flow file, you can simply update the values of the external environment variables the flow file calls on. Then, when you run your flow file, Liquibase uses the new values without you ever having modified the flow file itself.</p>
+        <p>This lets you avoid manually updating information in your flow file, such as the path of the system environment variable <code>LIQUIBASE_HOME</code>, which could change if you later modify your installation directory.</p>
+        <p>Substituting environment variables may also be useful if you want to avoid modifying your flow file whenever you change the value of Liquibase parameters like <code>LIQUIBASE_OUTPUT_FILE</code>. Instead of defining and updating variables in your flow file, you can simply update the values of the external environment variables the flow file calls on. Then, when you run your flow file, Liquibase uses the new values without you ever having modified the flow file itself.</p>
         <h3>Command substitutions</h3>
-        <p>In Liquibase 4.28.0 and later, you can also use variables in the <code class="language-text">command</code> field of a flow file action. For example:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
+        <p>In Liquibase 4.28.0 and later, you can also use variables in the <code>command</code> field of a flow file action. For example:</p><pre xml:space="preserve"><code class="language-yaml">globalVariables:
   MY_COMMAND:&#160;"status"
   MY_CHANGELOG: "newChangelog.txt"
 
@@ -153,7 +153,7 @@ stages:
       - type: liquibase
         command: ${MY_COMMAND}
         cmdArgs: {changelog-file: "${MY_CHANGELOG}"}</code></pre>
-        <p>The preceding example calls on a global variable from the <code class="language-text">command</code> field. You can use the same syntax to call on environment variables instead.</p>
+        <p>The preceding example calls on a global variable from the <code>command</code> field. You can use the same syntax to call on environment variables instead.</p>
         <h3>Empty strings</h3>
         <p>You can specify the empty string as the value of a variable. For example, if you want to run all changesets in your changelog regardless of their contexts/labels:</p><pre xml:space="preserve"><code class="language-yaml">stages:
   default:

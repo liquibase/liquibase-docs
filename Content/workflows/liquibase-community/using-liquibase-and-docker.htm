@@ -25,7 +25,7 @@
         </ul>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">The database drivers for MongoDB&#160;Pro and MySQL are not preinstalled into the container image and require additional steps to install. See <MadCap:xref href="#MongoDB">MongoDB Pro driver</MadCap:xref> and <MadCap:xref href="#MySQL">MySQL driver</MadCap:xref>.</p>
         <p>See the <a href="https://github.com/liquibase/docker/blob/main/Dockerfile">Liquibase Dockerfile</a> for more details. You can find the official repository for Liquibase images on the <a href="https://download.liquibase.org/">download</a> page.</p>
-        <p>Docker pull command:</p><pre><code class="language-text">docker pull liquibase</code></pre>
+        <p>Docker pull command:</p><pre><code>docker pull liquibase</code></pre>
         <h3>Example JDBC URLs</h3>
         <table>
             <col style="width: 600px;" />
@@ -109,7 +109,7 @@
         <p>You can also use the <code>/liquibase/changelog</code> volume for commands that create output files, such as <code>generate-changelog</code>. In this case, you must specify the absolute path to the changelog; prefix the path with <code>/liquibase/changelog/&lt;PATH TO CHANGELOG FILE&gt;</code>.</p>
         <h3>Example</h3>
         <p>If you have a local <code> /path/to/changelog:/liquibase/changelog liquibase/changelog.xml</code> file, you can run:</p><pre>docker run --rm -v /path/to/changelog:/liquibase/changelog liquibase/liquibase --changeLogFile=changelog.xml update</pre>
-        <p>To generate a new changelog file at this location, run:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v /path/to/changelog:/liquibase/changelog liquibase/liquibase liquibase generate-changelog</code></pre>
+        <p>To generate a new changelog file at this location, run:</p><pre xml:space="preserve"><code>docker run --rm -v /path/to/changelog:/liquibase/changelog liquibase/liquibase liquibase generate-changelog</code></pre>
         <h2>Configuration files</h2>
         <p>If you use a <a href="../../concepts/connections/creating-config-properties.html">Liquibase properties file</a> (defaults file) like <code><MadCap:variable name="General.liquiPropFile" /></code> to specify <MadCap:variable name="General.Param/Attribute" />s instead of passing them on the command line, include it in your changelog volume mount and reference it when running commands.</p>
         <p>When you specify a custom Liquibase properties file, ensure you include the relative file path to the <code>/liquibase/liquibase.properties </code>volume so that Liquibase can continue looking for your properties file there.</p>
@@ -121,37 +121,37 @@
         <h3>Example</h3>
         <p>If you have a local <code>/path/to/changelog:/liquibase/changelog liquibase</code> file, you run the following command:</p><pre>docker run --rm -v /path/to/changelog:/liquibase/changelog -v /path/to/lib:/liquibase/lib liquibase/liquibase update</pre>
         <h3><a name="MongoDB"></a>MongoDB Pro driver</h3>
-        <p>You can install the Liquibase MongoDB Pro JDBC driver in your container image using the <a href="https://github.com/liquibase/liquibase-package-manager">Liquibase Package Manager</a> (LPM). In your command line, enter the following command:</p><pre><code class="language-text">lpm add liquibase-commercial-mongodb@<MadCap:variable name="software-versions.latest-liquibase-mongodb-pro" /></code></pre>
+        <p>You can install the Liquibase MongoDB Pro JDBC driver in your container image using the <a href="https://github.com/liquibase/liquibase-package-manager">Liquibase Package Manager</a> (LPM). In your command line, enter the following command:</p><pre><code>lpm add liquibase-commercial-mongodb@<MadCap:variable name="software-versions.latest-liquibase-mongodb-pro" /></code></pre>
         <h3 id="mysql"><a name="MySQL"></a>MySQL driver</h3>
         <p>The JDBC driver for MySQL has licensing restrictions that prevent it from being preinstalled into the container image. You must load the driver in one of the following ways:</p>
         <h4>Create a new container</h4>
-        <p>Dockerfile:</p><pre xml:space="preserve"><code class="language-text">FROM liquibase
+        <p>Dockerfile:</p><pre xml:space="preserve"><code>FROM liquibase
 RUN lpm add mysql --global</code></pre>
-        <p>Then enter this command in the CLI:</p><pre><code class="language-text">docker build . -t liquibase-mysql</code></pre>
+        <p>Then enter this command in the CLI:</p><pre><code>docker build . -t liquibase-mysql</code></pre>
         <p>For more information, see <a href="https://docs.docker.com/engine/reference/commandline/build/">docker build</a>.</p>
         <h4>Set environment variable at runtime</h4>
-        <p>Alternatively, enter this command in the CLI:</p><pre><code class="language-text">docker run -e INSTALL_MYSQL=true liquibase update</code></pre>
+        <p>Alternatively, enter this command in the CLI:</p><pre><code>docker run -e INSTALL_MYSQL=true liquibase update</code></pre>
         <p>For more information, see <a href="https://docs.docker.com/engine/reference/run/#env-environment-variables">Docker run reference § ENV (environment variables)</a>.</p>
         <h2>Complete examples</h2>
         <h3>Command line</h3>
-        <p>Specifying everything using arguments:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase
+        <p>Specifying everything using arguments:</p><pre xml:space="preserve"><code>docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase
   --license-key="&lt;PASTE LB PRO LICENSE KEY HERE&gt;"
 update 
   --url=jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt; 
   --changelog-file=com/example/changelog.xml --username=&lt;USERNAME&gt; 
   --password=&lt;PASSWORD&gt;</code></pre>
-        <p>Using with <MadCap:xref href="../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref> example:</p><pre xml:space="preserve"><code class="language-text">docker run --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_COMMAND_URL --env LIQUIBASE_PRO_LICENSE_KEY --env LIQUIBASE_COMMAND_CHANGELOG_FILE --rm -v &lt;PATH TO CHANGELOG DIR&gt;/changelogs:/liquibase/changelog liquibase --log-level=info update</code></pre>
+        <p>Using with <MadCap:xref href="../../concepts/connections/liquibase-environment-variables.htm">[%=General.Liquibase%] Environment Variables</MadCap:xref> example:</p><pre xml:space="preserve"><code>docker run --env LIQUIBASE_COMMAND_USERNAME --env LIQUIBASE_COMMAND_PASSWORD --env LIQUIBASE_COMMAND_URL --env LIQUIBASE_PRO_LICENSE_KEY --env LIQUIBASE_COMMAND_CHANGELOG_FILE --rm -v &lt;PATH TO CHANGELOG DIR&gt;/changelogs:/liquibase/changelog liquibase --log-level=info update</code></pre>
         <h3>Properties file</h3>
-        <p>Use the following example for configuring the <code>liquibase.docker.properties</code> file</p><pre xml:space="preserve"><code class="language-text">classpath: /liquibase/changelog
+        <p>Use the following example for configuring the <code>liquibase.docker.properties</code> file</p><pre xml:space="preserve"><code>classpath: /liquibase/changelog
 url: jdbc:postgresql://&lt;IP OR HOSTNAME&gt;:5432/&lt;DATABASE&gt;?currentSchema=&lt;SCHEMA NAME&gt;
 changelog-file: changelog.xml
 username: &lt;USERNAME&gt;
 password: &lt;PASSWORD&gt;
 licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
-        <p>Use the <code>--<MadCap:xref href="../../parameters/defaults-file.htm">defaults-file</MadCap:xref></code> parameter to invoke the <code>liquibase.docker.properties</code> file when running commands in the CLI:</p><pre xml:space="preserve"><code class="language-text">docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/--defaults-file=/liquibase/changelog/liquibase.docker.properties update</code></pre>
+        <p>Use the <code>--<MadCap:xref href="../../parameters/defaults-file.htm">defaults-file</MadCap:xref></code> parameter to invoke the <code>liquibase.docker.properties</code> file when running commands in the CLI:</p><pre xml:space="preserve"><code>docker run --rm -v &lt;PATH TO CHANGELOG DIR&gt;:/liquibase/changelog liquibase/--defaults-file=/liquibase/changelog/liquibase.docker.properties update</code></pre>
         <h3>Using Liquibase and PostgreSQL with Docker</h3>
         <p>When you start a PostgreSQL database using <code>docker run postgres</code>, the command looks at the local system to see if the PostgreSQL Docker container already exists. If the container doesn’t exist, the command will refer to Docker Hub and download it.</p>
-        <p>To run PostgreSQL and Liquibase, your Liquibase changelog needs to be accessible to the Docker container. Mount the directory that includes the changelog file with the <code>-v</code> option:</p><pre xml:space="preserve"><code class="language-text">docker run -v /home/changelog:/liquibase/changelog liquibase 
+        <p>To run PostgreSQL and Liquibase, your Liquibase changelog needs to be accessible to the Docker container. Mount the directory that includes the changelog file with the <code>-v</code> option:</p><pre xml:space="preserve"><code>docker run -v /home/changelog:/liquibase/changelog liquibase 
 --url=jdbc:postgresql://&lt;DATABASE_IP&gt;:5432/postgres 
 --changelog-file=/liquibase/changelog/changelog.xml --username=postgres 
 --password=postgres</code></pre>
@@ -160,7 +160,7 @@ licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
         <p>If you cannot use the default Liquibase Docker container image, you can create a custom image. You can either extend an existing Dockerfile or create a completely new image.</p>
         <h3>Extend Dockerfile</h3>
         <p>The best way to create a custom Docker image is to extend the Dockerfile to add whatever tools or drivers you want, such as a <a href="../../concepts/changelogs/attributes/runwith.htm">native executor</a>. Then, publish your extended Dockerfile internally in your organization. For example, see <a href="https://github.com/liquibase/docker/tree/main/examples">/docker/examples</a>, which contains both Alpine and non-Alpine Dockerfile examples.</p>
-        <p>To add a driver, see the "<MadCap:xref href="#Drivers">Drivers and extensions</MadCap:xref>" section. Alternatively, you can use the <a href="https://github.com/liquibase/liquibase-package-manager">Liquibase Package Manager</a> (<code>lpm</code>) to inject the driver into your container:</p><pre xml:space="preserve"><code class="language-text">FROM liquibase:latest<br />RUN lpm add mssql --global</code></pre>
+        <p>To add a driver, see the "<MadCap:xref href="#Drivers">Drivers and extensions</MadCap:xref>" section. Alternatively, you can use the <a href="https://github.com/liquibase/liquibase-package-manager">Liquibase Package Manager</a> (<code>lpm</code>) to inject the driver into your container:</p><pre xml:space="preserve"><code>FROM liquibase:latest<br />RUN lpm add mssql --global</code></pre>
         <p>Then publish this custom Docker image internally.</p>
         <h3>New image</h3>
         <p>To produce a new Liquibase Docker image, you must run a few Docker commands to inject the driver into the container. You can do this with any database. The following example is for a Microsoft SQL Server database running with the latest version of Liquibase:</p>
@@ -173,7 +173,7 @@ licenseKey=&lt;PASTE LB PRO LICENSE KEY HERE&gt;</code></pre>
             <li>Publish this custom Docker image internally.</li>
         </ol>
         <h2>Troubleshooting issues with Liquibase and Docker</h2>
-        <p>If you use the Liquibase Docker image 4.3.5 with Aurora MySQL RDS Cluster and have issues with the connection link, add <code>?autoReconnect=true"&amp;"useSSL=false</code> to the end of the database name in your URL:</p><pre xml:space="preserve"><code class="language-text">--url=jdbc:mysql://devops-test.us-east-2.rds.amazonaws.com:3306/auditsource?autoReconnect=true"&amp;"useSSL=false</code></pre>
+        <p>If you use the Liquibase Docker image 4.3.5 with Aurora MySQL RDS Cluster and have issues with the connection link, add <code>?autoReconnect=true"&amp;"useSSL=false</code> to the end of the database name in your URL:</p><pre xml:space="preserve"><code>--url=jdbc:mysql://devops-test.us-east-2.rds.amazonaws.com:3306/auditsource?autoReconnect=true"&amp;"useSSL=false</code></pre>
         <h2>Related links</h2>
         <ul>
             <li>
