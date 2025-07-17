@@ -22,35 +22,35 @@
             <li>Perform a Liquibase <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code></li>
             <li>Run the <code><MadCap:xref href="../../commands/inspection/snapshot.html">snapshot</MadCap:xref></code> command to capture the current state of the database<ul><li>Run a <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code> to compare the snapshot to the target database.</li></ul></li>
         </ul>
-        <p>This can either be run in a separate automation job, or it should be in the same job before the <code class="language-text">update</code> command (and determine if the job should fail because of this).</p>
+        <p>This can either be run in a separate automation job, or it should be in the same job before the <code>update</code> command (and determine if the job should fail because of this).</p>
         <h3>Important information</h3>
         <ul>
             <li>The general solution provided below highlights the main commands to perform this workflow. You will still need a username, password, etc., set in order to connect to the database.</li>
-            <li>If these commands are all run at once, the <code class="language-text">changelog_file_name.sql</code> file will not have any changesets. This file will only have changesets if there are changes in the database, not in the snapshot.</li>
+            <li>If these commands are all run at once, the <code>changelog_file_name.sql</code> file will not have any changesets. This file will only have changesets if there are changes in the database, not in the snapshot.</li>
         </ul>
         <h3>How-to guide</h3>
         <ol>
-            <li>Run the <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code> command on the target database</li><pre><code class="language-text">liquibase --url=$targetURL update</code></pre>
-            <li>Run the <code><MadCap:xref href="../../commands/inspection/snapshot.html">snapshot</MadCap:xref></code> command on the target database</li><pre><code class="language-text">liquibase --url=$targetURL --output-file=.json snapshot --snapshot-format=json</code></pre>
+            <li>Run the <code><MadCap:xref href="../../commands/update/update.html">update</MadCap:xref></code> command on the target database</li><pre><code>liquibase --url=$targetURL update</code></pre>
+            <li>Run the <code><MadCap:xref href="../../commands/inspection/snapshot.html">snapshot</MadCap:xref></code> command on the target database</li><pre><code>liquibase --url=$targetURL --output-file=.json snapshot --snapshot-format=json</code></pre>
             <li>There are two commands that can be used to determine the differences, <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> (option A) and <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code> (option B):</li>
             <ul>
-                <li>Run the <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command with <code class="language-text">--format=json</code> to get a quick glance at what is different:</li><pre><code class="language-text">liquibase --url="offline:?snapshot=..." --reference-url=$targetURL diff --format=JSON</code></pre>
-                <li>Run the <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code> command on the target database while using the snapshot from step 2 as the URL.</li><pre><code class="language-text">liquibase --url="offline:?snapshot=..." --reference-url=$targetURL diff-changelog --changelog-file=.sql</code></pre>
-                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If this is being used inside of an automation pipeline, this <code class="language-text">diff-changelog</code> command should be run either in a separate job than the Liquibase update, or it should be run before the update in step 1 to determine if changes have occurred in the database.</p>
+                <li>Run the <code><MadCap:xref href="../../commands/inspection/diff.htm">diff</MadCap:xref></code> command with <code>--format=json</code> to get a quick glance at what is different:</li><pre><code>liquibase --url="offline:?snapshot=..." --reference-url=$targetURL diff --format=JSON</code></pre>
+                <li>Run the <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code> command on the target database while using the snapshot from step 2 as the URL.</li><pre><code>liquibase --url="offline:?snapshot=..." --reference-url=$targetURL diff-changelog --changelog-file=.sql</code></pre>
+                <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;">If this is being used inside of an automation pipeline, this <code>diff-changelog</code> command should be run either in a separate job than the Liquibase update, or it should be run before the update in step 1 to determine if changes have occurred in the database.</p>
             </ul>
         </ol>
         <h3>Variable descriptions for the example commands listed above</h3>
         <ul>
-            <li><code class="language-text">$targetURL</code>: This is the normal JDBC URL used to connect to the database.</li>
-            <li><code class="language-text">&lt;db_type&gt;</code>: This value needs to be set to the type of database (Postgres, Oracle, etc.).<ul><li>This value is referred to as the DBMS or "shortname," which can be found for all <a href="../../start/tutorials/home.html">supported databases</a>.</li></ul></li>
-            <li><code class="language-text">&lt;snapshot_file_name&gt;</code>: the snapshot file containing the current state of the database in a JSON format.</li>
-            <li><code class="language-text">&lt;changelog_file_name&gt;</code>: the generated changelog (set to SQL) containing changesets that are not in the database.</li>
+            <li><code>$targetURL</code>: This is the normal JDBC URL used to connect to the database.</li>
+            <li><code>&lt;db_type&gt;</code>: This value needs to be set to the type of database (Postgres, Oracle, etc.).<ul><li>This value is referred to as the DBMS or "shortname," which can be found for all <a href="../../start/tutorials/home.html">supported databases</a>.</li></ul></li>
+            <li><code>&lt;snapshot_file_name&gt;</code>: the snapshot file containing the current state of the database in a JSON format.</li>
+            <li><code>&lt;changelog_file_name&gt;</code>: the generated changelog (set to SQL) containing changesets that are not in the database.</li>
         </ul>
         <h2>Comparing the current state of two target databases</h2>
         <p>When there are multiple databases in the pipeline, such as a PROD database and a UAT database, database drift can occur when certain changes were deployed as a hotfix to PROD that didn't get deployed to the UAT database. This is all achieved via the <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code> command.</p>
         <h3>How-to guide</h3>
         <ol>
-            <li>Follow the steps outlined in Liquibase's documentation on <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code>.</li><pre><code class="language-text">liquibase diff-changelog --changelog-file=&lt;changelog_file_name&gt;.xml
+            <li>Follow the steps outlined in Liquibase's documentation on <code><MadCap:xref href="../../commands/inspection/diff-changelog.html">diff-changelog</MadCap:xref></code>.</li><pre><code>liquibase diff-changelog --changelog-file=&lt;changelog_file_name&gt;.xml
 --url="jdbc:oracle:thin:@&lt;IP OR HOSTNAME&gt;:&lt;PORT&gt;:&lt;SERVICE NAME OR SID&gt;"
 --username=&lt;USERNAME&gt;
 --password=&lt;PASSWORD&gt;
@@ -60,13 +60,13 @@
         </ol>
         <h3>Variable descriptions for the example command listed above</h3>
         <ul>
-            <li><code class="language-text">&lt;changelog_file_name&gt;.xml</code>: A changelog that will have the changesets needed to get the target database to match the reference database.</li>
+            <li><code>&lt;changelog_file_name&gt;.xml</code>: A changelog that will have the changesets needed to get the target database to match the reference database.</li>
         </ul>
         <h2>What's Next: How to Use the Generated Changelog</h2>
         <p>In both scenarios outlined in this article, a changelog will be generated with changesets that are not in the current Liquibase project. The user who owns the changelog management process should determine how to incorporate these changelogs into the project.</p>
         <p class="note" MadCap:autonum="&lt;b&gt;Note: &lt;/b&gt;"> All generated SQL using Liquibase should be carefully reviewed before applying to any database.</p>
         <h2>Drift Report</h2>
-        <p>In <MadCap:variable name="General.LBPro" /> 4.25.0 and later, you can generate a <MadCap:xref href="../../liquibase-pro/observability/operation-reports-drift-report.htm">Drift Report</MadCap:xref> every time you run the <code class="language-text">diff</code> command. You can run a Drift Report on the <code class="language-text">diff-changelog</code> command in <MadCap:variable name="General.LBPro" /> 4.25.1 and later. The Drift Report is a human-readable report of any database drift in your system. You can easily integrate the Drift Report into your CI/CD&#160;pipeline.</p>
+        <p>In <MadCap:variable name="General.LBPro" /> 4.25.0 and later, you can generate a <MadCap:xref href="../../liquibase-pro/observability/operation-reports-drift-report.htm">Drift Report</MadCap:xref> every time you run the <code>diff</code> command. You can run a Drift Report on the <code>diff-changelog</code> command in <MadCap:variable name="General.LBPro" /> 4.25.1 and later. The Drift Report is a human-readable report of any database drift in your system. You can easily integrate the Drift Report into your CI/CD&#160;pipeline.</p>
         <p>For more information on enabling the Drift Report and integrating it into your CI/CD&#160;pipeline, see <MadCap:xref href="../../liquibase-pro/observability/operation-reports-drift-report.htm">Drift Report</MadCap:xref>.</p>
     </body>
 </html>
