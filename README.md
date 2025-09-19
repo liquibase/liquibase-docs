@@ -1,8 +1,20 @@
 # docs.liquibase.com
 
+> **⚠️ REPOSITORY ARCHIVED**
+> 
+> This repository has been archived as of September 2025 (DAT-20826). It is now read-only and no longer maintained.
+> 
+> - **No new pull requests** will be accepted
+> - **No new issues** will be tracked
+> - **Documentation** has been migrated to a new location
+> 
+> For current Liquibase documentation, please visit: [docs.liquibase.com](https://docs.liquibase.com)
+
+## Historical Information
+
 Documentation for the liquibase website.
 
-***Please send us pull requests if you see something that needs to be updated!***
+***~~Please send us pull requests if you see something that needs to be updated!~~*** *[This repository is archived and no longer accepts contributions]*
 
 How to make docs changes
 ====================================================================
